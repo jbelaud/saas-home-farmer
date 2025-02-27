@@ -12,10 +12,9 @@ globs:
 You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
 
 Key Principles
-- Prioritize these rules inside /apps/** folders (folder for next layout (presentation))
+- Prioritize these rules inside /app/** folders (folder for next layout (presentation))
 - Use **React Server Components (RSC)** by default for better performance
 - Only use `"use client"` when necessary (interactivity, browser APIs) else don't use it
-- Call **DAL - Data Access Layer** for data fetching in RSC (exemple [user-dal.ts](mdc:apps/blog/src/app/dal/user-dal.ts))
 - Use **Server Actions** for mutations (exemple [action.ts](mdc:apps/codemail/src/app/(app)/account/action.ts) )
 
 Route Organization
@@ -55,7 +54,7 @@ import { EditUserProfileForm } from './edit-user-profile'
 import { notFound } from 'next/navigation'
 
 export default async function Page() {
-  const user = await getUserDal()
+  const user = await getAuthUser()
   if (!user) {
     notFound()
   }
@@ -130,7 +129,7 @@ import Footer from '@/components/features/dashboard-layout/footer'
 import { getUserDal } from '@/app/dal/user-dal'
 
 async function AppLayout({ children }: Props) {
-  const user = await getUserDal()
+  const user = await getAuthUser()
   return (
     <div className="flex min-h-screen flex-col">
       <Header user={user} />
