@@ -25,6 +25,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import {User} from '@/services/types/domain/user-types'
+import {APP_NAME} from '@/lib/constants'
 
 // This is sample data.
 const data = {
@@ -35,7 +37,7 @@ const data = {
   },
   teams: [
     {
-      name: 'Acme Inc',
+      name: APP_NAME,
       logo: GalleryVerticalEnd,
       plan: 'Enterprise',
     },
@@ -52,18 +54,18 @@ const data = {
   ],
   navMain: [
     {
-      title: 'Playground',
+      title: 'Account',
       url: '#',
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: 'History',
-          url: '#',
+          title: 'Profile',
+          url: '/account',
         },
         {
-          title: 'Starred',
-          url: '#',
+          title: 'Dashboard',
+          url: '/dashboard',
         },
         {
           title: 'Settings',
@@ -156,7 +158,10 @@ const data = {
   ],
 }
 
-export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {user?: User}) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -167,7 +172,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

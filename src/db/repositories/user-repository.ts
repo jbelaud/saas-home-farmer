@@ -65,3 +65,16 @@ export const getPublicUsersWithPaginationDao = async (pagination: {
     },
   }
 }
+
+export const updateUserSafeByUidDao = async (
+  user: UpdateUserModel,
+  uid: string
+) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {id, email, password, role, emailVerified, createdAt, ...rest} = user
+  rest.updatedAt = new Date()
+  await db
+    .update(users)
+    .set({...rest})
+    .where(eq(users.id, uid))
+}

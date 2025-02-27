@@ -1,4 +1,5 @@
 import {
+  boolean,
   integer,
   pgEnum,
   pgTable,
@@ -17,6 +18,7 @@ export const userVisibilityEnum = pgEnum('user_visibility', [
   'private',
 ])
 
+//uuid_generate_v4() : CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA public;
 export const users = pgTable('user', {
   id: uuid('id')
     .default(sql`uuid_generate_v4()`)
@@ -24,6 +26,8 @@ export const users = pgTable('user', {
   name: text('name').notNull(),
   email: text('email').notNull(),
   emailVerified: timestamp('emailVerified', {mode: 'date'}),
+  createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
+  updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
   image: text('image'),
   role: userRoleEnum('role').default('user').notNull(),
   password: text('password'),
@@ -69,6 +73,26 @@ export const verificationTokens = pgTable(
   },
   (vt) => ({
     compoundKey: primaryKey({columns: [vt.identifier, vt.token]}),
+  })
+)
+
+export const authenticators = pgTable(
+  'authenticator',
+  {
+    credentialID: text('credentialID').notNull().unique(),
+    userId: uuid('userId').references(() => users.id, {onDelete: 'cascade'}),
+
+    providerAccountId: text('providerAccountId').notNull(),
+    credentialPublicKey: text('credentialPublicKey').notNull(),
+    counter: integer('counter').notNull(),
+    credentialDeviceType: text('credentialDeviceType').notNull(),
+    credentialBackedUp: boolean('credentialBackedUp').notNull(),
+    transports: text('transports'),
+  },
+  (authenticator) => ({
+    compositePK: primaryKey({
+      columns: [authenticator.userId, authenticator.credentialID],
+    }),
   })
 )
 export const usersRelations = relations(users, ({one}) => ({

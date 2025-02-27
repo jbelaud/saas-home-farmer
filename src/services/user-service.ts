@@ -4,6 +4,7 @@ import {
   getUserByEmailDao,
   getUserByIdDao,
   updateUserByUidDao,
+  updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
 
 import {GrantedError} from './errors/granted-error'
@@ -17,6 +18,7 @@ import {
 } from './validation/user-validation'
 import {canReadUser, canUpdateUser} from './authorization/user-authorization'
 import {DATA_ROWS_PER_PAGE} from '@/lib/constants'
+import {AuthorizationError} from './errors/errors'
 
 export const createUser = async (userParams: CreateUser) => {
   const parsed = createUserServiceSchema.safeParse(userParams)
@@ -52,7 +54,9 @@ export const updateUser = async (userParams: UpdateUser) => {
     role: userBeforeUpdate.role,
     visibility: userBeforeUpdate.visibility,
     emailVerified: userBeforeUpdate.emailVerified,
-    password: userParamsSanitized.password ?? userBeforeUpdate.password,
+    createdAt: userBeforeUpdate.createdAt,
+    updatedAt: userBeforeUpdate.updatedAt,
+    password: userBeforeUpdate.password,
   }
   await updateUserByUidDao(updatedUserData, resourceUid)
   return userBeforeUpdate
@@ -93,4 +97,42 @@ export const getPublicUsersWithPagination = async (page: number) => {
     ...usersPagination,
     data: usersPagination.data,
   }
+}
+
+export const updateUserSafeService = async (
+  userId: string,
+  userParams: UpdateUser
+) => {
+  const resourceUid = userParams.id
+  const granted = await canUpdateUser(resourceUid)
+
+  if (userId !== resourceUid) {
+    throw new AuthorizationError()
+  }
+
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  const userBeforeUpdate = await getUserByIdDao(userParams.id)
+
+  if (!userBeforeUpdate) {
+    throw new Error('Utilisateur introuvable')
+  }
+
+  const parsed = updateUserServiceSchema.safeParse(userParams)
+  if (!parsed.success) {
+    throw new ParsedError(parsed.error.message)
+  }
+
+  const userParamsSanitized = parsed.data
+
+  // Compléter avec les champs manquants du userBeforeUpdate
+  const completeUserData = {
+    ...userBeforeUpdate, // Inclut emailVerified, createdAt, updatedAt, role
+    ...userParamsSanitized, // Écrase avec les nouvelles valeurs
+  }
+
+  await updateUserSafeByUidDao(completeUserData, resourceUid)
+  return userBeforeUpdate
 }

@@ -3,89 +3,45 @@ import Link from 'next/link'
 import {PropsWithChildren} from 'react'
 
 import {ModeToggle} from '@/components/theme-toggle'
+import {APP_DESCRIPTION} from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'App',
-  description: "Page d'app",
+  title: APP_DESCRIPTION,
+  description: 'Authentication',
 }
 
-export default function AppLayout({children}: PropsWithChildren) {
+export default function AuthLayout({children}: PropsWithChildren) {
   return (
-    <div className="flex h-screen flex-col">
-      <header className="border-b">
-        <div className="container px-4 sm:px-6 lg:px-8">
-          <nav className="flex h-14 items-center justify-between">
+    <div className="bg-muted/10 dark:bg-background flex min-h-screen flex-col">
+      {/* En-tête avec navigation */}
+      <header className="bg-background w-full border-b py-2">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link
-                className="flex items-center space-x-2 font-bold"
-                href="/sign-in"
-              >
-                <span>Connexion</span>
+              <Link className="text-sm font-medium" href="/privacy">
+                Privacy
               </Link>
-
-              <Link
-                className="flex items-center space-x-2 font-bold"
-                href="/sign-up"
-              >
-                <span>Inscription</span>
+              <Link className="text-sm font-medium" href="/terms">
+                Terms
               </Link>
-
-              <Link
-                className="flex items-center space-x-2 font-bold"
-                href="/dashboard"
-              >
-                <span>Dashboard</span>
+              <Link className="text-sm font-medium" href="/logout">
+                Logout
               </Link>
-
-              <Link
-                className="flex items-center space-x-2 font-bold"
-                href="/privacy"
-              >
-                <span>Privacy</span>
-              </Link>
-
-              <Link
-                className="flex items-center space-x-2 font-bold"
-                href="/terms"
-              >
-                <span>Terms</span>
-              </Link>
-
-              <Link
-                className="flex items-center space-x-2 font-bold"
-                href="/logout"
-              >
-                <span>Logout</span>
-              </Link>
-
-              <div className="hidden items-center space-x-2 md:flex"></div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Link
-                className="text-sm font-semibold underline sm:hidden"
-                href="/exercises"
-              >
-                Home
-              </Link>
-              <Link
-                className="text-sm font-semibold underline sm:hidden"
-                href="/instructions"
-              >
-                Instructions
-              </Link>
-
-              <ModeToggle />
-            </div>
+            <ModeToggle />
           </nav>
         </div>
       </header>
 
-      <main className="w-full flex-1">{children}</main>
-      <footer className="border-t">
-        <div className="container flex h-14 items-center justify-center px-4 text-center sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-4xl">
-            © {new Date().getFullYear()} Mike Codeur SaaS boilerplate.
-          </div>
+      {/* Contenu principal centré */}
+      <main className="bg-muted flex flex-1 items-center justify-center">
+        <div className="w-full max-w-md px-4 py-8">{children}</div>
+      </main>
+
+      {/* Pied de page simple */}
+      <footer className="bg-background text-muted-foreground border-t py-4 text-center text-sm">
+        <div className="container mx-auto">
+          © {new Date().getFullYear()} - {APP_DESCRIPTION}
         </div>
       </footer>
     </div>

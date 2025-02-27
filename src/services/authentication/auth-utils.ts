@@ -1,5 +1,5 @@
 import type {Session} from 'next-auth'
-
+import {cache} from 'react'
 import {User, UserRoles} from '../types/domain/user-types'
 import {getUserByIdDao} from '@/db/repositories/user-repository'
 import {auth} from '@/lib/auth'
@@ -19,14 +19,14 @@ export const isAuthAdmin = async () => {
   return authUser?.role === 'admin'
 }
 
-export const getAuthUser = async () => {
+export const getAuthUser = cache(async () => {
   const session = (await auth()) ?? undefined
   const uid = session?.user?.id ?? ''
   if (!uid) return
   const user = await getUserByIdDao(uid)
   if (!user) return
   return {session, user, role: user.role}
-}
+})
 
 export const roleHierarchy = ['public', 'user', 'admin']
 

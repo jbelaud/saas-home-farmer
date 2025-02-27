@@ -1,6 +1,6 @@
 'use server'
 
-import {signIn} from '@/lib/auth'
+import {signIn, signOut} from '@/lib/auth'
 import {createUser} from '@/services/user-service'
 import {AuthError} from 'next-auth'
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
@@ -23,9 +23,14 @@ export async function login(formData: FormData) {
     }
     console.log(' avant signIn', email)
     // Utilisation de l'API de signIn côté serveur
-    await signIn('credentials', {
+    // await signIn('credentials', {
+    //   email,
+    //   password,
+    //   redirect: false,
+    // })
+    await signIn('resend', {
       email,
-      password,
+      password, //not user with Resend
       redirect: false,
     })
     console.log(' après signIn')
@@ -87,18 +92,28 @@ export async function register(formData: FormData) {
         password,
       })
 
-      await signIn('credentials', {
+      // await signIn('credentials', {
+      //   email: user.email,
+      //   password: user.password,
+      //   redirect: false,
+      // })
+      await signIn('resend', {
         email: user.email,
-        password: user.password,
+        password: user.password, //not user with Resend
         redirect: false,
       })
 
       console.log('Utilisateur créé:', user)
 
       // Connecter l'utilisateur automatiquement
-      await signIn('credentials', {
+      // await signIn('credentials', {
+      //   email,
+      //   password,
+      //   redirect: false,
+      // })
+      await signIn('resend', {
         email,
-        password,
+        password, //not user with Resend
         redirect: false,
       })
 
@@ -130,4 +145,8 @@ export async function register(formData: FormData) {
       message: "Une erreur est survenue lors de l'inscription",
     }
   }
+}
+
+export async function logout() {
+  await signOut()
 }

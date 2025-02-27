@@ -1,6 +1,7 @@
 import {GalleryVerticalEnd} from 'lucide-react'
 import {RegisterForm} from './register-form'
 import React from 'react'
+import {APP_NAME} from '@/lib/constants'
 
 export default function RegisterPage() {
   return (
@@ -10,7 +11,7 @@ export default function RegisterPage() {
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          Acme Inc.
+          {APP_NAME}
         </a>
         <RegisterForm />
       </div>
