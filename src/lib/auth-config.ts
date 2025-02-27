@@ -1,6 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
 import type {NextAuthConfig} from 'next-auth'
-import {getUserByEmail} from '@/db'
+import {getUserByEmail} from '@/services/user-service'
 
 export const authConfig: NextAuthConfig = {
   session: {

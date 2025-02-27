@@ -180,37 +180,39 @@ export default function DashboardPage() {
                   className="min-h-[320px]"
                   config={revenueChartConfig}
                 >
-                  <LineChart
-                    accessibilityLayer
-                    data={revenueData}
-                    margin={{top: 20, right: 30, left: 20, bottom: 20}}
-                  >
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickLine={false} axisLine={false} />
-                    <YAxis
-                      tickFormatter={(value) => `${value.toLocaleString()} €`}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <ChartTooltip
-                      content={
-                        <ChartTooltipContent
-                          formatter={(value) => [
-                            `${value.toLocaleString()} €`,
-                            'Revenu',
-                          ]}
-                        />
-                      }
-                    />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    <Line
-                      type="monotone"
-                      dataKey="Revenu"
-                      strokeWidth={2}
-                      dot={{r: 4}}
-                      activeDot={{r: 6}}
-                    />
-                  </LineChart>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart
+                      accessibilityLayer
+                      data={revenueData}
+                      margin={{top: 20, right: 30, left: 20, bottom: 20}}
+                    >
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                      <XAxis dataKey="date" tickLine={false} axisLine={false} />
+                      <YAxis
+                        tickFormatter={(value) => `${value.toLocaleString()} €`}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+                      <ChartTooltip
+                        content={
+                          <ChartTooltipContent
+                            formatter={(value) => [
+                              `${value.toLocaleString()} €`,
+                              'Revenu',
+                            ]}
+                          />
+                        }
+                      />
+                      <ChartLegend content={<ChartLegendContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="Revenu"
+                        strokeWidth={2}
+                        dot={{r: 4}}
+                        activeDot={{r: 6}}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </ChartContainer>
               </CardContent>
             </Card>

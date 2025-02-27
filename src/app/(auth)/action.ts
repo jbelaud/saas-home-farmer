@@ -1,10 +1,10 @@
 'use server'
 
 import {signIn} from '@/lib/auth'
+import {createUser} from '@/services/user-service'
 import {AuthError} from 'next-auth'
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import {redirect} from 'next/navigation'
-import {createUser} from '@/db'
 
 /**
  * Action de login utilisant NextAuth
@@ -85,7 +85,6 @@ export async function register(formData: FormData) {
         name,
         email,
         password,
-        role: 'user',
       })
 
       await signIn('credentials', {
