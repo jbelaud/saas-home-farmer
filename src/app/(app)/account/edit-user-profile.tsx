@@ -28,6 +28,7 @@ import {updateUser} from './action'
 import {User} from '@/services/types/domain/user-types'
 import {toast} from 'sonner'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import {FileUpload} from '@/components/ui/file-upload'
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -93,6 +94,7 @@ export function EditUserProfileForm({user}: {user: User}) {
         <p className="text-muted-foreground text-sm">{user.name}</p>
       </div>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FileUpload />
         <FormField
           control={form.control}
           name="name"

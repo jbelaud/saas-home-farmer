@@ -13,7 +13,6 @@ const userTest = {
   name: 'Test User',
   email: 'test@example.com',
   emailVerified: new Date(),
-  // eslint-disable-next-line unicorn/no-null
   image: null,
   role: 'user',
   visibility: 'private',
@@ -60,7 +59,7 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
       id: differentUserId,
       visibility: 'public',
     } satisfies User
-    // eslint-disable-next-line unicorn/no-useless-undefined
+
     setupAuthUserMocked(undefined)
     vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userPublic)
 
@@ -71,7 +70,6 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
   it("[PUBLIC] devrait levé une erreur si l'utilisateur est `privé`", async () => {
     const userPrivate = userTest
 
-    // eslint-disable-next-line unicorn/no-useless-undefined
     setupAuthUserMocked(undefined)
     vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userPrivate)
 

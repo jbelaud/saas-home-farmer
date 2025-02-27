@@ -29,6 +29,8 @@ export const updateUserServiceSchema = createUserServiceSchema.extend({
   image: z.string().nullable(),
   visibility: z.enum(['public', 'private']) satisfies z.Schema<UserVisibility>,
   password: z.string().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 }) satisfies z.Schema<UpdateUser>
 
 export const userUuidSchema = z.string().uuid({

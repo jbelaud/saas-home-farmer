@@ -15,7 +15,7 @@ export async function login(formData: FormData) {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
-    if (!email || !password) {
+    if (!email) {
       return {
         success: false,
         message: 'Email et mot de passe requis',
@@ -35,7 +35,7 @@ export async function login(formData: FormData) {
     })
     console.log(' après signIn')
     // Si tout se passe bien, rediriger vers le tableau de bord
-    redirect('/dashboard')
+    redirect('/verify-request')
   } catch (error) {
     //https://github.com/nextauthjs/next-auth/discussions/9389#discussioncomment-8046451
     if (isRedirectError(error)) {
@@ -118,7 +118,7 @@ export async function register(formData: FormData) {
       })
 
       // Rediriger vers le tableau de bord
-      redirect('/dashboard')
+      redirect('/verify-request')
     } catch (error) {
       //https://github.com/nextauthjs/next-auth/discussions/9389#discussioncomment-8046451
       if (isRedirectError(error)) {

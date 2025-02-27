@@ -19,13 +19,20 @@ export function RegisterForm({
   ...props
 }: React.ComponentProps<'div'>) {
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   async function handleSubmit(formData: FormData) {
     setError(null)
-    const result = await register(formData)
+    setIsLoading(true)
 
-    if (result && !result.success) {
-      setError(result.message)
+    try {
+      const result = await register(formData)
+
+      if (result && !result.success) {
+        setError(result.message)
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -77,8 +84,8 @@ export function RegisterForm({
                   required
                 />
               </div>
-              <Button type="submit" className="w-full">
-                S&apos;inscrire
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Inscription en cours...' : "S'inscrire"}
               </Button>
               <div className="text-center text-sm">
                 Vous avez déjà un compte?{' '}
