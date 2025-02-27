@@ -1,0 +1,296 @@
+---
+description: services layer rules
+globs: packages/services/**
+---
+---
+description: services layer rules
+globs: 
+---
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
+
+Key Principles
+- The **service layer** handles business logic, authorization, and validation
+- Services communicate with persistence layer through DAOs
+
+File Organization
+- `/services/` main services files
+  - `authorization/` → Permission and access control
+  - `errors/` → Custom error types
+  - `__tests__/` → Service tests
+
+Service Implementation
+- Validate inputs with Zod
+- Check authorization before operations
+- Handle errors appropriately
+- Call DAOs for data operations
+
+Example Service:
+[user-service.ts](mdc:packages/services/src/user-service.ts) 
+```ts
+export const createUser = async (userParams: CreateUser) => {
+  const parsed = createUserServiceSchema.safeParse(userParams)
+  if (!parsed.success) {
+    throw new ParsedError(parsed.error.message)
+  }
+  const userParamsSanitized = parsed.data
+  const user = await createUserDao(userParamsSanitized)
+  return user
+}
+```
+
+Example Service:
+
+Validation with Zod
+- Define schemas for all inputs
+- Use TypeScript inference for type safety
+- Include validation messages
+
+Example Validation:
+```ts
+import { z } from 'zod'
+
+export const baseUserServiceSchema = z.object({
+  email: z.string().email({
+    message: "L'email n'est pas valide.",
+  }),
+})
+
+export const createUserServiceSchema = baseUserServiceSchema.extend({
+  name: z
+    .string()
+    .min(3, {
+      message: 'Le nom doit contenir au moins 3 caractères.',
+    })
+    .max(30, {
+      message: 'Le nom ne doit pas contenir plus de 30 caractères.',
+    }),
+})
+```
+
+authentication
+- Check auth via next-auth
+- check current connected user
+- Check Roles
+
+Exemple 
+[auth-service.ts](mdc:packages/services/src/authentication/auth-service.ts)
+
+Authorization
+- Check permissions before operations
+- Based on authentication service (getAuthUser)
+
+Example Authorization:
+
+```ts
+export const canReadUser = async (resourceUid: string) => {
+  const authUser = await getAuthUser()
+  if ((await isAuthAdmin()) || authUser?.user?.id === resourceUid) return true
+  return false
+}
+
+export const canUpdateUser = async (resourceUid: string) => {
+  const authUser = await getAuthUser()
+  if ((await isAuthAdmin()) || authUser?.user?.id === resourceUid) return true
+  return false
+}
+```
+
+Key points:
+- Always fetch resource to check ownership
+- Use permissionAcces with:
+  - authUser: authenticated user
+  - ResourceEnum: resource type
+  - GrantActionEnum: action (READ, CREATE, UPDATE, DELETE)
+  - resourceOwnerId: resource owner's ID
+- For lists, check each item individually
+- Return false if resource doesn't exist
+- Check permission?.granted for final decision
+
+Testing
+
+- Test authorization rules
+- Mock DAOs and external services
+- Test error cases
+- Verify input validation
+- import setupAuthUserMocked, userTest, userTestAdmin relatively like tthis
+```ts
+import {setupAuthUserMocked} from './helper-service-test'
+import {userTest, userTestAdmin} from './service-test-data'
+```
+
+Example Test:
+[categorie-service.test.ts](mdc:packages/services/src/__tests__/categorie-service.test.ts)
+```ts
+import {describe, it, expect, beforeEach, vi} from 'vitest'
+import {
+  createCategoryService,
+  deleteCategoryByIdService,
+  getCategoriesService,
+  getCategoryByIdService,
+  updateCategoryService,
+} from '../category-service'
+import {
+  createCategoryDao,
+  deleteCategoryByIdDao,
+  getCategoriesDao,
+  getCategoryByIdDao,
+  updateCategoryByIdDao,
+} from '@mikecodeur/persistence/repositories/categories-repository'
+import {Category} from '@mikecodeur/persistence/types/domain/category-types'
+import {setupAuthUserMocked} from './helper-service-test'
+import {userTest, userTestAdmin} from './service-test-data'
+import {faker} from '@faker-js/faker'
+import {AuthorizationError} from '../errors/errors'
+import {getAuthUser} from '../authentication/auth-service'
+import {canCreateCategory} from '../authorization/category-authorization'
+
+//@todo mock a deplacer setup-mocks.ts
+
+describe('[ADMIN] CRUD : CategoryService', () => {
+  const categoryId = faker.string.uuid()
+  const categoryData: Category = {
+    id: categoryId,
+    name: 'Category 1',
+    description: 'Description',
+    icon: '',
+    image: '',
+    // eslint-disable-next-line unicorn/no-null
+    createdAt: null,
+    // eslint-disable-next-line unicorn/no-null
+    updatedAt: null,
+  }
+
+  beforeEach(() => {
+    const user = {
+      ...userTestAdmin,
+    }
+    setupAuthUserMocked(user)
+    vi.clearAllMocks()
+    vi.mocked(createCategoryDao).mockResolvedValue(categoryData)
+    vi.mocked(getCategoriesDao).mockResolvedValue([categoryData])
+    vi.mocked(getCategoryByIdDao).mockResolvedValue(categoryData)
+    vi.mocked(updateCategoryByIdDao).mockResolvedValue(categoryData)
+    vi.mocked(deleteCategoryByIdDao).mockResolvedValue()
+  })
+
+  it('should create a new category', async () => {
+    const result = await createCategoryService(categoryData)
+
+    expect(result).toEqual(categoryData)
+    expect(createCategoryDao).toHaveBeenCalledTimes(1)
+  })
+
+  it('should get a category by id', async () => {
+    const result = await getCategoryByIdService(categoryData.id)
+
+    expect(result).toEqual(categoryData)
+    expect(getCategoryByIdDao).toHaveBeenCalledWith(categoryData.id)
+  })
+
+  it('should update a category', async () => {
+    const categoryData = {
+      id: categoryId,
+      name: 'Updated Category',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      description: 'Description',
+      icon: 'icon',
+      image: 'image',
+    }
+    vi.mocked(updateCategoryByIdDao).mockResolvedValue(categoryData)
+    const result = await updateCategoryService(categoryData)
+
+    expect(result).toEqual(categoryData)
+    // expect(updateCategoryByIdDao).toHaveBeenCalledWith(1, {
+    //   name: 'Updated Category',
+    // })
+  })
+
+  it('should delete a category', async () => {
+    const result = await deleteCategoryByIdService(categoryId)
+
+    expect(result).toBeUndefined()
+    //expect(deleteCategoryByIdDao).toHaveBeenCalledWith(1)
+  })
+
+  it('should get all categories', async () => {
+    const result = await getCategoriesService()
+
+    expect(result).toEqual([categoryData])
+    expect(getCategoriesDao).toHaveBeenCalled()
+  })
+})
+
+describe('[USER] CRUD : CategoryService', () => {
+  const categoryId = faker.string.uuid()
+  const categoryData: Category = {
+    id: categoryId,
+    name: 'Category 1',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    description: 'Description',
+    icon: 'icon',
+    image: 'image',
+  }
+
+  beforeEach(() => {
+    const user = {
+      ...userTest,
+    }
+    setupAuthUserMocked(user)
+    vi.clearAllMocks()
+    vi.mocked(createCategoryDao).mockResolvedValue(categoryData)
+    vi.mocked(getCategoriesDao).mockResolvedValue([categoryData])
+    vi.mocked(getCategoryByIdDao).mockResolvedValue(categoryData)
+    vi.mocked(updateCategoryByIdDao).mockResolvedValue(categoryData)
+    vi.mocked(deleteCategoryByIdDao).mockResolvedValue()
+  })
+
+  it('should NOT create a new category', async () => {
+    await expect(createCategoryService(categoryData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(createCategoryDao).not.toHaveBeenCalled()
+  })
+
+  it('should get a category by id', async () => {
+    const result = await getCategoryByIdService(categoryData.id)
+
+    expect(result).toEqual(categoryData)
+    //expect(getCategoryByIdDao).toHaveBeenCalledWith(1)
+  })
+
+  it('should NOT update a category', async () => {
+    const categoryData = {id: categoryId, name: 'Updated Category'}
+    await expect(updateCategoryService(categoryData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(updateCategoryByIdDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT delete a category', async () => {
+    await expect(deleteCategoryByIdService(categoryId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(updateCategoryByIdDao).not.toHaveBeenCalled()
+    //expect(deleteCategoryByIdDao).toHaveBeenCalledWith(1)
+  })
+
+  it('should get all categories', async () => {
+    const result = await getCategoriesService()
+
+    expect(result).toEqual([categoryData])
+    expect(getCategoriesDao).toHaveBeenCalled()
+  })
+})
+
+```
+
+Best Practices
+- Always validate inputs
+- Check authorization before operations
+- Use proper error handling
+- Log important operations
+- Test all service methods
+- Use TypeScript for type safety
+- Keep services focused and modular

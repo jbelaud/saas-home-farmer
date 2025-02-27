@@ -1,7 +1,7 @@
 import {eq, sql} from 'drizzle-orm'
 
-import db from '../models/db'
-import {AddUserModel, UpdateUserModel, users} from '../models/user-model'
+import db from '@/db/models/db'
+import {AddUserModel, UpdateUserModel, users} from '@/db/models/user-model'
 
 // CRUD
 export const createUserDao = async (user: AddUserModel) => {

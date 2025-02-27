@@ -1,7 +1,7 @@
 import type {Session} from 'next-auth'
-import {cache} from 'react'
+
 import {User, UserRoles} from '../types/domain/user-types'
-import {getUserByIdDao} from '@/db/repositories/user-repository'
+import {getUserByEmailDao} from '@/db/repositories/user-repository'
 import {auth} from '@/lib/auth'
 export type AuthUser = {
   session?: Session
@@ -16,17 +16,17 @@ export const getSessionAuth = async () => {
 
 export const isAuthAdmin = async () => {
   const authUser = await getAuthUser()
+  console.log('isAuthAdmin authUser', authUser)
   return authUser?.role === 'admin'
 }
 
-export const getAuthUser = cache(async () => {
-  const session = (await auth()) ?? undefined
-  const uid = session?.user?.id ?? ''
-  if (!uid) return
-  const user = await getUserByIdDao(uid)
-  if (!user) return
-  return {session, user, role: user.role}
-})
+export const getAuthUser = async () => {
+  const session = await auth()
+  if (!session?.user?.email) return
+  const email = session?.user?.email ?? ''
+  const user = await getUserByEmailDao(email)
+  return user
+}
 
 export const roleHierarchy = ['public', 'user', 'admin']
 

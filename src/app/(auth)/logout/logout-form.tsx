@@ -13,8 +13,8 @@ import LogoutButton from './logout-button'
 import {APP_DESCRIPTION} from '@/lib/constants'
 
 export default async function Logout() {
-  const authUser = await getAuthUser()
-  if (!authUser) {
+  const user = await getAuthUser()
+  if (!user) {
     redirect('/login')
   }
 

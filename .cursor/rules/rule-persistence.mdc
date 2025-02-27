@@ -1,0 +1,213 @@
+---
+description: persistence
+globs: packages/persistence/**
+---
+---
+description: persistence
+globs: 
+---
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
+
+Key Principles
+- The **persistence layer** handles all database interactions using **Drizzle ORM**
+- Use **Repository pattern** with Data Access Objects (DAO)
+- Keep database schema and migrations in `/db/models`
+
+File Organization
+- `/db/src/models/` → Drizzle schema definitions
+- `/db/src/repositories/` → DAO implementations
+- `/db/src/types/` → Domain and database types
+
+Schema Definition
+- Define tables using Drizzle schema builder
+- Use enums for constrained values
+- Define proper relations between tables
+- allways import model relatives (import {users} from './user-model' instead of  @/models/user-model )
+
+Example Schema:
+[user-model.ts](mdc:packages/persistence/src/models/user-model.ts)
+```ts
+import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+
+// Define enums for type safety
+export const userRoleEnum = pgEnum('user_role', [
+  'GUEST',
+  'USER',
+  'MODERATOR',
+  'REDACTOR',
+  'ADMIN',
+  'SUPER_ADMIN',
+]);
+
+export const userVisibilityEnum = pgEnum('user_visibility', [
+  'public',
+  'private',
+]);
+
+// Define table schema
+export const users = pgTable('user', {
+  id: uuid('id')
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  emailVerified: timestamp('emailVerified', { mode: 'date' }),
+  role: userRoleEnum('role').default('USER').notNull(),
+  visibility: userVisibilityEnum('visibility').default('private').notNull(),
+  createdAt: timestamp('createdat', { mode: 'date' }).defaultNow(),
+  updatedAt: timestamp('updatedat', { mode: 'date' }).defaultNow(),
+});
+
+// Define relations
+export const usersRelations = relations(users, ({ one }) => ({
+  account: one(accounts, {
+    fields: [users.id],
+    references: [accounts.userId],
+  }),
+}));
+
+// Export types
+export type UserModel = typeof users.$inferSelect
+export type UserAddModel = typeof users.$inferInsert
+```
+
+Repository Pattern
+- Use Data Access Objects (DAO) for database operations
+- Handle pagination and filtering
+- Implement role-based queries
+- Use transactions when needed
+
+Example Repository:
+[user-repository.ts](mdc:packages/persistence/src/repositories/user-repository.ts)
+```ts
+import { eq, sql } from 'drizzle-orm'
+import { users } from '../models/user-model'
+import db from '../models/db'
+
+export const createUserDao = async (user: CreateUser) => {
+  const [row] = await db
+    .insert(users)
+    .values({ email: user.email, name: user.name })
+    .returning()
+  return row
+}
+
+export const getPublicUsersWithPaginationDao = async (pagination: {
+  limit: number
+  offset: number
+}) => {
+  const [rows, [{ count }]] = await Promise.all([
+    db
+      .select()
+      .from(users)
+      .where(eq(users.visibility, 'public'))
+      .limit(pagination.limit)
+      .offset(pagination.offset),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(eq(users.visibility, 'public')),
+  ])
+  
+  return {
+    data: rows.length === 0 ? [] : rows,
+    pagination: {
+      rowCount: count,
+      pageSize: pagination.limit,
+    },
+  }
+}
+```
+
+Database Configuration
+- Use environment variables for database connection
+- Configure connection pool settings
+- Disable database connections during tests
+
+Example Configuration:
+[db.ts](mdc:packages/persistence/src/models/db.ts)
+```ts
+import { Pool } from 'pg'
+import { drizzle } from 'drizzle-orm/node-postgres'
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 20,
+  idleTimeoutMillis: 30_000,
+  connectionTimeoutMillis: 10_000,
+})
+
+const db = drizzle(pool, {
+  schema: {
+    ...user,
+    ...post,
+    // ... other models
+  },
+})
+
+if (process.env.NODE_ENV === 'test') {
+  throw new Error('Database connections are not allowed during tests.')
+}
+```
+
+Types domains
+- Types domain is isolation types form drizzle types
+- 
+exemple 
+[post-types.ts](mdc:packages/persistence/src/types/domain/post-types.ts)
+
+```ts
+import {
+  PostModel,
+  AddPostModel,
+  DeletePostModel,
+  PostHashtagsModel,
+  HashtagsModel,
+  PostsTranslationModel,
+  AddPostsTranslationModel,
+} from '../../models/post-model'
+import {User} from './user-types'
+import {Category} from './category-types'
+
+//post
+export type Post = PostModel
+export type AddPost = AddPostModel
+export type DeletePost = DeletePostModel
+export type CreatePost = AddPost
+export type UpdatePost = {
+  id: string
+} & Partial<Omit<Post, 'id'>>
+
+//post translation
+export type PostsTranslation = PostsTranslationModel
+export type AddPostsTranslation = AddPostsTranslationModel
+
+export type PostsTranslationwithPost = PostsTranslationModel & {
+  post: PostDetail
+}
+export type PostWithTranslation = PostDetail & {
+  postTranslations: PostsTranslation[]
+}
+
+//category
+export type PostHashtag = PostHashtagsModel
+export type PostHashtagDetail = PostHashtag & {
+  hashtag: HashtagsModel
+}
+export type PostDetail = Post & {
+  category?: Category | null // Relation avec `categories`
+  author?: User | null // Relation avec `authors`
+  postHashtags?: PostHashtagDetail[] // Relation avec `postHashtags`
+}
+
+```
+
+Best Practices
+- Use TypeScript inference for type safety
+- Implement proper pagination for list queries
+- Handle database errors appropriately
+- Keep repositories focused on data access
+- Use role hierarchies for access control
+- Never expose database models directly
+- Test repositories with TestContainers

@@ -1,0 +1,52 @@
+---
+description: general-technical
+globs: 
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
+
+Key Principles
+- The project follows a **structure** with multiple layer.
+- Maintain a **clear separation of concerns** between different architectural layers.
+- **Minimize direct coupling** between layers by using defined interfaces and abstractions.
+- **Use TypeScript for strong typing** across all layers.
+
+Layering and Dependencies
+- **Presentation Layer (`src/app/<route>`):**
+  - Uses Next.js **App Router**.
+  - Prefers **React Server Components (RSC)** over Client Components.
+  - Calls **Server Actions** for mutations instead of API Routes.
+  - Avoids fetching data in Client Components—delegate to **RSC or DAL**.
+
+- **Service Layer (`/services/`):**
+  - Provides business logic abstraction for all applications.
+  - Calls **facades** to enforce authorization, validation, and logging before accessing persistence.
+  - Uses DTOs for structured data transfer.
+
+- **Persistence Layer (`/db/`):**
+  - Uses **Drizzle ORM** for database modeling.
+  - Contains repositories that interact with the database.
+  - Exposes **Data Access Layer (DAL)** functions to cache and format data before it reaches the service layer.
+
+Data Handling and API Rules
+- Avoid **fetching data directly in Client Components**—use Server Components instead.
+- Use **Server Actions** for handling mutations instead of API Routes.
+- Implement **caching and DTO transformations in the DAL** before sending data to the service layer.
+
+Performance Optimization
+- **Minimize `use client`**—only use it for Web API access, interactive UI components, or isolated stateful logic.
+- Avoid **`useEffect` for data fetching**—favor Server Components or Suspense.
+- Wrap **Client Components in Suspense** when necessary.
+- Use **dynamic imports** for non-critical UI components.
+- Optimize images using **WebP format and lazy loading**.
+
+Security and Best Practices
+- Enforce **authorization and validation at the service layer** before making any persistence calls.
+- Limit **direct database interactions** to repositories in `/db/`.
+- Use **environment variables (`process.env`)** for sensitive configurations.
+
+Follow Next.js and TypeScript best practices for maintainability, scalability, and performance.

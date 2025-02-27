@@ -15,10 +15,7 @@ const withAuth = <P extends object>(
 ) => {
   return async function WithAuth(props: P) {
     const authUser = await getAuthUser()
-    const hasRole = hasRequiredRole(
-      authUser?.user,
-      requiredRole ?? RoleEnum.USER
-    )
+    const hasRole = hasRequiredRole(authUser, requiredRole ?? RoleEnum.USER)
 
     if (!authUser) {
       redirect('/login')
@@ -27,7 +24,7 @@ const withAuth = <P extends object>(
       redirect('/restricted')
     }
 
-    return <WrappedComponent {...props} user={authUser.user} />
+    return <WrappedComponent {...props} user={authUser} />
   }
 }
 

@@ -6,7 +6,10 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     environment: 'jsdom',
-    setupFiles: ['./src/__tests__/setup-test.ts'],
+    setupFiles: [
+      './src/__tests__/setup-test.ts',
+      './src/services/__tests__/setup-mocks.ts',
+    ],
     include: ['**/*.test.{ts,tsx}'],
     alias: {
       '@/*': './src/*',

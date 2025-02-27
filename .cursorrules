@@ -10,7 +10,7 @@
   Adoption de composants UI modernes et accessibles basés sur Radix UI.
 - **TypeScript**  
   Typage strict pour un code robuste et maintenable.
-- **Tailwind CSS**  
+- **Tailwind CSS V4**  
   Styling rapide et efficace avec une approche utility-first.
 
 ---
@@ -66,8 +66,8 @@ src/
    - Passez simplement la `ref` comme prop :
    ```tsx
    const MyInput = (props) => {
-     return <input {...props} ref={props.ref} />;
-   };
+     return <input {...props} ref={props.ref} />
+   }
    ```
 3. - **Utilisation de LowDB**
 
@@ -88,8 +88,8 @@ src/
 - Exemple avec un composant Button :
 
 ```tsx
-import { Button } from "@/components/ui/button";
+import {Button} from '@/components/ui/button'
 export default function Page() {
-  return <Button>Créer une tâche</Button>;
+  return <Button>Créer une tâche</Button>
 }
 ```

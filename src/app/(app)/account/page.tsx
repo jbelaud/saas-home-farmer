@@ -3,9 +3,9 @@ import {EditUserProfileForm} from './edit-user-profile'
 import {notFound} from 'next/navigation'
 
 export default async function Page() {
-  const authUser = await getAuthUser()
+  const user = await getAuthUser()
 
-  if (!authUser) {
+  if (!user) {
     notFound()
   }
 
@@ -16,7 +16,7 @@ export default async function Page() {
       </div>
 
       <div>
-        <EditUserProfileForm user={authUser.user}></EditUserProfileForm>
+        <EditUserProfileForm user={user}></EditUserProfileForm>
       </div>
     </div>
   )

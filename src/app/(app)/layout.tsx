@@ -18,11 +18,11 @@ export const metadata: Metadata = {
 }
 
 async function AppLayout({children}: {children: React.ReactNode}) {
-  const authUser = await getAuthUser()
-  console.log('authUser', authUser)
+  const user = await getAuthUser()
+
   return (
     <SidebarProvider>
-      <AppSidebar user={authUser?.user} />
+      <AppSidebar user={user} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4">

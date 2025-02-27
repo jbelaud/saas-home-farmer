@@ -3,8 +3,8 @@ import {redirect} from 'next/navigation'
 import Logout from './logout-form'
 
 async function Page() {
-  const authUser = await getAuthUser()
-  if (!authUser) {
+  const user = await getAuthUser()
+  if (!user) {
     redirect('/login')
   }
   return (
