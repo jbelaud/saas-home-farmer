@@ -20,11 +20,40 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
-  generateCompletionStream,
-  getAvailableModels,
+  generateCompletionStream as generateOllamaStream,
+  getAvailableModels as getOllamaModels,
   type OllamaModel,
   type OllamaStreamChunk,
 } from '@/services/ollama-service'
+import {
+  generateCompletionStream as generateOpenAIStream,
+  getAvailableModels as getOpenAIModels,
+  type OpenAIModel,
+  type OpenAIStreamChunk,
+} from '@/services/openai-service'
+import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
+// Importer différents thèmes pour la coloration syntaxique depuis prism
+import {vscDarkPlus} from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import {dracula} from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import {atomDark} from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import {okaidia} from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import {nord} from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import {materialDark} from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import {nightOwl} from 'react-syntax-highlighter/dist/cjs/styles/prism'
+
+// Objets de thèmes disponibles
+const codeThemes = {
+  vscDarkPlus,
+  dracula,
+  atomDark,
+  okaidia,
+  nord,
+  materialDark,
+  nightOwl,
+}
+
+// Type pour les thèmes
+type CodeThemeName = keyof typeof codeThemes
 
 // Icône pour le bouton Stop
 const StopIcon = () => (
@@ -80,22 +109,100 @@ const PlusIcon = () => (
   </svg>
 )
 
+// Fonction pour formatter le texte avec la coloration syntaxique du code
+function formatMessage(content: string, theme: CodeThemeName) {
+  // Chercher les blocs de code délimités par ```
+  const codeBlockRegex = /```([\w-]+)?\n([\s\S]*?)```/g
+
+  // Si aucun bloc de code n'est trouvé, renvoyer le contenu tel quel
+  if (!content.match(codeBlockRegex)) {
+    return <div className="whitespace-pre-wrap">{content}</div>
+  }
+
+  // Transformer le contenu en éléments React avec du code coloré
+  const parts = []
+  let lastIndex = 0
+  let match
+
+  // eslint-disable-next-line no-cond-assign
+  while ((match = codeBlockRegex.exec(content)) !== null) {
+    // Ajouter le texte avant le bloc de code
+    if (match.index > lastIndex) {
+      parts.push(
+        <span key={`text-${lastIndex}`} className="whitespace-pre-wrap">
+          {content.substring(lastIndex, match.index)}
+        </span>
+      )
+    }
+
+    // Déterminer le langage ou utiliser 'text' par défaut
+    let language = match[1] || 'text'
+
+    // Normaliser les noms de langages pour la compatibilité avec Prism
+    if (language === 'js') language = 'javascript'
+    if (language === 'ts') language = 'typescript'
+    if (language === 'py') language = 'python'
+
+    const code = match[2].trim()
+
+    // Ajouter le bloc de code formaté
+    parts.push(
+      <div
+        key={`code-${match.index}`}
+        className="my-4 overflow-hidden rounded-md"
+      >
+        <div className="bg-gray-800 px-4 py-1 text-xs text-gray-400">
+          {language}
+        </div>
+        <SyntaxHighlighter
+          language={language}
+          style={codeThemes[theme]}
+          customStyle={{margin: 0, borderRadius: '0 0 0.375rem 0.375rem'}}
+          showLineNumbers={true}
+          wrapLines={true}
+        >
+          {code}
+        </SyntaxHighlighter>
+      </div>
+    )
+
+    lastIndex = match.index + match[0].length
+  }
+
+  // Ajouter le reste du texte après le dernier bloc de code
+  if (lastIndex < content.length) {
+    parts.push(
+      <span key={`text-${lastIndex}`} className="whitespace-pre-wrap">
+        {content.substring(lastIndex)}
+      </span>
+    )
+  }
+
+  return <div>{parts}</div>
+}
+
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
 }
 
+// Type d'API
+type ApiType = 'ollama' | 'openai'
+
 export default function ChatPage() {
   // États locaux
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [availableModels, setAvailableModels] = useState<OllamaModel[]>([])
+  const [ollamaModels, setOllamaModels] = useState<OllamaModel[]>([])
+  const [openAIModels, setOpenAIModels] = useState<OpenAIModel[]>([])
   const [selectedModel, setSelectedModel] = useState('llama3')
   const [isStreamingMode, setIsStreamingMode] = useState(true)
   const [isClient, setIsClient] = useState(false)
+  const [apiType, setApiType] = useState<ApiType>('ollama')
   const [context, setContext] = useState<number[] | undefined>()
+  const [codeTheme, setCodeTheme] = useState<CodeThemeName>('vscDarkPlus')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
@@ -110,10 +217,27 @@ export default function ChatPage() {
 
     async function fetchModels() {
       try {
-        const modelList = await getAvailableModels()
-        setAvailableModels(modelList.models)
-        if (modelList.models.length > 0) {
-          setSelectedModel(modelList.models[0].name)
+        // Récupérer les modèles Ollama
+        const ollamaModelList = await getOllamaModels()
+        setOllamaModels(ollamaModelList.models)
+
+        // Récupérer les modèles OpenAI
+        try {
+          const openAIModelList = await getOpenAIModels()
+          setOpenAIModels(openAIModelList.data)
+        } catch (error) {
+          console.error(
+            'Erreur lors de la récupération des modèles OpenAI:',
+            error
+          )
+          // Si pas de clé API OpenAI, ne pas planter
+        }
+
+        // Définir le modèle par défaut
+        if (apiType === 'ollama' && ollamaModelList.models.length > 0) {
+          setSelectedModel(ollamaModelList.models[0].name)
+        } else if (apiType === 'openai' && openAIModels.length > 0) {
+          setSelectedModel('gpt-3.5-turbo')
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des modèles:', error)
@@ -121,7 +245,7 @@ export default function ChatPage() {
     }
 
     fetchModels()
-  }, [isClient])
+  }, [isClient, apiType])
 
   // Nettoyer l'AbortController au démontage du composant
   useEffect(() => {
@@ -163,6 +287,22 @@ export default function ChatPage() {
     if (isLoading) return
     setMessages([])
     setContext(undefined)
+  }
+
+  // Fonction pour changer l'API
+  const handleApiChange = (newApi: ApiType) => {
+    if (isLoading) return
+    setApiType(newApi)
+    setMessages([])
+    setContext(undefined)
+    // Réinitialiser le modèle sélectionné
+    if (newApi === 'ollama' && ollamaModels.length > 0) {
+      setSelectedModel(ollamaModels[0].name)
+    } else if (newApi === 'openai' && openAIModels.length > 0) {
+      setSelectedModel('gpt-3.5-turbo')
+    } else if (newApi === 'openai') {
+      setSelectedModel('gpt-3.5-turbo')
+    }
   }
 
   // Générateur d'ID simple et sûr
@@ -209,44 +349,82 @@ export default function ChatPage() {
         abortControllerRef.current = new AbortController()
         const signal = abortControllerRef.current.signal
 
-        await generateCompletionStream(
-          {
-            model: selectedModel,
-            prompt: userPrompt,
-            context, // Utiliser le contexte de la conversation
-          },
-          (chunk: OllamaStreamChunk) => {
-            // Mettre à jour la réponse en cours avec le nouveau fragment
-            assistantResponse += chunk.response
+        if (apiType === 'ollama') {
+          await generateOllamaStream(
+            {
+              model: selectedModel,
+              prompt: userPrompt,
+              context, // Utiliser le contexte de la conversation
+            },
+            (chunk: OllamaStreamChunk) => {
+              // Mettre à jour la réponse en cours avec le nouveau fragment
+              assistantResponse += chunk.response
 
-            // Mettre à jour le message de l'assistant
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === assistantMessageId
-                  ? {...msg, content: assistantResponse}
-                  : msg
+              // Mettre à jour le message de l'assistant
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMessageId
+                    ? {...msg, content: assistantResponse}
+                    : msg
+                )
               )
-            )
-          },
-          (finalResponse) => {
-            // Traitement final quand tout est terminé
-            setIsLoading(false)
-            abortControllerRef.current = null
+            },
+            (finalResponse) => {
+              // Traitement final quand tout est terminé
+              setIsLoading(false)
+              abortControllerRef.current = null
 
-            // Enregistrer le contexte pour la prochaine requête
-            if (finalResponse.context) {
-              setContext(finalResponse.context)
-            }
-          },
-          (error) => {
-            console.error('Erreur de streaming:', error)
-            setIsLoading(false)
-            abortControllerRef.current = null
-          },
-          signal
-        )
+              // Enregistrer le contexte pour la prochaine requête
+              if (finalResponse.context) {
+                setContext(finalResponse.context)
+              }
+            },
+            (error) => {
+              console.error('Erreur de streaming Ollama:', error)
+              setIsLoading(false)
+              abortControllerRef.current = null
+            },
+            signal
+          )
+        } else {
+          // OpenAI
+          await generateOpenAIStream(
+            {
+              model: selectedModel,
+              prompt: userPrompt,
+              // Options supplémentaires pour OpenAI
+              temperature: 0.7,
+              max_tokens: 1000,
+            },
+            (chunk: OpenAIStreamChunk) => {
+              // Extraire le contenu du delta pour OpenAI
+              const content = chunk.choices[0]?.delta?.content || ''
+              assistantResponse += content
+
+              // Mettre à jour le message de l'assistant
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMessageId
+                    ? {...msg, content: assistantResponse}
+                    : msg
+                )
+              )
+            },
+            (finalResponse) => {
+              // Traitement final quand tout est terminé
+              setIsLoading(false)
+              abortControllerRef.current = null
+            },
+            (error) => {
+              console.error('Erreur de streaming OpenAI:', error)
+              setIsLoading(false)
+              abortControllerRef.current = null
+            },
+            signal
+          )
+        }
       } catch (error) {
-        console.error('Erreur lors de la communication avec Ollama:', error)
+        console.error(`Erreur lors de la communication avec ${apiType}:`, error)
 
         // Mettre à jour le message d'erreur
         setMessages((prev) =>
@@ -254,8 +432,7 @@ export default function ChatPage() {
             msg.id === assistantMessageId
               ? {
                   ...msg,
-                  content:
-                    "Désolé, une erreur s'est produite lors de la communication avec le serveur Ollama.",
+                  content: `Désolé, une erreur s'est produite lors de la communication avec le serveur ${apiType}.`,
                 }
               : msg
           )
@@ -265,45 +442,82 @@ export default function ChatPage() {
         abortControllerRef.current = null
       }
     } else {
-      // Version non-streaming (originale)
+      // Version non-streaming
       try {
-        const response = await fetch('http://localhost:11434/api/generate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: selectedModel,
-            prompt: userPrompt,
-            stream: false,
-            context, // Utiliser le contexte
-          }),
-        })
+        if (apiType === 'ollama') {
+          const response = await fetch('http://localhost:11434/api/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: selectedModel,
+              prompt: userPrompt,
+              stream: false,
+              context, // Utiliser le contexte
+            }),
+          })
 
-        const data = await response.json()
+          const data = await response.json()
 
-        // Ajouter le message de l'assistant
-        const assistantMessage: Message = {
-          id: generateId(),
-          role: 'assistant',
-          content: data.response || "Désolé, je n'ai pas pu générer de réponse",
-        }
+          // Ajouter le message de l'assistant
+          const assistantMessage: Message = {
+            id: generateId(),
+            role: 'assistant',
+            content:
+              data.response || "Désolé, je n'ai pas pu générer de réponse",
+          }
 
-        setMessages((prev) => [...prev, assistantMessage])
+          setMessages((prev) => [...prev, assistantMessage])
 
-        // Enregistrer le contexte pour la prochaine requête
-        if (data.context) {
-          setContext(data.context)
+          // Enregistrer le contexte pour la prochaine requête
+          if (data.context) {
+            setContext(data.context)
+          }
+        } else {
+          // OpenAI - version non-streaming
+          const response = await fetch(
+            'https://api.openai.com/v1/chat/completions',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+              },
+              body: JSON.stringify({
+                model: selectedModel,
+                messages: [
+                  {
+                    role: 'user',
+                    content: userPrompt,
+                  },
+                ],
+                temperature: 0.7,
+              }),
+            }
+          )
+
+          const data = await response.json()
+
+          // Ajouter le message de l'assistant
+          const assistantMessage: Message = {
+            id: generateId(),
+            role: 'assistant',
+            content:
+              data.choices[0]?.message?.content ||
+              "Désolé, je n'ai pas pu générer de réponse",
+          }
+
+          setMessages((prev) => [...prev, assistantMessage])
         }
       } catch (error) {
-        console.error('Erreur lors de la communication avec Ollama:', error)
+        console.error(`Erreur lors de la communication avec ${apiType}:`, error)
 
         // Ajouter un message d'erreur
         const errorMessage: Message = {
           id: generateId(),
           role: 'assistant',
-          content:
-            "Désolé, une erreur s'est produite lors de la communication avec le serveur Ollama.",
+          content: `Désolé, une erreur s'est produite lors de la communication avec le serveur ${apiType}.`,
         }
 
         setMessages((prev) => [...prev, errorMessage])
@@ -323,8 +537,29 @@ export default function ChatPage() {
       <Card className="flex h-[80vh] flex-col">
         <CardHeader className="pb-4">
           <div className="flex flex-row items-center justify-between">
-            <CardTitle>Chat avec Ollama</CardTitle>
-            <div className="flex space-x-2">
+            <CardTitle>
+              Chat avec {apiType === 'ollama' ? 'Ollama' : 'OpenAI'}
+            </CardTitle>
+            <div className="flex flex-wrap gap-2 space-x-2">
+              <div className="flex space-x-2">
+                <Button
+                  variant={apiType === 'ollama' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleApiChange('ollama')}
+                  disabled={isLoading}
+                >
+                  Ollama
+                </Button>
+                <Button
+                  variant={apiType === 'openai' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleApiChange('openai')}
+                  disabled={isLoading}
+                >
+                  OpenAI
+                </Button>
+              </div>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -366,35 +601,74 @@ export default function ChatPage() {
                   <SelectValue placeholder="Sélectionner un modèle" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableModels.length === 0 ? (
-                    <SelectItem value="llama3">llama3</SelectItem>
-                  ) : (
-                    availableModels.map((model) => (
-                      <SelectItem key={model.name} value={model.name}>
-                        {model.name}
+                  {apiType === 'ollama' ? (
+                    ollamaModels.length === 0 ? (
+                      <SelectItem value="llama3">llama3</SelectItem>
+                    ) : (
+                      ollamaModels.map((model) => (
+                        <SelectItem key={model.name} value={model.name}>
+                          {model.name}
+                        </SelectItem>
+                      ))
+                    )
+                  ) : // OpenAI models
+                  openAIModels.length === 0 ? (
+                    <>
+                      <SelectItem value="gpt-3.5-turbo">
+                        GPT-3.5 Turbo
                       </SelectItem>
-                    ))
+                      <SelectItem value="gpt-4">GPT-4</SelectItem>
+                      <SelectItem value="gpt-4-turbo">GPT-4 Turbo</SelectItem>
+                    </>
+                  ) : (
+                    openAIModels
+                      .filter((model) => model.id.includes('gpt'))
+                      .map((model) => (
+                        <SelectItem key={model.id} value={model.id}>
+                          {model.id}
+                        </SelectItem>
+                      ))
                   )}
                 </SelectContent>
               </Select>
 
-              <Button
-                variant={isStreamingMode ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setIsStreamingMode(true)}
-                disabled={isLoading}
+              <Select
+                value={codeTheme}
+                onValueChange={(value: CodeThemeName) => setCodeTheme(value)}
               >
-                Streaming
-              </Button>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Thème de code" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vscDarkPlus">VS Code Dark+</SelectItem>
+                  <SelectItem value="dracula">Dracula</SelectItem>
+                  <SelectItem value="atomDark">Atom Dark</SelectItem>
+                  <SelectItem value="okaidia">Okaidia</SelectItem>
+                  <SelectItem value="nord">Nord</SelectItem>
+                  <SelectItem value="materialDark">Material Dark</SelectItem>
+                  <SelectItem value="nightOwl">Night Owl</SelectItem>
+                </SelectContent>
+              </Select>
 
-              <Button
-                variant={isStreamingMode ? 'outline' : 'default'}
-                size="sm"
-                onClick={() => setIsStreamingMode(false)}
-                disabled={isLoading}
-              >
-                Standard
-              </Button>
+              <div className="flex space-x-2">
+                <Button
+                  variant={isStreamingMode ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setIsStreamingMode(true)}
+                  disabled={isLoading}
+                >
+                  Streaming
+                </Button>
+
+                <Button
+                  variant={isStreamingMode ? 'outline' : 'default'}
+                  size="sm"
+                  onClick={() => setIsStreamingMode(false)}
+                  disabled={isLoading}
+                >
+                  Standard
+                </Button>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -420,7 +694,13 @@ export default function ChatPage() {
                     <span className="font-bold">
                       {message.role === 'user' ? 'Vous' : 'Assistant'}
                     </span>
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    {message.role === 'user' ? (
+                      <div className="whitespace-pre-wrap">
+                        {message.content}
+                      </div>
+                    ) : (
+                      formatMessage(message.content, codeTheme)
+                    )}
                   </div>
                 </div>
               ))
