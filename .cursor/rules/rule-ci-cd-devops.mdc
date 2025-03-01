@@ -1,6 +1,7 @@
 ---
 description: ci-cd-devops
 globs: apps/**
+alwaysApply: false
 ---
 You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
 
@@ -9,6 +10,7 @@ Key Principles
 - **Linting, formatting, and pre-commit hooks** must be enforced across all projects.
 - Follow a **test-driven development (TDD) approach** with unit, integration, and end-to-end (E2E) tests.
 - Deployments should be **automated and versioned** using GitHub Actions.
+- Use pnpm instead of npm
 
 ### Linting, Formatting, and Code Quality
 - Use **ESLint** for linting and **Prettier** for formatting.
