@@ -1,12 +1,11 @@
 ---
 description: general-technical
 globs: 
+alwaysApply: false
 ---
 
 # Your rule content
 
-- You can @ files here
-- You can use markdown but dont have to
 You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
 
 Key Principles

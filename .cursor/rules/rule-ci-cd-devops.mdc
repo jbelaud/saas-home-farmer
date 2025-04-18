@@ -1,13 +1,13 @@
 ---
-description: ci-cd-devops
-globs: apps/**
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
 
 Key Principles
 - The **CI/CD pipeline** ensures code quality, testing, and automated deployments.
-- **Linting, formatting, and pre-commit hooks** must be enforced across all projects.
+- **Linting, formatting, and pre-commit hooks** must be enforced across  project.
 - Follow a **test-driven development (TDD) approach** with unit, integration, and end-to-end (E2E) tests.
 - Deployments should be **automated and versioned** using GitHub Actions.
 - Use pnpm instead of npm
@@ -31,7 +31,7 @@ Example ESLint & Prettier Configuration:
 Example Husky Hook:
 ```sh
 #!/bin/sh
-npx lint-staged
+pnpm lint-staged
 ```
 
 ### Testing Strategy
@@ -50,9 +50,9 @@ Each package in the monorepo must include:
 Example Unit Test with Mocked DB:
 ```ts
 import { describe, it, expect, vi } from "vitest";
-import { db } from "@/lib/db";
+import { db } from "@/db/models/db";
 
-vi.mock("@/lib/db", () => ({
+vi.mock("@/db/models/db", () => ({
   db: {
     query: vi.fn()
   }
