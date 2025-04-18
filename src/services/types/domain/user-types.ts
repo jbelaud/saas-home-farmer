@@ -8,8 +8,10 @@ export type UserVisibility = User['visibility']
 export type CreateUser = Pick<User, 'email' | 'name' | 'password'>
 export type UpdateUser = Omit<User, 'role' | 'emailVerified' | 'password'>
 
-export enum RoleEnum {
-  PUBLIC = 'public',
-  USER = 'user',
-  ADMIN = 'admin',
+export type UserDTO = {
+  id: string
+  email: string
+  name?: string
+  role?: string
+  image?: string
 }

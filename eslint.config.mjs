@@ -55,6 +55,7 @@ const eslintConfig = [
       'unicorn/filename-case': 'off',
       'no-console': 'off',
       'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
       'promise/always-return': 'error',
       'promise/no-return-wrap': 'error',
       'promise/param-names': 'error',

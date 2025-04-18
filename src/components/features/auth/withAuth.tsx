@@ -2,7 +2,8 @@ import {
   getAuthUser,
   hasRequiredRole,
 } from '@/services/authentication/auth-utils'
-import {RoleEnum, User} from '@/services/types/domain/user-types'
+import {RoleEnum} from '@/services/types/domain/auth-types'
+import {User, UserRoles} from '@/services/types/domain/user-types'
 import {redirect} from 'next/navigation'
 import React from 'react'
 
@@ -15,7 +16,10 @@ const withAuth = <P extends object>(
 ) => {
   return async function WithAuth(props: P) {
     const authUser = await getAuthUser()
-    const hasRole = hasRequiredRole(authUser, requiredRole ?? RoleEnum.USER)
+    const hasRole = hasRequiredRole(
+      authUser,
+      requiredRole ? (requiredRole as UserRoles) : 'user'
+    )
 
     if (!authUser) {
       redirect('/login')

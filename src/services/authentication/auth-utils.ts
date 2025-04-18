@@ -28,6 +28,12 @@ export const getAuthUser = async () => {
   return user
 }
 
+export const getAuthUserId = async () => {
+  const user = await getAuthUser()
+  if (!user) return
+  return user.id
+}
+
 export const roleHierarchy = ['public', 'user', 'admin']
 
 export function hasRequiredRole(
