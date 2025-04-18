@@ -10,6 +10,7 @@ Key Principles
 - **Linting, formatting, and pre-commit hooks** must be enforced across  project.
 - Follow a **test-driven development (TDD) approach** with unit, integration, and end-to-end (E2E) tests.
 - Deployments should be **automated and versioned** using GitHub Actions.
+- Update README.md when structure / Script change 
 - Use pnpm instead of npm
 
 ### Linting, Formatting, and Code Quality

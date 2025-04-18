@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useRef, useEffect} from 'react'
+import React, {useState, useRef, useEffect} from 'react'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {
@@ -124,7 +124,6 @@ function formatMessage(content: string, theme: CodeThemeName) {
   let lastIndex = 0
   let match
 
-  // eslint-disable-next-line no-cond-assign
   while ((match = codeBlockRegex.exec(content)) !== null) {
     // Ajouter le texte avant le bloc de code
     if (match.index > lastIndex) {
@@ -410,6 +409,7 @@ export default function ChatPage() {
                 )
               )
             },
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             (finalResponse) => {
               // Traitement final quand tout est terminé
               setIsLoading(false)
@@ -676,7 +676,7 @@ export default function ChatPage() {
           <div className="space-y-4 pb-4">
             {messages.length === 0 ? (
               <div className="py-10 text-center text-gray-500">
-                <p>Commencez à discuter avec l'IA...</p>
+                <p>Commencez à discuter avec l`&apos;IA...</p>
               </div>
             ) : (
               messages.map((message) => (

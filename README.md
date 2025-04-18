@@ -1,4 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js SaaS Boilerplate
+
+Un boilerplate moderne pour les applications SaaS utilisant Next.js 15, React 19, et ShadCN UI.
+
+## Technologies
+
+- **Next.js 15** avec App Router
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS v4**
+- **ShadCN UI** (basée sur Radix UI)
+- **Vitest** pour les tests
+- **Husky** & **lint-staged** pour le CI/CD local
+
+## Installation
+
+```bash
+# Installer les dépendances
+pnpm install
+
+# Démarrer le serveur de développement
+pnpm dev
+```
+
+## Scripts disponibles
+
+- `pnpm dev` - Démarre le serveur de développement
+- `pnpm build` - Construit l'application pour la production
+- `pnpm start` - Démarre l'application en mode production
+- `pnpm lint` - Vérifie le code avec ESLint
+- `pnpm format` - Vérifie le formatage avec Prettier
+- `pnpm format:fix` - Corrige les problèmes de formatage
+- `pnpm test` - Exécute les tests avec Vitest
+
+## CI/CD local
+
+Ce projet utilise Husky et lint-staged pour maintenir une qualité de code élevée :
+
+- **Husky** : Configure des hooks Git pour exécuter des scripts avant les commits
+- **lint-staged** : Exécute des linters sur les fichiers modifiés avant de les committer
+
+À chaque commit, les vérifications suivantes sont effectuées automatiquement :
+
+1. ESLint vérifie et corrige les problèmes de code dans les fichiers JS/TS
+2. Prettier formate correctement tous les fichiers modifiés
+3. Vitest exécute les tests liés aux fichiers modifiés
+
+## Structure du projet
+
+```
+src/
+ ┣ app/
+ ┃ ┣ dashboard/         # Espace utilisateur protégé après connexion
+ ┃ ┣ (auth)/            # Pages d'authentification (Login, Register)
+ ┃ ┣ api/               # API Routes pour les actions côté serveur
+ ┃ ┣ layout.tsx         # Layout global
+ ┃ ┗ page.tsx           # Page d'accueil
+ ┣ components/          # Composants réutilisables (ShadCN UI)
+ ┣ lib/                 # Fonctions utilitaires et helpers
+```
+
+## Licence
+
+MIT
 
 ## Getting Started
 

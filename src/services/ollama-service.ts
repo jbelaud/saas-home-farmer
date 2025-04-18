@@ -93,6 +93,7 @@ export async function generateCompletionStream(
   }
 
   let fullResponse = ''
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let finalContext: number[] | undefined
 
   try {
@@ -167,7 +168,7 @@ export async function generateCompletionStream(
 
           // Stocker le contexte final
           if (parsedChunk.context) {
-            finalContext = parsedChunk.context
+            //finalContext = parsedChunk.context
           }
 
           // Appeler le callback avec le fragment
