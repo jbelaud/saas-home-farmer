@@ -61,7 +61,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
 
 // webhook secret
 const endpointSecret = process.env.STRIPE_CODEMAIL_WEBHOOK_SECRET ?? ''
-const timestamp = Math.floor(Date.now() / 1000) // Current Unix timestamp
+//const timestamp = Math.floor(Date.now() / 1000) // Current Unix timestamp
 
 export async function POST(request: Request) {
   const body = await request.text()

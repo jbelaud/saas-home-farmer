@@ -1,7 +1,6 @@
 'use server'
 
 import Stripe from 'stripe'
-import {headers} from 'next/headers'
 
 const stripeSecretKey =
   process.env.NODE_ENV === 'production'
@@ -14,8 +13,8 @@ const stripe = new Stripe(stripeSecretKey || '', {
 
 export async function createCheckoutSession(priceId: string) {
   try {
-    const headersList = await headers()
-    const origin = headersList.get('origin') || ''
+    // const headersList = await headers()
+    // const origin = headersList.get('origin') || ''
 
     // Récupérer le prix pour obtenir le montant
     const price = await stripe.prices.retrieve(priceId)

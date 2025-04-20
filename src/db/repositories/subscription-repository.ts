@@ -1,4 +1,4 @@
-import {eq, and, gte, lte, sql, desc} from 'drizzle-orm'
+import {eq, and, lte, sql, desc} from 'drizzle-orm'
 import {subscriptions} from '../models/subscription-model'
 import type {
   SubscriptionAddModel,
