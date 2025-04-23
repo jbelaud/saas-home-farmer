@@ -12,20 +12,19 @@ import {
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {login} from '../action'
-import {useState} from 'react'
+import {useActionState} from 'react'
+import {useFormStatus} from 'react-dom'
 import Link from 'next/link'
 
+// Type pour le résultat de l'action de login
+
 export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
-  const [error, setError] = useState<string | null>(null)
+  const [state, formAction] = useActionState(login, {
+    success: false,
+    message: '',
+  })
 
-  async function handleSubmit(formData: FormData) {
-    setError(null)
-    const result = await login(formData)
-
-    if (result && !result.success) {
-      setError(result.message)
-    }
-  }
+  const error = state && !state.success ? state.message : null
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -37,7 +36,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={handleSubmit}>
+          <form action={formAction}>
             {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
@@ -95,9 +94,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                     required
                   />
                 </div> */}
-                <Button type="submit" className="w-full">
-                  Se connecter
-                </Button>
+                <SubmitButton />
               </div>
               <div className="text-center text-sm">
                 Pas encore de compte?{' '}
@@ -115,5 +112,15 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
         <Link href="/privacy">Privacy Policy</Link>.
       </div>
     </div>
+  )
+}
+// Composant de bouton de soumission qui montre l'état de chargement
+function SubmitButton() {
+  const {pending} = useFormStatus()
+
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? 'Connexion en cours...' : 'Se connecter'}
+    </Button>
   )
 }

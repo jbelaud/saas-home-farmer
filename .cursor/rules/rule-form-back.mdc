@@ -1,0 +1,129 @@
+---
+description: presentation Layer
+globs: apps/**
+alwaysApply: false
+---
+---
+description: Form submission React
+globs: 
+---
+
+# Form generales rules 
+
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
+
+Key Principles
+- Prioritize these rules inside /app/** folders (folder for next layout (presentation))
+- Use **React Server Components (RSC)** by default for better performance
+- Only use `"use client"` when necessary (interactivity, browser APIs) else don't use it
+- Use **Server Actions** for mutations (exemple [action.ts](mdc:apps/codemail/src/app/(app)/account/action.ts) )
+- Use React Hook Form and Zod to validate data in client side 
+- submit data to server action (action.ts) by using useActionState et useFormstatus
+- Validate data in, server action and return state / error message
+
+Route Organization
+- A route or a group of routes can contain a shared actions.ts
+```
+app/
+  ├── (public)/ → Public routes
+  │   ├── page.tsx
+  │   └── layout.tsx
+  ├── (auth)/ → Authentication routes
+  │   ├── action.ts
+  │   ├── signin/
+  │   └── signup/
+  ├── (app)/ → Protected user routes
+  │   ├── account/
+  │   └── dashboard/
+  └── (admin)/ → Admin routes
+      └── users/
+```
+
+## Forms and Server Actions
+
+In Next.js 15 and React 19, the recommended approach for form handling uses Server Actions combined with the `useActionState` hook.
+
+### Basic Structure
+
+```tsx
+// action.ts
+'use server'
+
+export async function loginAction(prevState: FormState, formData: FormData) {
+  // Validation and data processing
+  return {
+    success: true/false,
+    message: 'Result message'
+  }
+}
+
+// form-component.tsx
+'use client'
+import { useActionState } from 'react'
+import { loginAction } from './action'
+
+export function MyForm() {
+  const [state, formAction] = useActionState(loginAction, {
+    success: false,
+    message: ''
+  })
+  
+  return (
+    <form action={formAction}>
+      {/* Form fields */}
+      <button type="submit">Submit</button>
+    </form>
+  )
+}
+```
+
+### Best Practices
+
+1. **Clearly defined types**:
+   ```tsx
+   type FormState = {
+     success: boolean;
+     message: string;
+   }
+   ```
+
+2. **Loading state management**:
+   ```tsx
+   function SubmitButton() {
+     const { pending } = useFormStatus()
+     return (
+       <button disabled={pending}>
+         {pending ? 'Loading...' : 'Submit'}
+       </button>
+     )
+   }
+   ```
+
+
+4. **Server and client-side validation**:
+   - Always validate data on both client and server sides
+   - Return precise error messages
+
+5. **Prefer `useActionState` (React 19) over `useFormState` (deprecated)**
+
+6. **Add backend validation to check for existence of data in database for exemple**:
+- Do not import form persistence layer
+- import form DAL (data access layer / or service facade )
+   ```tsx
+   import getUserByEmail(email) from '/services/facades/user-servervice-facade'
+   // Check if email exists before authentication attempt
+   const user = await getUserByEmail(email)
+   if (!user) {
+     return {
+       success: false,
+       message: 'No account found with this email'
+     }
+   }
+   ```
+
+By following these practices, you'll benefit from an optimal user experience with robust state management for your forms.
+
+
+Data Access Flow:
+1. RSC → DAL → Service Facades → Services → Repositories → Models
+2. Client Components → Server Actions → Service Facades → Services → Repositories → Models

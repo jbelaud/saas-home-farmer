@@ -1,0 +1,97 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Form submission React
+globs: 
+---
+
+# Form generales rules 
+
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
+
+Key Principles
+- Prioritize these rules inside /app/** folders (folder for next layout (presentation))
+- Use **React Server Components (RSC)** by default for better performance
+- Only use `"use client"` when necessary (interactivity, browser APIs) else don't use it
+- Use **Server Actions** for mutations (exemple [action.ts](mdc:apps/codemail/src/app/(app)/account/action.ts) )
+- Use React Hook Form and Zod to validate data in client side 
+- submit data to server action (action.ts) by using useActionState et useFormstatus
+- Validate data client component with react hook form
+
+Route Organization
+- A route or a group of routes can contain a shared actions.ts
+```
+app/
+  ├── (public)/ → Public routes
+  │   ├── page.tsx
+  │   └── layout.tsx
+  ├── (auth)/ → Authentication routes
+  │   ├── action.ts
+  │   ├── signin/
+  │   └── signup/
+  ├── (app)/ → Protected user routes
+  │   ├── account/
+  │   └── dashboard/
+  └── (admin)/ → Admin routes
+      └── users/
+```
+
+## Forms and Server Actions
+
+In Next.js 15 and React 19, the recommended approach for form handling uses Server Actions combined with the `useActionState` hook.
+
+### Basic Structure
+[edit-user-profile.tsx](mdc:src/app/(app)/account/edit-user-profile.tsx)
+
+```typescript
+ const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+      image: user.image ?? undefined,
+      visibility: user.visibility,
+    },
+  })
+
+  async function onSubmit(data: FormValues) {
+    setIsSubmitting(true)
+    const formData = new FormData()
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value)
+      }
+    }
+
+    const result = await updateUser(user.id, formData)
+    setIsSubmitting(false)
+
+    if (result.success) {
+      toast('Success', {
+        description: result.message,
+        action: {
+          label: 'Undo',
+          onClick: () => console.log('Undo'),
+        },
+      })
+    } else {
+      toast('Error', {
+        description: result.message,
+        action: {
+          label: 'Undo',
+          onClick: () => console.log('Undo'),
+        },
+      })
+    }
+  }
+```
+
+
+Data Access Flow:
+1. RSC → DAL → Service Facades → Services → Repositories → Models
+2. Client Components → Server Actions → Service Facades → Services → Repositories → Models

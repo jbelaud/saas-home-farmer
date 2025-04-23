@@ -1,15 +1,19 @@
 'use server'
 
 import {signIn, signOut} from '@/lib/auth'
-import {createUser} from '@/services/user-service'
+import {createUser, getUserByEmail} from '@/services/user-service'
 import {AuthError} from 'next-auth'
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import {redirect} from 'next/navigation'
 
+type LoginResult = {
+  success: boolean
+  message: string
+} | null
 /**
  * Action de login utilisant NextAuth
  */
-export async function login(formData: FormData) {
+export async function login(prevState: LoginResult, formData: FormData) {
   console.log('login appelé')
   try {
     const email = formData.get('email') as string
@@ -21,6 +25,27 @@ export async function login(formData: FormData) {
         message: 'Email et mot de passe requis',
       }
     }
+
+    // Vérifier si l'utilisateur existe en base de données
+    try {
+      const user = await getUserByEmail(email)
+
+      if (!user) {
+        return {
+          success: false,
+          message: 'Aucun compte trouvé avec cet email',
+        }
+      }
+
+      console.log('Utilisateur trouvé:', user.email)
+    } catch (error) {
+      console.error("Erreur lors de la vérification de l'email:", error)
+      return {
+        success: false,
+        message: "Une erreur est survenue lors de la vérification de l'email",
+      }
+    }
+
     console.log(' avant signIn', email)
     // Utilisation de l'API de signIn côté serveur
     // await signIn('credentials', {
