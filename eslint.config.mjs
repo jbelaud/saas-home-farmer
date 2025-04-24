@@ -8,9 +8,7 @@ import jsonFormat from 'eslint-plugin-json-format'
 import unicorn from 'eslint-plugin-unicorn'
 import promise from 'eslint-plugin-promise'
 import drizzle from 'eslint-plugin-drizzle'
-import globals from 'globals'
-import tsParser from '@typescript-eslint/parser'
-import path from 'node:path'
+
 import js from '@eslint/js'
 import prettier from 'eslint-plugin-prettier'
 const __filename = fileURLToPath(import.meta.url)
@@ -34,7 +32,6 @@ const eslintConfig = [
   ),
   {
     plugins: {
-      prettier: prettier,
       '@typescript-eslint': typescriptEslint,
       react,
       github,
@@ -70,7 +67,7 @@ const eslintConfig = [
       'promise/avoid-new': 'off',
       'react/prop-types': 'off',
       'i18n-text/no-en': 'off',
-      'react/react-in-jsx-scope': 'off',
+
       'github/no-implicit-buggy-globals': 'off',
     },
   },
