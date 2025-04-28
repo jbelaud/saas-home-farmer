@@ -14,24 +14,6 @@ export default function AuthLayout({children}: PropsWithChildren) {
   return (
     <div className="bg-muted/10 dark:bg-background flex min-h-screen flex-col">
       {/* En-tête avec navigation */}
-      <header className="bg-background w-full border-b py-2">
-        <div className="container mx-auto px-4">
-          <nav className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link className="text-sm font-medium" href="/privacy">
-                Privacy
-              </Link>
-              <Link className="text-sm font-medium" href="/terms">
-                Terms
-              </Link>
-              <Link className="text-sm font-medium" href="/logout">
-                Logout
-              </Link>
-            </div>
-            <ModeToggle />
-          </nav>
-        </div>
-      </header>
 
       {/* Contenu principal centré */}
       <main className="bg-muted flex flex-1 items-center justify-center">
