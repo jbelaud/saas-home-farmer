@@ -1,6 +1,6 @@
 ---
 description: presentation Layer
-globs: apps/**
+globs: 
 alwaysApply: false
 ---
 ---

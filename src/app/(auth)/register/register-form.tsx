@@ -12,29 +12,18 @@ import {
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {register} from '../action'
-import {useState} from 'react'
+import {useActionState} from 'react'
+import {useFormStatus} from 'react-dom'
 
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-
-  async function handleSubmit(formData: FormData) {
-    setError(null)
-    setIsLoading(true)
-
-    try {
-      const result = await register(formData)
-
-      if (result && !result.success) {
-        setError(result.message)
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const [state, formAction] = useActionState(register, {
+    success: false,
+    message: '',
+  })
+  const error = state && !state.success ? state.message : null
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -46,7 +35,7 @@ export function RegisterForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={handleSubmit}>
+          <form action={formAction}>
             {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
             <div className="grid gap-6">
               <div className="grid gap-3">
@@ -84,9 +73,7 @@ export function RegisterForm({
                   required
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Inscription en cours...' : "S'inscrire"}
-              </Button>
+              <SubmitButton />
               <div className="text-center text-sm">
                 Vous avez déjà un compte?{' '}
                 <a href="/login" className="underline underline-offset-4">
@@ -103,5 +90,15 @@ export function RegisterForm({
         <a href="#">Politique de confidentialité</a>.
       </div>
     </div>
+  )
+}
+
+// Composant de bouton de soumission qui montre l'état de chargement
+function SubmitButton() {
+  const {pending} = useFormStatus()
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? 'Inscription en cours...' : "S'inscrire"}
+    </Button>
   )
 }

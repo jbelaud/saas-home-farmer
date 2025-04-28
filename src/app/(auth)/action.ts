@@ -86,7 +86,7 @@ export async function login(prevState: LoginResult, formData: FormData) {
 /**
  * Action d'inscription d'un nouvel utilisateur
  */
-export async function register(formData: FormData) {
+export async function register(prevState: LoginResult, formData: FormData) {
   console.log('register appelé')
   try {
     const name = formData.get('name') as string
@@ -111,42 +111,25 @@ export async function register(formData: FormData) {
 
     // Créer l'utilisateur dans la base de données
     try {
+      console.log("Création de l'utilisateur...")
       const user = await createUser({
         name,
         email,
         password,
       })
 
-      // await signIn('credentials', {
-      //   email: user.email,
-      //   password: user.password,
-      //   redirect: false,
-      // })
       await signIn('resend', {
         email: user.email,
-        password: user.password, //not user with Resend
+        password: user.password, //not used with Resend
         redirect: false,
       })
 
       console.log('Utilisateur créé:', user)
 
-      // Connecter l'utilisateur automatiquement
-      // await signIn('credentials', {
-      //   email,
-      //   password,
-      //   redirect: false,
-      // })
-      await signIn('resend', {
-        email,
-        password, //not user with Resend
-        redirect: false,
-      })
-
-      // Rediriger vers le tableau de bord
       redirect('/verify-request')
     } catch (error) {
-      //https://github.com/nextauthjs/next-auth/discussions/9389#discussioncomment-8046451
       if (isRedirectError(error)) {
+        console.log('Erreur de redirection:', error)
         throw error
       }
       return {
@@ -158,7 +141,6 @@ export async function register(formData: FormData) {
       }
     }
   } catch (error) {
-    // Gérer les erreurs de redirection
     if (isRedirectError(error)) {
       throw error
     }

@@ -8,7 +8,7 @@ import {
 } from '@/db/repositories/user-repository'
 
 import {GrantedError} from './errors/granted-error'
-import {ParsedError} from './errors/parsed-error'
+import {ParsedError, ParsedZodError} from './errors/parsed-error'
 import {CreateUser, UpdateUser} from './types/domain/user-types'
 import {
   baseUserServiceSchema,
@@ -23,7 +23,7 @@ import {AuthorizationError} from './errors/errors'
 export const createUser = async (userParams: CreateUser) => {
   const parsed = createUserServiceSchema.safeParse(userParams)
   if (!parsed.success) {
-    throw new ParsedError(parsed.error.message)
+    throw new ParsedZodError(parsed.error)
   }
   const userParamsSanitized = parsed.data
   const user = await createUserDao(userParamsSanitized)
