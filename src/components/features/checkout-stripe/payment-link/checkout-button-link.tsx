@@ -3,7 +3,7 @@
 import React, {useState} from 'react'
 import {Button} from '@/components/ui/button'
 import {createPaymentLink} from './actions'
-import {toast} from '@/hooks/use-toast'
+import {toast} from '@/components/hooks/use-toast'
 
 type CheckoutButtonProps = {
   priceId: string

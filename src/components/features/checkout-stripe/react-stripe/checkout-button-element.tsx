@@ -3,7 +3,7 @@
 import React, {useState, useEffect} from 'react'
 import {Button} from '@/components/ui/button'
 import {createCheckoutSession} from './actions'
-import {toast} from '@/hooks/use-toast'
+import {toast} from '@/components/hooks/use-toast'
 import {loadStripe, Stripe} from '@stripe/stripe-js'
 import {
   Elements,

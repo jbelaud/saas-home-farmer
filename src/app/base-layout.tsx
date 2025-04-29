@@ -2,7 +2,7 @@ import React, {ReactNode} from 'react'
 
 import {ThemeProvider} from '@/components/theme-provider'
 import {GoogleAnalytics} from '@next/third-parties/google'
-import NextAuthProvider from '@/context/auth-provider'
+import NextAuthProvider from '@/components/context/auth-provider'
 import {Toaster} from 'sonner'
 
 type Props = {
