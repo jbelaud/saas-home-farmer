@@ -13,6 +13,11 @@ export const authConfig: NextAuthConfig = {
     verifyRequest: '/verify-request',
     error: '/error',
   },
+  callbacks: {
+    async redirect({url, baseUrl}) {
+      return `${baseUrl}/dashboard`
+    },
+  },
 
   providers: [
     Resend({
