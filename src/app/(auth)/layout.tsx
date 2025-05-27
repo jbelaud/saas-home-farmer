@@ -21,11 +21,6 @@ export default function AuthLayout({children}: PropsWithChildren) {
       </main>
 
       {/* Pied de page simple */}
-      <footer className="bg-background text-muted-foreground border-t py-4 text-center text-sm">
-        <div className="container mx-auto">
-          © {new Date().getFullYear()} - {APP_DESCRIPTION}
-        </div>
-      </footer>
     </div>
   )
 }

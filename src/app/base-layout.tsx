@@ -22,7 +22,6 @@ export default async function BaseLayout({children}: Props) {
           disableTransitionOnChange
         >
           <NextAuthProvider>{children}</NextAuthProvider>
-
           <Toaster />
         </ThemeProvider>
       </body>
