@@ -14,6 +14,7 @@ import {Label} from '@/components/ui/label'
 import {register} from '../action'
 import {useActionState} from 'react'
 import {useFormStatus} from 'react-dom'
+import Link from 'next/link'
 
 export function RegisterForm({
   className,
@@ -86,8 +87,8 @@ export function RegisterForm({
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
         En vous inscrivant, vous acceptez nos{' '}
-        <a href="#">Conditions d&apos;utilisation</a> et notre{' '}
-        <a href="#">Politique de confidentialité</a>.
+        <Link href="/terms">Conditions d&apos;utilisation</Link> et notre{' '}
+        <Link href="/privacy">Politique de confidentialité</Link>.
       </div>
     </div>
   )
