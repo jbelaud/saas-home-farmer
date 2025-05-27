@@ -2,7 +2,7 @@
 
 import {revalidatePath} from 'next/cache'
 import {UpdateUser} from '@/services/types/domain/user-types'
-import {updateUserSafeService} from '@/services/user-service'
+import {updateUserService} from '@/services/user-service'
 export async function updateUser(userId: string, formData: FormData) {
   const name = formData.get('name') as string
   const email = formData.get('email') as string
@@ -15,14 +15,13 @@ export async function updateUser(userId: string, formData: FormData) {
     email,
     image,
     visibility,
-    createdAt: new Date(),
-    updatedAt: new Date(),
   }
   try {
-    await updateUserSafeService(userId, user)
-    revalidatePath('/user')
+    await updateUserService(userId, user)
+    revalidatePath('/account')
     return {success: true, message: 'Profile updated successfully'}
-  } catch {
+  } catch (error) {
+    console.error(error)
     return {success: false, message: 'Failed to update profile'}
   }
 }

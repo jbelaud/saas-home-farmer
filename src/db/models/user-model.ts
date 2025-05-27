@@ -24,7 +24,7 @@ export const users = pgTable('user', {
     .default(sql`uuid_generate_v4()`)
     .primaryKey(),
   name: text('name').notNull(),
-  email: text('email').notNull(),
+  email: text('email').notNull().unique(),
   emailVerified: timestamp('emailVerified', {mode: 'date'}),
   createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
   updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
@@ -105,4 +105,4 @@ export const usersRelations = relations(users, ({one}) => ({
 
 export type UserModel = typeof users.$inferSelect
 export type AddUserModel = typeof users.$inferInsert
-export type UpdateUserModel = typeof users.$inferSelect
+export type UpdateUserModel = typeof users.$inferInsert

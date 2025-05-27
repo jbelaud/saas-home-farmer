@@ -1,13 +1,5 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1740647295074,
-      "tag": "0000_open_major_mapleleaf",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }

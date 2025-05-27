@@ -2,6 +2,16 @@
 
 Un boilerplate moderne pour les applications SaaS utilisant Next.js 15, React 19, et ShadCN UI.
 
+## Todo
+
+- Account
+- Supabase file or S3
+- Next-Intl
+- Organisation
+- homepage
+- Stripe
+- Cursor Rules
+
 ## Technologies
 
 - **Next.js 15** avec App Router
