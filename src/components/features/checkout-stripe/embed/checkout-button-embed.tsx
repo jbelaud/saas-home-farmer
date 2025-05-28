@@ -1,10 +1,11 @@
 'use client'
-import React, {useState, useEffect} from 'react'
-import {loadStripe, Stripe} from '@stripe/stripe-js'
 import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
 } from '@stripe/react-stripe-js'
+import {loadStripe, Stripe} from '@stripe/stripe-js'
+import React, {useEffect, useState} from 'react'
+
 import {createCheckoutSession} from './action'
 
 type CheckoutButtonProps = {

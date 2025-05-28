@@ -1,5 +1,7 @@
-import {getAuthUser} from '@/services/authentication/auth-utils'
 import {redirect} from 'next/navigation'
+
+import {getAuthUser} from '@/services/authentication/auth-utils'
+
 import Logout from './logout-form'
 
 async function Page() {

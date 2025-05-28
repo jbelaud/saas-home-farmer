@@ -1,5 +1,6 @@
-import {NotAutorized} from '@/components/not-autorized'
 import {Metadata} from 'next/types'
+
+import {NotAutorized} from '@/components/not-autorized'
 
 export const metadata: Metadata = {
   title: 'Restricted Area',

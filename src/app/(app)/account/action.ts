@@ -1,9 +1,10 @@
 'use server'
 
 import {revalidatePath} from 'next/cache'
-import {UpdateUser} from '@/services/types/domain/user-types'
+
 import {getAuthUser} from '@/services/authentication/auth-utils'
 import {updateUserService} from '@/services/facades/user-service-facade'
+import {UpdateUser} from '@/services/types/domain/user-types'
 
 export async function updateUser(userId: string, formData: FormData) {
   const user = await getAuthUser()

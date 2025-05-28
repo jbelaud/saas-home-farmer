@@ -1,16 +1,18 @@
 'use client'
 
-import React, {useState, useEffect} from 'react'
-import {Button} from '@/components/ui/button'
-import {createCheckoutSession} from './actions'
-import {toast} from '@/components/hooks/use-toast'
-import {loadStripe, Stripe} from '@stripe/stripe-js'
 import {
   Elements,
   PaymentElement,
-  useStripe,
   useElements,
+  useStripe,
 } from '@stripe/react-stripe-js'
+import {loadStripe, Stripe} from '@stripe/stripe-js'
+import React, {useEffect, useState} from 'react'
+
+import {toast} from '@/components/hooks/use-toast'
+import {Button} from '@/components/ui/button'
+
+import {createCheckoutSession} from './actions'
 
 type CheckoutButtonProps = {
   priceId: string

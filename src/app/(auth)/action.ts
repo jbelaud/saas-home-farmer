@@ -1,13 +1,14 @@
 'use server'
 
+import {isRedirectError} from 'next/dist/client/components/redirect-error'
+import {redirect} from 'next/navigation'
+import {AuthError} from 'next-auth'
+
 import {signIn, signOut} from '@/lib/auth'
 import {
   createUserService,
   getUserByEmailService,
 } from '@/services/facades/user-service-facade'
-import {AuthError} from 'next-auth'
-import {isRedirectError} from 'next/dist/client/components/redirect-error'
-import {redirect} from 'next/navigation'
 
 type LoginResult = {
   success: boolean

@@ -1,9 +1,11 @@
+import {DrizzleAdapter} from '@auth/drizzle-adapter'
 import type {NextAuthConfig} from 'next-auth'
 import Resend from 'next-auth/providers/resend'
-import {DrizzleAdapter} from '@auth/drizzle-adapter'
-import {EmailService} from '@/services/email-service'
-import MagicLinkMail from './emails/magic-link-email'
+
 import db from '@/db/models/db'
+import {EmailService} from '@/services/email-service'
+
+import MagicLinkMail from './emails/magic-link-email'
 
 export const authConfig: NextAuthConfig = {
   trustHost: true,

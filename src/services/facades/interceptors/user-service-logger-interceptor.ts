@@ -1,6 +1,7 @@
-import {AuthorizationError} from '@/services/errors/authorization-error'
-import * as usersServiceMethods from '../../user-service'
 import {logger} from '@/lib/logger'
+import {AuthorizationError} from '@/services/errors/authorization-error'
+
+import * as usersServiceMethods from '../../user-service'
 
 // Définition d'un type générique pour les méthodes de service
 type ServiceMethods = typeof usersServiceMethods

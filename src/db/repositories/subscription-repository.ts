@@ -1,10 +1,11 @@
-import {eq, and, lte, sql, desc} from 'drizzle-orm'
-import {subscriptions} from '../models/subscription-model'
+import {and, desc, eq, lte, sql} from 'drizzle-orm'
+
+import db from '../models/db'
 import type {
   SubscriptionAddModel,
   SubscriptionModel,
 } from '../models/subscription-model'
-import db from '../models/db'
+import {subscriptions} from '../models/subscription-model'
 
 export const createSubscriptionDao = async (
   subscription: SubscriptionAddModel

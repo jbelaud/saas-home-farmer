@@ -1,7 +1,9 @@
 import {GalleryVerticalEnd} from 'lucide-react'
-import {RegisterForm} from './register-form'
 import React from 'react'
+
 import {APP_NAME} from '@/lib/constants'
+
+import {RegisterForm} from './register-form'
 
 export default function RegisterPage() {
   return (

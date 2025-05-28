@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+import {sql} from 'drizzle-orm'
 import {drizzle} from 'drizzle-orm/node-postgres'
 import pg from 'pg'
-import {sql} from 'drizzle-orm'
+
 import initDotEnv from './env'
 
 initDotEnv()

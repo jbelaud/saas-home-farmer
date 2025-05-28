@@ -1,7 +1,7 @@
 'use server'
 
-import Stripe from 'stripe'
 import {headers} from 'next/headers'
+import Stripe from 'stripe'
 
 const stripeSecretKey =
   process.env.NODE_ENV === 'production'

@@ -1,7 +1,8 @@
-import {GrantActionEnum, ResourceEnum} from './rbac-config'
+import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
+
 import {getAuthUser} from '../authentication/auth-utils'
 import {permissionAcces} from './authorization-service'
-import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
+import {GrantActionEnum, ResourceEnum} from './rbac-config'
 
 export const canReadSubscription = async (resourceUid?: string) => {
   const authUser = await getAuthUser()

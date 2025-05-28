@@ -1,5 +1,6 @@
 import {type Session} from 'next-auth'
 import {vi} from 'vitest'
+
 import {getAuthUser, getSessionAuth} from '../authentication/auth-utils'
 import {User} from '../types/domain/user-types'
 

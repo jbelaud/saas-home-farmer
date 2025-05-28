@@ -1,8 +1,9 @@
 import type {Session} from 'next-auth'
 
-import {User, UserRoles} from '../types/domain/user-types'
 import {getUserByEmailDao} from '@/db/repositories/user-repository'
 import {auth} from '@/lib/auth'
+
+import {User, UserRoles} from '../types/domain/user-types'
 export type AuthUser = {
   session?: Session
   user?: User

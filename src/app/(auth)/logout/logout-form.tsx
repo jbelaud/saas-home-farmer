@@ -1,3 +1,7 @@
+import Link from 'next/link'
+import {redirect} from 'next/navigation'
+import React from 'react'
+
 import {
   Card,
   CardContent,
@@ -5,12 +9,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {getAuthUser} from '@/services/authentication/auth-utils'
-import Link from 'next/link'
-import {redirect} from 'next/navigation'
-import React from 'react'
-import LogoutButton from './logout-button'
 import {APP_DESCRIPTION} from '@/lib/constants'
+import {getAuthUser} from '@/services/authentication/auth-utils'
+
+import LogoutButton from './logout-button'
 
 export default async function Logout() {
   const user = await getAuthUser()

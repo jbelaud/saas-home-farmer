@@ -1,11 +1,12 @@
+import {redirect} from 'next/navigation'
+import React from 'react'
+
 import {
   getAuthUser,
   hasRequiredRole,
 } from '@/services/authentication/auth-utils'
 import {RoleEnum} from '@/services/types/domain/auth-types'
 import {User, UserRoles} from '@/services/types/domain/user-types'
-import {redirect} from 'next/navigation'
-import React from 'react'
 
 export type WithAuthProps = {
   user: User

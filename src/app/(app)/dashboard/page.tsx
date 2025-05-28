@@ -1,4 +1,5 @@
 import withAuth from '@/components/features/auth/withAuth'
+
 import DashboardPage from '../../../components/features/dashboard/dashboard'
 
 function Page() {

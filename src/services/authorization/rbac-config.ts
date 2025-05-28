@@ -1,4 +1,5 @@
 import {AccessControl} from 'accesscontrol'
+
 import {RoleEnum} from '../types/domain/auth-types'
 import {UserRoles} from '../types/domain/user-types'
 

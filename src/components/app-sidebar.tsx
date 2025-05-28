@@ -1,6 +1,5 @@
 'use client'
 
-import * as React from 'react'
 import {
   AudioWaveform,
   BookOpen,
@@ -13,6 +12,7 @@ import {
   Settings2,
   SquareTerminal,
 } from 'lucide-react'
+import * as React from 'react'
 
 import {NavMain} from '@/components/nav-main'
 import {NavProjects} from '@/components/nav-projects'
@@ -25,8 +25,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import {User} from '@/services/types/domain/user-types'
 import {APP_NAME} from '@/lib/constants'
+import {User} from '@/services/types/domain/user-types'
 
 // This is sample data.
 const data = {

@@ -1,3 +1,4 @@
+import {relations, sql} from 'drizzle-orm'
 import {
   boolean,
   integer,
@@ -8,8 +9,6 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core'
-import {relations, sql} from 'drizzle-orm'
-
 import type {AdapterAccount} from 'next-auth/adapters'
 
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin', 'public'])

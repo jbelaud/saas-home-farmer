@@ -1,9 +1,8 @@
+import type {User} from '@/services/types/domain/user-types'
+
 import {getAuthUser, hasRequiredRole} from '../authentication/auth-utils'
 import {RoleEnum} from '../types/domain/auth-types'
-
 import ac, {type Grant, type GrantActionEnum} from './rbac-config'
-
-import type {User} from '@/services/types/domain/user-types'
 
 type Ressource = Grant['resource']
 export const permissionAcces = (

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-import initDotEnv from './env'
+import {sql} from 'drizzle-orm'
 import {drizzle} from 'drizzle-orm/node-postgres'
 import {migrate} from 'drizzle-orm/node-postgres/migrator'
 import pg from 'pg'
-import {sql} from 'drizzle-orm'
+
+import initDotEnv from './env'
 initDotEnv()
 
 const runMigrate = async () => {

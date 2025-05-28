@@ -1,8 +1,10 @@
 'use client'
 
-import {Button} from '@/components/ui/button'
 import {useRouter} from 'next/navigation'
 import {useState} from 'react'
+
+import {Button} from '@/components/ui/button'
+
 import {logout} from '../action'
 
 export default function LogoutButton() {

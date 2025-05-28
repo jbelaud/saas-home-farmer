@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import pg from 'pg'
+
 import initDotEnv from './env'
 
 initDotEnv()

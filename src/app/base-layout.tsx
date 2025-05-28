@@ -1,9 +1,9 @@
-import React, {ReactNode} from 'react'
-
-import {ThemeProvider} from '@/components/theme-provider'
 import {GoogleAnalytics} from '@next/third-parties/google'
-import NextAuthProvider from '@/components/context/auth-provider'
+import React, {ReactNode} from 'react'
 import {Toaster} from 'sonner'
+
+import NextAuthProvider from '@/components/context/auth-provider'
+import {ThemeProvider} from '@/components/theme-provider'
 
 type Props = {
   children: ReactNode

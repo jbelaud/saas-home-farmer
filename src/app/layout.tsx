@@ -1,7 +1,10 @@
-import React from 'react'
-import type {Metadata} from 'next'
 import './globals.css'
+
+import type {Metadata} from 'next'
+import React from 'react'
+
 import {APP_DESCRIPTION} from '@/lib/constants'
+
 import BaseLayout from './base-layout'
 
 export const metadata: Metadata = {

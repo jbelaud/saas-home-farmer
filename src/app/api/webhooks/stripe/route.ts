@@ -1,3 +1,7 @@
+import {headers} from 'next/headers'
+import {NextResponse} from 'next/server'
+import Stripe from 'stripe'
+
 import {
   createSubscriptionFromStripeService,
   isPlanExistService,
@@ -6,9 +10,6 @@ import {
   StripeWebhooks,
   SubscriptionPlan,
 } from '@/services/types/domain/subscription-types'
-import {headers} from 'next/headers'
-import {NextResponse} from 'next/server'
-import Stripe from 'stripe'
 
 // simple simulation de paiement unique
 //stripe trigger checkout.session.completed

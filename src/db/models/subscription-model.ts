@@ -1,14 +1,15 @@
+import {relations, sql} from 'drizzle-orm'
 import {
+  integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
   timestamp,
-  uuid,
-  integer,
-  jsonb,
   uniqueIndex,
+  uuid,
 } from 'drizzle-orm/pg-core'
-import {relations, sql} from 'drizzle-orm'
+
 import {users} from './user-model'
 
 // Define enums for type safety

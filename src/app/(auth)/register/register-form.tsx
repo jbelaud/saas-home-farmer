@@ -1,6 +1,9 @@
 'use client'
+import Link from 'next/link'
 import React from 'react'
-import {cn} from '@/lib/utils'
+import {useActionState} from 'react'
+import {useFormStatus} from 'react-dom'
+
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -11,10 +14,9 @@ import {
 } from '@/components/ui/card'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
+import {cn} from '@/lib/utils'
+
 import {register} from '../action'
-import {useActionState} from 'react'
-import {useFormStatus} from 'react-dom'
-import Link from 'next/link'
 
 export function RegisterForm({
   className,

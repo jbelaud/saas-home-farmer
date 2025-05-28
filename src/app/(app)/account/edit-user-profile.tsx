@@ -1,11 +1,14 @@
 'use client'
 
+import {zodResolver} from '@hookform/resolvers/zod'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
-import {zodResolver} from '@hookform/resolvers/zod'
+import {toast} from 'sonner'
 import * as z from 'zod'
 
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Button} from '@/components/ui/button'
+import {FileUpload} from '@/components/ui/file-upload'
 import {
   Form,
   FormControl,
@@ -23,12 +26,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {User} from '@/services/types/domain/user-types'
 
 import {updateUser} from './action'
-import {User} from '@/services/types/domain/user-types'
-import {toast} from 'sonner'
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
-import {FileUpload} from '@/components/ui/file-upload'
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),

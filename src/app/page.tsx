@@ -1,6 +1,7 @@
-import {ModeToggle} from '@/components/theme-toggle'
 import Image from 'next/image'
 import Link from 'next/link'
+
+import {ModeToggle} from '@/components/theme-toggle'
 
 export default function Home() {
   return (

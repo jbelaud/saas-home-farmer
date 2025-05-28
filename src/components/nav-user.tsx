@@ -10,6 +10,8 @@ import {
   Sparkles,
   Sun,
 } from 'lucide-react'
+import Link from 'next/link'
+import {useTheme} from 'next-themes'
 
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {
@@ -28,8 +30,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import {User} from '@/services/types/domain/user-types'
-import {useTheme} from 'next-themes'
-import Link from 'next/link'
 
 export function NavUser({user}: {user?: User}) {
   const {isMobile} = useSidebar()

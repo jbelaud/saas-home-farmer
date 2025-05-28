@@ -1,9 +1,11 @@
 'use client'
 
 import React, {useState} from 'react'
-import {Button} from '@/components/ui/button'
-import {createPaymentLink} from './actions'
+
 import {toast} from '@/components/hooks/use-toast'
+import {Button} from '@/components/ui/button'
+
+import {createPaymentLink} from './actions'
 
 type CheckoutButtonProps = {
   priceId: string

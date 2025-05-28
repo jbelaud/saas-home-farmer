@@ -1,9 +1,10 @@
-import {describe, it, vi, expect, beforeEach} from 'vitest'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
+
 import * as userRepository from '@/db/repositories/user-repository'
 
-import {setupAuthUserMocked} from './helper-service-test'
-import {getUserByIdService} from '../user-service'
 import {User} from '../types/domain/user-types'
+import {getUserByIdService} from '../user-service'
+import {setupAuthUserMocked} from './helper-service-test'
 
 const currentAuthUserId = 'ae760f8e-4aa6-4d71-a4c8-344429b7ae21' //faker.string.uuid()
 const differentUserId = 'de760f8e-4aa6-4d71-a4c8-344429b7ae28' //faker.string.uuid()

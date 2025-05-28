@@ -1,4 +1,5 @@
 import {Metadata} from 'next'
+
 import {privacy} from './privacy'
 
 export const metadata: Metadata = {

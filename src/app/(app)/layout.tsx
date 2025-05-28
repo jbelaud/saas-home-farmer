@@ -1,15 +1,14 @@
-import React from 'react'
 import {Metadata} from 'next'
+import React from 'react'
 
 import {AppSidebar} from '@/components/app-sidebar'
+import withAuth from '@/components/features/auth/withAuth'
 import {Separator} from '@/components/ui/separator'
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-
-import withAuth from '@/components/features/auth/withAuth'
 import {getAuthUser} from '@/services/authentication/auth-utils'
 
 export const metadata: Metadata = {

@@ -1,4 +1,5 @@
 import {Metadata} from 'next'
+
 import {terms} from './terms'
 
 export const metadata: Metadata = {

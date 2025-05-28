@@ -1,7 +1,8 @@
 import {
-  SubscriptionModel,
   SubscriptionAddModel,
+  SubscriptionModel,
 } from '@/db/models/subscription-model'
+
 import {User} from './user-types'
 
 // Base types from models

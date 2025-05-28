@@ -1,22 +1,23 @@
 'use client'
-import React from 'react'
+import {motion} from 'framer-motion'
 import {Check} from 'lucide-react'
+// Import React
+import Link from 'next/link'
+import {useSession} from 'next-auth/react'
+import React from 'react'
+
+import {PriceRecap} from '@/components/features/checkout-stripe/actions'
 import {Button} from '@/components/ui/button'
-import {Switch} from '@/components/ui/switch'
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card'
-// Import React
-import Link from 'next/link'
-import {motion} from 'framer-motion'
 import {Label} from '@/components/ui/label'
-import {useSession} from 'next-auth/react'
-import {PriceRecap} from '@/components/features/checkout-stripe/actions'
+import {Switch} from '@/components/ui/switch'
 import {Subscription} from '@/services/types/domain/subscription-types'
 
 export default function PricingPlans({

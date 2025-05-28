@@ -6,7 +6,6 @@ import {
   Preview,
   Tailwind,
 } from '@react-email/components'
-
 import React, {Fragment} from 'react'
 
 type InternalEmailProps = {

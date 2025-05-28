@@ -5,6 +5,7 @@ import {
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
 
+import {canReadUser, canUpdateUser} from './authorization/user-authorization'
 import {AuthorizationError} from './errors/authorization-error'
 import {
   ValidationError,
@@ -17,7 +18,6 @@ import {
   updateUserServiceSchema,
   userUuidSchema,
 } from './validation/user-validation'
-import {canReadUser, canUpdateUser} from './authorization/user-authorization'
 
 export const createUserService = async (userParams: CreateUser) => {
   const parsed = createUserServiceSchema.safeParse(userParams)

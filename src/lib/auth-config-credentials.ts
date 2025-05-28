@@ -1,5 +1,6 @@
-import CredentialsProvider from 'next-auth/providers/credentials'
 import type {NextAuthConfig} from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
+
 import {getUserByEmailService} from '@/services/user-service'
 
 export const authConfig: NextAuthConfig = {
