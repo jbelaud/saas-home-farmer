@@ -41,7 +41,9 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
     setupAuthUserMocked(user)
     await expect(
       getUserByIdService(currentAuthUserId)
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`[GrantedError: Accès refusé]`)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AuthorizationError: Accès non autorisé.]`
+    )
   })
   it("[ADMIN] devrait appelé `getUserByIdDao` si l'utilisateur est un `admin`", async () => {
     const user = {
@@ -75,6 +77,8 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
 
     await expect(
       getUserByIdService(differentUserId)
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`[GrantedError: Accès refusé]`)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AuthorizationError: Accès non autorisé.]`
+    )
   })
 })

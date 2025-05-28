@@ -20,7 +20,7 @@ import {
 
 import {setupAuthUserMocked} from './helper-service-test'
 import {userTest, userTestAdmin} from './service-test-data'
-import {AuthorizationError} from '../errors/errors'
+import {AuthorizationError} from '../errors/authorization-error'
 import {faker} from '@faker-js/faker'
 import {expect, vi, describe, beforeEach, it} from 'vitest'
 import {Subscription} from '../types/domain/subscription-types'

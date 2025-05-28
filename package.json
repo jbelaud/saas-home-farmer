@@ -1,5 +1,6 @@
 {
-  "name": "next-free-fullstack",
+  "name": "next-saas-boilerplate",
+  "description": "Next.js SaaS Boilerplate by Mike Codeur",
   "version": "0.1.0",
   "private": true,
   "type": "module",
