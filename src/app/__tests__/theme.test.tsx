@@ -1,7 +1,8 @@
-import {describe, it, expect, beforeEach, vi, afterEach} from 'vitest'
-import {useTheme} from 'next-themes'
-import {WrapperContext} from '../utils'
 import {act, renderHook} from '@testing-library/react'
+import {useTheme} from 'next-themes'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+
+import {WrapperContext} from './utils'
 
 describe('Theme', () => {
   beforeEach(() => {

@@ -1,16 +1,16 @@
 import 'server-only'
 
-import {cache} from 'react'
 import {notFound} from 'next/navigation'
-
+import {cache} from 'react'
 import {z} from 'zod'
+
 import {getAuthUser, getAuthUserId} from '@/services/authentication/auth-utils'
-import {User, UserDTO} from '@/services/types/domain/user-types'
-import {getUserByIdService} from '@/services/facades/user-service-facade'
 import {
   getActiveSubscriptionsByUserEmailService,
   getSubscriptionByUserIdService,
 } from '@/services/facades/subscription-service-facade'
+import {getUserByIdService} from '@/services/facades/user-service-facade'
+import {User, UserDTO} from '@/services/types/domain/user-types'
 
 export const getConnectedUser = cache(async () => {
   const user = await getAuthUser()

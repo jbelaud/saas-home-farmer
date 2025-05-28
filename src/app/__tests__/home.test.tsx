@@ -1,5 +1,6 @@
-import {describe, expect, it} from 'vitest'
 import {screen} from '@testing-library/react'
+import {describe, expect, it} from 'vitest'
+
 import {render} from '@/__tests__/customRender'
 import Home from '@/app/page'
 

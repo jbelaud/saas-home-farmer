@@ -1,16 +1,16 @@
-import {dirname} from 'path'
-import {fileURLToPath} from 'url'
 import {FlatCompat} from '@eslint/eslintrc'
+import js from '@eslint/js'
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
-import react from 'eslint-plugin-react'
+import drizzle from 'eslint-plugin-drizzle'
 import github from 'eslint-plugin-github'
 import jsonFormat from 'eslint-plugin-json-format'
-import unicorn from 'eslint-plugin-unicorn'
-import promise from 'eslint-plugin-promise'
-import drizzle from 'eslint-plugin-drizzle'
-
-import js from '@eslint/js'
 import prettier from 'eslint-plugin-prettier'
+import promise from 'eslint-plugin-promise'
+import react from 'eslint-plugin-react'
+import simpleImportSort from 'eslint-plugin-simple-import-sort'
+import unicorn from 'eslint-plugin-unicorn'
+import {dirname} from 'path'
+import {fileURLToPath} from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -40,6 +40,7 @@ const eslintConfig = [
       promise,
       drizzle,
       prettier,
+      'simple-import-sort': simpleImportSort,
     },
     rules: {
       'prettier/prettier': 'error',
@@ -69,6 +70,8 @@ const eslintConfig = [
       'i18n-text/no-en': 'off',
 
       'github/no-implicit-buggy-globals': 'off',
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
     },
   },
   {
