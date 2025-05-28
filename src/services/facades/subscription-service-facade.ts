@@ -1,0 +1,15 @@
+import subscriptionServiceInterceptor from './interceptors/subscription-service-logger-interceptor'
+
+//POST SERVICE
+export const createSubscriptionFromStripeService =
+  subscriptionServiceInterceptor.createSubscriptionFromStripeService
+export const getSubscriptionByIdService =
+  subscriptionServiceInterceptor.getSubscriptionByIdService
+export const updateSubscriptionService =
+  subscriptionServiceInterceptor.updateSubscriptionService
+export const isPlanExistService =
+  subscriptionServiceInterceptor.isPlanExistService
+export const getActiveSubscriptionsByUserEmailService =
+  subscriptionServiceInterceptor.getActiveSubscriptionsByUserEmailService
+export const getSubscriptionByUserIdService =
+  subscriptionServiceInterceptor.getSubscriptionByUserIdService

@@ -6,9 +6,11 @@ import {notFound} from 'next/navigation'
 import {z} from 'zod'
 import {getAuthUser, getAuthUserId} from '@/services/authentication/auth-utils'
 import {User, UserDTO} from '@/services/types/domain/user-types'
-import {getUserById} from '@/services/user-service'
-import {getActiveSubscriptionsByUserEmailService} from '@/services/subscription-service'
-import {getSubscriptionByUserId} from '@/services/subscription-service'
+import {getUserByIdService} from '@/services/facades/user-service-facade'
+import {
+  getActiveSubscriptionsByUserEmailService,
+  getSubscriptionByUserIdService,
+} from '@/services/facades/subscription-service-facade'
 
 export const getConnectedUser = cache(async () => {
   const user = await getAuthUser()
@@ -25,7 +27,7 @@ export const getUserByIdDal = cache(async (userId: string) => {
   if (!validateFields.success) {
     throw new Error('Invalid User')
   }
-  const user = await getUserById(userId)
+  const user = await getUserByIdService(userId)
   if (!user) notFound()
   return user
 })
@@ -53,7 +55,7 @@ export function userDTO(user: User): UserDTO | undefined {
 }
 
 export const getSubscriptionDal = cache(async (userId: string) => {
-  const subscription = await getSubscriptionByUserId(userId)
+  const subscription = await getSubscriptionByUserIdService(userId)
   return subscription
 })
 

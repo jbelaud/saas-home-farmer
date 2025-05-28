@@ -6,7 +6,7 @@ import {
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-export const sendEmail = async (
+export const sendEmailService = async (
   payload: CreateEmailOptions,
   options?: CreateEmailRequestOptions
 ) => {
@@ -31,5 +31,5 @@ export const sendEmail = async (
 }
 
 export const EmailService = {
-  sendEmail,
+  sendEmail: sendEmailService,
 }

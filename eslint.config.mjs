@@ -71,6 +71,23 @@ const eslintConfig = [
       'github/no-implicit-buggy-globals': 'off',
     },
   },
+  {
+    files: ['src/app/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '@/db/models/*',
+            '@/db/repositories/*',
+            '@/services/*-service',
+            '@/services/interceptors/*-service-interceptor',
+            'drizzle-orm',
+          ],
+        },
+      ],
+    },
+  },
 ]
 
 export default eslintConfig

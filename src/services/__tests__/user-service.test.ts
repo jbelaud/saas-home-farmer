@@ -2,7 +2,7 @@ import {describe, it, vi, expect, beforeEach} from 'vitest'
 import * as userRepository from '@/db/repositories/user-repository'
 
 import {setupAuthUserMocked} from './helper-service-test'
-import {getUserById} from '../user-service'
+import {getUserByIdService} from '../user-service'
 import {User} from '../types/domain/user-types'
 
 const currentAuthUserId = 'ae760f8e-4aa6-4d71-a4c8-344429b7ae21' //faker.string.uuid()
@@ -29,7 +29,7 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
   })
   it("[USER] devrait appelé `getUserByIdDao` si l'utilisateur est celui qui est connecté", async () => {
     setupAuthUserMocked(userTest)
-    const result = await getUserById(userId)
+    const result = await getUserByIdService(userId)
     expect(result).toEqual(userTest)
     expect(userRepository.getUserByIdDao).toHaveBeenCalledTimes(2)
   })
@@ -40,7 +40,7 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
     }
     setupAuthUserMocked(user)
     await expect(
-      getUserById(currentAuthUserId)
+      getUserByIdService(currentAuthUserId)
     ).rejects.toThrowErrorMatchingInlineSnapshot(`[GrantedError: Accès refusé]`)
   })
   it("[ADMIN] devrait appelé `getUserByIdDao` si l'utilisateur est un `admin`", async () => {
@@ -49,7 +49,7 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
       role: 'admin',
     } satisfies User
     setupAuthUserMocked(user)
-    const result = await getUserById(differentUserId)
+    const result = await getUserByIdService(differentUserId)
     expect(result).toEqual(userTest)
     expect(userRepository.getUserByIdDao).toHaveBeenCalledTimes(2)
   })
@@ -63,7 +63,7 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
     setupAuthUserMocked(undefined)
     vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userPublic)
 
-    const result = await getUserById(differentUserId)
+    const result = await getUserByIdService(differentUserId)
     expect(result).toEqual(userPublic)
     expect(userRepository.getUserByIdDao).toHaveBeenCalledTimes(2)
   })
@@ -74,7 +74,7 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
     vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userPrivate)
 
     await expect(
-      getUserById(differentUserId)
+      getUserByIdService(differentUserId)
     ).rejects.toThrowErrorMatchingInlineSnapshot(`[GrantedError: Accès refusé]`)
   })
 })

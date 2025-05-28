@@ -1,14 +1,15 @@
 import {
   createUserDao,
-  getPublicUsersWithPaginationDao,
   getUserByEmailDao,
   getUserByIdDao,
-  updateUserByUidDao,
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
 
-import {GrantedError} from './errors/granted-error'
-import {ParsedError, ParsedZodError} from './errors/parsed-error'
+import {AuthorizationError} from './errors/authorization-error'
+import {
+  ValidationError,
+  ValidationParsedZodError,
+} from './errors/validation-error'
 import {CreateUser, UpdateUser} from './types/domain/user-types'
 import {
   baseUserServiceSchema,
@@ -17,45 +18,41 @@ import {
   userUuidSchema,
 } from './validation/user-validation'
 import {canReadUser, canUpdateUser} from './authorization/user-authorization'
-import {AuthorizationError} from './errors/errors'
 
-export const createUser = async (userParams: CreateUser) => {
+export const createUserService = async (userParams: CreateUser) => {
   const parsed = createUserServiceSchema.safeParse(userParams)
   if (!parsed.success) {
-    throw new ParsedZodError(parsed.error)
+    throw new ValidationParsedZodError(parsed.error)
   }
   const userParamsSanitized = parsed.data
   const user = await createUserDao(userParamsSanitized)
   return user
 }
 
-export const getUserById = async (id: string) => {
+export const getUserByIdService = async (id: string) => {
   const parsed = userUuidSchema.safeParse(id)
   if (!parsed.success) {
-    throw new ParsedError(parsed.error.message)
+    throw new ValidationError(parsed.error.message)
   }
   const parsedUuid = parsed.data
   const granted = await canReadUser(parsedUuid)
 
   if (!granted) {
-    throw new GrantedError()
+    throw new AuthorizationError()
   }
   return await getUserByIdDao(parsedUuid)
 }
 
-export const getUserByEmail = async (email: string) => {
+export const getUserByEmailService = async (email: string) => {
   const parsed = baseUserServiceSchema.safeParse({email})
   if (!parsed.success) {
-    throw new ParsedError(parsed.error.message)
+    throw new ValidationError(parsed.error.message)
   }
   const emailParamsSanitized = parsed.data.email
   return await getUserByEmailDao(emailParamsSanitized)
 }
 
-export const updateUserService = async (
-  userId: string,
-  userParams: UpdateUser
-) => {
+export const updateUserService = async (userParams: UpdateUser) => {
   const resourceUid = userParams.id
   const granted = await canUpdateUser(resourceUid)
 
@@ -65,7 +62,7 @@ export const updateUserService = async (
   userParams.updatedAt = new Date()
   const parsed = updateUserServiceSchema.safeParse(userParams)
   if (!parsed.success) {
-    throw new ParsedError(parsed.error.message)
+    throw new ValidationError(parsed.error.message)
   }
 
   const userParamsSanitized = parsed.data

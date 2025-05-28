@@ -49,7 +49,6 @@ export async function getSubscriptionRecapInfo(
     const price = await stripe.prices.retrieve(priceId, {
       expand: ['product'], // Inclure les détails du produit associé
     })
-    console.log('getSubscriptionRecapInfo price', price)
 
     // Extraire le produit depuis le prix
     const product = price.product as Stripe.Product
@@ -64,7 +63,7 @@ export async function getSubscriptionRecapInfo(
     if (couponCode) {
       try {
         const coupon = await stripe.coupons.retrieve(couponCode)
-        console.log('getSubscriptionRecapInfo coupon', price)
+
         if (coupon.valid) {
           if (coupon.amount_off) {
             // Réduction fixe en centimes

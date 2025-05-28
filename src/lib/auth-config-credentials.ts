@@ -1,6 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
 import type {NextAuthConfig} from 'next-auth'
-import {getUserByEmail} from '@/services/user-service'
+import {getUserByEmailService} from '@/services/user-service'
 
 export const authConfig: NextAuthConfig = {
   session: {
@@ -19,7 +19,7 @@ export const authConfig: NextAuthConfig = {
           return null
         }
 
-        const user = await getUserByEmail(credentials.email as string)
+        const user = await getUserByEmailService(credentials.email as string)
         console.log('authorize getUserByEmail', user)
 
         if (!user) {

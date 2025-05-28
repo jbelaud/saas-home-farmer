@@ -1,7 +1,7 @@
 import {
-  createSubscriptionFromStripe,
+  createSubscriptionFromStripeService,
   isPlanExistService,
-} from '@/services/subscription-service'
+} from '@/services/facades/subscription-service-facade'
 import {
   StripeWebhooks,
   SubscriptionPlan,
@@ -229,7 +229,12 @@ async function handleOneTimePayment(session: Stripe.Checkout.Session) {
       return
     }
     try {
-      await createSubscriptionFromStripe(customerEmail, plan, yearly, 'payment')
+      await createSubscriptionFromStripeService(
+        customerEmail,
+        plan,
+        yearly,
+        'payment'
+      )
       console.log('Subscription created successfully for:', customerEmail)
     } catch (error) {
       console.error('Error creating subscription:', error)
@@ -281,7 +286,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
       })
       return
     }
-    await createSubscriptionFromStripe(
+    await createSubscriptionFromStripeService(
       customerEmail,
       plan,
       yearly,

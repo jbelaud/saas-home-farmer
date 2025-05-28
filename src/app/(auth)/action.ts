@@ -1,7 +1,10 @@
 'use server'
 
 import {signIn, signOut} from '@/lib/auth'
-import {createUser, getUserByEmail} from '@/services/user-service'
+import {
+  createUserService,
+  getUserByEmailService,
+} from '@/services/facades/user-service-facade'
 import {AuthError} from 'next-auth'
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import {redirect} from 'next/navigation'
@@ -28,7 +31,7 @@ export async function login(prevState: LoginResult, formData: FormData) {
 
     // Vérifier si l'utilisateur existe en base de données
     try {
-      const user = await getUserByEmail(email)
+      const user = await getUserByEmailService(email)
 
       if (!user) {
         return {
@@ -112,7 +115,7 @@ export async function register(prevState: LoginResult, formData: FormData) {
     // Créer l'utilisateur dans la base de données
     try {
       console.log("Création de l'utilisateur...")
-      const user = await createUser({
+      const user = await createUserService({
         name,
         email,
         password,

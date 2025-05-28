@@ -1,12 +1,12 @@
 import {AuthorizationError} from '@/services/errors/authorization-error'
-import * as usersServiceMethods from '../../user-service'
+import * as subscriptionServiceMethods from '../../subscription-service'
 import {logger} from '@/lib/logger'
 
 // Définition d'un type générique pour les méthodes de service
-type ServiceMethods = typeof usersServiceMethods
+type ServiceMethods = typeof subscriptionServiceMethods
 
 // Créer un Proxy flexible pour intercepter toutes les fonctions
-const userServiceInterceptor = new Proxy(usersServiceMethods, {
+const userServiceInterceptor = new Proxy(subscriptionServiceMethods, {
   get(target: ServiceMethods, property: keyof ServiceMethods) {
     const originalMethod = target[property] as unknown
 

@@ -2,8 +2,8 @@
 
 import {revalidatePath} from 'next/cache'
 import {UpdateUser} from '@/services/types/domain/user-types'
-import {updateUserService} from '@/services/user-service'
 import {getAuthUser} from '@/services/authentication/auth-utils'
+import {updateUserService} from '@/services/facades/user-service-facade'
 
 export async function updateUser(userId: string, formData: FormData) {
   const user = await getAuthUser()
@@ -23,7 +23,7 @@ export async function updateUser(userId: string, formData: FormData) {
     visibility,
   }
   try {
-    await updateUserService(userId, userData)
+    await updateUserService(userData)
     revalidatePath('/account')
     return {success: true, message: 'Profile updated successfully'}
   } catch (error) {

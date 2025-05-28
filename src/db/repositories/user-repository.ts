@@ -1,7 +1,13 @@
 import {eq, sql} from 'drizzle-orm'
 
 import db from '@/db/models/db'
-import {AddUserModel, UpdateUserModel, users} from '@/db/models/user-model'
+import {
+  AddUserModel,
+  UpdateUserModel,
+  UserModel,
+  users,
+} from '@/db/models/user-model'
+import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 
 // CRUD
 export const createUserDao = async (user: AddUserModel) => {
@@ -19,14 +25,14 @@ export const getUserByIdDao = async (uid: string) => {
   return row
 }
 
-export const updateUserByUidDao = async (
-  user: UpdateUserModel,
-  uid: string
-) => {
+export const updateUserByUidDao = async (user: UpdateUserModel) => {
+  if (!user.id) {
+    throw new Error('User ID is required')
+  }
   await db
     .update(users)
     .set({...user})
-    .where(eq(users.id, uid))
+    .where(eq(users.id, user.id))
 }
 
 export const deleteUserByIdDao = async (uid: string) => {
@@ -41,10 +47,9 @@ export const getUserByEmailDao = async (email: string) => {
   return row
 }
 
-export const getPublicUsersWithPaginationDao = async (pagination: {
-  limit: number
-  offset: number
-}) => {
+export const getPublicUsersWithPaginationDao = async (
+  pagination: Pagination
+): Promise<PaginatedResponse<UserModel>> => {
   const [rows, [{count}]] = await Promise.all([
     db
       .select()
@@ -57,6 +62,7 @@ export const getPublicUsersWithPaginationDao = async (pagination: {
       .from(users)
       .where(eq(users.visibility, 'public')),
   ])
+
   return {
     data: rows.length === 0 ? [] : rows,
     pagination: {
@@ -73,7 +79,6 @@ export const updateUserSafeByUidDao = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {id, email, password, role, emailVerified, createdAt, ...rest} = user
   rest.updatedAt = new Date()
-  console.log('updateUserSafeByUidDao rest', rest)
   await db
     .update(users)
     .set({...rest})

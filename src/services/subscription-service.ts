@@ -1,3 +1,5 @@
+import {ValidationError} from './errors/validation-error'
+import {AuthorizationError} from './errors/authorization-error'
 import {
   createSubscriptionDao,
   getSubscriptionByIdDao,
@@ -8,11 +10,14 @@ import {
   getActiveSubscriptionsByUserIdDao,
 } from '@/db/repositories/subscription-repository'
 import {
+  getUserByEmailDao,
+  getUserByIdDao,
+} from '@/db/repositories/user-repository'
+import {
   createSubscriptionServiceSchema,
   updateSubscriptionServiceSchema,
 } from '@/services/validation/subscription-validation'
-import {ParsedError} from './errors/parsed-error'
-import {AuthorizationError} from './errors/errors'
+
 import {
   canReadSubscription,
   canUpdateSubscription,
@@ -23,22 +28,18 @@ import type {
   UpdateSubscription,
   SubscriptionType,
 } from '@/services/types/domain/subscription-types'
-import {
-  getUserByEmailDao,
-  getUserByIdDao,
-} from '@/db/repositories/user-repository'
 
-export const createSubscription = async (params: CreateSubscription) => {
+export const createSubscriptionService = async (params: CreateSubscription) => {
   const parsed = createSubscriptionServiceSchema.safeParse(params)
   if (!parsed.success) {
-    throw new ParsedError(parsed.error.message)
+    throw new ValidationError(parsed.error.message)
   }
 
   const subscription = await createSubscriptionDao(parsed.data)
   return subscription
 }
 
-export const getSubscriptionById = async (id: string) => {
+export const getSubscriptionByIdService = async (id: string) => {
   const canRead = await canReadSubscription(id)
   if (!canRead) {
     throw new AuthorizationError('Accès non autorisé')
@@ -52,10 +53,10 @@ export const getSubscriptionById = async (id: string) => {
   return subscription
 }
 
-export const updateSubscription = async (params: UpdateSubscription) => {
+export const updateSubscriptionService = async (params: UpdateSubscription) => {
   const parsed = updateSubscriptionServiceSchema.safeParse(params)
   if (!parsed.success) {
-    throw new ParsedError(parsed.error.message)
+    throw new ValidationError(parsed.error.message)
   }
 
   const canUpdate = await canUpdateSubscription(params.id)
@@ -86,7 +87,7 @@ export const isPlanExistService = async (
   }
 }
 
-export const createSubscriptionFromStripe = async (
+export const createSubscriptionFromStripeService = async (
   email: string,
   plan: SubscriptionPlan,
   yearly: boolean,
@@ -155,7 +156,7 @@ export const createSubscriptionFromStripe = async (
   return subscription
 }
 
-export const getSubscriptionByUserId = async (userId: string) => {
+export const getSubscriptionByUserIdService = async (userId: string) => {
   const user = await getUserByIdDao(userId)
   if (!user) {
     throw new Error('User not found')

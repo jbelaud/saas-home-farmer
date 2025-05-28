@@ -1,8 +1,8 @@
 import {
-  createSubscription,
-  getSubscriptionById,
-  updateSubscription,
-  createSubscriptionFromStripe,
+  createSubscriptionService,
+  getSubscriptionByIdService,
+  updateSubscriptionService,
+  createSubscriptionFromStripeService,
   getActiveSubscriptionsByUserIdService,
 } from '../subscription-service'
 import {
@@ -82,14 +82,14 @@ describe('[ADMIN] CRUD : Subscription Service', () => {
       currentPeriodStart: new Date(),
       currentPeriodEnd: new Date(),
     }
-    const result = await createSubscription(createData)
+    const result = await createSubscriptionService(createData)
 
     expect(result).toEqual(subscriptionData)
     expect(createSubscriptionDao).toHaveBeenCalledWith(createData)
   })
 
   it('should get a subscription by id', async () => {
-    const result = await getSubscriptionById(subscriptionId)
+    const result = await getSubscriptionByIdService(subscriptionId)
 
     expect(result).toEqual(subscriptionData)
     expect(getSubscriptionByIdDao).toHaveBeenCalledWith(subscriptionId)
@@ -102,7 +102,7 @@ describe('[ADMIN] CRUD : Subscription Service', () => {
       plan: 'CODEMAIL_LIFETIME' as const,
       status: 'active' as const,
     }
-    const result = await updateSubscription(updateData)
+    const result = await updateSubscriptionService(updateData)
 
     expect(result).toEqual(subscriptionData)
     expect(updateSubscriptionDao).toHaveBeenCalledWith(
@@ -158,14 +158,14 @@ describe('[USER] CRUD : Subscription Service', () => {
       currentPeriodStart: new Date(),
       currentPeriodEnd: new Date(),
     }
-    const result = await createSubscription(createData)
+    const result = await createSubscriptionService(createData)
 
     expect(result).toEqual(subscriptionData)
     expect(createSubscriptionDao).toHaveBeenCalledWith(createData)
   })
 
   it("should NOT read another user's subscription", async () => {
-    await expect(getSubscriptionById(subscriptionId)).rejects.toThrow(
+    await expect(getSubscriptionByIdService(subscriptionId)).rejects.toThrow(
       AuthorizationError
     )
     expect(getSubscriptionByIdDao).toHaveBeenCalledWith(subscriptionId)
@@ -177,7 +177,7 @@ describe('[USER] CRUD : Subscription Service', () => {
       userId: authUserId,
       plan: 'CODEMAIL_LIFETIME' as const,
     }
-    await expect(updateSubscription(updateData)).rejects.toThrow(
+    await expect(updateSubscriptionService(updateData)).rejects.toThrow(
       AuthorizationError
     )
     expect(updateSubscriptionDao).not.toHaveBeenCalled()
@@ -188,7 +188,7 @@ describe('[USER] CRUD : Subscription Service', () => {
       ...subscriptionData,
       userId: authUserId,
     })
-    const result = await getSubscriptionById(subscriptionId)
+    const result = await getSubscriptionByIdService(subscriptionId)
     expect(result).toEqual({...subscriptionData, userId: authUserId})
   })
 
@@ -202,7 +202,7 @@ describe('[USER] CRUD : Subscription Service', () => {
       userId: authUserId,
       plan: 'CODEMAIL_LIFETIME' as const,
     }
-    const result = await updateSubscription(updateData)
+    const result = await updateSubscriptionService(updateData)
     expect(result).toEqual(subscriptionData)
     expect(updateSubscriptionDao).toHaveBeenCalledWith(
       subscriptionId,
@@ -220,7 +220,7 @@ describe('[PUBLIC] CRUD : Subscription Service', () => {
   })
 
   it('should NOT access subscriptions', async () => {
-    await expect(getSubscriptionById(subscriptionId)).rejects.toThrow(
+    await expect(getSubscriptionByIdService(subscriptionId)).rejects.toThrow(
       AuthorizationError
     )
     expect(getSubscriptionByIdDao).not.toHaveBeenCalled()
@@ -265,7 +265,7 @@ describe('[STRIPE] Webhook Subscription Service', () => {
   })
 
   it('should create PRO subscription when productType is pro', async () => {
-    const result = await createSubscriptionFromStripe(
+    const result = await createSubscriptionFromStripeService(
       testEmail,
       'CODEMAIL_PRO',
       false
@@ -298,7 +298,7 @@ describe('[STRIPE] Webhook Subscription Service', () => {
   })
 
   it('should create ENTERPRISE subscription when productType is enterprise', async () => {
-    const result = await createSubscriptionFromStripe(
+    const result = await createSubscriptionFromStripeService(
       testEmail,
       'CODEMAIL_LIFETIME',
       true
@@ -334,7 +334,7 @@ describe('[STRIPE] Webhook Subscription Service', () => {
     vi.mocked(isActivePlanExistDao).mockResolvedValue(true)
 
     await expect(
-      createSubscriptionFromStripe(testEmail, 'CODEMAIL_PRO', false)
+      createSubscriptionFromStripeService(testEmail, 'CODEMAIL_PRO', false)
     ).rejects.toThrow('User already has an active CODEMAIL_PRO subscription')
 
     expect(createSubscriptionDao).not.toHaveBeenCalled()
@@ -344,7 +344,7 @@ describe('[STRIPE] Webhook Subscription Service', () => {
     vi.mocked(getUserByEmailDao).mockResolvedValue(undefined)
 
     await expect(
-      createSubscriptionFromStripe(testEmail, 'CODEMAIL_PRO', true)
+      createSubscriptionFromStripeService(testEmail, 'CODEMAIL_PRO', true)
     ).rejects.toThrow('User not found')
 
     expect(createSubscriptionDao).not.toHaveBeenCalled()

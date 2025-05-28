@@ -1,19 +1,18 @@
 import {ZodError} from 'zod'
 
 export const PARSED_ERROR_MESSAGE = 'Erreur de validation'
-export class ParsedError extends Error {
+
+export class ValidationError extends Error {
   constructor(message?: string) {
     super(message)
     this.name = 'ParsedError'
-    // this.message = PARSED_ERROR_MESSAGE
-
     if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, ParsedError)
+      Error.captureStackTrace(this, ValidationError)
     }
   }
 }
 
-export class ParsedZodError extends Error {
+export class ValidationParsedZodError extends Error {
   constructor(err?: ZodError) {
     const errorDetails = err?.errors
       .map(
@@ -25,7 +24,7 @@ export class ParsedZodError extends Error {
     this.message = errorDetails ?? PARSED_ERROR_MESSAGE
 
     if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, ParsedError)
+      Error.captureStackTrace(this, ValidationError)
     }
     return this
   }
