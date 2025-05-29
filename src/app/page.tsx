@@ -38,7 +38,7 @@ export default function Home() {
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <ButtonConnexionDashboard />
+          {/* <ButtonConnexionDashboard /> */}
           <ModeToggle />
         </div>
       </header>
@@ -115,9 +115,7 @@ export default function Home() {
               />
               <span className="text-lg font-bold">{APP_NAME}</span>
             </div>
-            <p className="text-muted-foreground mb-2 text-sm">
-              La plateforme SaaS moderne pour booster votre business.
-            </p>
+            <p className="text-muted-foreground mb-2 text-sm">By Mike Codeur</p>
             <p className="text-muted-foreground text-xs">
               © {new Date().getFullYear()} {APP_NAME}. Tous droits réservés.
             </p>

@@ -8,27 +8,21 @@ describe("Page d'accueil", () => {
   it("affiche le texte d'introduction", () => {
     render(<Home />)
 
-    // Vérifie le texte d'introduction
-    expect(screen.getByText(/Get started by editing/)).toBeInTheDocument()
     expect(
-      screen.getByText(/Save and see your changes instantly/)
+      screen.getByText(/La plateforme SaaS moderne pour booster votre business/)
     ).toBeInTheDocument()
+    expect(screen.getByText(/By Mike Codeur/)).toBeInTheDocument()
   })
 
-  it('affiche les liens de navigation', () => {
+  it('affiche les liens de navigation du CTA', () => {
     render(<Home />)
-
-    // Vérifie les liens de navigation
-    expect(screen.getByText('Login')).toBeInTheDocument()
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(screen.getByText(/Essayez gratuitement/)).toBeInTheDocument()
   })
 
   it('affiche les liens du footer', () => {
     render(<Home />)
-
-    // Vérifie les liens du footer
-    expect(screen.getByText('Pricing')).toBeInTheDocument()
-    expect(screen.getByText('Account')).toBeInTheDocument()
-    expect(screen.getByText(/404/)).toBeInTheDocument()
+    expect(screen.getByText(/Mentions légales/)).toBeInTheDocument()
+    expect(screen.getByText(/Politique de confidentialité/)).toBeInTheDocument()
+    expect(screen.getByText(/Recrutement/)).toBeInTheDocument()
   })
 })
