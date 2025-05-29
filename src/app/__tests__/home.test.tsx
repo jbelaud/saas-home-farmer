@@ -27,8 +27,8 @@ describe("Page d'accueil", () => {
     render(<Home />)
 
     // Vérifie les liens du footer
-    expect(screen.getByText('Learn')).toBeInTheDocument()
-    expect(screen.getByText('Examples')).toBeInTheDocument()
-    expect(screen.getByText(/Go to nextjs.org/)).toBeInTheDocument()
+    expect(screen.getByText('Pricing')).toBeInTheDocument()
+    expect(screen.getByText('Account')).toBeInTheDocument()
+    expect(screen.getByText(/404/)).toBeInTheDocument()
   })
 })
