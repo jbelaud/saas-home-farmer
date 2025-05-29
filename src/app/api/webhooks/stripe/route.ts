@@ -403,7 +403,7 @@ async function handlePaymentIntentSucceeded(
     const plan = paymentIntent.metadata?.plan as SubscriptionPlan
 
     // Récupérer l'intervalle depuis les métadonnées
-    const yearly = paymentIntent.metadata?.interval === 'year'
+    //const yearly = paymentIntent.metadata?.interval === 'year'
 
     if (!customerEmail || !plan) {
       console.error('Missing required metadata:', {
