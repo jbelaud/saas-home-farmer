@@ -1,10 +1,19 @@
 import {screen} from '@testing-library/react'
-import {describe, expect, it} from 'vitest'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {render} from '@/__tests__/customRender'
 import Home from '@/app/page'
 
+// Mock du composant ButtonConnexionDashboard pour les tests car c'est un RSC
+vi.mock('@/components/features/auth/button-connexion-dashboard', () => ({
+  default: () => <button>Connexion Dashboard Mock</button>,
+}))
+
 describe("Page d'accueil", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it("affiche le texte d'introduction", () => {
     render(<Home />)
 
@@ -24,5 +33,10 @@ describe("Page d'accueil", () => {
     expect(screen.getByText(/Mentions légales/)).toBeInTheDocument()
     expect(screen.getByText(/Politique de confidentialité/)).toBeInTheDocument()
     expect(screen.getByText(/Recrutement/)).toBeInTheDocument()
+  })
+
+  it('affiche le bouton de connexion dashboard mocké', () => {
+    render(<Home />)
+    expect(screen.getByText(/Connexion Dashboard Mock/)).toBeInTheDocument()
   })
 })

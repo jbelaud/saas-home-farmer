@@ -38,7 +38,7 @@ export default function Home() {
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          {/* <ButtonConnexionDashboard /> */}
+          <ButtonConnexionDashboard />
           <ModeToggle />
         </div>
       </header>
