@@ -1,6 +1,8 @@
 ---
-description: services layer rules
-globs: packages/services/**
+description: 
+globs: src/services/**
+alwaysApply: false
+---
 ---
 ---
 description: services layer rules
@@ -10,12 +12,15 @@ You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, 
 
 Key Principles
 - The **service layer** handles business logic, authorization, and validation
-- Services communicate with persistence layer through DAOs
+- Services communicate with persistence layer through DAOs/repositories
 
 File Organization
 - `/services/` main services files
+  - `authentication/` → Authorization layer
   - `authorization/` → Permission and access control
+  - `validation/` → Zod schemas to validate data in the service and sanitize (different than validation in presentation layer)
   - `errors/` → Custom error types
+  - `facades/` → Interface between presentation/DAL and services
   - `__tests__/` → Service tests
 
 Service Implementation
@@ -27,43 +32,27 @@ Service Implementation
 Example Service:
 [user-service.ts](mdc:packages/services/src/user-service.ts) 
 ```ts
-export const createUser = async (userParams: CreateUser) => {
-  const parsed = createUserServiceSchema.safeParse(userParams)
+export const getUserByIdService = async (id: string) => {
+  const parsed = userUuidSchema.safeParse(id)
   if (!parsed.success) {
-    throw new ParsedError(parsed.error.message)
+    throw new ValidationError(parsed.error.message)
   }
-  const userParamsSanitized = parsed.data
-  const user = await createUserDao(userParamsSanitized)
-  return user
+  const parsedUuid = parsed.data
+  const granted = await canReadUser(parsedUuid)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+  return await getUserByIdDao(parsedUuid)
 }
 ```
-
-Example Service:
-
-Validation with Zod
-- Define schemas for all inputs
-- Use TypeScript inference for type safety
-- Include validation messages
 
 Example Validation:
 ```ts
 import { z } from 'zod'
 
-export const baseUserServiceSchema = z.object({
-  email: z.string().email({
-    message: "L'email n'est pas valide.",
-  }),
-})
-
-export const createUserServiceSchema = baseUserServiceSchema.extend({
-  name: z
-    .string()
-    .min(3, {
-      message: 'Le nom doit contenir au moins 3 caractères.',
-    })
-    .max(30, {
-      message: 'Le nom ne doit pas contenir plus de 30 caractères.',
-    }),
+export const createUserServiceSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(3).max(30),
 })
 ```
 
@@ -283,8 +272,6 @@ describe('[USER] CRUD : CategoryService', () => {
     expect(getCategoriesDao).toHaveBeenCalled()
   })
 })
-
-```
 
 Best Practices
 - Always validate inputs

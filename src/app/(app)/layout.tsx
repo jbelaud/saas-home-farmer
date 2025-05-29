@@ -2,7 +2,7 @@ import {Metadata} from 'next'
 import React from 'react'
 
 import {AppSidebar} from '@/components/app-sidebar'
-import withAuth from '@/components/features/auth/withAuth'
+import withAuth from '@/components/features/auth/with-auth'
 import {Separator} from '@/components/ui/separator'
 import {
   SidebarInset,

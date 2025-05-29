@@ -1,4 +1,4 @@
-import withAuth from '@/components/features/auth/withAuth'
+import withAuth from '@/components/features/auth/with-auth'
 
 import DashboardPage from '../../../components/features/dashboard/dashboard'
 

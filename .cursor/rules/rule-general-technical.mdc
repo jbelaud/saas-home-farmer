@@ -1,7 +1,7 @@
 ---
-description: general-technical
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Your rule content
@@ -13,13 +13,15 @@ Key Principles
 - Maintain a **clear separation of concerns** between different architectural layers.
 - **Minimize direct coupling** between layers by using defined interfaces and abstractions.
 - **Use TypeScript for strong typing** across all layers.
+- Use kebab-case for new file
+- You use PNPM over NPM as possible
 
 Layering and Dependencies
 - **Presentation Layer (`src/app/<route>`):**
   - Uses Next.js **App Router**.
   - Prefers **React Server Components (RSC)** over Client Components.
   - Calls **Server Actions** for mutations instead of API Routes.
-  - Avoids fetching data in Client Components—delegate to **RSC or DAL**.
+  - Avoids fetching data in Client Components — delegate to **RSC or DAL**.
 
 - **Service Layer (`/services/`):**
   - Provides business logic abstraction for all applications.
@@ -32,7 +34,7 @@ Layering and Dependencies
   - Exposes **Data Access Layer (DAL)** functions to cache and format data before it reaches the service layer.
 
 Data Handling and API Rules
-- Avoid **fetching data directly in Client Components**—use Server Components instead.
+- Avoid **fetching data directly in Client Components** — use Server Components instead.
 - Use **Server Actions** for handling mutations instead of API Routes.
 - Implement **caching and DTO transformations in the DAL** before sending data to the service layer.
 
