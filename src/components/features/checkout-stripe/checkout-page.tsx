@@ -15,7 +15,7 @@ export default async function CheckoutPage({
   const recapInfo = await getSubscriptionRecapInfo(priceId, couponId)
   const user = await getUserDal()
   return (
-    <div className="min-h-screen bg-black p-4">
+    <div className="bg-background min-h-screen p-4">
       <div className="mx-auto grid max-w-6xl items-start gap-8 lg:grid-cols-2">
         {/* Left side - Subscription Recap */}
         <div className="lg:sticky lg:top-4">
@@ -39,10 +39,10 @@ export default async function CheckoutPage({
         </div>
 
         {/* Right side - Checkout Button */}
-        <Card className="space-y-6 border-zinc-800 bg-zinc-900 p-6 text-white">
+        <Card className="border-border bg-card text-foreground space-y-6 p-6">
           <div>
             <h2 className="mb-1 text-xl font-bold">Complete your purchase</h2>
-            <p className="text-zinc-400">
+            <p className="text-muted-foreground">
               Click the button below to proceed to secure checkout
             </p>
           </div>
@@ -53,7 +53,7 @@ export default async function CheckoutPage({
           {/* <CheckoutButtonReactStripe priceId={priceId} />
           <CheckoutButtonLink priceId={priceId} /> */}
 
-          <div className="text-center text-sm text-zinc-400">
+          <div className="text-muted-foreground text-center text-sm">
             Your payment is secure and encrypted
           </div>
         </Card>

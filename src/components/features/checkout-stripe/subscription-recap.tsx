@@ -37,16 +37,16 @@ export default function SubscriptionRecap({
   }
 
   return (
-    <Card className="w-full max-w-md border-zinc-800 bg-zinc-900 text-white">
+    <Card className="border-border bg-card text-foreground w-full max-w-md">
       <div className="space-y-6 p-6">
         {/* Header */}
         <div className="flex items-center space-x-3">
-          <div className="rounded-lg bg-zinc-800 p-2">
+          <div className="bg-muted rounded-lg p-2">
             <Package2Icon className="h-6 w-6 text-yellow-400" />
           </div>
           <div>
             <h2 className="text-xl font-bold">{planName}</h2>
-            <p className="text-zinc-400">Lifetime Access</p>
+            <p className="text-muted-foreground">Lifetime Access</p>
           </div>
         </div>
 
@@ -56,17 +56,17 @@ export default function SubscriptionRecap({
             {features.map((feature, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-yellow-400" />
-                <p className="text-zinc-300">{feature}</p>
+                <p className="text-muted-foreground">{feature}</p>
               </div>
             ))}
           </div>
         </ScrollArea>
 
         {/* Price Breakdown */}
-        <div className="space-y-3 border-t border-zinc-800 pt-4">
+        <div className="border-border space-y-3 border-t pt-4">
           <div className="flex justify-between">
-            <span className="text-zinc-400">Subtotal:</span>
-            <span className="text-zinc-300">
+            <span className="text-muted-foreground">Subtotal:</span>
+            <span className="text-foreground">
               {formatCurrency(originalPrice)}
             </span>
           </div>
@@ -74,14 +74,14 @@ export default function SubscriptionRecap({
             <span>Discount:</span>
             <span>-{formatCurrency(discount)}</span>
           </div>
-          <div className="flex justify-between border-t border-zinc-800 pt-2 text-lg font-bold">
+          <div className="border-border flex justify-between border-t pt-2 text-lg font-bold">
             <span>Total</span>
             <span>{formatCurrency(price)}</span>
           </div>
         </div>
 
         {/* Payment Options */}
-        <div className="text-center text-sm text-zinc-400">
+        <div className="text-muted-foreground text-center text-sm">
           You can pay in 3 or 2 installments
         </div>
       </div>
