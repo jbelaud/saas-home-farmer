@@ -1,8 +1,6 @@
 import {Metadata} from 'next'
-import Link from 'next/link'
 import {PropsWithChildren} from 'react'
 
-import {ModeToggle} from '@/components/theme-toggle'
 import {APP_DESCRIPTION} from '@/lib/constants'
 
 export const metadata: Metadata = {

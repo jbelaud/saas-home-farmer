@@ -16,6 +16,7 @@ export const authConfig: NextAuthConfig = {
     error: '/error',
   },
   callbacks: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async redirect({url, baseUrl}) {
       return `${baseUrl}/dashboard`
     },

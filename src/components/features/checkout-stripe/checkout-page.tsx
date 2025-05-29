@@ -1,8 +1,6 @@
 import {getUserDal} from '@/app/dal/user-dal'
 import {getSubscriptionRecapInfo} from '@/components/features/checkout-stripe/actions'
 import CheckoutButtonEmbed from '@/components/features/checkout-stripe/embed/checkout-button-embed'
-import CheckoutButtonLink from '@/components/features/checkout-stripe/payment-link/checkout-button-link'
-import CheckoutButtonReactStripe from '@/components/features/checkout-stripe/react-stripe/checkout-button-element'
 import {Card} from '@/components/ui/card'
 
 import SubscriptionRecap from './subscription-recap'

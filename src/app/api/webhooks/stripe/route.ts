@@ -325,11 +325,11 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
 
   if (subscription.status === 'active') {
     const customerEmail = customer.email
-    const priceId = subscription.items.data[0]?.price.id
+    //const priceId = subscription.items.data[0]?.price.id
     //const plan = getPlanByPriceId(priceId) as SubscriptionPlan
     const plan = 'CODEMAIL_PRO'
-    const yearly =
-      subscription.items.data[0]?.price.recurring?.interval === 'year'
+    // const yearly =
+    //   subscription.items.data[0]?.price.recurring?.interval === 'year'
 
     if (!customerEmail || !plan) {
       console.error('Missing required data:', {

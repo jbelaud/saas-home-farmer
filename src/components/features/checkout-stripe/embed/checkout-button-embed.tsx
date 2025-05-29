@@ -28,9 +28,10 @@ if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
 export default function ButtonStripeEmbed({
   priceId,
   customerEmail,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   variant = 'default',
 }: CheckoutButtonProps) {
-  const [isLoading, setIsLoading] = useState(false)
+  const [, setIsLoading] = useState(false)
 
   const [stripe, setStripe] = useState<Stripe | null>(null)
   const [clientSecret, setClientSecret] = useState('')
