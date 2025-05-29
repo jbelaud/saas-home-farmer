@@ -1,8 +1,7 @@
 import {notFound} from 'next/navigation'
 
+import {EditUserProfileForm} from '@/components/features/user/edit-user-profile'
 import {getAuthUser} from '@/services/authentication/auth-utils'
-
-import {EditUserProfileForm} from './edit-user-profile'
 
 export default async function Page() {
   const user = await getAuthUser()

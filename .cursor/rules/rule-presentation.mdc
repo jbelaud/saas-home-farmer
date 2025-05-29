@@ -1,6 +1,7 @@
 ---
 description: presentation Layer
-globs: apps/**
+globs: src/app/**
+alwaysApply: false
 ---
 ---
 description: presentation Layer
@@ -16,8 +17,9 @@ Key Principles
 - Use **React Server Components (RSC)** by default for better performance
 - Only use `"use client"` when necessary (interactivity, browser APIs) else don't use it
 - Use **Server Actions** for mutations (exemple [action.ts](mdc:apps/codemail/src/app/(app)/account/action.ts) )
+- Use **DAL (Data Access Layer)** for getters
 
-Route Organization
+# Route Organization
 ```
 app/
   ├── (public)/ → Public routes
@@ -33,7 +35,7 @@ app/
       └── users/
 ```
 
-Component Organization
+# Component Organization
 ```
 components/
   ├── features/ → Business domain components
@@ -43,10 +45,11 @@ components/
   ├── ui/ → Reusable UI components
   │   ├── button/
   │   └── input/
-  └── providers/ → Context providers
+  │── hooks/ → Hooks
+  └── context/ → Context providers
 ```
 
-Server Component Example:
+# Server Component Example:
 ```tsx
 // app/(app)/account/page.tsx
 import { getUserDal } from '@/app/dal/user-dal'
@@ -62,7 +65,7 @@ export default async function Page() {
 }
 ```
 
-Client Component Example:
+# Client Component Example:
 ```tsx
 'use client'
 

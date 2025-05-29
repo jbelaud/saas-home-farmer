@@ -14,7 +14,7 @@ Key Principles
 - The **service layer** handles business logic, authorization, and validation
 - Services communicate with persistence layer through DAOs/repositories
 
-File Organization
+# File Organization
 - `/services/` main services files
   - `authentication/` → Authorization layer
   - `authorization/` → Permission and access control
@@ -23,7 +23,7 @@ File Organization
   - `facades/` → Interface between presentation/DAL and services
   - `__tests__/` → Service tests
 
-Service Implementation
+# Service Implementation
 - Validate inputs with Zod (validation layer)
 - Check authorization before operations (authorization / RBAC)
 - Handle errors appropriately
@@ -46,7 +46,7 @@ export const getUserByIdService = async (id: string) => {
 }
 ```
 
-Service Facade Implementation
+# Service Facade Implementation
 - All fonctions in the service must be mapped in the facade with same name
 - Facade automatically use the right incerceptor
 Exemple 
@@ -57,7 +57,31 @@ import userServiceInterceptor from './interceptors/user-service-logger-intercept
 export const updateUserService = userServiceInterceptor.updateUserService
 ```
 
-Example Validation:
+# Domain Types 
+- All domains types are isolated in the package `src/services/types/domain/`
+- Directly derived form de drizzle type model
+- Theses types are types for fonctions in services
+Exemple 
+
+```ts
+[subscription-types.ts](mdc:src/services/types/domain/subscription-types.ts)
+import {
+  SubscriptionAddModel,
+  SubscriptionModel,
+} from '@/db/models/subscription-model'
+
+// Base types from models
+export type Subscription = SubscriptionModel
+export type AddSubscription = SubscriptionAddModel
+export type CreateSubscription = AddSubscription
+export type UpdateSubscription = {
+  id: string
+} & Partial<Omit<Subscription, 'id'>>
+```
+
+# Example Validation:
+- Valadation schema satisfies domain types 
+- Exemple 
 [user-validation.ts](mdc:src/services/validation/user-validation.ts)
 ```ts
 import { z } from 'zod'
@@ -78,7 +102,7 @@ export const createUserServiceSchema = baseUserServiceSchema.extend({
 }) satisfies z.Schema<CreateUser>
 ```
 
-Authentication 
+# Authentication 
 - Check auth via getAuthUser (next-auth)
 ```ts
 import {getAuthUser} from '@/services/authentication/auth-utils'
@@ -133,7 +157,7 @@ Key points:
 - Return false if resource doesn't exist
 - Check permission?.granted for final decision
 
-Testing
+# Testing
 
 - Test authorization rules
 - Mock DAOs and external services
@@ -163,8 +187,8 @@ import {
   getCategoriesDao,
   getCategoryByIdDao,
   updateCategoryByIdDao,
-} from '@mikecodeur/persistence/repositories/categories-repository'
-import {Category} from '@mikecodeur/persistence/types/domain/category-types'
+} from '../repositories/categories-repository'
+import {Category} from '../types/domain/category-types'
 import {setupAuthUserMocked} from './helper-service-test'
 import {userTest, userTestAdmin} from './service-test-data'
 import {faker} from '@faker-js/faker'

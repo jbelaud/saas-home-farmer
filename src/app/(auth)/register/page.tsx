@@ -3,7 +3,7 @@ import React from 'react'
 
 import {APP_NAME} from '@/lib/constants'
 
-import {RegisterForm} from './register-form'
+import {RegisterForm} from '../../../components/features/auth/forms/register-form'
 
 export default function RegisterPage() {
   return (

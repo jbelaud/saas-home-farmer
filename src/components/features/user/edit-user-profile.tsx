@@ -6,6 +6,7 @@ import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
 import * as z from 'zod'
 
+import {updateUser} from '@/components/features/user/action'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Button} from '@/components/ui/button'
 import {FileUpload} from '@/components/ui/file-upload'
@@ -28,22 +29,15 @@ import {
 } from '@/components/ui/select'
 import {User} from '@/services/types/domain/user-types'
 
-import {updateUser} from './action'
+import {userFormSchema} from './user-form-validation'
 
-const formSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  image: z.string().url('Invalid URL').optional().or(z.literal('')),
-  visibility: z.enum(['public', 'private']),
-})
-
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof userFormSchema>
 
 export function EditUserProfileForm({user}: {user: User}) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(userFormSchema),
     defaultValues: {
       name: user.name,
       email: user.email,

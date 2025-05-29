@@ -4,6 +4,10 @@ import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import {redirect} from 'next/navigation'
 import {AuthError} from 'next-auth'
 
+import {
+  authLoginFormSchema,
+  authRegisterFormSchema,
+} from '@/components/features/auth/auth-form-validation'
 import {signIn, signOut} from '@/lib/auth'
 import {
   createUserService,
@@ -20,15 +24,23 @@ type LoginResult = {
 export async function login(prevState: LoginResult, formData: FormData) {
   console.log('login appelé')
   try {
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
+    // Validation Zod des données du formulaire
+    const validationResult = authLoginFormSchema.safeParse({
+      email: formData.get('email'),
+      password: formData.get('password'),
+    })
 
-    if (!email) {
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors
+        .map((err) => err.message)
+        .join(', ')
       return {
         success: false,
-        message: 'Email et mot de passe requis',
+        message: errors,
       }
     }
+
+    const {email, password} = validationResult.data
 
     // Vérifier si l'utilisateur existe en base de données
     try {
@@ -91,31 +103,29 @@ export async function login(prevState: LoginResult, formData: FormData) {
  * Action d'inscription d'un nouvel utilisateur
  */
 export async function register(prevState: LoginResult, formData: FormData) {
-  console.log('register appelé')
   try {
-    const name = formData.get('name') as string
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const confirmPassword = formData.get('confirmPassword') as string
+    // Validation Zod des données du formulaire
+    const validationResult = authRegisterFormSchema.safeParse({
+      name: formData.get('name'),
+      email: formData.get('email'),
+      password: formData.get('password'),
+      confirmPassword: formData.get('confirmPassword'),
+    })
 
-    // Validation basique
-    if (!name || !email || !password) {
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors
+        .map((err) => err.message)
+        .join(', ')
       return {
         success: false,
-        message: 'Tous les champs sont requis',
+        message: errors,
       }
     }
 
-    if (password !== confirmPassword) {
-      return {
-        success: false,
-        message: 'Les mots de passe ne correspondent pas',
-      }
-    }
+    const {name, email, password} = validationResult.data
 
     // Créer l'utilisateur dans la base de données
     try {
-      console.log("Création de l'utilisateur...")
       const user = await createUserService({
         name,
         email,

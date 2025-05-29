@@ -5,7 +5,7 @@ import {useState} from 'react'
 
 import {Button} from '@/components/ui/button'
 
-import {logout} from '../action'
+import {logout} from '../../../../app/(auth)/action'
 
 export default function LogoutButton() {
   const [pending, setPending] = useState(false)
