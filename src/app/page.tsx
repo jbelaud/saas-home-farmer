@@ -19,7 +19,7 @@ export default function Home() {
           <Link href="#" className="hover:text-primary transition">
             Fonctionnalités
           </Link>
-          <Link href="#" className="hover:text-primary transition">
+          <Link href="/pricing" className="hover:text-primary transition">
             Tarifs
           </Link>
           <Link href="#" className="hover:text-primary transition">

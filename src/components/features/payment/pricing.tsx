@@ -76,13 +76,13 @@ export default function PricingPlans({
   }
 
   return (
-    <div className="min-h-screen bg-black py-24">
+    <div className="bg-background min-h-screen py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-12 space-y-4 text-center">
-          <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-5xl">
+          <h2 className="text-foreground text-3xl font-bold tracking-tighter sm:text-5xl">
             Simple, transparent pricing
           </h2>
-          <p className="mx-auto max-w-[600px] text-gray-400 md:text-xl/relaxed">
+          <p className="text-muted-foreground mx-auto max-w-[600px] md:text-xl/relaxed">
             Choose the plan that&apos;s right for you and start creating
             beautiful code snippets for your emails
           </p>
@@ -92,7 +92,7 @@ export default function PricingPlans({
             <div className="flex items-center gap-4">
               <Label
                 htmlFor="billing-toggle"
-                className="text-lg font-medium text-white"
+                className="text-foreground text-lg font-medium"
               >
                 Monthly
               </Label>
@@ -105,7 +105,7 @@ export default function PricingPlans({
               <div className="flex items-center gap-2">
                 <Label
                   htmlFor="billing-toggle"
-                  className="text-lg font-medium text-white"
+                  className="text-foreground text-lg font-medium"
                 >
                   Yearly
                 </Label>
@@ -119,7 +119,7 @@ export default function PricingPlans({
 
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
           {/* Free Plan */}
-          <Card className="relative border-zinc-800 bg-zinc-900 text-white">
+          <Card className="border-border bg-card text-foreground relative">
             {isCurrentPlan('FREE') && (
               <div className="absolute -top-4 right-0 left-0 flex justify-center">
                 <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-medium text-black">
@@ -129,7 +129,7 @@ export default function PricingPlans({
             )}
             <CardHeader>
               <CardTitle className="text-2xl">Free</CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-muted-foreground">
                 Perfect for getting started
               </CardDescription>
             </CardHeader>
@@ -152,7 +152,7 @@ export default function PricingPlans({
             </CardContent>
             <CardFooter>
               <Link href={linkFree} className="w-full">
-                <Button className="w-full bg-white text-black hover:bg-zinc-200">
+                <Button className="bg-background text-foreground border-input hover:bg-muted w-full border">
                   Get Started
                 </Button>
               </Link>
@@ -160,7 +160,7 @@ export default function PricingPlans({
           </Card>
 
           {/* Pro Plan */}
-          <Card className="relative border-yellow-500 bg-zinc-900 text-white">
+          <Card className="bg-card text-foreground relative border-yellow-500">
             <div className="absolute -top-4 right-0 left-0 flex justify-center">
               {isCurrentPlan('PRO') ? (
                 <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-medium text-black">
@@ -174,7 +174,7 @@ export default function PricingPlans({
             </div>
             <CardHeader>
               <CardTitle className="text-2xl">Pro</CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-muted-foreground">
                 Perfect for regular users
               </CardDescription>
             </CardHeader>
@@ -189,7 +189,7 @@ export default function PricingPlans({
                 >
                   ${isYearly ? prices.pro.yearly : prices.pro.monthly}
                 </motion.div>
-                <div className="text-sm text-zinc-400">
+                <div className="text-muted-foreground text-sm">
                   per {isYearly ? 'year' : 'month'}
                 </div>
                 {isYearly && (
@@ -217,7 +217,7 @@ export default function PricingPlans({
           </Card>
 
           {/* Lifetime Plan */}
-          <Card className="relative border-zinc-800 bg-zinc-900 text-white">
+          <Card className="border-border bg-card text-foreground relative">
             {isCurrentPlan('LIFETIME') && (
               <div className="absolute -top-4 right-0 left-0 flex justify-center">
                 <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-medium text-black">
@@ -227,7 +227,7 @@ export default function PricingPlans({
             )}
             <CardHeader>
               <CardTitle className="text-2xl">Lifetime</CardTitle>
-              <CardDescription className="text-zinc-400">
+              <CardDescription className="text-muted-foreground">
                 Perfect for long-term users
               </CardDescription>
             </CardHeader>
@@ -242,7 +242,9 @@ export default function PricingPlans({
                 >
                   ${prices.lifetime.monthly}
                 </motion.div>
-                <div className="text-sm text-zinc-400">one-time payment</div>
+                <div className="text-muted-foreground text-sm">
+                  one-time payment
+                </div>
               </div>
               <ul className="space-y-2 text-sm">
                 <ListItem>Everything in Pro plan</ListItem>
@@ -254,7 +256,7 @@ export default function PricingPlans({
             </CardContent>
             <CardFooter>
               <Link href={linkLifetime} className="w-full">
-                <Button className="w-full bg-white text-black hover:bg-zinc-200">
+                <Button className="bg-background text-foreground border-input hover:bg-muted w-full border">
                   Buy Lifetime
                 </Button>
               </Link>
