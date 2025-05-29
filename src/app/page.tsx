@@ -1,94 +1,183 @@
+import {BarChart2, ShieldCheck, Zap} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
 import {ModeToggle} from '@/components/theme-toggle'
+import {Button} from '@/components/ui/button'
+import {APP_NAME} from '@/lib/constants'
 
 export default function Home() {
   return (
-    <div className="grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
-      <main className="row-start-2 flex flex-col items-center gap-8 sm:items-start">
-        <ModeToggle />
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-center font-[family-name:var(--font-geist-mono)] text-sm sm:text-left">
-          <li className="mb-2">
-            Get started by editing{' '}
-            <code className="rounded-sm bg-black/[.05] px-1 py-0.5 font-semibold dark:bg-white/[.06]">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <Link
-            className="bg-foreground text-background flex h-10 items-center justify-center gap-2 rounded-full border border-solid border-transparent px-4 text-sm transition-colors hover:bg-[#383838] sm:h-12 sm:px-5 sm:text-base dark:hover:bg-[#ccc]"
-            href="/login"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Login
-          </Link>
-          <Link
-            className="flex h-10 items-center justify-center rounded-full border border-solid border-black/[.08] px-4 text-sm transition-colors hover:border-transparent hover:bg-[#f2f2f2] sm:h-12 sm:min-w-44 sm:px-5 sm:text-base dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
-            href="/dashboard"
-          >
-            Dashboard
-          </Link>
+    <div className="bg-background text-foreground flex min-h-screen flex-col">
+      {/* Header */}
+      <header className="border-border bg-background/80 flex w-full items-center justify-between border-b px-8 py-6 backdrop-blur">
+        <div className="flex items-center gap-2">
+          <Image src="/next.svg" alt="Logo" width={32} height={32} />
+          <span className="text-xl font-bold tracking-tight">{APP_NAME}</span>
         </div>
-      </main>
-      <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
-        <Link
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="pricing"
-        >
+        <nav className="hidden gap-8 text-sm font-medium md:flex">
+          <Link href="#" className="hover:text-primary transition">
+            Fonctionnalités
+          </Link>
+          <Link href="#" className="hover:text-primary transition">
+            Tarifs
+          </Link>
+          <Link href="#" className="hover:text-primary transition">
+            Contact
+          </Link>
+        </nav>
+        <div className="flex items-center gap-2">
+          <Button asChild>
+            <Link href="/login">Connexion</Link>
+          </Button>
+          <ModeToggle />
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="flex flex-col items-center justify-center px-4 py-16 text-center">
+        <h1 className="mb-4 text-4xl font-bold md:text-6xl">
+          La plateforme SaaS moderne pour booster votre business
+        </h1>
+        <p className="text-muted-foreground mb-8 max-w-xl text-lg">
+          Gérez, analysez et développez votre activité avec des outils puissants
+          et une interface intuitive.
+        </p>
+        <Button size="lg" className="mb-8">
+          Essayez gratuitement
+        </Button>
+      </section>
+
+      {/* Image produit */}
+      <div className="mb-12 flex justify-center">
+        <div className="border-border bg-muted w-full max-w-3xl overflow-hidden rounded-xl border shadow-lg">
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            src="/images/product.avif" // Mets ici ton image produit
+            alt="Aperçu du produit"
+            width={1200}
+            height={600}
+            className="h-auto w-full"
+            priority
           />
-          Pricing
-        </Link>
-        <Link
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="/account"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Account
-        </Link>
-        <Link
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="/404"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          404
-        </Link>
+        </div>
+      </div>
+
+      {/* Features */}
+      <section className="mx-auto mb-16 flex max-w-5xl flex-col items-stretch justify-center gap-8 px-4 md:flex-row">
+        <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
+          <Zap className="text-primary mx-auto mb-4" size={40} />
+          <h3 className="mb-2 text-lg font-semibold">Automatisation</h3>
+          <p className="text-muted-foreground">
+            Automatisez vos tâches répétitives et gagnez du temps au quotidien.
+          </p>
+        </div>
+        <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
+          <BarChart2 className="text-primary mx-auto mb-4" size={40} />
+          <h3 className="mb-2 text-lg font-semibold">Analyse avancée</h3>
+          <p className="text-muted-foreground">
+            Obtenez des rapports détaillés pour piloter votre croissance.
+          </p>
+        </div>
+        <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
+          <ShieldCheck className="text-primary mx-auto mb-4" size={40} />
+          <h3 className="mb-2 text-lg font-semibold">Sécurité optimale</h3>
+          <p className="text-muted-foreground">
+            Vos données sont protégées grâce à notre infrastructure sécurisée.
+          </p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-border bg-background/80 mt-auto w-full border-t px-4 py-12">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 text-left md:grid-cols-4">
+          <div>
+            <div className="mb-4 flex items-center gap-2">
+              <Image src="/next.svg" alt="Logo" width={28} height={28} />
+              <span className="text-lg font-bold">{APP_NAME}</span>
+            </div>
+            <p className="text-muted-foreground mb-2 text-sm">
+              La plateforme SaaS moderne pour booster votre business.
+            </p>
+            <p className="text-muted-foreground text-xs">
+              © {new Date().getFullYear()} SaaSName. Tous droits réservés.
+            </p>
+          </div>
+          <div>
+            <h4 className="mb-3 font-semibold">Produit</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="#" className="hover:underline">
+                  Fonctionnalités
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Tarifs
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Démo
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Nouveautés
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 font-semibold">Ressources</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="#" className="hover:underline">
+                  Documentation
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Support
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  API
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 font-semibold">Légal & Contact</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="#" className="hover:underline">
+                  Mentions légales
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Politique de confidentialité
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  Recrutement
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
       </footer>
     </div>
   )

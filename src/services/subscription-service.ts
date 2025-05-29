@@ -171,6 +171,7 @@ export const getSubscriptionByUserIdService = async (userId: string) => {
 }
 
 export const getActiveSubscriptionsByUserIdService = async (userId: string) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     // Vérifier si l'utilisateur existe
     const user = await getUserByIdDao(userId)
@@ -192,7 +193,7 @@ export const getActiveSubscriptionsByUserIdService = async (userId: string) => {
     }
     return subscriptions
   } catch (error) {
-    console.error('Error getting active subscriptions:', error)
+    //console.error('Error getting active subscriptions:', error)
     throw error
   }
 }
@@ -200,6 +201,7 @@ export const getActiveSubscriptionsByUserIdService = async (userId: string) => {
 export const getActiveSubscriptionsByUserEmailService = async (
   email: string
 ) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     // Récupérer l'utilisateur par email
     const user = await getUserByEmailDao(email)
@@ -210,7 +212,7 @@ export const getActiveSubscriptionsByUserEmailService = async (
     // Utiliser le service existant avec l'ID
     return getActiveSubscriptionsByUserIdService(user.id)
   } catch (error) {
-    console.error('Error getting active subscriptions by email:', error)
+    //console.error('Error getting active subscriptions by email:', error)
     throw error
   }
 }
