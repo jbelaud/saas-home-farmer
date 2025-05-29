@@ -24,13 +24,13 @@ File Organization
   - `__tests__/` → Service tests
 
 Service Implementation
-- Validate inputs with Zod
-- Check authorization before operations
+- Validate inputs with Zod (validation layer)
+- Check authorization before operations (authorization / RBAC)
 - Handle errors appropriately
 - Call DAOs for data operations
 
 Example Service:
-[user-service.ts](mdc:packages/services/src/user-service.ts) 
+[user-service.ts](mdc:src/services/user-service.ts)
 ```ts
 export const getUserByIdService = async (id: string) => {
   const parsed = userUuidSchema.safeParse(id)
@@ -46,40 +46,78 @@ export const getUserByIdService = async (id: string) => {
 }
 ```
 
+Service Facade Implementation
+- All fonctions in the service must be mapped in the facade with same name
+- Facade automatically use the right incerceptor
+Exemple 
+[user-service-facade.ts](mdc:src/services/facades/user-service-facade.ts)
+
+```ts
+import userServiceInterceptor from './interceptors/user-service-logger-interceptor'
+export const updateUserService = userServiceInterceptor.updateUserService
+```
+
 Example Validation:
+[user-validation.ts](mdc:src/services/validation/user-validation.ts)
 ```ts
 import { z } from 'zod'
 
-export const createUserServiceSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(3).max(30),
-})
+export const createUserServiceSchema = baseUserServiceSchema.extend({
+  name: z
+    .string()
+    .min(3, {
+      message: 'Le nom doit contenir au moins 3 caractères.',
+    })
+    .max(30, {
+      message: 'Le nom ne doit pas contenir plus de 30 caractères.',
+    }),
+  password: z.string(),
+  email: z.string().email({
+    message: "L'email n'est pas valide.",
+  }),
+}) satisfies z.Schema<CreateUser>
 ```
 
-authentication
-- Check auth via next-auth
-- check current connected user
-- Check Roles
-
+Authentication 
+- Check auth via getAuthUser (next-auth)
+```ts
+import {getAuthUser} from '@/services/authentication/auth-utils'
+const authUser = await getAuthUser()
+```
 Exemple 
-[auth-service.ts](mdc:packages/services/src/authentication/auth-service.ts)
+[auth-utils.ts](mdc:src/services/authentication/auth-utils.ts)
 
 Authorization
 - Check permissions before operations
 - Based on authentication service (getAuthUser)
-
+- Authorization answer the question :  Can ConnectedUser DO Action to THIS Ressources ID
+- exemple  : canReadUser("50"), Can Auth User Read the user with ID 50
+- exemple  : canReadPost("50"), Can Auth User Read the user with ID 50 
 Example Authorization:
 
 ```ts
-export const canReadUser = async (resourceUid: string) => {
+export const canReadUser = async (userId: string) => {
   const authUser = await getAuthUser()
-  if ((await isAuthAdmin()) || authUser?.user?.id === resourceUid) return true
+  if ((await isAuthAdmin()) || authUser?.user?.id === userId) return true
   return false
 }
 
-export const canUpdateUser = async (resourceUid: string) => {
+export const canReadPost = async (postId: string) => {
   const authUser = await getAuthUser()
-  if ((await isAuthAdmin()) || authUser?.user?.id === resourceUid) return true
+  const post = await getPostById(postId)
+  if ((await isAuthAdmin()) || authUser?.user?.id === post.userId) return true
+  return false
+}
+//or
+export const canReadPost = async (postId: string) => {
+  const authUser = await getAuthUser()
+  const post = await getPostById(postId)
+  return isGranted = await callRBAClib() // we can use RBAC lib
+}
+
+export const canUpdateUser = async (userId: string) => {
+  const authUser = await getAuthUser()
+  if ((await isAuthAdmin()) || authUser?.user?.id === userId) return true
   return false
 }
 ```
@@ -101,14 +139,15 @@ Testing
 - Mock DAOs and external services
 - Test error cases
 - Verify input validation
-- import setupAuthUserMocked, userTest, userTestAdmin relatively like tthis
+- import setupAuthUserMocked, userTest, userTestAdmin relatively like this
+- Allways Tests with role PUBLIC (no auth), USER (auth connected), ADMIN (role admin)
 ```ts
 import {setupAuthUserMocked} from './helper-service-test'
 import {userTest, userTestAdmin} from './service-test-data'
 ```
 
 Example Test:
-[categorie-service.test.ts](mdc:packages/services/src/__tests__/categorie-service.test.ts)
+[user-service.test.ts](mdc:src/services/__tests__/user-service.test.ts)
 ```ts
 import {describe, it, expect, beforeEach, vi} from 'vitest'
 import {

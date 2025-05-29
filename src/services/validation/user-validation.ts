@@ -23,6 +23,9 @@ export const createUserServiceSchema = baseUserServiceSchema.extend({
       message: 'Le nom ne doit pas contenir plus de 30 caractères.',
     }),
   password: z.string(),
+  email: z.string().email({
+    message: "L'email n'est pas valide.",
+  }),
 }) satisfies z.Schema<CreateUser>
 
 export const updateUserServiceSchema = createUserServiceSchema.extend({

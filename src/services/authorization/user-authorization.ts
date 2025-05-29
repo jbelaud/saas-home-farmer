@@ -1,6 +1,5 @@
 import {getUserByIdDao} from '@/db/repositories/user-repository'
-
-import {getAuthUser} from '../authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-utils'
 
 export const canReadUser = async (resourceUid: string) => {
   const authUser = await getAuthUser()

@@ -1,13 +1,14 @@
-import type {Session} from 'next-auth'
-
 import {getUserByEmailDao} from '@/db/repositories/user-repository'
 import {auth} from '@/lib/auth'
 
 import {User, UserRoles} from '../types/domain/user-types'
-export type AuthUser = {
-  session?: Session
-  user?: User
-  role: UserRoles
+
+export const getAuthUser = async () => {
+  const session = await auth()
+  if (!session?.user?.email) return
+  const email = session?.user?.email ?? ''
+  const user = await getUserByEmailDao(email)
+  return user
 }
 
 export const getSessionAuth = async () => {
@@ -17,16 +18,7 @@ export const getSessionAuth = async () => {
 
 export const isAuthAdmin = async () => {
   const authUser = await getAuthUser()
-  console.log('isAuthAdmin authUser', authUser)
   return authUser?.role === 'admin'
-}
-
-export const getAuthUser = async () => {
-  const session = await auth()
-  if (!session?.user?.email) return
-  const email = session?.user?.email ?? ''
-  const user = await getUserByEmailDao(email)
-  return user
 }
 
 export const getAuthUserId = async () => {

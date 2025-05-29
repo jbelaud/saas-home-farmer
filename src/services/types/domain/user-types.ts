@@ -1,3 +1,5 @@
+import {Session} from 'next-auth'
+
 import {AddUserModel, UpdateUserModel, UserModel} from '@/db/models/user-model'
 
 // ICI les TYPES DE DOMAIN sont EGAUX aux types drizzle
@@ -19,4 +21,10 @@ export type UserDTO = {
   name?: string
   role?: string
   image?: string
+}
+
+export type AuthUser = {
+  session?: Session
+  user?: User
+  role: UserRoles
 }
