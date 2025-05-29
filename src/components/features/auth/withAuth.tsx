@@ -1,4 +1,4 @@
-import {redirect} from 'next/navigation'
+import {forbidden, redirect} from 'next/navigation'
 import React from 'react'
 
 import {
@@ -26,7 +26,7 @@ const withAuth = <P extends object>(
       redirect('/login')
     }
     if (!hasRole) {
-      redirect('/restricted')
+      forbidden()
     }
 
     return <WrappedComponent {...props} user={authUser} />

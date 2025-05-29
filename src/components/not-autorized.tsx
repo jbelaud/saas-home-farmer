@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import {JSX, SVGProps} from 'react'
 
-export function NotAutorized({role}: {role: string}) {
+export function NotAutorized() {
   return (
     <div className="bg-background flex flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-md text-center">
@@ -10,9 +10,8 @@ export function NotAutorized({role}: {role: string}) {
           Unauthorized
         </h1>
         <p className="text-muted-foreground mt-4">
-          Sorry, you don t have permission to access this page. Page only for{' '}
-          {role} Role Please contact an administrator if you believe this is an
-          error.
+          Sorry, you don t have permission to access this page. Please contact
+          an administrator if you believe this is an error.
         </p>
         <div className="mt-6">
           <Link
