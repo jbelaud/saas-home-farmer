@@ -16,12 +16,12 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {cn} from '@/lib/utils'
 
-import {login} from '../../../../app/(auth)/action'
+import {loginAction} from '../../../../app/(auth)/action'
 
 // Type pour le résultat de l'action de login
 
 export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
-  const [state, formAction] = useActionState(login, {
+  const [state, formAction] = useActionState(loginAction, {
     success: false,
     message: '',
   })

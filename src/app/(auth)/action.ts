@@ -21,13 +21,12 @@ type LoginResult = {
 /**
  * Action de login utilisant NextAuth
  */
-export async function login(prevState: LoginResult, formData: FormData) {
+export async function loginAction(prevState: LoginResult, formData: FormData) {
   console.log('login appelé')
   try {
     // Validation Zod des données du formulaire
     const validationResult = authLoginFormSchema.safeParse({
       email: formData.get('email'),
-      password: formData.get('password'),
     })
 
     if (!validationResult.success) {
@@ -40,7 +39,7 @@ export async function login(prevState: LoginResult, formData: FormData) {
       }
     }
 
-    const {email, password} = validationResult.data
+    const {email} = validationResult.data
 
     // Vérifier si l'utilisateur existe en base de données
     try {
@@ -71,7 +70,6 @@ export async function login(prevState: LoginResult, formData: FormData) {
     // })
     await signIn('resend', {
       email,
-      password, //not user with Resend
       redirect: false,
     })
     console.log(' après signIn')
@@ -102,7 +100,10 @@ export async function login(prevState: LoginResult, formData: FormData) {
 /**
  * Action d'inscription d'un nouvel utilisateur
  */
-export async function register(prevState: LoginResult, formData: FormData) {
+export async function registerAction(
+  prevState: LoginResult,
+  formData: FormData
+) {
   try {
     // Validation Zod des données du formulaire
     const validationResult = authRegisterFormSchema.safeParse({
@@ -168,6 +169,6 @@ export async function register(prevState: LoginResult, formData: FormData) {
   }
 }
 
-export async function logout() {
+export async function logoutAction() {
   await signOut()
 }

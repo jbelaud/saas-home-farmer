@@ -16,13 +16,13 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {cn} from '@/lib/utils'
 
-import {register} from '../../../../app/(auth)/action'
+import {registerAction} from '../../../../app/(auth)/action'
 
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const [state, formAction] = useActionState(register, {
+  const [state, formAction] = useActionState(registerAction, {
     success: false,
     message: '',
   })

@@ -5,7 +5,7 @@ import {useState} from 'react'
 
 import {Button} from '@/components/ui/button'
 
-import {logout} from '../../../../app/(auth)/action'
+import {logoutAction} from '../../../../app/(auth)/action'
 
 export default function LogoutButton() {
   const [pending, setPending] = useState(false)
@@ -13,7 +13,7 @@ export default function LogoutButton() {
 
   const handleClick = async () => {
     setPending(true)
-    await logout()
+    await logoutAction()
     setPending(false)
     router.push('/login/')
   }
