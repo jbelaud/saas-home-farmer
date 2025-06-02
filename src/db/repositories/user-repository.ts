@@ -8,6 +8,7 @@ import {
   users,
 } from '@/db/models/user-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
+import {User} from '@/services/types/domain/user-types'
 
 // CRUD
 export const createUserDao = async (user: AddUserModel) => {
@@ -18,11 +19,35 @@ export const createUserDao = async (user: AddUserModel) => {
   return row[0]
 }
 
-export const getUserByIdDao = async (uid: string) => {
+export const getUserByIdDao = async (
+  uid: string
+): Promise<User | undefined> => {
   const row = await db.query.users.findFirst({
     where: (user, {eq}) => eq(user.id, uid),
+    with: {
+      userRoles: {
+        with: {
+          role: {
+            columns: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
   })
-  return row
+  const roles = row?.userRoles?.map((r) => r.role.name) ?? []
+
+  if (!row) {
+    return undefined
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {userRoles, ...rest} = row
+  return {
+    ...rest,
+    roles,
+  }
 }
 
 export const updateUserByUidDao = async (user: UpdateUserModel) => {
@@ -40,11 +65,35 @@ export const deleteUserByIdDao = async (uid: string) => {
 }
 
 // Extra
-export const getUserByEmailDao = async (email: string) => {
+export const getUserByEmailDao = async (
+  email: string
+): Promise<User | undefined> => {
   const row = await db.query.users.findFirst({
     where: (user, {eq}) => eq(user.email, email),
+    with: {
+      userRoles: {
+        with: {
+          role: {
+            columns: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
   })
-  return row
+  const roles = row?.userRoles?.map((r) => r.role.name) ?? []
+
+  if (!row) {
+    return undefined
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {userRoles, ...rest} = row
+  return {
+    ...rest,
+    roles,
+  }
 }
 
 export const getPublicUsersWithPaginationDao = async (
@@ -77,7 +126,7 @@ export const updateUserSafeByUidDao = async (
   uid: string
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {id, email, password, role, emailVerified, createdAt, ...rest} = user
+  const {id, email, password, emailVerified, createdAt, ...rest} = user
   rest.updatedAt = new Date()
   await db
     .update(users)

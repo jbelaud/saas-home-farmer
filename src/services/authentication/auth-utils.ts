@@ -1,7 +1,8 @@
 import {getUserByEmailDao} from '@/db/repositories/user-repository'
 import {auth} from '@/lib/auth'
 
-import {User, UserRoles} from '../types/domain/user-types'
+import {roleHierarchy} from '../types/domain/auth-types'
+import {Roles, User} from '../types/domain/user-types'
 
 export const getAuthUser = async () => {
   const session = await auth()
@@ -18,7 +19,7 @@ export const getSessionAuth = async () => {
 
 export const isAuthAdmin = async () => {
   const authUser = await getAuthUser()
-  return authUser?.role === 'admin'
+  return authUser?.roles?.includes('admin')
 }
 
 export const getAuthUserId = async () => {
@@ -27,26 +28,22 @@ export const getAuthUserId = async () => {
   return user.id
 }
 
-export const roleHierarchy = ['public', 'user', 'admin', 'super_admin']
-
-export function hasRequiredRole(
-  userConnected?: User,
-  requestedRole?: UserRoles
-) {
+export function hasRequiredRole(userConnected?: User, requestedRole?: Roles) {
   if (!userConnected || !requestedRole) {
     return false
   }
-  // Définir l'ordre des privilèges
 
-  const useRole = userConnected?.role ?? 'public'
-  const userRoleIndex = roleHierarchy.indexOf(useRole as UserRoles)
+  // Vérifier que l'utilisateur a des rôles
+  const userRoles = userConnected?.roles ?? ['public']
   const requestedRoleIndex = roleHierarchy.indexOf(requestedRole)
-  if (requestedRoleIndex === -1 || userRoleIndex === -1) {
+
+  if (requestedRoleIndex === -1) {
     return false
   }
-  //console.log('hasRequiredRole', useRole, requestedRole)
-  if (userRoleIndex >= requestedRoleIndex) {
-    return true
-  }
-  return false
+
+  // Vérifier si au moins un des rôles de l'utilisateur est supérieur ou égal au rôle requis
+  return userRoles.some((role) => {
+    const userRoleIndex = roleHierarchy.indexOf(role as Roles)
+    return userRoleIndex !== -1 && userRoleIndex >= requestedRoleIndex
+  })
 }

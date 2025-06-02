@@ -1,6 +1,8 @@
 import {getUserByIdDao} from '@/db/repositories/user-repository'
 import {getAuthUser} from '@/services/authentication/auth-utils'
 
+import {ROLE_ADMIN} from '../types/domain/auth-types'
+
 export const canReadUser = async (resourceUid: string) => {
   const authUser = await getAuthUser()
   const user = await getUserByIdDao(resourceUid)
@@ -21,5 +23,5 @@ export const canUpdateUser = async (resourceUid: string) => {
 
 const isAdmin = async () => {
   const authUser = await getAuthUser()
-  return authUser?.role === 'admin'
+  return authUser?.roles?.includes(ROLE_ADMIN)
 }

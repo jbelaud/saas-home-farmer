@@ -1,7 +1,6 @@
 import {AccessControl} from 'accesscontrol'
 
-import {RoleEnum} from '../types/domain/auth-types'
-import {UserRoles} from '../types/domain/user-types'
+import {Roles} from '../types/domain/user-types'
 
 export enum GrantActionEnum {
   CREATE = 'create',
@@ -16,7 +15,7 @@ export enum ResourceEnum {
   LOG = 'log',
 }
 export type Grant = {
-  role: UserRoles
+  role: Roles
   resource:
     | ResourceEnum.USERS
     | ResourceEnum.SUBSCRIPTIONS
@@ -29,100 +28,100 @@ export type Grant = {
 const grantAdminList = [
   //user
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.USERS,
     action: 'create:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.USERS,
     action: 'read:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.USERS,
     action: 'update:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.USERS,
     action: 'delete:any',
     attributes: '*',
   },
 
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.SUBSCRIPTIONS,
     action: 'create:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.SUBSCRIPTIONS,
     action: 'read:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.SUBSCRIPTIONS,
     action: 'update:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.SUBSCRIPTIONS,
     action: 'delete:any',
     attributes: '*',
   },
   // Technical permissions for admin
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.TECHNICAL,
     action: 'create:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.TECHNICAL,
     action: 'read:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.TECHNICAL,
     action: 'update:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.TECHNICAL,
     action: 'delete:any',
     attributes: '*',
   },
   // Log permissions for admin
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.LOG,
     action: 'create:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.LOG,
     action: 'read:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.LOG,
     action: 'update:any',
     attributes: '*',
   },
   {
-    role: RoleEnum.ADMIN,
+    role: 'admin',
     resource: ResourceEnum.LOG,
     action: 'delete:any',
     attributes: '*',
@@ -132,32 +131,32 @@ const grantAdminList = [
 const grantUserList = [
   // user
   {
-    role: RoleEnum.USER,
+    role: 'user',
     resource: ResourceEnum.USERS,
     action: 'read:own',
     attributes: '*,!role',
   },
   {
-    role: RoleEnum.USER,
+    role: 'user',
     resource: ResourceEnum.USERS,
     action: 'read:any',
     attributes: '!role',
   },
   {
-    role: RoleEnum.USER,
+    role: 'user',
     resource: ResourceEnum.USERS,
     action: 'update:own',
     attributes: '*,!role',
   },
 
   {
-    role: RoleEnum.USER,
+    role: 'user',
     resource: ResourceEnum.SUBSCRIPTIONS,
     action: 'read:own',
     attributes: '*',
   },
   {
-    role: RoleEnum.USER,
+    role: 'user',
     resource: ResourceEnum.SUBSCRIPTIONS,
     action: 'update:own',
     attributes: '*',
@@ -174,7 +173,7 @@ const grantModeratorList = [
 
 const grantPublicList = [
   {
-    role: RoleEnum.GUEST,
+    role: 'public',
     resource: ResourceEnum.LOG,
     action: 'read:any',
     attributes: ['id', 'name'],

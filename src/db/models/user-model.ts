@@ -11,7 +11,14 @@ import {
 } from 'drizzle-orm/pg-core'
 import type {AdapterAccount} from 'next-auth/adapters'
 
-export const userRoleEnum = pgEnum('user_role', ['user', 'admin', 'public'])
+export const roleEnum = pgEnum('role_type', [
+  'public',
+  'user',
+  'redactor',
+  'moderator',
+  'admin',
+  'super_admin',
+])
 export const userVisibilityEnum = pgEnum('user_visibility', [
   'public',
   'private',
@@ -28,10 +35,40 @@ export const users = pgTable('user', {
   createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
   updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
   image: text('image'),
-  role: userRoleEnum('role').default('user').notNull(),
   password: text('password'),
   visibility: userVisibilityEnum('visibility').default('private').notNull(),
 })
+
+// Nouvelle table pour les rôles
+export const roles = pgTable('role', {
+  id: uuid('id')
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey(),
+  name: roleEnum('name').notNull().unique(),
+  description: text('description'),
+  createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
+  updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
+})
+
+// Table de liaison pour la relation many-to-many entre users et roles
+export const userRoles = pgTable(
+  'user_role',
+  {
+    userId: uuid('userId')
+      .notNull()
+      .references(() => users.id, {onDelete: 'cascade'}),
+    roleId: uuid('roleId')
+      .notNull()
+      .references(() => roles.id, {onDelete: 'cascade'}),
+    assignedAt: timestamp('assignedAt', {mode: 'date'}).defaultNow(),
+    assignedBy: uuid('assignedBy').references(() => users.id),
+  },
+  (userRole) => ({
+    compoundKey: primaryKey({
+      columns: [userRole.userId, userRole.roleId],
+    }),
+  })
+)
 
 export const accounts = pgTable(
   'account',
@@ -94,14 +131,53 @@ export const authenticators = pgTable(
     }),
   })
 )
-export const usersRelations = relations(users, ({one}) => ({
+
+export const usersRelations = relations(users, ({one, many}) => ({
   account: one(accounts, {
     fields: [users.id],
     references: [accounts.userId],
   }),
+  userRoles: many(userRoles, {
+    relationName: 'userToRoles',
+  }),
+  assignedRoles: many(userRoles, {
+    relationName: 'assignedBy',
+  }),
   // finances: many(finance),
+}))
+
+export const rolesRelations = relations(roles, ({many}) => ({
+  userRoles: many(userRoles, {
+    relationName: 'roleToUsers',
+  }),
+}))
+
+export const userRolesRelations = relations(userRoles, ({one}) => ({
+  user: one(users, {
+    fields: [userRoles.userId],
+    references: [users.id],
+    relationName: 'userToRoles',
+  }),
+  role: one(roles, {
+    fields: [userRoles.roleId],
+    references: [roles.id],
+    relationName: 'roleToUsers',
+  }),
+  assignedByUser: one(users, {
+    fields: [userRoles.assignedBy],
+    references: [users.id],
+    relationName: 'assignedBy',
+  }),
 }))
 
 export type UserModel = typeof users.$inferSelect
 export type AddUserModel = typeof users.$inferInsert
 export type UpdateUserModel = typeof users.$inferInsert
+
+export type RoleModel = typeof roles.$inferSelect
+export type AddRoleModel = typeof roles.$inferInsert
+export type UpdateRoleModel = typeof roles.$inferInsert
+
+export type UserRoleModel = typeof userRoles.$inferSelect
+export type AddUserRoleModel = typeof userRoles.$inferInsert
+export type RoleEnumModel = (typeof roleEnum.enumValues)[number]

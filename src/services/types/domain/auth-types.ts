@@ -1,13 +1,4 @@
-import {UserDTO} from './user-types'
-
-export enum RoleEnum {
-  GUEST = 'guest',
-  USER = 'user',
-  REDACTOR = 'redactor',
-  MODERATOR = 'moderator',
-  ADMIN = 'admin',
-  SUPER_ADMIN = 'super_admin',
-}
+import {Roles, UserDTO} from './user-types'
 
 export type WithAuthProps = {
   user: UserDTO
@@ -17,7 +8,7 @@ export type SessionPayload = {
   userId?: string | number //used for simple session
   sessionId?: string //used for multisession db
   expiresAt: Date
-  role?: RoleEnum
+  role?: Roles
 }
 
 export interface SignInError {
@@ -26,11 +17,19 @@ export interface SignInError {
   code?: string
 }
 
+//Roles
 export const roleHierarchy = [
-  RoleEnum.GUEST,
-  RoleEnum.USER,
-  RoleEnum.REDACTOR,
-  RoleEnum.MODERATOR,
-  RoleEnum.ADMIN,
-  RoleEnum.SUPER_ADMIN,
-]
+  'public',
+  'user',
+  'redactor',
+  'moderator',
+  'admin',
+  'super_admin',
+] satisfies Roles[]
+
+export const ROLE_PUBLIC = 'public'
+export const ROLE_USER = 'user'
+export const ROLE_REDACTOR = 'redactor'
+export const ROLE_MODERATOR = 'moderator'
+export const ROLE_ADMIN = 'admin'
+export const ROLE_SUPER_ADMIN = 'super_admin'
