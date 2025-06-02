@@ -27,7 +27,7 @@ export const getAuthUserId = async () => {
   return user.id
 }
 
-export const roleHierarchy = ['public', 'user', 'admin']
+export const roleHierarchy = ['public', 'user', 'admin', 'super_admin']
 
 export function hasRequiredRole(
   userConnected?: User,

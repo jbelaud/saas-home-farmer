@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.9.1",
+    "@casl/ability": "^6.7.3",
     "@faker-js/faker": "^9.8.0",
     "@hookform/resolvers": "^5.0.1",
     "@mdx-js/loader": "^3.1.0",
@@ -119,9 +120,9 @@
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-testing-library": "^7.2.2",
     "eslint-plugin-unicorn": "^58.0.0",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^16.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
