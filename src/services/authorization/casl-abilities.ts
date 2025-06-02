@@ -8,22 +8,27 @@ import {
 import type {User} from '../types/domain/user-types'
 
 // Actions disponibles
-export enum Actions {
-  MANAGE = 'manage', // Action globale (toutes les actions)
-  CREATE = 'create',
-  READ = 'read',
-  UPDATE = 'update',
-  DELETE = 'delete',
-}
+export type Actions = 'create' | 'read' | 'update' | 'delete' | 'manage'
 
 // Subjects (ressources) disponibles
-export enum Subjects {
-  USER = 'User',
-  SUBSCRIPTION = 'Subscription',
-  TECHNICAL = 'Technical',
-  LOG = 'Log',
-  ALL = 'all',
-}
+export type Subjects = 'User' | 'Subscription' | 'Technical' | 'Log' | 'all'
+
+// Constantes pour les actions et subjects
+export const ActionsConst = {
+  CREATE: 'create' as Actions,
+  READ: 'read' as Actions,
+  UPDATE: 'update' as Actions,
+  DELETE: 'delete' as Actions,
+  MANAGE: 'manage' as Actions,
+} as const
+
+export const SubjectsConst = {
+  USER: 'User' as Subjects,
+  SUBSCRIPTION: 'Subscription' as Subjects,
+  TECHNICAL: 'Technical' as Subjects,
+  LOG: 'Log' as Subjects,
+  ALL: 'all' as Subjects,
+} as const
 
 // Type pour l'ability CASL
 export type AppAbility = ReturnType<typeof defineAbilitiesFor>
@@ -38,7 +43,7 @@ export function defineAbilitiesFor(user?: User) {
 
   if (!user) {
     // Utilisateurs non authentifiés (guests)
-    can(Actions.READ, Subjects.LOG, ['id', 'name'])
+    can(ActionsConst.READ, SubjectsConst.LOG, ['id', 'name'])
     return build()
   }
 
@@ -46,21 +51,21 @@ export function defineAbilitiesFor(user?: User) {
   // On garde seulement les rôles ADMIN et USER
 
   if (user.roles?.includes(ROLE_SUPER_ADMIN)) {
-    can(Actions.MANAGE, Subjects.ALL)
+    can(ActionsConst.MANAGE, SubjectsConst.ALL)
     return build()
   }
 
   // Permissions pour ADMIN
   if (user.roles?.includes(ROLE_ADMIN)) {
     // Peut gérer tous les utilisateurs
-    can(Actions.MANAGE, Subjects.USER)
+    can(ActionsConst.MANAGE, SubjectsConst.USER)
 
     // Peut gérer toutes les subscriptions
-    can(Actions.MANAGE, Subjects.SUBSCRIPTION)
+    can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION)
 
     // Peut gérer les aspects techniques et logs
-    can(Actions.MANAGE, Subjects.TECHNICAL)
-    can(Actions.MANAGE, Subjects.LOG)
+    can(ActionsConst.MANAGE, SubjectsConst.TECHNICAL)
+    can(ActionsConst.MANAGE, SubjectsConst.LOG)
 
     return build()
   }
@@ -68,19 +73,19 @@ export function defineAbilitiesFor(user?: User) {
   // Permissions pour USER
   if (user.roles?.includes(ROLE_USER)) {
     // Utilisateurs - peut lire et modifier son propre profil
-    can(Actions.READ, Subjects.USER, {id: user.id})
-    can(Actions.UPDATE, Subjects.USER, {id: user.id})
+    can(ActionsConst.READ, SubjectsConst.USER, {id: user.id})
+    can(ActionsConst.UPDATE, SubjectsConst.USER, {id: user.id})
 
     // Peut lire les profils publics d'autres utilisateurs
-    can(Actions.READ, Subjects.USER, {visibility: 'public'})
+    can(ActionsConst.READ, SubjectsConst.USER, {visibility: 'public'})
 
     // Restrictions sur les champs sensibles des utilisateurs
-    cannot(Actions.READ, Subjects.USER, [
+    cannot(ActionsConst.READ, SubjectsConst.USER, [
       'role',
       'permissions',
       'internalNotes',
     ])
-    cannot(Actions.UPDATE, Subjects.USER, [
+    cannot(ActionsConst.UPDATE, SubjectsConst.USER, [
       'role',
       'permissions',
       'createdAt',
@@ -88,18 +93,21 @@ export function defineAbilitiesFor(user?: User) {
     ])
 
     // Subscriptions - peut lire et modifier ses propres subscriptions
-    can(Actions.READ, Subjects.SUBSCRIPTION, {userId: user.id})
-    can(Actions.UPDATE, Subjects.SUBSCRIPTION, {userId: user.id})
-    can(Actions.CREATE, Subjects.SUBSCRIPTION)
+    can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION, {userId: user.id})
+    can(ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION, {userId: user.id})
+    can(ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
+
+    // Peut lire les logs (accès en lecture seule)
+    can(ActionsConst.READ, SubjectsConst.LOG)
 
     // Ne peut pas supprimer d'autres utilisateurs
-    cannot(Actions.DELETE, Subjects.USER)
+    cannot(ActionsConst.DELETE, SubjectsConst.USER)
 
     return build()
   }
 
   // Permissions par défaut pour utilisateurs connectés sans rôle spécifique
-  can(Actions.READ, Subjects.LOG, ['id', 'name'])
+  can(ActionsConst.READ, SubjectsConst.LOG, ['id', 'name'])
 
   return build()
 }
@@ -121,7 +129,7 @@ export function userCan(
   subject: Subjects
 ): boolean {
   const ability = defineAbilitiesFor(user)
-  return ability.can(action, subject as string)
+  return ability.can(action, subject)
 }
 
 /**
@@ -133,7 +141,7 @@ export function userCannot(
   subject: Subjects
 ): boolean {
   const ability = defineAbilitiesFor(user)
-  return ability.cannot(action, subject as string)
+  return ability.cannot(action, subject)
 }
 
 /**
@@ -147,13 +155,31 @@ export function userCanOnResource(
 ): boolean {
   const ability = defineAbilitiesFor(user)
 
-  // Créer un objet avec le type de subject pour CASL
-  const subjectObject = {
-    __type: subject,
-    ...resource,
+  // CASL avec conditions: on crée un objet "subject" que CASL peut reconnaître
+  // CASL va matcher les conditions définies dans les règles (ex: {id: user.id})
+  const subjectObject = Object.assign({}, resource)
+
+  // On utilise l'API interne de CASL pour vérifier avec des conditions
+  const rules = ability.rulesFor(action, subject)
+
+  // Si aucune règle, permission refusée
+  if (rules.length === 0) {
+    return false
   }
 
-  return ability.can(action, subjectObject)
+  // Vérifier si au moins une règle permet l'accès
+  return rules.some((rule) => {
+    if (!rule.conditions) {
+      return true // Règle sans condition = permission globale
+    }
+
+    // Vérifier si l'objet match les conditions de la règle
+    return Object.keys(rule.conditions).every((key) => {
+      const ruleValue = rule.conditions![key]
+      const objectValue = subjectObject[key]
+      return ruleValue === objectValue
+    })
+  })
 }
 
 /**
@@ -168,7 +194,7 @@ export function filterFields<T extends Record<string, unknown>>(
   const ability = defineAbilitiesFor(user)
 
   // Vérifier si l'utilisateur peut effectuer l'action
-  if (!ability.can(action, subject as string)) {
+  if (!ability.can(action, subject)) {
     return {}
   }
 

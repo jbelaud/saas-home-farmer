@@ -4,12 +4,12 @@ import {ROLE_ADMIN, ROLE_USER} from '@/services/types/domain/auth-types'
 
 import type {User} from '../../types/domain/user-types'
 import {
-  Actions,
+  ActionsConst,
   createUserAbility,
   defineAbilitiesFor,
   filterFields,
   isUserAdmin,
-  Subjects,
+  SubjectsConst,
   userCan,
   userCannot,
   userCanOnResource,
@@ -62,91 +62,127 @@ describe('CASL Abilities', () => {
     it('devrait créer une ability pour un guest', () => {
       const ability = defineAbilitiesFor(guestUser)
       expect(ability).toBeDefined()
-      expect(ability.can(Actions.READ, Subjects.LOG)).toBe(true)
-      expect(ability.can(Actions.CREATE, Subjects.USER)).toBe(false)
+      expect(ability.can(ActionsConst.READ, SubjectsConst.LOG)).toBe(true)
+      expect(ability.can(ActionsConst.CREATE, SubjectsConst.USER)).toBe(false)
     })
 
     it('devrait créer une ability pour un utilisateur régulier', () => {
       const ability = defineAbilitiesFor(regularUser)
       expect(ability).toBeDefined()
-      expect(ability.can(Actions.READ, Subjects.SUBSCRIPTION)).toBe(true)
-      expect(ability.can(Actions.MANAGE, Subjects.USER)).toBe(false)
+      expect(ability.can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION)).toBe(
+        true
+      )
+      expect(ability.can(ActionsConst.MANAGE, SubjectsConst.USER)).toBe(false)
     })
 
     it('devrait créer une ability pour un admin', () => {
       const ability = defineAbilitiesFor(adminUser)
       expect(ability).toBeDefined()
-      expect(ability.can(Actions.MANAGE, Subjects.USER)).toBe(true)
-      expect(ability.can(Actions.MANAGE, Subjects.SUBSCRIPTION)).toBe(true)
+      expect(ability.can(ActionsConst.MANAGE, SubjectsConst.USER)).toBe(true)
+      expect(ability.can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION)).toBe(
+        true
+      )
     })
 
     it('devrait créer une ability pour un super admin', () => {
       const ability = defineAbilitiesFor(superAdminUser)
       expect(ability).toBeDefined()
       // Puisque c'est un ADMIN, il peut gérer les utilisateurs mais pas forcément tout
-      expect(ability.can(Actions.MANAGE, Subjects.USER)).toBe(true)
-      expect(ability.can(Actions.MANAGE, Subjects.SUBSCRIPTION)).toBe(true)
+      expect(ability.can(ActionsConst.MANAGE, SubjectsConst.USER)).toBe(true)
+      expect(ability.can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION)).toBe(
+        true
+      )
     })
   })
 
   describe('Permissions pour les utilisateurs (User Subject)', () => {
     describe('Guest (non authentifié)', () => {
       it('ne peut pas lire les utilisateurs', () => {
-        expect(userCan(guestUser, Actions.READ, Subjects.USER)).toBe(false)
+        expect(userCan(guestUser, ActionsConst.READ, SubjectsConst.USER)).toBe(
+          false
+        )
       })
 
       it('ne peut pas créer des utilisateurs', () => {
-        expect(userCan(guestUser, Actions.CREATE, Subjects.USER)).toBe(false)
+        expect(
+          userCan(guestUser, ActionsConst.CREATE, SubjectsConst.USER)
+        ).toBe(false)
       })
 
       it('ne peut pas modifier des utilisateurs', () => {
-        expect(userCan(guestUser, Actions.UPDATE, Subjects.USER)).toBe(false)
+        expect(
+          userCan(guestUser, ActionsConst.UPDATE, SubjectsConst.USER)
+        ).toBe(false)
       })
     })
 
     describe('Utilisateur régulier', () => {
       it('peut lire les utilisateurs (règle générale)', () => {
-        expect(userCan(regularUser, Actions.READ, Subjects.USER)).toBe(true)
+        expect(
+          userCan(regularUser, ActionsConst.READ, SubjectsConst.USER)
+        ).toBe(true)
       })
 
       it('peut modifier les utilisateurs (avec conditions)', () => {
-        expect(userCan(regularUser, Actions.UPDATE, Subjects.USER)).toBe(true)
+        expect(
+          userCan(regularUser, ActionsConst.UPDATE, SubjectsConst.USER)
+        ).toBe(true)
       })
 
       it('ne peut pas supprimer des utilisateurs', () => {
-        expect(userCan(regularUser, Actions.DELETE, Subjects.USER)).toBe(false)
-        expect(userCannot(regularUser, Actions.DELETE, Subjects.USER)).toBe(
-          true
-        )
+        expect(
+          userCan(regularUser, ActionsConst.DELETE, SubjectsConst.USER)
+        ).toBe(false)
+        expect(
+          userCannot(regularUser, ActionsConst.DELETE, SubjectsConst.USER)
+        ).toBe(true)
       })
 
       it('ne peut pas gérer (manage) des utilisateurs', () => {
-        expect(userCan(regularUser, Actions.MANAGE, Subjects.USER)).toBe(false)
+        expect(
+          userCan(regularUser, ActionsConst.MANAGE, SubjectsConst.USER)
+        ).toBe(false)
       })
     })
 
     describe('Admin', () => {
       it('peut gérer (manage) tous les utilisateurs', () => {
-        expect(userCan(adminUser, Actions.MANAGE, Subjects.USER)).toBe(true)
+        expect(
+          userCan(adminUser, ActionsConst.MANAGE, SubjectsConst.USER)
+        ).toBe(true)
       })
 
       it('peut effectuer toutes les actions sur les utilisateurs', () => {
-        expect(userCan(adminUser, Actions.CREATE, Subjects.USER)).toBe(true)
-        expect(userCan(adminUser, Actions.READ, Subjects.USER)).toBe(true)
-        expect(userCan(adminUser, Actions.UPDATE, Subjects.USER)).toBe(true)
-        expect(userCan(adminUser, Actions.DELETE, Subjects.USER)).toBe(true)
+        expect(
+          userCan(adminUser, ActionsConst.CREATE, SubjectsConst.USER)
+        ).toBe(true)
+        expect(userCan(adminUser, ActionsConst.READ, SubjectsConst.USER)).toBe(
+          true
+        )
+        expect(
+          userCan(adminUser, ActionsConst.UPDATE, SubjectsConst.USER)
+        ).toBe(true)
+        expect(
+          userCan(adminUser, ActionsConst.DELETE, SubjectsConst.USER)
+        ).toBe(true)
       })
     })
 
     describe('Super Admin', () => {
       it('peut gérer les principales ressources', () => {
-        expect(userCan(superAdminUser, Actions.MANAGE, Subjects.USER)).toBe(
-          true
-        )
         expect(
-          userCan(superAdminUser, Actions.MANAGE, Subjects.SUBSCRIPTION)
+          userCan(superAdminUser, ActionsConst.MANAGE, SubjectsConst.USER)
         ).toBe(true)
-        expect(userCan(superAdminUser, Actions.MANAGE, Subjects.LOG)).toBe(true)
+        expect(
+          userCan(
+            superAdminUser,
+            ActionsConst.MANAGE,
+            SubjectsConst.SUBSCRIPTION
+          )
+        ).toBe(true)
+        expect(
+          userCan(superAdminUser, ActionsConst.MANAGE, SubjectsConst.LOG)
+        ).toBe(true)
       })
     })
   })
@@ -154,94 +190,111 @@ describe('CASL Abilities', () => {
   describe('Permissions pour les subscriptions', () => {
     describe('Guest', () => {
       it('ne peut pas accéder aux subscriptions', () => {
-        expect(userCan(guestUser, Actions.READ, Subjects.SUBSCRIPTION)).toBe(
-          false
-        )
-        expect(userCan(guestUser, Actions.CREATE, Subjects.SUBSCRIPTION)).toBe(
-          false
-        )
+        expect(
+          userCan(guestUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
+        ).toBe(false)
+        expect(
+          userCan(guestUser, ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
+        ).toBe(false)
       })
     })
 
     describe('Utilisateur régulier', () => {
       it('peut lire les subscriptions', () => {
-        expect(userCan(regularUser, Actions.READ, Subjects.SUBSCRIPTION)).toBe(
-          true
-        )
+        expect(
+          userCan(regularUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
+        ).toBe(true)
       })
 
       it('peut créer des subscriptions', () => {
         expect(
-          userCan(regularUser, Actions.CREATE, Subjects.SUBSCRIPTION)
+          userCan(regularUser, ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
         ).toBe(true)
       })
 
       it('peut modifier les subscriptions', () => {
         expect(
-          userCan(regularUser, Actions.UPDATE, Subjects.SUBSCRIPTION)
+          userCan(regularUser, ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION)
         ).toBe(true)
       })
 
       it('ne peut pas supprimer des subscriptions par défaut', () => {
         expect(
-          userCan(regularUser, Actions.DELETE, Subjects.SUBSCRIPTION)
+          userCan(regularUser, ActionsConst.DELETE, SubjectsConst.SUBSCRIPTION)
         ).toBe(false)
       })
     })
 
     describe('Admin', () => {
       it('peut gérer toutes les subscriptions', () => {
-        expect(userCan(adminUser, Actions.MANAGE, Subjects.SUBSCRIPTION)).toBe(
-          true
-        )
-        expect(userCan(adminUser, Actions.DELETE, Subjects.SUBSCRIPTION)).toBe(
-          true
-        )
+        expect(
+          userCan(adminUser, ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION)
+        ).toBe(true)
+        expect(
+          userCan(adminUser, ActionsConst.DELETE, SubjectsConst.SUBSCRIPTION)
+        ).toBe(true)
       })
     })
   })
 
   describe('Permissions pour les logs', () => {
-    it.skip('tous les utilisateurs peuvent lire les logs', () => {
-      expect(userCan(guestUser, Actions.READ, Subjects.LOG)).toBe(true)
-      expect(userCan(regularUser, Actions.READ, Subjects.LOG)).toBe(true)
-      expect(userCan(adminUser, Actions.READ, Subjects.LOG)).toBe(true)
+    it('tous les utilisateurs peuvent lire les logs', () => {
+      expect(userCan(guestUser, ActionsConst.READ, SubjectsConst.LOG)).toBe(
+        true
+      )
+      expect(userCan(regularUser, ActionsConst.READ, SubjectsConst.LOG)).toBe(
+        true
+      )
+      expect(userCan(adminUser, ActionsConst.READ, SubjectsConst.LOG)).toBe(
+        true
+      )
     })
 
     it('seuls les admins peuvent gérer les logs', () => {
-      expect(userCan(guestUser, Actions.MANAGE, Subjects.LOG)).toBe(false)
-      expect(userCan(regularUser, Actions.MANAGE, Subjects.LOG)).toBe(false)
-      expect(userCan(adminUser, Actions.MANAGE, Subjects.LOG)).toBe(true)
+      expect(userCan(guestUser, ActionsConst.MANAGE, SubjectsConst.LOG)).toBe(
+        false
+      )
+      expect(userCan(regularUser, ActionsConst.MANAGE, SubjectsConst.LOG)).toBe(
+        false
+      )
+      expect(userCan(adminUser, ActionsConst.MANAGE, SubjectsConst.LOG)).toBe(
+        true
+      )
     })
   })
 
   describe('userCanOnResource - Permissions avec conditions', () => {
-    it.skip('un utilisateur peut accéder à son propre profil', () => {
+    it('un utilisateur peut accéder à son propre profil', () => {
       const ownProfile = {id: regularUser.id, name: 'Own Profile'}
       expect(
-        userCanOnResource(regularUser, Actions.READ, Subjects.USER, ownProfile)
+        userCanOnResource(
+          regularUser,
+          ActionsConst.READ,
+          SubjectsConst.USER,
+          ownProfile
+        )
       ).toBe(true)
     })
 
-    it.skip('un utilisateur peut accéder à un profil public', () => {
+    it('un utilisateur peut accéder à un profil public', () => {
       const publicProfile = {id: 'other-user', visibility: 'public'}
       expect(
         userCanOnResource(
           regularUser,
-          Actions.READ,
-          Subjects.USER,
+          ActionsConst.READ,
+          SubjectsConst.USER,
           publicProfile
         )
       ).toBe(true)
     })
 
-    it.skip('un utilisateur peut accéder à ses propres subscriptions', () => {
+    it('un utilisateur peut accéder à ses propres subscriptions', () => {
       const ownSubscription = {id: 'sub-123', userId: regularUser.id}
       expect(
         userCanOnResource(
           regularUser,
-          Actions.READ,
-          Subjects.SUBSCRIPTION,
+          ActionsConst.READ,
+          SubjectsConst.SUBSCRIPTION,
           ownSubscription
         )
       ).toBe(true)
@@ -252,8 +305,8 @@ describe('CASL Abilities', () => {
       expect(
         userCanOnResource(
           regularUser,
-          Actions.READ,
-          Subjects.SUBSCRIPTION,
+          ActionsConst.READ,
+          SubjectsConst.SUBSCRIPTION,
           otherSubscription
         )
       ).toBe(false)
@@ -271,8 +324,8 @@ describe('CASL Abilities', () => {
 
       const filtered = filterFields(
         regularUser,
-        Actions.READ,
-        Subjects.USER,
+        ActionsConst.READ,
+        SubjectsConst.USER,
         userData
       )
 
@@ -288,8 +341,8 @@ describe('CASL Abilities', () => {
 
       const filtered = filterFields(
         guestUser,
-        Actions.UPDATE,
-        Subjects.USER,
+        ActionsConst.UPDATE,
+        SubjectsConst.USER,
         userData
       )
 
@@ -306,8 +359,8 @@ describe('CASL Abilities', () => {
 
       const filtered = filterFields(
         adminUser,
-        Actions.READ,
-        Subjects.USER,
+        ActionsConst.READ,
+        SubjectsConst.USER,
         userData
       )
 
@@ -321,11 +374,11 @@ describe('CASL Abilities', () => {
         const ability1 = createUserAbility(regularUser)
         const ability2 = defineAbilitiesFor(regularUser)
 
-        expect(ability1.can(Actions.READ, Subjects.USER)).toBe(
-          ability2.can(Actions.READ, Subjects.USER)
+        expect(ability1.can(ActionsConst.READ, SubjectsConst.USER)).toBe(
+          ability2.can(ActionsConst.READ, SubjectsConst.USER)
         )
-        expect(ability1.can(Actions.MANAGE, Subjects.USER)).toBe(
-          ability2.can(Actions.MANAGE, Subjects.USER)
+        expect(ability1.can(ActionsConst.MANAGE, SubjectsConst.USER)).toBe(
+          ability2.can(ActionsConst.MANAGE, SubjectsConst.USER)
         )
       })
     })
@@ -351,30 +404,38 @@ describe('CASL Abilities', () => {
     describe('userCannot', () => {
       it("devrait être l'inverse de userCan", () => {
         // Test avec une permission accordée
-        expect(userCan(regularUser, Actions.READ, Subjects.SUBSCRIPTION)).toBe(
-          true
-        )
         expect(
-          userCannot(regularUser, Actions.READ, Subjects.SUBSCRIPTION)
+          userCan(regularUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
+        ).toBe(true)
+        expect(
+          userCannot(regularUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
         ).toBe(false)
 
         // Test avec une permission refusée
-        expect(userCan(regularUser, Actions.DELETE, Subjects.USER)).toBe(false)
-        expect(userCannot(regularUser, Actions.DELETE, Subjects.USER)).toBe(
-          true
-        )
+        expect(
+          userCan(regularUser, ActionsConst.DELETE, SubjectsConst.USER)
+        ).toBe(false)
+        expect(
+          userCannot(regularUser, ActionsConst.DELETE, SubjectsConst.USER)
+        ).toBe(true)
       })
     })
   })
 
   describe('Permissions techniques', () => {
     it('seuls les admins peuvent accéder aux ressources techniques', () => {
-      expect(userCan(guestUser, Actions.READ, Subjects.TECHNICAL)).toBe(false)
-      expect(userCan(regularUser, Actions.READ, Subjects.TECHNICAL)).toBe(false)
-      expect(userCan(adminUser, Actions.MANAGE, Subjects.TECHNICAL)).toBe(true)
-      expect(userCan(superAdminUser, Actions.MANAGE, Subjects.TECHNICAL)).toBe(
-        true
-      )
+      expect(
+        userCan(guestUser, ActionsConst.READ, SubjectsConst.TECHNICAL)
+      ).toBe(false)
+      expect(
+        userCan(regularUser, ActionsConst.READ, SubjectsConst.TECHNICAL)
+      ).toBe(false)
+      expect(
+        userCan(adminUser, ActionsConst.MANAGE, SubjectsConst.TECHNICAL)
+      ).toBe(true)
+      expect(
+        userCan(superAdminUser, ActionsConst.MANAGE, SubjectsConst.TECHNICAL)
+      ).toBe(true)
     })
   })
 
@@ -394,19 +455,23 @@ describe('CASL Abilities', () => {
 
     it('un utilisateur USER a des permissions limitées', () => {
       // Un utilisateur USER ne peut pas gérer tous les utilisateurs
-      expect(userCan(userWithUserRole, Actions.MANAGE, Subjects.USER)).toBe(
-        false
-      )
-      expect(userCan(userWithUserRole, Actions.DELETE, Subjects.USER)).toBe(
-        false
-      )
+      expect(
+        userCan(userWithUserRole, ActionsConst.MANAGE, SubjectsConst.USER)
+      ).toBe(false)
+      expect(
+        userCan(userWithUserRole, ActionsConst.DELETE, SubjectsConst.USER)
+      ).toBe(false)
 
       // Mais il peut lire et créer des subscriptions
       expect(
-        userCan(userWithUserRole, Actions.READ, Subjects.SUBSCRIPTION)
+        userCan(userWithUserRole, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
       ).toBe(true)
       expect(
-        userCan(userWithUserRole, Actions.CREATE, Subjects.SUBSCRIPTION)
+        userCan(
+          userWithUserRole,
+          ActionsConst.CREATE,
+          SubjectsConst.SUBSCRIPTION
+        )
       ).toBe(true)
     })
   })
