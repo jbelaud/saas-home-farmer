@@ -44,6 +44,10 @@ export function defineAbilitiesFor(user?: User) {
   if (!user) {
     // Utilisateurs non authentifiés (guests)
     can(ActionsConst.READ, SubjectsConst.LOG, ['id', 'name'])
+
+    // Peut lire les profils publics d'utilisateurs
+    can(ActionsConst.READ, SubjectsConst.USER, {visibility: 'public'})
+
     return build()
   }
 

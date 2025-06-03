@@ -97,10 +97,28 @@ describe('CASL Abilities', () => {
 
   describe('Permissions pour les utilisateurs (User Subject)', () => {
     describe('Guest (non authentifié)', () => {
-      it('ne peut pas lire les utilisateurs', () => {
-        expect(userCan(guestUser, ActionsConst.READ, SubjectsConst.USER)).toBe(
-          false
-        )
+      it('peut lire les utilisateurs publics', () => {
+        const publicProfile = {id: 'user-123', visibility: 'public'}
+        expect(
+          userCanOnResource(
+            guestUser,
+            ActionsConst.READ,
+            SubjectsConst.USER,
+            publicProfile
+          )
+        ).toBe(true)
+      })
+
+      it('ne peut pas lire les utilisateurs privés', () => {
+        const privateProfile = {id: 'user-123', visibility: 'private'}
+        expect(
+          userCanOnResource(
+            guestUser,
+            ActionsConst.READ,
+            SubjectsConst.USER,
+            privateProfile
+          )
+        ).toBe(false)
       })
 
       it('ne peut pas créer des utilisateurs', () => {

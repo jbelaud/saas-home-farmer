@@ -1,27 +1,38 @@
 import {getUserByIdDao} from '@/db/repositories/user-repository'
 import {getAuthUser} from '@/services/authentication/auth-utils'
 
-import {ROLE_ADMIN} from '../types/domain/auth-types'
+import {
+  ActionsConst,
+  isUserAdmin,
+  SubjectsConst,
+  userCanOnResource,
+} from './casl-abilities'
 
-export const canReadUser = async (resourceUid: string) => {
+export const canReadUser = async (resourceUid: string): Promise<boolean> => {
   const authUser = await getAuthUser()
-  const user = await getUserByIdDao(resourceUid)
-  if (
-    (await isAdmin()) ||
-    authUser?.id === resourceUid ||
-    user?.visibility === 'public'
-  )
-    return true
-  return false
+
+  // Récupérer l'utilisateur cible pour vérifier la visibilité
+  const targetUser = await getUserByIdDao(resourceUid)
+  if (!targetUser) return false
+
+  // Utiliser CASL pour vérifier les permissions avec conditions
+  return userCanOnResource(authUser, ActionsConst.READ, SubjectsConst.USER, {
+    id: targetUser.id,
+    visibility: targetUser.visibility,
+  })
 }
 
-export const canUpdateUser = async (resourceUid: string) => {
+export const canUpdateUser = async (resourceUid: string): Promise<boolean> => {
   const authUser = await getAuthUser()
-  if ((await isAdmin()) || authUser?.id === resourceUid) return true
-  return false
+
+  // Utiliser CASL pour vérifier les permissions avec condition de propriété
+  return userCanOnResource(authUser, ActionsConst.UPDATE, SubjectsConst.USER, {
+    id: resourceUid,
+  })
 }
 
-const isAdmin = async () => {
+// Fonction de compatibilité - maintenant basée sur CASL
+export const isAdmin = async (): Promise<boolean> => {
   const authUser = await getAuthUser()
-  return authUser?.roles?.includes(ROLE_ADMIN)
+  return isUserAdmin(authUser)
 }
