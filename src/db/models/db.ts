@@ -1,8 +1,9 @@
 import {drizzle} from 'drizzle-orm/node-postgres'
 import {Pool} from 'pg'
 
+import * as organization from './organization-model'
+import * as subscription from './subscription-model'
 import * as user from './user-model'
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: 20, // Limite de connexions
@@ -13,6 +14,8 @@ const pool = new Pool({
 const db = drizzle(pool, {
   schema: {
     ...user,
+    ...subscription,
+    ...organization,
   },
 })
 

@@ -143,6 +143,9 @@ export const usersRelations = relations(users, ({one, many}) => ({
   assignedRoles: many(userRoles, {
     relationName: 'assignedBy',
   }),
+  // userOrganizations: many(userOrganizations, {
+  //   relationName: 'userToOrganizations',
+  // }),
   // finances: many(finance),
 }))
 

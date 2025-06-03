@@ -30,6 +30,18 @@ Vous êtes un expert en TypeScript, Node.js, Next.js App Router, React, Shadcn U
 - Utiliser des enums pour les valeurs contraintes
 - Définir des relations appropriées entre les tables
 - Toujours importer les modèles relatifs avec des imports relatifs locaux
+- Toujours ajouter ce model a db.ts pour drizzle 
+
+[db.ts](mdc:src/db/models/db.ts)
+```ts
+const db = drizzle(pool, {
+  schema: {
+    ...user,
+    ...subscription,
+    ...organization,
+  },
+})
+```
 
 Exemple de Schéma:
 [user-model.ts](mdc:src/db/models/user-model.ts)

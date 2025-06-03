@@ -1,8 +1,28 @@
+CREATE TYPE "public"."organization_role" AS ENUM('OWNER', 'ADMIN', 'MEMBER');--> statement-breakpoint
 CREATE TYPE "public"."subscription_plan" AS ENUM('CODEMAIL_FREE', 'CODEMAIL_PRO', 'CODEMAIL_LIFETIME');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status" AS ENUM('active', 'grace_period', 'canceled', 'expired');--> statement-breakpoint
 CREATE TYPE "public"."subscription_types" AS ENUM('subscription', 'payment');--> statement-breakpoint
-CREATE TYPE "public"."role_type" AS ENUM('user', 'admin', 'public');--> statement-breakpoint
+CREATE TYPE "public"."role_type" AS ENUM('public', 'user', 'redactor', 'moderator', 'admin', 'super_admin');--> statement-breakpoint
 CREATE TYPE "public"."user_visibility" AS ENUM('public', 'private');--> statement-breakpoint
+CREATE TABLE "organization" (
+	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"name" text NOT NULL,
+	"slug" text NOT NULL,
+	"description" text,
+	"image" text,
+	"createdat" timestamp DEFAULT now(),
+	"updatedat" timestamp DEFAULT now(),
+	CONSTRAINT "organization_slug_unique" UNIQUE("slug")
+);
+--> statement-breakpoint
+CREATE TABLE "user_organization" (
+	"userId" uuid NOT NULL,
+	"organizationId" uuid NOT NULL,
+	"role" "organization_role" DEFAULT 'MEMBER' NOT NULL,
+	"joinedAt" timestamp DEFAULT now(),
+	CONSTRAINT "user_organization_userId_organizationId_pk" PRIMARY KEY("userId","organizationId")
+);
+--> statement-breakpoint
 CREATE TABLE "subscription" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -97,6 +117,8 @@ CREATE TABLE "verificationToken" (
 	CONSTRAINT "verificationToken_identifier_token_pk" PRIMARY KEY("identifier","token")
 );
 --> statement-breakpoint
+ALTER TABLE "user_organization" ADD CONSTRAINT "user_organization_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_organization" ADD CONSTRAINT "user_organization_organizationId_organization_id_fk" FOREIGN KEY ("organizationId") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "authenticator" ADD CONSTRAINT "authenticator_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

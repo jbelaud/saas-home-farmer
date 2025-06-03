@@ -75,6 +75,45 @@ const seed = async () => {
     ON CONFLICT ("userId", "roleId") DO NOTHING;
   `)
 
+  // 4. Insérer les organisations
+  await client.query(`
+    INSERT INTO "organization" (name, slug, description, image)
+    VALUES
+      ('TechCorp Solutions', 'techcorp-solutions', 'Une entreprise de développement logiciel innovante', 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400'),
+      ('Marketing Pro', 'marketing-pro', 'Agence de marketing digital et communication', 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=400')
+    ON CONFLICT (slug) DO NOTHING;
+  `)
+
+  // 5. Assigner les utilisateurs aux organisations avec des rôles
+  await client.query(`
+    INSERT INTO "user_organization" ("userId", "organizationId", role)
+    SELECT 
+      u.id as "userId",
+      o.id as "organizationId",
+      CASE 
+        WHEN u.email = 'admin@mikecodeur.com' AND o.slug = 'techcorp-solutions' THEN 'OWNER'
+        WHEN u.email = 'ons@mikecodeur.com' AND o.slug = 'techcorp-solutions' THEN 'ADMIN'
+        WHEN u.email = 'julien@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
+        WHEN u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
+        WHEN u.email = 'moderator@gmail.com' AND o.slug = 'marketing-pro' THEN 'OWNER'
+        WHEN u.email = 'moderator-2@gmail.com' AND o.slug = 'marketing-pro' THEN 'ADMIN'
+        WHEN u.email = 'redactor-2@gmail.com' AND o.slug = 'marketing-pro' THEN 'MEMBER'
+        WHEN u.email = 'admin@gmail.com' AND o.slug = 'marketing-pro' THEN 'MEMBER'
+        ELSE 'MEMBER'
+      END::organization_role
+    FROM "user" u, "organization" o
+    WHERE 
+      (u.email = 'admin@mikecodeur.com' AND o.slug = 'techcorp-solutions') OR
+      (u.email = 'ons@mikecodeur.com' AND o.slug = 'techcorp-solutions') OR
+      (u.email = 'julien@gmail.com' AND o.slug = 'techcorp-solutions') OR
+      (u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions') OR
+      (u.email = 'moderator@gmail.com' AND o.slug = 'marketing-pro') OR
+      (u.email = 'moderator-2@gmail.com' AND o.slug = 'marketing-pro') OR
+      (u.email = 'redactor-2@gmail.com' AND o.slug = 'marketing-pro') OR
+      (u.email = 'admin@gmail.com' AND o.slug = 'marketing-pro')
+    ON CONFLICT ("userId", "organizationId") DO NOTHING;
+  `)
+
   const end = Date.now()
 
   console.log('✅ Seed inserted in', end - start, 'ms')
