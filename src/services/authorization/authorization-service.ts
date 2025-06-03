@@ -11,7 +11,13 @@ import type {User} from '../types/domain/user-types'
 export type Actions = 'create' | 'read' | 'update' | 'delete' | 'manage'
 
 // Subjects (ressources) disponibles
-export type Subjects = 'User' | 'Subscription' | 'Technical' | 'Log' | 'all'
+export type Subjects =
+  | 'User'
+  | 'Subscription'
+  | 'Organization'
+  | 'Technical'
+  | 'Log'
+  | 'all'
 
 // Constantes pour les actions et subjects
 export const ActionsConst = {
@@ -25,6 +31,7 @@ export const ActionsConst = {
 export const SubjectsConst = {
   USER: 'User' as Subjects,
   SUBSCRIPTION: 'Subscription' as Subjects,
+  ORGANIZATION: 'Organization' as Subjects,
   TECHNICAL: 'Technical' as Subjects,
   LOG: 'Log' as Subjects,
   ALL: 'all' as Subjects,
@@ -67,6 +74,9 @@ export function defineAbilitiesFor(user?: User) {
     // Peut gérer toutes les subscriptions
     can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION)
 
+    // Peut gérer toutes les organisations
+    can(ActionsConst.MANAGE, SubjectsConst.ORGANIZATION)
+
     // Peut gérer les aspects techniques et logs
     can(ActionsConst.MANAGE, SubjectsConst.TECHNICAL)
     can(ActionsConst.MANAGE, SubjectsConst.LOG)
@@ -100,6 +110,10 @@ export function defineAbilitiesFor(user?: User) {
     can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION, {userId: user.id})
     can(ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION, {userId: user.id})
     can(ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
+
+    // Organizations - permissions basées sur le rôle dans l'organisation
+    can(ActionsConst.READ, SubjectsConst.ORGANIZATION) // Peut lire toutes les orgs (public info)
+    can(ActionsConst.CREATE, SubjectsConst.ORGANIZATION) // Peut créer une organisation
 
     // Peut lire les logs (accès en lecture seule)
     can(ActionsConst.READ, SubjectsConst.LOG)
