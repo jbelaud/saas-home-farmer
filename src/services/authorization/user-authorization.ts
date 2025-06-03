@@ -1,12 +1,8 @@
 import {getUserByIdDao} from '@/db/repositories/user-repository'
 import {getAuthUser} from '@/services/authentication/auth-utils'
 
-import {
-  ActionsConst,
-  isUserAdmin,
-  SubjectsConst,
-  userCanOnResource,
-} from './authorization-service'
+import {isUserAdmin, userCanOnResource} from './authorization-service'
+import {ActionsConst, SubjectsConst} from './casl-abilities'
 
 export const canReadUser = async (resourceId: string): Promise<boolean> => {
   const authUser = await getAuthUser()

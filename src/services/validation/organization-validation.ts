@@ -1,12 +1,12 @@
 import {z} from 'zod'
 
+import {UserOrganizationRoleConst} from '../types/domain/auth-types'
 import {
   CreateOrganization,
   CreateUserOrganization,
   Organization,
   OrganizationRole,
   UpdateOrganization,
-  UserOrganizationRoleConst,
 } from '../types/domain/organization-types'
 
 export const baseOrganizationServiceSchema = z.object({

@@ -32,12 +32,12 @@ import {
   ValidationParsedZodError,
 } from './errors/validation-error'
 import {Pagination} from './types/common-type'
+import {UserOrganizationRoleConst} from './types/domain/auth-types'
 import {
   CreateOrganization,
   CreateUserOrganization,
   OrganizationRole,
   UpdateOrganization,
-  UserOrganizationRoleConst,
 } from './types/domain/organization-types'
 import {
   createOrganizationServiceSchema,

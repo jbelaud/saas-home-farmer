@@ -1,17 +1,14 @@
 import {describe, expect, it} from 'vitest'
 
-import {ROLE_USER} from '@/services/types/domain/auth-types'
 import {
-  type OrganizationRole,
+  ROLE_USER,
   UserOrganizationRoleConst,
-} from '@/services/types/domain/organization-types'
+} from '@/services/types/domain/auth-types'
+import {type OrganizationRole} from '@/services/types/domain/organization-types'
 import type {User} from '@/services/types/domain/user-types'
 
-import {
-  ActionsConst,
-  defineAbilitiesFor,
-  SubjectsConst,
-} from '../authorization-service'
+import {defineAbilitiesFor} from '../authorization-service'
+import {ActionsConst, SubjectsConst} from '../casl-abilities'
 
 // Données de test
 const organizationId = 'org-123'

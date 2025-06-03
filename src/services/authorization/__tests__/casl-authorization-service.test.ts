@@ -4,16 +4,15 @@ import {ROLE_ADMIN, ROLE_USER} from '@/services/types/domain/auth-types'
 
 import type {User} from '../../types/domain/user-types'
 import {
-  ActionsConst,
   createUserAbility,
   defineAbilitiesFor,
   filterFields,
   isUserAdmin,
-  SubjectsConst,
   userCan,
   userCannot,
   userCanOnResource,
 } from '../authorization-service'
+import {ActionsConst, SubjectsConst} from '../casl-abilities'
 
 describe('CASL Abilities', () => {
   // Utilisateurs de test

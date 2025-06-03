@@ -1,0 +1,219 @@
+import {AbilityBuilder, createMongoAbility} from '@casl/ability'
+
+import {
+  OrganizationContext,
+  UserOrganizationRoleConst,
+} from '../types/domain/auth-types'
+import {OrganizationRole} from '../types/domain/organization-types'
+import {User} from '../types/domain/user-types'
+// Actions disponibles
+export type Actions = 'create' | 'read' | 'update' | 'delete' | 'manage'
+
+// Type pour l'AbilityBuilder
+type AppAbilityBuilder = AbilityBuilder<ReturnType<typeof createMongoAbility>>
+
+// Subjects (ressources) disponibles
+export type Subjects =
+  | 'User'
+  | 'Subscription'
+  | 'Organization'
+  | 'Technical'
+  | 'Log'
+  | 'all'
+
+// Constantes pour les actions et subjects
+export const ActionsConst = {
+  CREATE: 'create' as Actions,
+  READ: 'read' as Actions,
+  UPDATE: 'update' as Actions,
+  DELETE: 'delete' as Actions,
+  MANAGE: 'manage' as Actions,
+} as const
+
+export const SubjectsConst = {
+  USER: 'User' as Subjects,
+  SUBSCRIPTION: 'Subscription' as Subjects,
+  ORGANIZATION: 'Organization' as Subjects,
+  TECHNICAL: 'Technical' as Subjects,
+  LOG: 'Log' as Subjects,
+  ALL: 'all' as Subjects,
+} as const
+/**
+ * Build abilities pour les utilisateurs non authentifiés (guests)
+ */
+export function buildGuestAbilities(builder: AppAbilityBuilder) {
+  const {can} = builder
+
+  // Utilisateurs non authentifiés (guests)
+  can(ActionsConst.READ, SubjectsConst.LOG, ['id', 'name'])
+
+  // Peut lire les profils publics d'utilisateurs
+  can(ActionsConst.READ, SubjectsConst.USER, {visibility: 'public'})
+}
+
+/**
+ * Build abilities pour SUPER_ADMIN - permissions complètes
+ */
+export function buildSuperAdminAbilities(builder: AppAbilityBuilder) {
+  const {can} = builder
+
+  // Permissions complètes sur toutes les ressources
+  can(ActionsConst.MANAGE, SubjectsConst.ALL)
+}
+
+/**
+ * Build abilities pour ADMIN - permissions étendues
+ */
+export function buildAdminAbilities(builder: AppAbilityBuilder) {
+  const {can} = builder
+
+  // Peut gérer tous les utilisateurs
+  can(ActionsConst.MANAGE, SubjectsConst.USER)
+
+  // Peut gérer toutes les subscriptions
+  can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION)
+
+  // Peut gérer toutes les organisations
+  can(ActionsConst.MANAGE, SubjectsConst.ORGANIZATION)
+
+  // Peut gérer les aspects techniques et logs
+  can(ActionsConst.MANAGE, SubjectsConst.TECHNICAL)
+  can(ActionsConst.MANAGE, SubjectsConst.LOG)
+}
+
+/**
+ * Build abilities pour USER - permissions standards avec gestion des rôles organisationnels
+ */
+export function buildUserAbilities(
+  builder: AppAbilityBuilder,
+  user: User,
+  orgContext?: OrganizationContext
+) {
+  // Récupérer le rôle de l'utilisateur dans l'organisation courante
+  let userOrgRole: OrganizationRole | undefined
+  if (orgContext?.organizationId && user.organizations) {
+    const userOrg = user.organizations.find(
+      (org) => org.organizationId === orgContext.organizationId
+    )
+    userOrgRole = userOrg?.role
+  }
+
+  // Permissions de base pour tous les utilisateurs connectés
+  buildBaseUserAbilities(builder, user)
+
+  // Permissions organisationnelles basées sur le rôle dans l'organisation
+  if (orgContext?.organizationId && userOrgRole) {
+    buildOrganizationalAbilities(builder, user, userOrgRole, orgContext)
+  }
+}
+
+/**
+ * Build abilities de base pour tous les utilisateurs connectés
+ */
+export function buildBaseUserAbilities(builder: AppAbilityBuilder, user: User) {
+  const {can, cannot} = builder
+
+  // Utilisateurs - peut lire et modifier son propre profil
+  can(ActionsConst.READ, SubjectsConst.USER, {id: user.id})
+  can(ActionsConst.UPDATE, SubjectsConst.USER, {id: user.id})
+
+  // Peut lire les profils publics d'autres utilisateurs
+  can(ActionsConst.READ, SubjectsConst.USER, {visibility: 'public'})
+
+  // Restrictions sur les champs sensibles des utilisateurs
+  cannot(ActionsConst.READ, SubjectsConst.USER, [
+    'role',
+    'permissions',
+    'internalNotes',
+  ])
+  cannot(ActionsConst.UPDATE, SubjectsConst.USER, [
+    'role',
+    'permissions',
+    'createdAt',
+    'updatedAt',
+  ])
+
+  // Subscriptions - peut lire et modifier ses propres subscriptions
+  can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION, {userId: user.id})
+  can(ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION, {userId: user.id})
+  can(ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
+
+  // Organizations - permissions de base
+  can(ActionsConst.READ, SubjectsConst.ORGANIZATION) // Peut lire toutes les orgs (public info)
+  can(ActionsConst.CREATE, SubjectsConst.ORGANIZATION) // Peut créer une organisation
+
+  // Peut lire les logs (accès en lecture seule)
+  can(ActionsConst.READ, SubjectsConst.LOG)
+
+  // Ne peut pas supprimer d'autres utilisateurs
+  cannot(ActionsConst.DELETE, SubjectsConst.USER)
+}
+
+/**
+ * Build abilities organisationnelles basées sur le rôle dans l'organisation
+ */
+export function buildOrganizationalAbilities(
+  builder: AppAbilityBuilder,
+  user: User,
+  orgRole: OrganizationRole,
+  orgContext: OrganizationContext
+) {
+  const {can} = builder
+
+  switch (orgRole) {
+    case UserOrganizationRoleConst.OWNER:
+      // Le propriétaire a toutes les permissions sur l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.ORGANIZATION, {
+        id: orgContext.organizationId,
+      })
+      // Peut gérer tous les utilisateurs de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.USER, {
+        organizationId: orgContext.organizationId,
+      })
+      // Peut gérer toutes les subscriptions de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION, {
+        organizationId: orgContext.organizationId,
+      })
+      break
+
+    case UserOrganizationRoleConst.ADMIN:
+      // L'admin peut gérer l'organisation (sauf suppression)
+      can(ActionsConst.READ, SubjectsConst.ORGANIZATION, {
+        id: orgContext.organizationId,
+      })
+      can(ActionsConst.UPDATE, SubjectsConst.ORGANIZATION, {
+        id: orgContext.organizationId,
+      })
+      // Peut gérer les utilisateurs de l'organisation (sauf propriétaire)
+      can(ActionsConst.READ, SubjectsConst.USER, {
+        organizationId: orgContext.organizationId,
+      })
+      can(ActionsConst.UPDATE, SubjectsConst.USER, {
+        organizationId: orgContext.organizationId,
+      })
+      // Peut gérer les subscriptions de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION, {
+        organizationId: orgContext.organizationId,
+      })
+      break
+
+    case UserOrganizationRoleConst.MEMBER:
+      // Le membre a des permissions limitées
+      can(ActionsConst.READ, SubjectsConst.ORGANIZATION, {
+        id: orgContext.organizationId,
+      })
+      // Peut lire les autres utilisateurs de l'organisation
+      can(ActionsConst.READ, SubjectsConst.USER, {
+        organizationId: orgContext.organizationId,
+      })
+      // Peut lire les subscriptions de l'organisation
+      can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION, {
+        organizationId: orgContext.organizationId,
+      })
+      break
+
+    default:
+      // Aucune permission organisationnelle spécifique
+      break
+  }
+}

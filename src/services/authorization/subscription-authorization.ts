@@ -1,12 +1,8 @@
 import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
 
 import {getAuthUser} from '../authentication/auth-utils'
-import {
-  ActionsConst,
-  SubjectsConst,
-  userCan,
-  userCanOnResource,
-} from './authorization-service'
+import {userCan, userCanOnResource} from './authorization-service'
+import {ActionsConst, SubjectsConst} from './casl-abilities'
 
 export const canReadSubscription = async (
   resourceId?: string

@@ -20,11 +20,11 @@ import {
   updateOrganizationService,
 } from '../organization-service'
 import {Pagination} from '../types/common-type'
+import {UserOrganizationRoleConst} from '../types/domain/auth-types'
 import {
   CreateOrganization,
   Organization,
   UpdateOrganization,
-  UserOrganizationRoleConst,
 } from '../types/domain/organization-types'
 import {setupAuthUserMocked} from './helper-service-test'
 import {userTest, userTestAdmin} from './service-test-data'

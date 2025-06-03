@@ -1,3 +1,5 @@
+import {OrganizationRoleEnumModel} from '@/db/models/organization-model'
+
 import {Roles, UserDTO} from './user-types'
 
 export type WithAuthProps = {
@@ -17,7 +19,7 @@ export interface SignInError {
   code?: string
 }
 
-//Roles
+//Roles GLOBAUX
 export const roleHierarchy = [
   'public',
   'user',
@@ -38,3 +40,10 @@ export const ROLE_SUPER_ADMIN = 'super_admin'
 export interface OrganizationContext {
   organizationId: string // Quelle org est active maintenant
 }
+
+// Constantes pour les rôles utilisateur dans une organisation
+export const UserOrganizationRoleConst = {
+  OWNER: 'OWNER' as OrganizationRoleEnumModel,
+  ADMIN: 'ADMIN' as OrganizationRoleEnumModel,
+  MEMBER: 'MEMBER' as OrganizationRoleEnumModel,
+} as const
