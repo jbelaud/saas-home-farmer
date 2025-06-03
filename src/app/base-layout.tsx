@@ -3,7 +3,7 @@ import React, {ReactNode} from 'react'
 import {Toaster} from 'sonner'
 
 import NextAuthProvider from '@/components/context/auth-provider'
-import {ThemeProvider} from '@/components/theme-provider'
+import {ThemeProvider} from '@/components/context/theme-provider'
 
 type Props = {
   children: ReactNode

@@ -2,7 +2,7 @@ import {cleanup, render} from '@testing-library/react'
 import {ReactElement} from 'react'
 import {afterEach} from 'vitest'
 
-import {ThemeProvider} from '@/components/theme-provider'
+import {ThemeProvider} from '@/components/context/theme-provider'
 
 afterEach(() => {
   cleanup()
