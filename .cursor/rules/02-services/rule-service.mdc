@@ -114,35 +114,34 @@ Exemple
 Authorization
 - Check permissions before operations
 - Based on authentication service (getAuthUser)
+- based on CASL lib [authorization-service.ts](mdc:src/services/authorization/authorization-service.ts)
 - Authorization answer the question :  Can ConnectedUser DO Action to THIS Ressources ID
 - exemple  : canReadUser("50"), Can Auth User Read the user with ID 50
 - exemple  : canReadPost("50"), Can Auth User Read the user with ID 50 
 Example Authorization:
 
 ```ts
-export const canReadUser = async (userId: string) => {
+export const canReadUser = async (resourceId: string): Promise<boolean> => {
   const authUser = await getAuthUser()
-  if ((await isAuthAdmin()) || authUser?.user?.id === userId) return true
-  return false
+
+  // Récupérer l'utilisateur cible pour vérifier la visibilité
+  const targetUser = await getUserByIdDao(resourceId)
+  if (!targetUser) return false
+
+  // Utiliser CASL pour vérifier les permissions avec conditions
+  return userCanOnResource(authUser, ActionsConst.READ, SubjectsConst.USER, {
+    id: targetUser.id,
+    visibility: targetUser.visibility,
+  })
 }
 
-export const canReadPost = async (postId: string) => {
+export const canUpdateUser = async (resourceId: string): Promise<boolean> => {
   const authUser = await getAuthUser()
-  const post = await getPostById(postId)
-  if ((await isAuthAdmin()) || authUser?.user?.id === post.userId) return true
-  return false
-}
-//or
-export const canReadPost = async (postId: string) => {
-  const authUser = await getAuthUser()
-  const post = await getPostById(postId)
-  return isGranted = await callRBAClib() // we can use RBAC lib
-}
 
-export const canUpdateUser = async (userId: string) => {
-  const authUser = await getAuthUser()
-  if ((await isAuthAdmin()) || authUser?.user?.id === userId) return true
-  return false
+  // Utiliser CASL pour vérifier les permissions avec condition de propriété
+  return userCanOnResource(authUser, ActionsConst.UPDATE, SubjectsConst.USER, {
+    id: resourceId,
+  })
 }
 ```
 

@@ -8,11 +8,11 @@ import {
   userCanOnResource,
 } from './authorization-service'
 
-export const canReadUser = async (resourceUid: string): Promise<boolean> => {
+export const canReadUser = async (resourceId: string): Promise<boolean> => {
   const authUser = await getAuthUser()
 
   // Récupérer l'utilisateur cible pour vérifier la visibilité
-  const targetUser = await getUserByIdDao(resourceUid)
+  const targetUser = await getUserByIdDao(resourceId)
   if (!targetUser) return false
 
   // Utiliser CASL pour vérifier les permissions avec conditions
@@ -22,12 +22,12 @@ export const canReadUser = async (resourceUid: string): Promise<boolean> => {
   })
 }
 
-export const canUpdateUser = async (resourceUid: string): Promise<boolean> => {
+export const canUpdateUser = async (resourceId: string): Promise<boolean> => {
   const authUser = await getAuthUser()
 
   // Utiliser CASL pour vérifier les permissions avec condition de propriété
   return userCanOnResource(authUser, ActionsConst.UPDATE, SubjectsConst.USER, {
-    id: resourceUid,
+    id: resourceId,
   })
 }
 

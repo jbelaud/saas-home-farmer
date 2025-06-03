@@ -190,12 +190,12 @@ Le système CASL s'intègre dans l'architecture en couches :
 ```typescript
 // Dans un service
 if (!userCan(user, ActionsConst.UPDATE, SubjectsConst.USER)) {
-  throw new ForbiddenError('Insufficient permissions')
+  throw new AuthorizationError('Insufficient permissions')
 }
 
 // Avec conditions
 if (!userCanOnResource(user, ActionsConst.READ, SubjectsConst.SUBSCRIPTION, subscription)) {
-  throw new ForbiddenError('Cannot access this subscription')
+  throw new AuthorizationError('Cannot access this subscription')
 }
 ```
 
