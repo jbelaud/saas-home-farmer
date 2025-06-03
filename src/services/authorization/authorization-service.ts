@@ -1,10 +1,15 @@
 import {AbilityBuilder, createMongoAbility} from '@casl/ability'
 
 import {
+  OrganizationContext,
   ROLE_ADMIN,
   ROLE_SUPER_ADMIN,
   ROLE_USER,
 } from '../types/domain/auth-types'
+import {
+  OrganizationRole,
+  UserOrganizationRoleConst,
+} from '../types/domain/organization-types'
 import type {User} from '../types/domain/user-types'
 
 // Actions disponibles
@@ -55,7 +60,10 @@ export function createUserAbility(user?: User) {
  * Inspiré de l'exemple CASL documentation
  * Remplace rbac-config.ts par une approche CASL plus moderne
  */
-export function defineAbilitiesFor(user?: User) {
+export function defineAbilitiesFor(
+  user?: User,
+  orgContext?: OrganizationContext
+) {
   const builder = new AbilityBuilder(createMongoAbility)
 
   if (!user) {
@@ -77,7 +85,7 @@ export function defineAbilitiesFor(user?: User) {
 
   // USER - permissions standards
   if (user.roles?.includes(ROLE_USER)) {
-    buildUserAbilities(builder, user)
+    buildUserAbilities(builder, user, orgContext)
     return builder.build()
   }
 
@@ -130,9 +138,37 @@ function buildAdminAbilities(builder: AppAbilityBuilder) {
 }
 
 /**
- * Build abilities pour USER - permissions standards
+ * Build abilities pour USER - permissions standards avec gestion des rôles organisationnels
  */
-function buildUserAbilities(builder: AppAbilityBuilder, user: User) {
+function buildUserAbilities(
+  builder: AppAbilityBuilder,
+  user: User,
+  orgContext?: OrganizationContext
+) {
+  const {can, cannot} = builder
+
+  // Récupérer le rôle de l'utilisateur dans l'organisation courante
+  let userOrgRole: OrganizationRole | undefined
+  if (orgContext?.organizationId && user.organizations) {
+    const userOrg = user.organizations.find(
+      (org) => org.organizationId === orgContext.organizationId
+    )
+    userOrgRole = userOrg?.role
+  }
+
+  // Permissions de base pour tous les utilisateurs connectés
+  buildBaseUserAbilities(builder, user)
+
+  // Permissions organisationnelles basées sur le rôle dans l'organisation
+  if (orgContext?.organizationId && userOrgRole) {
+    buildOrganizationalAbilities(builder, user, userOrgRole, orgContext)
+  }
+}
+
+/**
+ * Build abilities de base pour tous les utilisateurs connectés
+ */
+function buildBaseUserAbilities(builder: AppAbilityBuilder, user: User) {
   const {can, cannot} = builder
 
   // Utilisateurs - peut lire et modifier son propre profil
@@ -160,7 +196,7 @@ function buildUserAbilities(builder: AppAbilityBuilder, user: User) {
   can(ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION, {userId: user.id})
   can(ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
 
-  // Organizations - permissions basées sur le rôle dans l'organisation
+  // Organizations - permissions de base
   can(ActionsConst.READ, SubjectsConst.ORGANIZATION) // Peut lire toutes les orgs (public info)
   can(ActionsConst.CREATE, SubjectsConst.ORGANIZATION) // Peut créer une organisation
 
@@ -172,14 +208,84 @@ function buildUserAbilities(builder: AppAbilityBuilder, user: User) {
 }
 
 /**
+ * Build abilities organisationnelles basées sur le rôle dans l'organisation
+ */
+function buildOrganizationalAbilities(
+  builder: AppAbilityBuilder,
+  user: User,
+  orgRole: OrganizationRole,
+  orgContext: OrganizationContext
+) {
+  const {can} = builder
+
+  switch (orgRole) {
+    case UserOrganizationRoleConst.OWNER:
+      // Le propriétaire a toutes les permissions sur l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.ORGANIZATION, {
+        id: orgContext.organizationId,
+      })
+      // Peut gérer tous les utilisateurs de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.USER, {
+        organizationId: orgContext.organizationId,
+      })
+      // Peut gérer toutes les subscriptions de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION, {
+        organizationId: orgContext.organizationId,
+      })
+      break
+
+    case UserOrganizationRoleConst.ADMIN:
+      // L'admin peut gérer l'organisation (sauf suppression)
+      can(ActionsConst.READ, SubjectsConst.ORGANIZATION, {
+        id: orgContext.organizationId,
+      })
+      can(ActionsConst.UPDATE, SubjectsConst.ORGANIZATION, {
+        id: orgContext.organizationId,
+      })
+      // Peut gérer les utilisateurs de l'organisation (sauf propriétaire)
+      can(ActionsConst.READ, SubjectsConst.USER, {
+        organizationId: orgContext.organizationId,
+      })
+      can(ActionsConst.UPDATE, SubjectsConst.USER, {
+        organizationId: orgContext.organizationId,
+      })
+      // Peut gérer les subscriptions de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION, {
+        organizationId: orgContext.organizationId,
+      })
+      break
+
+    case UserOrganizationRoleConst.MEMBER:
+      // Le membre a des permissions limitées
+      can(ActionsConst.READ, SubjectsConst.ORGANIZATION, {
+        id: orgContext.organizationId,
+      })
+      // Peut lire les autres utilisateurs de l'organisation
+      can(ActionsConst.READ, SubjectsConst.USER, {
+        organizationId: orgContext.organizationId,
+      })
+      // Peut lire les subscriptions de l'organisation
+      can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION, {
+        organizationId: orgContext.organizationId,
+      })
+      break
+
+    default:
+      // Aucune permission organisationnelle spécifique
+      break
+  }
+}
+
+/**
  * Vérifie si un utilisateur peut effectuer une action sur un type de ressource
  */
 export function userCan(
   user: User | undefined,
   action: Actions,
-  subject: Subjects
+  subject: Subjects,
+  orgContext?: OrganizationContext
 ): boolean {
-  const ability = defineAbilitiesFor(user)
+  const ability = defineAbilitiesFor(user, orgContext)
   return ability.can(action, subject)
 }
 
@@ -189,9 +295,10 @@ export function userCan(
 export function userCannot(
   user: User | undefined,
   action: Actions,
-  subject: Subjects
+  subject: Subjects,
+  orgContext?: OrganizationContext
 ): boolean {
-  const ability = defineAbilitiesFor(user)
+  const ability = defineAbilitiesFor(user, orgContext)
   return ability.cannot(action, subject)
 }
 
@@ -202,9 +309,10 @@ export function userCanOnResource(
   user: User | undefined,
   action: Actions,
   subject: Subjects,
-  resource: Record<string, unknown>
+  resource: Record<string, unknown>,
+  orgContext?: OrganizationContext
 ): boolean {
-  const ability = defineAbilitiesFor(user)
+  const ability = defineAbilitiesFor(user, orgContext)
 
   // CASL avec conditions: on crée un objet "subject" que CASL peut reconnaître
   // CASL va matcher les conditions définies dans les règles (ex: {id: user.id})
@@ -240,9 +348,10 @@ export function filterFields<T extends Record<string, unknown>>(
   user: User | undefined,
   action: Actions,
   subject: Subjects,
-  data: T
+  data: T,
+  orgContext?: OrganizationContext
 ): Partial<T> {
-  const ability = defineAbilitiesFor(user)
+  const ability = defineAbilitiesFor(user, orgContext)
 
   // Vérifier si l'utilisateur peut effectuer l'action
   if (!ability.can(action, subject)) {
@@ -261,4 +370,59 @@ export function filterFields<T extends Record<string, unknown>>(
 export function isUserAdmin(user?: User): boolean {
   if (!user) return false
   return user.roles?.includes(ROLE_ADMIN) ?? false
+}
+
+/**
+ * Récupère le rôle de l'utilisateur dans une organisation spécifique
+ */
+export function getUserRoleInOrganization(
+  user: User | undefined,
+  organizationId: string
+): OrganizationRole | undefined {
+  if (!user?.organizations) return undefined
+
+  const userOrg = user.organizations.find(
+    (org) => org.organizationId === organizationId
+  )
+  return userOrg?.role
+}
+
+/**
+ * Vérifie si un utilisateur a un rôle spécifique dans une organisation
+ */
+export function hasOrganizationRole(
+  user: User | undefined,
+  organizationId: string,
+  role: OrganizationRole
+): boolean {
+  const userRole = getUserRoleInOrganization(user, organizationId)
+  return userRole === role
+}
+
+/**
+ * Vérifie si un utilisateur est propriétaire d'une organisation
+ */
+export function isOrganizationOwner(
+  user: User | undefined,
+  organizationId: string
+): boolean {
+  return hasOrganizationRole(
+    user,
+    organizationId,
+    UserOrganizationRoleConst.OWNER
+  )
+}
+
+/**
+ * Vérifie si un utilisateur est admin d'une organisation
+ */
+export function isOrganizationAdmin(
+  user: User | undefined,
+  organizationId: string
+): boolean {
+  return hasOrganizationRole(
+    user,
+    organizationId,
+    UserOrganizationRoleConst.ADMIN
+  )
 }

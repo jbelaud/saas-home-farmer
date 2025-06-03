@@ -33,3 +33,8 @@ export const ROLE_REDACTOR = 'redactor'
 export const ROLE_MODERATOR = 'moderator'
 export const ROLE_ADMIN = 'admin'
 export const ROLE_SUPER_ADMIN = 'super_admin'
+
+// Context pour spécifier l'organisation COURANTE
+export interface OrganizationContext {
+  organizationId: string // Quelle org est active maintenant
+}
