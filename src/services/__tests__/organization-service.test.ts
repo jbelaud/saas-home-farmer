@@ -24,6 +24,7 @@ import {
   CreateOrganization,
   Organization,
   UpdateOrganization,
+  UserOrganizationRoleConst,
 } from '../types/domain/organization-types'
 import {setupAuthUserMocked} from './helper-service-test'
 import {userTest, userTestAdmin} from './service-test-data'
@@ -62,6 +63,7 @@ describe('[ADMIN] CRUD : OrganizationService', () => {
   }
 
   beforeEach(() => {
+    // Admin système peut tout faire
     const user = {
       ...userTestAdmin,
     }
@@ -122,8 +124,175 @@ describe('[ADMIN] CRUD : OrganizationService', () => {
   })
 })
 
-describe('[USER] CRUD : OrganizationService', () => {
+describe('[ORGANIZATION OWNER] CRUD : OrganizationService', () => {
   const organizationId = faker.string.uuid()
+  const organizationData: Organization = {
+    id: organizationId,
+    name: 'Test Organization',
+    slug: 'test-organization',
+    description: 'Description de test',
+    image: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const updateData: UpdateOrganization = {
+    id: organizationId,
+    name: 'Updated Organization',
+    slug: 'updated-organization',
+    description: 'Description mise à jour',
+  }
+
+  beforeEach(() => {
+    // Utilisateur qui est OWNER de cette organisation
+    const userOwner = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId,
+          role: UserOrganizationRoleConst.OWNER,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userOwner)
+    vi.clearAllMocks()
+    vi.mocked(getOrganizationByIdDao).mockResolvedValue(organizationData)
+    vi.mocked(updateOrganizationDao).mockResolvedValue()
+    vi.mocked(deleteOrganizationDao).mockResolvedValue()
+  })
+
+  it('should update organization as owner', async () => {
+    await updateOrganizationService(updateData)
+
+    expect(updateOrganizationDao).toHaveBeenCalledTimes(1)
+  })
+
+  it('should delete organization as owner', async () => {
+    await deleteOrganizationService(organizationId)
+
+    expect(deleteOrganizationDao).toHaveBeenCalledWith(organizationId)
+  })
+})
+
+describe('[ORGANIZATION ADMIN] CRUD : OrganizationService', () => {
+  const organizationId = faker.string.uuid()
+  const organizationData: Organization = {
+    id: organizationId,
+    name: 'Test Organization',
+    slug: 'test-organization',
+    description: 'Description de test',
+    image: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const updateData: UpdateOrganization = {
+    id: organizationId,
+    name: 'Updated Organization',
+    slug: 'updated-organization',
+    description: 'Description mise à jour',
+  }
+
+  beforeEach(() => {
+    // Utilisateur qui est ADMIN de cette organisation
+    const userAdmin = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId,
+          role: UserOrganizationRoleConst.ADMIN,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userAdmin)
+    vi.clearAllMocks()
+    vi.mocked(getOrganizationByIdDao).mockResolvedValue(organizationData)
+    vi.mocked(updateOrganizationDao).mockResolvedValue()
+    vi.mocked(deleteOrganizationDao).mockResolvedValue()
+  })
+
+  it('should update organization as admin', async () => {
+    await updateOrganizationService(updateData)
+
+    expect(updateOrganizationDao).toHaveBeenCalledTimes(1)
+  })
+
+  it('should NOT delete organization as admin (only owner can)', async () => {
+    await expect(deleteOrganizationService(organizationId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(deleteOrganizationDao).not.toHaveBeenCalled()
+  })
+})
+
+describe('[ORGANIZATION MEMBER] CRUD : OrganizationService', () => {
+  const organizationId = faker.string.uuid()
+  const organizationData: Organization = {
+    id: organizationId,
+    name: 'Test Organization',
+    slug: 'test-organization',
+    description: 'Description de test',
+    image: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const updateData: UpdateOrganization = {
+    id: organizationId,
+    name: 'Updated Organization',
+    slug: 'updated-organization',
+    description: 'Description mise à jour',
+  }
+
+  beforeEach(() => {
+    // Utilisateur qui est MEMBER de cette organisation
+    const userMember = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId,
+          role: UserOrganizationRoleConst.MEMBER,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userMember)
+    vi.clearAllMocks()
+    vi.mocked(getOrganizationByIdDao).mockResolvedValue(organizationData)
+    vi.mocked(updateOrganizationDao).mockResolvedValue()
+    vi.mocked(deleteOrganizationDao).mockResolvedValue()
+  })
+
+  it('should read organization as member', async () => {
+    const result = await getOrganizationByIdService(organizationId)
+
+    expect(result).toEqual(organizationData)
+    expect(getOrganizationByIdDao).toHaveBeenCalledWith(organizationId)
+  })
+
+  it('should NOT update organization as member', async () => {
+    await expect(updateOrganizationService(updateData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(updateOrganizationDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT delete organization as member', async () => {
+    await expect(deleteOrganizationService(organizationId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(deleteOrganizationDao).not.toHaveBeenCalled()
+  })
+})
+
+describe('[USER NOT IN ORGANIZATION] CRUD : OrganizationService', () => {
+  const organizationId = faker.string.uuid()
+  const otherOrganizationId = faker.string.uuid()
   const organizationData: Organization = {
     id: organizationId,
     name: 'Test Organization',
@@ -148,35 +317,42 @@ describe('[USER] CRUD : OrganizationService', () => {
   }
 
   beforeEach(() => {
-    const user = {
+    // Utilisateur connecté mais pas membre de cette organisation
+    const userNotInOrg = {
       ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId: otherOrganizationId, // Différente organisation
+          role: UserOrganizationRoleConst.OWNER,
+          joinedAt: new Date(),
+        },
+      ],
     }
-    setupAuthUserMocked(user)
+    setupAuthUserMocked(userNotInOrg)
     vi.clearAllMocks()
-    vi.mocked(createOrganizationDao).mockResolvedValue(organizationData)
     vi.mocked(getOrganizationByIdDao).mockResolvedValue(organizationData)
     vi.mocked(updateOrganizationDao).mockResolvedValue()
     vi.mocked(deleteOrganizationDao).mockResolvedValue()
   })
 
-  it('should create a new organization', async () => {
+  it('should create a new organization (any user can create)', async () => {
+    vi.mocked(createOrganizationDao).mockResolvedValue(organizationData)
+
     const result = await createOrganizationService(createData)
 
     expect(result).toEqual(organizationData)
     expect(createOrganizationDao).toHaveBeenCalledTimes(1)
   })
 
-  it('should get an organization by id', async () => {
+  it('should read organization (general read permission)', async () => {
     const result = await getOrganizationByIdService(organizationId)
 
     expect(result).toEqual(organizationData)
     expect(getOrganizationByIdDao).toHaveBeenCalledWith(organizationId)
   })
 
-  it('should NOT update organization if not owner/admin', async () => {
-    // Mock pour simuler que l'utilisateur n'est pas owner/admin de cette org
-    vi.mocked(getOrganizationByIdDao).mockResolvedValue(organizationData)
-
+  it('should NOT update organization if not member', async () => {
     await expect(updateOrganizationService(updateData)).rejects.toThrow(
       AuthorizationError
     )
@@ -223,9 +399,10 @@ describe('[PUBLIC] OrganizationService', () => {
     expect(createOrganizationDao).not.toHaveBeenCalled()
   })
 
-  it('should NOT get organization by id as guest', async () => {
+  it('should NOT read organization as guest (authentication required)', async () => {
     await expect(getOrganizationByIdService(organizationId)).rejects.toThrow(
       AuthorizationError
     )
+    expect(getOrganizationByIdDao).not.toHaveBeenCalled()
   })
 })
