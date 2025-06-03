@@ -1,68 +1,66 @@
 import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
 
 import {getAuthUser} from '../authentication/auth-utils'
-import {permissionAcces} from './authorization-service'
-import {GrantActionEnum, ResourceEnum} from './rbac-config'
+import {
+  ActionsConst,
+  SubjectsConst,
+  userCan,
+  userCanOnResource,
+} from './authorization-service'
 
-export const canReadSubscription = async (resourceUid?: string) => {
+export const canReadSubscription = async (
+  resourceId?: string
+): Promise<boolean> => {
   const authUser = await getAuthUser()
 
-  // Pour les utilisateurs non connectés, on vérifie directement les permissions
-  if (!authUser) {
-    const permission = permissionAcces(
-      undefined,
-      ResourceEnum.SUBSCRIPTIONS,
-      GrantActionEnum.READ
-    )
-
-    return permission?.granted ?? false
+  // Si pas d'ID de ressource spécifique, vérifier la permission générale
+  if (!resourceId) {
+    return userCan(authUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
   }
 
-  if (!resourceUid) {
-    const permission = permissionAcces(
-      authUser,
-      ResourceEnum.SUBSCRIPTIONS,
-      GrantActionEnum.READ
-    )
-
-    return permission?.granted ?? false
+  // Vérification précoce : si l'utilisateur n'a pas la permission générale, pas besoin d'aller plus loin
+  if (!userCan(authUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)) {
+    return false
   }
 
-  const subscription = await getSubscriptionByIdDao(resourceUid)
+  // Récupérer la subscription pour vérifier la propriété
+  const subscription = await getSubscriptionByIdDao(resourceId)
+  if (!subscription) return false
 
-  const permission = permissionAcces(
+  // Utiliser CASL pour vérifier les permissions avec condition de propriété
+  return userCanOnResource(
     authUser,
-    ResourceEnum.SUBSCRIPTIONS,
-    GrantActionEnum.READ,
-    subscription?.userId
+    ActionsConst.READ,
+    SubjectsConst.SUBSCRIPTION,
+    {
+      id: subscription.id,
+      userId: subscription.userId,
+    }
   )
-
-  if (!permission?.granted) return false
-  return true
 }
 
-export const canUpdateSubscription = async (resourceUid: string) => {
+export const canUpdateSubscription = async (
+  resourceId: string
+): Promise<boolean> => {
   const authUser = await getAuthUser()
 
-  // Pour les utilisateurs non connectés, on vérifie directement les permissions
-  if (!authUser) {
-    const permission = permissionAcces(
-      undefined,
-      ResourceEnum.SUBSCRIPTIONS,
-      GrantActionEnum.UPDATE
-    )
-    return permission?.granted ?? false
+  // Vérification précoce : si l'utilisateur n'a pas la permission générale, pas besoin d'aller plus loin
+  if (!userCan(authUser, ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION)) {
+    return false
   }
 
-  const subscription = await getSubscriptionByIdDao(resourceUid)
+  // Récupérer la subscription pour vérifier la propriété
+  const subscription = await getSubscriptionByIdDao(resourceId)
+  if (!subscription) return false
 
-  const permission = permissionAcces(
+  // Utiliser CASL pour vérifier les permissions avec condition de propriété
+  return userCanOnResource(
     authUser,
-    ResourceEnum.SUBSCRIPTIONS,
-    GrantActionEnum.UPDATE,
-    subscription?.userId
+    ActionsConst.UPDATE,
+    SubjectsConst.SUBSCRIPTION,
+    {
+      id: subscription.id,
+      userId: subscription.userId,
+    }
   )
-
-  if (!permission?.granted) return false
-  return true
 }

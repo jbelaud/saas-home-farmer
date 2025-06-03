@@ -13,7 +13,7 @@ import {
   userCan,
   userCannot,
   userCanOnResource,
-} from '../casl-abilities'
+} from '../authorization-service'
 
 describe('CASL Abilities', () => {
   // Utilisateurs de test

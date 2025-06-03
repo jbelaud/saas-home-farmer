@@ -6,7 +6,7 @@ import {
   isUserAdmin,
   SubjectsConst,
   userCanOnResource,
-} from './casl-abilities'
+} from './authorization-service'
 
 export const canReadUser = async (resourceUid: string): Promise<boolean> => {
   const authUser = await getAuthUser()

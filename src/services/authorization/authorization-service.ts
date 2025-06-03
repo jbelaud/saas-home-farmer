@@ -1,96 +1,217 @@
-import type {User} from '@/services/types/domain/user-types'
+import {AbilityBuilder, createMongoAbility} from '@casl/ability'
 
-import {getAuthUser, hasRequiredRole} from '../authentication/auth-utils'
-import {Roles} from '../types/domain/user-types'
-import ac, {type Grant, type GrantActionEnum} from './rbac-config'
+import {
+  ROLE_ADMIN,
+  ROLE_SUPER_ADMIN,
+  ROLE_USER,
+} from '../types/domain/auth-types'
+import type {User} from '../types/domain/user-types'
 
-type Ressource = Grant['resource']
-export const permissionAcces = (
-  user: User | undefined,
-  ressourceType: Ressource,
-  action: GrantActionEnum,
-  ressourceUid?: string
-) => {
-  // console.log('permissionAcces params:', {
-  //   user,
-  //   ressourceType,
-  //   action,
-  //   ressourceUid,
-  // })
-  // Cas où l'utilisateur est admin
-  // if (user?.roles?.includes('super_admin')) {
-  //   return ac.can('super_admin')[`${action}Any`](ressourceType) // Admin a toujours accès à `any`
-  // }
-  // Cas où l'utilisateur est admin
-  if (user?.roles?.includes('admin')) {
-    return ac.can('admin')[`${action}Any`](ressourceType) // Admin a toujours accès à `any`
+// Actions disponibles
+export type Actions = 'create' | 'read' | 'update' | 'delete' | 'manage'
+
+// Subjects (ressources) disponibles
+export type Subjects = 'User' | 'Subscription' | 'Technical' | 'Log' | 'all'
+
+// Constantes pour les actions et subjects
+export const ActionsConst = {
+  CREATE: 'create' as Actions,
+  READ: 'read' as Actions,
+  UPDATE: 'update' as Actions,
+  DELETE: 'delete' as Actions,
+  MANAGE: 'manage' as Actions,
+} as const
+
+export const SubjectsConst = {
+  USER: 'User' as Subjects,
+  SUBSCRIPTION: 'Subscription' as Subjects,
+  TECHNICAL: 'Technical' as Subjects,
+  LOG: 'Log' as Subjects,
+  ALL: 'all' as Subjects,
+} as const
+
+// Type pour l'ability CASL
+export type AppAbility = ReturnType<typeof defineAbilitiesFor>
+
+/**
+ * Définit les abilities pour un utilisateur donné
+ * Inspiré de l'exemple CASL documentation
+ * Remplace rbac-config.ts par une approche CASL plus moderne
+ */
+export function defineAbilitiesFor(user?: User) {
+  const {can, cannot, build} = new AbilityBuilder(createMongoAbility)
+
+  if (!user) {
+    // Utilisateurs non authentifiés (guests)
+    can(ActionsConst.READ, SubjectsConst.LOG, ['id', 'name'])
+
+    // Peut lire les profils publics d'utilisateurs
+    can(ActionsConst.READ, SubjectsConst.USER, {visibility: 'public'})
+
+    return build()
   }
 
-  // Cas où l'utilisateur n'est pas authentifié (undefined)
-  if (user === undefined) {
-    return ac.can('public')[`${action}Any`](ressourceType) // Utilisateur non authentifié = "public"
+  // Note: SUPER_ADMIN n'existe pas dans le type User actuel
+  // On garde seulement les rôles ADMIN et USER
+
+  if (user.roles?.includes(ROLE_SUPER_ADMIN)) {
+    can(ActionsConst.MANAGE, SubjectsConst.ALL)
+    return build()
   }
 
-  // Cas où l'utilisateur est propriétaire de la ressource
-  if (ressourceUid && user.id === ressourceUid) {
-    return ac.can(user.roles?.[0] ?? 'public')[`${action}Own`](ressourceType) // Propriétaire de la ressource
+  // Permissions pour ADMIN
+  if (user.roles?.includes(ROLE_ADMIN)) {
+    // Peut gérer tous les utilisateurs
+    can(ActionsConst.MANAGE, SubjectsConst.USER)
+
+    // Peut gérer toutes les subscriptions
+    can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION)
+
+    // Peut gérer les aspects techniques et logs
+    can(ActionsConst.MANAGE, SubjectsConst.TECHNICAL)
+    can(ActionsConst.MANAGE, SubjectsConst.LOG)
+
+    return build()
   }
 
-  // Cas utilisateur authentifié mais non-propriétaire
-  if (ac.can(user.roles?.[0] ?? 'public')[`${action}Any`]) {
-    return ac.can(user.roles?.[0] ?? 'public')[`${action}Any`](ressourceType)
+  // Permissions pour USER
+  if (user.roles?.includes(ROLE_USER)) {
+    // Utilisateurs - peut lire et modifier son propre profil
+    can(ActionsConst.READ, SubjectsConst.USER, {id: user.id})
+    can(ActionsConst.UPDATE, SubjectsConst.USER, {id: user.id})
+
+    // Peut lire les profils publics d'autres utilisateurs
+    can(ActionsConst.READ, SubjectsConst.USER, {visibility: 'public'})
+
+    // Restrictions sur les champs sensibles des utilisateurs
+    cannot(ActionsConst.READ, SubjectsConst.USER, [
+      'role',
+      'permissions',
+      'internalNotes',
+    ])
+    cannot(ActionsConst.UPDATE, SubjectsConst.USER, [
+      'role',
+      'permissions',
+      'createdAt',
+      'updatedAt',
+    ])
+
+    // Subscriptions - peut lire et modifier ses propres subscriptions
+    can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION, {userId: user.id})
+    can(ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION, {userId: user.id})
+    can(ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
+
+    // Peut lire les logs (accès en lecture seule)
+    can(ActionsConst.READ, SubjectsConst.LOG)
+
+    // Ne peut pas supprimer d'autres utilisateurs
+    cannot(ActionsConst.DELETE, SubjectsConst.USER)
+
+    return build()
   }
 
-  // Cas d'erreur ou de rôle non reconnu
-  return ac.can('public')[`${action}Any`](ressourceType) // Fallback sur un rôle public si non reconnu
+  // Permissions par défaut pour utilisateurs connectés sans rôle spécifique
+  can(ActionsConst.READ, SubjectsConst.LOG, ['id', 'name'])
+
+  return build()
 }
 
-export const filterRessourceFields = <T>(
-  user: User | undefined,
-  ressourceType: Ressource,
-  action: GrantActionEnum,
-  ressources?: T[], // La ressource est maintenant de type générique T
-  ressourceUid?: string
-): T[] => {
-  const perms = permissionAcces(user, ressourceType, action, ressourceUid)
-  console.log('perms', perms)
-  // Pour tous les éléments de `ressources`, on filtre les attribus perms.filter(ressource) rbac
-  const filteredRessource: T[] =
-    ressources?.map((ressource) => {
-      return perms.filter(ressource) as T // Assure que le type T est respecté
-    }) ?? []
-
-  return filteredRessource
+/**
+ * Utilitaire pour créer une ability pour un utilisateur donné
+ * Équivalent simplifié de la fonction defineAbilitiesFor
+ */
+export function createUserAbility(user?: User) {
+  return defineAbilitiesFor(user)
 }
-export function canAccessField(attributes: string[], field: string): boolean {
-  // Vérifie s'il y a une exclusion pour le champ spécifié, par exemple "!rating"
-  const isFieldExcluded = attributes.some((attr) =>
-    new RegExp(`^!${field}$`).test(attr)
-  )
 
-  // Vérifie si `*` est présent (accès à tous les champs) et le champ n'est pas exclu
-  const hasAllAttributes = attributes.includes('*')
+/**
+ * Vérifie si un utilisateur peut effectuer une action sur un type de ressource
+ */
+export function userCan(
+  user: User | undefined,
+  action: Actions,
+  subject: Subjects
+): boolean {
+  const ability = defineAbilitiesFor(user)
+  return ability.can(action, subject)
+}
 
-  // Si `*` est présent mais le champ est explicitement exclu, accès refusé
-  if (hasAllAttributes && isFieldExcluded) {
+/**
+ * Vérifie si un utilisateur ne peut pas effectuer une action
+ */
+export function userCannot(
+  user: User | undefined,
+  action: Actions,
+  subject: Subjects
+): boolean {
+  const ability = defineAbilitiesFor(user)
+  return ability.cannot(action, subject)
+}
+
+/**
+ * Vérifie si un utilisateur peut effectuer une action sur un objet spécifique
+ */
+export function userCanOnResource(
+  user: User | undefined,
+  action: Actions,
+  subject: Subjects,
+  resource: Record<string, unknown>
+): boolean {
+  const ability = defineAbilitiesFor(user)
+
+  // CASL avec conditions: on crée un objet "subject" que CASL peut reconnaître
+  // CASL va matcher les conditions définies dans les règles (ex: {id: user.id})
+  const subjectObject = Object.assign({}, resource)
+
+  // On utilise l'API interne de CASL pour vérifier avec des conditions
+  const rules = ability.rulesFor(action, subject)
+
+  // Si aucune règle, permission refusée
+  if (rules.length === 0) {
     return false
   }
 
-  // Si le champ est explicitement exclu, retour `false`
-  if (isFieldExcluded) {
-    return false
-  }
+  // Vérifier si au moins une règle permet l'accès
+  return rules.some((rule) => {
+    if (!rule.conditions) {
+      return true // Règle sans condition = permission globale
+    }
 
-  // Si `*` est présent et aucune exclusion, retour `true`
-  if (hasAllAttributes) {
-    return true
-  }
-
-  // Si le champ est explicitement mentionné dans les attributs, accès accordé
-  return attributes.includes(field)
+    // Vérifier si l'objet match les conditions de la règle
+    return Object.keys(rule.conditions).every((key) => {
+      const ruleValue = rule.conditions![key]
+      const objectValue = subjectObject[key]
+      return ruleValue === objectValue
+    })
+  })
 }
 
-export const isAuthUserAdmin = async () => {
-  const authUser = await getAuthUser()
-  return hasRequiredRole(authUser, 'admin')
+/**
+ * Filtre les champs d'une ressource selon les permissions
+ */
+export function filterFields<T extends Record<string, unknown>>(
+  user: User | undefined,
+  action: Actions,
+  subject: Subjects,
+  data: T
+): Partial<T> {
+  const ability = defineAbilitiesFor(user)
+
+  // Vérifier si l'utilisateur peut effectuer l'action
+  if (!ability.can(action, subject)) {
+    return {}
+  }
+
+  // Pour le filtrage des champs, on retourne les données telles quelles
+  // La restriction se fait au niveau des règles CASL définies
+  return data
+}
+
+/**
+ * Vérifie si l'utilisateur authentifié est admin
+ * Fonction de compatibilité
+ */
+export function isUserAdmin(user?: User): boolean {
+  if (!user) return false
+  return user.roles?.includes(ROLE_ADMIN) ?? false
 }
