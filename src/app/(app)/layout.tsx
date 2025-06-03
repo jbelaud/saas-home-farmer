@@ -2,6 +2,7 @@ import {Metadata} from 'next'
 import React from 'react'
 
 import {AppSidebar} from '@/components/app-sidebar'
+import {OrganizationProvider} from '@/components/context/organizarion-provider'
 import withAuth from '@/components/features/auth/with-auth'
 import {Separator} from '@/components/ui/separator'
 import {
@@ -20,19 +21,21 @@ async function AppLayout({children}: {children: React.ReactNode}) {
   const user = await getAuthUser()
 
   return (
-    <SidebarProvider>
-      <AppSidebar user={user} />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            {/* <AdminBreadcrumb /> */}
-          </div>
-        </header>
-        {children}
-      </SidebarInset>
-    </SidebarProvider>
+    <OrganizationProvider initialUser={user}>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              {/* <AdminBreadcrumb /> */}
+            </div>
+          </header>
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </OrganizationProvider>
   )
 }
 

@@ -1,12 +1,9 @@
 'use client'
 
 import {
-  AudioWaveform,
   BookOpen,
   Bot,
-  Command,
   Frame,
-  GalleryVerticalEnd,
   Map,
   PieChart,
   Settings2,
@@ -14,6 +11,7 @@ import {
 } from 'lucide-react'
 import * as React from 'react'
 
+import {useOrganization} from '@/components/context/organizarion-provider'
 import {NavMain} from '@/components/nav-main'
 import {NavProjects} from '@/components/nav-projects'
 import {NavUser} from '@/components/nav-user'
@@ -25,8 +23,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import {APP_NAME} from '@/lib/constants'
-import {User} from '@/services/types/domain/user-types'
 
 // This is sample data.
 const data = {
@@ -158,18 +154,16 @@ const data = {
   ],
 }
 
-export function AppSidebar({
-  user,
-  ...props
-}: React.ComponentProps<typeof Sidebar> & {user?: User}) {
-  const organizations = user?.organizations
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const {user, organizations} = useOrganization()
+
   const teams = organizations?.map((organization) => ({
     id: organization.organization.id,
     name: organization.organization.name,
     logo: BookOpen,
     plan: organization.organization.description || 'Default plan',
   }))
-  //console.log(teams)
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -180,7 +174,7 @@ export function AppSidebar({
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={user || undefined} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

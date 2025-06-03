@@ -3,6 +3,7 @@
 import {ChevronsUpDown, Plus} from 'lucide-react'
 import * as React from 'react'
 
+import {useOrganization} from '@/components/context/organizarion-provider'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +31,11 @@ export function TeamSwitcher({
   }[]
 }) {
   const {isMobile} = useSidebar()
-  const [activeTeam, setActiveTeam] = React.useState(teams[0])
+  const {currentOrganization, setCurrentOrganization} = useOrganization()
+
+  // Trouver l'équipe active basée sur l'organisation courante du contexte
+  const activeTeam =
+    teams.find((team) => team.id === currentOrganization?.id) || teams[0]
 
   return (
     <SidebarMenu>
@@ -63,7 +68,7 @@ export function TeamSwitcher({
             {teams.map((team, index) => (
               <DropdownMenuItem
                 key={team.name}
-                onClick={() => setActiveTeam(team)}
+                onClick={() => setCurrentOrganization(team.id)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-xs border">
