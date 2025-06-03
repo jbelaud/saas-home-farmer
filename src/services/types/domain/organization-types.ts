@@ -10,6 +10,9 @@ import {
 // Types de domaine découplés des types Drizzle
 export type Organization = OrganizationModel
 export type UserOrganization = UserOrganizationModel
+export type UserOrganizationAndOrganization = UserOrganizationModel & {
+  organization: OrganizationModel
+}
 export type OrganizationRole = OrganizationRoleEnumModel
 
 // Types pour les opérations

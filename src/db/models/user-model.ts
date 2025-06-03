@@ -11,6 +11,8 @@ import {
 } from 'drizzle-orm/pg-core'
 import type {AdapterAccount} from 'next-auth/adapters'
 
+import {userOrganizations} from './organization-model'
+
 export const roleEnum = pgEnum('role_type', [
   'public',
   'user',
@@ -142,6 +144,9 @@ export const usersRelations = relations(users, ({one, many}) => ({
   }),
   assignedRoles: many(userRoles, {
     relationName: 'assignedBy',
+  }),
+  userOrganizations: many(userOrganizations, {
+    relationName: 'userToOrganizations',
   }),
   // userOrganizations: many(userOrganizations, {
   //   relationName: 'userToOrganizations',

@@ -26,6 +26,7 @@ export function TeamSwitcher({
     name: string
     logo: React.ElementType
     plan: string
+    id: string
   }[]
 }) {
   const {isMobile} = useSidebar()

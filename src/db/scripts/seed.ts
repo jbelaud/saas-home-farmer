@@ -80,7 +80,9 @@ const seed = async () => {
     INSERT INTO "organization" (name, slug, description, image)
     VALUES
       ('TechCorp Solutions', 'techcorp-solutions', 'Une entreprise de développement logiciel innovante', 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400'),
-      ('Marketing Pro', 'marketing-pro', 'Agence de marketing digital et communication', 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=400')
+      ('Marketing Pro', 'marketing-pro', 'Agence de marketing digital et communication', 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=400'),
+      ('Acme Corp.', 'acme-corp', 'Startup innovante en technologie', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400'),
+      ('Evil Corp.', 'evil-corp', 'Entreprise de cybersécurité', 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400')
     ON CONFLICT (slug) DO NOTHING;
   `)
 
@@ -95,6 +97,8 @@ const seed = async () => {
         WHEN u.email = 'ons@mikecodeur.com' AND o.slug = 'techcorp-solutions' THEN 'ADMIN'
         WHEN u.email = 'julien@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
         WHEN u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
+        WHEN u.email = 'user@gmail.com' AND o.slug = 'acme-corp' THEN 'ADMIN'
+        WHEN u.email = 'user@gmail.com' AND o.slug = 'evil-corp' THEN 'MEMBER'
         WHEN u.email = 'moderator@gmail.com' AND o.slug = 'marketing-pro' THEN 'OWNER'
         WHEN u.email = 'moderator-2@gmail.com' AND o.slug = 'marketing-pro' THEN 'ADMIN'
         WHEN u.email = 'redactor-2@gmail.com' AND o.slug = 'marketing-pro' THEN 'MEMBER'
@@ -107,6 +111,8 @@ const seed = async () => {
       (u.email = 'ons@mikecodeur.com' AND o.slug = 'techcorp-solutions') OR
       (u.email = 'julien@gmail.com' AND o.slug = 'techcorp-solutions') OR
       (u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions') OR
+      (u.email = 'user@gmail.com' AND o.slug = 'acme-corp') OR
+      (u.email = 'user@gmail.com' AND o.slug = 'evil-corp') OR
       (u.email = 'moderator@gmail.com' AND o.slug = 'marketing-pro') OR
       (u.email = 'moderator-2@gmail.com' AND o.slug = 'marketing-pro') OR
       (u.email = 'redactor-2@gmail.com' AND o.slug = 'marketing-pro') OR

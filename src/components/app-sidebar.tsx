@@ -35,23 +35,23 @@ const data = {
     email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
-    {
-      name: APP_NAME,
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-    {
-      name: 'Evil Corp.',
-      logo: Command,
-      plan: 'Free',
-    },
-  ],
+  // teams: [
+  //   {
+  //     name: APP_NAME,
+  //     logo: GalleryVerticalEnd,
+  //     plan: 'Enterprise',
+  //   },
+  //   {
+  //     name: 'Acme Corp.',
+  //     logo: AudioWaveform,
+  //     plan: 'Startup',
+  //   },
+  //   {
+  //     name: 'Evil Corp.',
+  //     logo: Command,
+  //     plan: 'Free',
+  //   },
+  // ],
   navMain: [
     {
       title: 'Account',
@@ -162,10 +162,18 @@ export function AppSidebar({
   user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {user?: User}) {
+  const organizations = user?.organizations
+  const teams = organizations?.map((organization) => ({
+    id: organization.organization.id,
+    name: organization.organization.name,
+    logo: BookOpen,
+    plan: organization.organization.description || 'Default plan',
+  }))
+  //console.log(teams)
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={teams || []} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

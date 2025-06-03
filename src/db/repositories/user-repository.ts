@@ -34,19 +34,26 @@ export const getUserByIdDao = async (
           },
         },
       },
+      userOrganizations: {
+        with: {
+          organization: true,
+        },
+      },
     },
   })
   const roles = row?.userRoles?.map((r) => r.role.name) ?? []
+  const organizations = row?.userOrganizations ?? []
 
   if (!row) {
     return undefined
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {userRoles, ...rest} = row
+  const {userRoles, userOrganizations, ...rest} = row
   return {
     ...rest,
     roles,
+    organizations,
   }
 }
 
@@ -80,19 +87,26 @@ export const getUserByEmailDao = async (
           },
         },
       },
+      userOrganizations: {
+        with: {
+          organization: true,
+        },
+      },
     },
   })
   const roles = row?.userRoles?.map((r) => r.role.name) ?? []
+  const organizations = row?.userOrganizations ?? []
 
   if (!row) {
     return undefined
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {userRoles, ...rest} = row
+  const {userRoles, userOrganizations, ...rest} = row
   return {
     ...rest,
     roles,
+    organizations,
   }
 }
 
