@@ -9,11 +9,14 @@ import {
   UserRoleModel,
 } from '@/db/models/user-model'
 
+import {Organization, UserOrganization} from './organization-types'
+
 // ICI les TYPES DE DOMAIN sont EGAUX aux types drizzle
 // Les fichier types DOMAINS sont la pour décorréler les types de drizzle des types de domaine (services)
 
 export type User = UserModel & {
   roles?: Roles[]
+  organizations?: UserOrganization[]
 }
 export type UserVisibility = User['visibility']
 
