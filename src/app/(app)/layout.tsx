@@ -33,7 +33,7 @@ async function AppLayout({children}: {children: React.ReactNode}) {
               <AppBreadcrumb />
             </div>
           </header>
-          {children}
+          <div className="m-4">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </OrganizationProvider>

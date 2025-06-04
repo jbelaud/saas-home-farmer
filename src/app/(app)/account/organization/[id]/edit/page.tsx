@@ -6,9 +6,10 @@ import {getOrganizationByIdService} from '@/services/facades/organization-servic
 export default async function EditOrganizationPage({
   params,
 }: {
-  params: {id: string}
+  params: Promise<{id: string}>
 }) {
-  const organization = await getOrganizationByIdService(params.id)
+  const {id} = await params
+  const organization = await getOrganizationByIdService(id)
 
   if (!organization) {
     notFound()

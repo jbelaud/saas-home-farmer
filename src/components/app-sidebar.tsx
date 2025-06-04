@@ -60,6 +60,10 @@ const data = {
           url: '/account',
         },
         {
+          title: 'Organizations',
+          url: '/account/organization',
+        },
+        {
           title: 'Dashboard',
           url: '/dashboard',
         },
