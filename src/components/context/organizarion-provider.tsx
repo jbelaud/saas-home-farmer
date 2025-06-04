@@ -1,7 +1,14 @@
 'use client'
 
-import React, {createContext, useContext, useEffect, useState} from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
+import {UserOrganizationRoleConst} from '@/services/types/domain/auth-types'
 import {
   Organization,
   UserOrganizationAndOrganization,
@@ -38,7 +45,7 @@ export function OrganizationProvider({
     useState<Organization | null>(null)
 
   // Dérivation des organisations depuis l'utilisateur
-  const organizations = user?.organizations || []
+  const organizations = useMemo(() => user?.organizations || [], [user])
 
   // Dérivation de l'organisation utilisateur courante
   const currentUserOrganization =
@@ -113,9 +120,13 @@ export function useOrganization() {
 export function useOrganizationRole() {
   const {currentUserOrganization} = useOrganization()
 
-  const isOwner = currentUserOrganization?.role === 'OWNER'
-  const isAdmin = currentUserOrganization?.role === 'ADMIN' || isOwner
-  const isMember = currentUserOrganization?.role === 'MEMBER' || isAdmin
+  const isOwner =
+    currentUserOrganization?.role === UserOrganizationRoleConst.OWNER
+  const isAdmin =
+    currentUserOrganization?.role === UserOrganizationRoleConst.ADMIN || isOwner
+  const isMember =
+    currentUserOrganization?.role === UserOrganizationRoleConst.MEMBER ||
+    isAdmin
 
   return {
     role: currentUserOrganization?.role,

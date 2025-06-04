@@ -1,4 +1,5 @@
 import {
+  createUserAndOrganizationTxnDao,
   createUserDao,
   getUserByEmailDao,
   getUserByIdDao,
@@ -11,6 +12,7 @@ import {
   ValidationError,
   ValidationParsedZodError,
 } from './errors/validation-error'
+import {CreateOrganization} from './types/domain/organization-types'
 import {CreateUser, UpdateUser} from './types/domain/user-types'
 import {
   baseUserServiceSchema,
@@ -68,4 +70,27 @@ export const updateUserService = async (userParams: UpdateUser) => {
   const userParamsSanitized = parsed.data
 
   await updateUserSafeByUidDao(userParamsSanitized, resourceUid)
+}
+
+export const createUserOrganizationService = async (userParams: CreateUser) => {
+  const parsed = createUserServiceSchema.safeParse(userParams)
+  if (!parsed.success) {
+    throw new ValidationParsedZodError(parsed.error)
+  }
+  const userParamsSanitized = parsed.data
+
+  // Créer les données de l'organisation basées sur l'email de l'utilisateur
+  const organizationData: CreateOrganization = {
+    name: `${userParamsSanitized.email} organization`,
+    slug: userParamsSanitized.email.split('@')[0],
+    description: `Organization for ${userParamsSanitized.email}`,
+  }
+
+  // Utiliser la fonction transactionnelle
+  const result = await createUserAndOrganizationTxnDao(
+    userParamsSanitized,
+    organizationData
+  )
+
+  return result
 }

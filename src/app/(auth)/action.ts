@@ -10,7 +10,7 @@ import {
 } from '@/components/features/auth/auth-form-validation'
 import {signIn, signOut} from '@/lib/auth'
 import {
-  createUserService,
+  createUserOrganizationService,
   getUserByEmailService,
 } from '@/services/facades/user-service-facade'
 
@@ -125,21 +125,21 @@ export async function registerAction(
 
     const {name, email, password} = validationResult.data
 
-    // Créer l'utilisateur dans la base de données
+    // Créer l'utilisateur et son organisation dans la base de données
     try {
-      const user = await createUserService({
+      const result = await createUserOrganizationService({
         name,
         email,
         password,
       })
 
       await signIn('resend', {
-        email: user.email,
-        password: user.password, //not used with Resend
+        email: result.user.email,
+        password: result.user.password, //not used with Resend
         redirect: false,
       })
 
-      console.log('Utilisateur créé:', user)
+      console.log('Utilisateur et organisation créés:', result)
 
       redirect('/verify-request')
     } catch (error) {
