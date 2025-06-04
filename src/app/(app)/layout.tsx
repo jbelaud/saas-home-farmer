@@ -3,6 +3,7 @@ import React from 'react'
 
 import {AppSidebar} from '@/components/app-sidebar'
 import {OrganizationProvider} from '@/components/context/organizarion-provider'
+import {AppBreadcrumb} from '@/components/features/app-breadcrumb'
 import withAuth from '@/components/features/auth/with-auth'
 import {Separator} from '@/components/ui/separator'
 import {
@@ -29,7 +30,7 @@ async function AppLayout({children}: {children: React.ReactNode}) {
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
               <Separator orientation="vertical" className="mr-2 h-4" />
-              {/* <AdminBreadcrumb /> */}
+              <AppBreadcrumb />
             </div>
           </header>
           {children}

@@ -1,6 +1,27 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.rules.customizations": [
+    {
+      "rule": "simple-import-sort/*",
+      "severity": "off",
+      "autoFix": true
+    },
+    {
+      "rule": "*",
+      "severity": "error",
+      "autoFix": false
+    }
+  ],
   "editor.lineNumbers": "on",
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
