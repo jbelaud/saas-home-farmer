@@ -153,6 +153,15 @@ describe('[ORGANIZATION OWNER] CRUD : OrganizationService', () => {
           organizationId,
           role: UserOrganizationRoleConst.OWNER,
           joinedAt: new Date(),
+          organization: {
+            id: organizationId,
+            name: 'Test Organization',
+            slug: 'test-organization',
+            description: 'Description de test',
+            image: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
         },
       ],
     }
@@ -205,6 +214,15 @@ describe('[ORGANIZATION ADMIN] CRUD : OrganizationService', () => {
           organizationId,
           role: UserOrganizationRoleConst.ADMIN,
           joinedAt: new Date(),
+          organization: {
+            id: organizationId,
+            name: 'Test Organization',
+            slug: 'test-organization',
+            description: 'Description de test',
+            image: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
         },
       ],
     }
@@ -258,6 +276,15 @@ describe('[ORGANIZATION MEMBER] CRUD : OrganizationService', () => {
           organizationId,
           role: UserOrganizationRoleConst.MEMBER,
           joinedAt: new Date(),
+          organization: {
+            id: organizationId,
+            name: 'Test Organization',
+            slug: 'test-organization',
+            description: 'Description de test',
+            image: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
         },
       ],
     }
@@ -326,6 +353,15 @@ describe('[USER NOT IN ORGANIZATION] CRUD : OrganizationService', () => {
           organizationId: otherOrganizationId, // Différente organisation
           role: UserOrganizationRoleConst.OWNER,
           joinedAt: new Date(),
+          organization: {
+            id: otherOrganizationId,
+            name: 'Other Organization',
+            slug: 'other-organization',
+            description: 'Description autre',
+            image: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
         },
       ],
     }
