@@ -1,1 +1,1 @@
-pnpm lint && pnpm test --run 
+pnpm lint && pnpm test --run && pnpm build
