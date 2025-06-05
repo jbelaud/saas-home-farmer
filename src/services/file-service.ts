@@ -19,9 +19,19 @@ import {
 const {config} = getStorageConfig()
 
 const getFileUrl = (path: string) => {
-  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const baseUrl = process.env.SUPABASE_URL
   const bucket = config.bucket
-  return `${baseUrl}/storage/v1/object/public/${bucket}/${path}`
+
+  if (!baseUrl) {
+    console.error(
+      "SUPABASE_URL n'est pas définie dans les variables d'environnement"
+    )
+    throw new Error('Configuration manquante : SUPABASE_URL est requise')
+  }
+
+  // Ajouter le basePath pour l'URL publique
+  const fullPath = `${config.basePath}/${path}`
+  return `${baseUrl}/storage/v1/object/public/${bucket}/${fullPath}`
 }
 
 /**

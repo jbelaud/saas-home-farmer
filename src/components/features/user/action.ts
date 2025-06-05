@@ -3,6 +3,7 @@
 import {revalidatePath} from 'next/cache'
 
 import {getAuthUser} from '@/services/authentication/auth-utils'
+import {uploadFileService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {UpdateUser} from '@/services/types/domain/user-types'
 
@@ -16,6 +17,12 @@ export type FormState = {
   success: boolean
   errors?: ValidationError[]
   message?: string
+}
+
+export type UploadImageState = {
+  success: boolean
+  message?: string
+  imageUrl?: string
 }
 export async function updateUserAction(
   prevState?: FormState,
@@ -80,5 +87,47 @@ export async function updateUserAction(
   } catch (error) {
     console.error(error)
     return {success: false, message: 'Failed to update profile'}
+  }
+}
+
+export async function uploadProfileImageAction(
+  prevState?: UploadImageState,
+  formData?: FormData
+): Promise<UploadImageState> {
+  const user = await getAuthUser()
+  if (!user) {
+    return {success: false, message: 'User not found'}
+  }
+  if (!formData) {
+    return {success: false, message: 'Invalid data'}
+  }
+
+  const file = formData.get('file') as File
+  if (!file || file.size === 0) {
+    return {success: false, message: 'No file provided'}
+  }
+
+  try {
+    // Générer un nom de fichier unique avec timestamp et l'ID utilisateur
+    const timestamp = Date.now()
+    const fileExtension = file.name.split('.').pop()
+    const fileName = `users/${user.id}/profile-${timestamp}.${fileExtension}`
+
+    const result = await uploadFileService({
+      file,
+      path: fileName,
+    })
+
+    return {
+      success: true,
+      message: 'Image uploadée avec succès',
+      imageUrl: result.url,
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'upload:", error)
+    return {
+      success: false,
+      message: "Impossible d'uploader l'image. Veuillez réessayer.",
+    }
   }
 }

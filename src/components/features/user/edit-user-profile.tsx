@@ -6,7 +6,10 @@ import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
 import * as z from 'zod'
 
-import {updateUserAction} from '@/components/features/user/action'
+import {
+  updateUserAction,
+  uploadProfileImageAction,
+} from '@/components/features/user/action'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Button} from '@/components/ui/button'
 import {FileUpload} from '@/components/ui/file-upload'
@@ -35,6 +38,7 @@ type FormValues = z.infer<typeof userFormSchema>
 
 export function EditUserProfileForm({user}: {user: User}) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(userFormSchema),
@@ -81,6 +85,40 @@ export function EditUserProfileForm({user}: {user: User}) {
     }
   }
 
+  async function handleFileUpload(files: File[]) {
+    if (files.length === 0) return
+
+    const file = files[0]
+    setIsUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const result = await uploadProfileImageAction(undefined, formData)
+
+      if (result.success && result.imageUrl) {
+        // Mettre à jour le champ image dans le formulaire avec l'URL du fichier uploadé
+        form.setValue('image', result.imageUrl)
+
+        toast('Succès', {
+          description: result.message,
+        })
+      } else {
+        toast('Erreur', {
+          description: result.message || "Erreur lors de l'upload",
+        })
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'upload:", error)
+      toast('Erreur', {
+        description: "Impossible d'uploader l'image. Veuillez réessayer.",
+      })
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const avatarImage = user.image ?? undefined
   return (
     <Form {...form}>
@@ -93,7 +131,12 @@ export function EditUserProfileForm({user}: {user: User}) {
       </div>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <input type="hidden" {...form.register('id')} />
-        <FileUpload />
+        <div className="space-y-2">
+          <FileUpload onChange={handleFileUpload} />
+          {isUploading && (
+            <p className="text-muted-foreground text-sm">Upload en cours...</p>
+          )}
+        </div>
         <FormField
           control={form.control}
           name="name"

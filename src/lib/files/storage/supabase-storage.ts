@@ -14,6 +14,7 @@ export const createSupabaseStorage = (
   config: StorageConfig
 ): StorageOperations => {
   const upload = async (file: File, path: string): Promise<{path: string}> => {
+    console.log('upload', file, path)
     const fullPath = getFullPath(config, path)
     const {data, error} = await supabase.storage
       .from(config.bucket)
@@ -23,10 +24,11 @@ export const createSupabaseStorage = (
       })
 
     if (error) {
+      console.error('upload error', file, path)
       logger.error('Upload error:', error.message)
       throw FileErrors.UPLOAD_FAILED(error.message)
     }
-
+    console.error('upload success', file, path)
     return {path: data.path}
   }
 
