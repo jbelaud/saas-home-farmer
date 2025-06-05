@@ -33,8 +33,10 @@ type FormValues = z.infer<typeof organizationFormSchema>
 
 export function EditOrganizationForm({
   organization,
+  canEdit,
 }: {
   organization: Organization
+  canEdit: boolean
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -213,7 +215,11 @@ export function EditOrganizationForm({
           )}
         />
 
-        <Button type="submit" disabled={isSubmitting} className="mb-8">
+        <Button
+          type="submit"
+          disabled={isSubmitting || !canEdit}
+          className="mb-8"
+        >
           {isSubmitting ? 'Mise à jour...' : "Mettre à jour l'organisation"}
         </Button>
       </form>

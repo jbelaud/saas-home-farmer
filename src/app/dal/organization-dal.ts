@@ -1,3 +1,9 @@
+import {
+  canCreateOrganization,
+  canDeleteOrganization,
+  canManageOrganizationMembers,
+  canUpdateOrganization,
+} from '@/services/authorization/organization-authorization'
 import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
 
 export type OrganizationMemberDTO = {
@@ -26,4 +32,20 @@ export async function getOrganizationMembersDal(
       joinedAt: m.joinedAt ?? new Date(),
     }
   })
+}
+
+export async function getOrganizationPermissions(organizationId?: string) {
+  const [canCreate, canEdit, canDelete, canManageMembers] = await Promise.all([
+    canCreateOrganization(),
+    organizationId ? canUpdateOrganization(organizationId) : false,
+    organizationId ? canDeleteOrganization(organizationId) : false,
+    organizationId ? canManageOrganizationMembers(organizationId) : false,
+  ])
+
+  return {
+    canCreate,
+    canEdit,
+    canDelete,
+    canManageMembers,
+  }
 }

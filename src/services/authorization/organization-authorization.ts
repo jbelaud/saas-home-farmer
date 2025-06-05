@@ -135,9 +135,9 @@ export const canDeleteOrganization = async (
   const authUser = await getAuthUser()
 
   // Créer le contexte organisationnel
-  const orgContext: OrganizationContext = {
-    organizationId: resourceId,
-  }
+  // const orgContext: OrganizationContext = {
+  //   organizationId: resourceId,
+  // }
 
   // Les admins système peuvent supprimer toute organisation
   if (userCan(authUser, ActionsConst.MANAGE, SubjectsConst.ORGANIZATION)) {
