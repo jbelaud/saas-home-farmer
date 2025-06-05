@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table'
 
 import {OrganizationAddMemberForm} from './organization-add-member-form'
+import {RemoveMemberButton} from './remove-member-button'
 
 export default async function OrganizationMembersTable({
   organizationId,
@@ -35,6 +36,7 @@ export default async function OrganizationMembersTable({
             <TableHead>Email</TableHead>
             <TableHead>Rôle</TableHead>
             <TableHead>Date d&apos;ajout</TableHead>
+            <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,6 +58,13 @@ export default async function OrganizationMembersTable({
                 {member.joinedAt
                   ? new Date(member.joinedAt).toLocaleDateString()
                   : ''}
+              </TableCell>
+              <TableCell>
+                <RemoveMemberButton
+                  organizationId={organizationId}
+                  userId={member.id}
+                  userName={member.name}
+                />
               </TableCell>
             </TableRow>
           ))}

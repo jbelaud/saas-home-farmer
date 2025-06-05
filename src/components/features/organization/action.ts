@@ -5,6 +5,7 @@ import {revalidatePath} from 'next/cache'
 import {getAuthUser} from '@/services/authentication/auth-utils'
 import {
   inviteUserToOrganizationService,
+  removeUserFromOrganizationService,
   updateOrganizationService,
 } from '@/services/facades/organization-service-facade'
 import {UpdateOrganization} from '@/services/types/domain/organization-types'
@@ -121,4 +122,20 @@ export async function searchUsersForOrganizationAction(
     email: u.email,
     image: u.image ?? undefined,
   }))
+}
+
+export async function removeUserFromOrganizationAction(
+  organizationId: string,
+  userId: string
+): Promise<MemberActionResult> {
+  try {
+    await removeUserFromOrganizationService(userId, organizationId)
+    revalidatePath(`/account/organization/${organizationId}/edit`)
+    return {success: true, message: 'Membre supprimé avec succès'}
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Erreur inconnue',
+    }
+  }
 }

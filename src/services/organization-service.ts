@@ -261,6 +261,17 @@ export const removeUserFromOrganizationService = async (
     throw new AuthorizationError()
   }
 
+  // Empêcher la suppression du OWNER
+  const membership = await getUserOrganizationDao(
+    userIdSanitized,
+    organizationIdSanitized
+  )
+  if (membership?.role === UserOrganizationRoleConst.OWNER) {
+    throw new AuthorizationError(
+      "Le propriétaire (OWNER) ne peut pas se retirer lui-même de l'organisation."
+    )
+  }
+
   await deleteUserOrganizationDao(userIdSanitized, organizationIdSanitized)
 }
 
