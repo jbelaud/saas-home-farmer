@@ -42,7 +42,7 @@ export function EditUserProfileForm({user}: {user: User}) {
       id: user.id,
       name: user.name,
       email: user.email,
-      image: user.image ?? undefined,
+      image: user.image ?? '',
       visibility: user.visibility,
     },
   })
