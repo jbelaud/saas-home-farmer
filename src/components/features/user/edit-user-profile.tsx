@@ -16,7 +16,6 @@ import {FileUpload} from '@/components/ui/file-upload'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -39,6 +38,7 @@ type FormValues = z.infer<typeof userFormSchema>
 export function EditUserProfileForm({user}: {user: User}) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [avatarImage, setAvatarImage] = useState(user.image ?? '')
 
   const form = useForm<FormValues>({
     resolver: zodResolver(userFormSchema),
@@ -100,6 +100,7 @@ export function EditUserProfileForm({user}: {user: User}) {
       if (result.success && result.imageUrl) {
         // Mettre à jour le champ image dans le formulaire avec l'URL du fichier uploadé
         form.setValue('image', result.imageUrl)
+        setAvatarImage(result.imageUrl)
 
         toast('Succès', {
           description: result.message,
@@ -119,7 +120,6 @@ export function EditUserProfileForm({user}: {user: User}) {
     }
   }
 
-  const avatarImage = user.image ?? undefined
   return (
     <Form {...form}>
       <div className="flex flex-col items-center gap-4">
@@ -132,7 +132,12 @@ export function EditUserProfileForm({user}: {user: User}) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <input type="hidden" {...form.register('id')} />
         <div className="space-y-2">
-          <FileUpload onChange={handleFileUpload} />
+          <FileUpload
+            onChange={handleFileUpload}
+            onlyimage={true}
+            multi={false}
+            isUploading={isUploading}
+          />
           {isUploading && (
             <p className="text-muted-foreground text-sm">Upload en cours...</p>
           )}
@@ -163,7 +168,7 @@ export function EditUserProfileForm({user}: {user: User}) {
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="image"
           render={({field}) => (
@@ -181,7 +186,7 @@ export function EditUserProfileForm({user}: {user: User}) {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
         <FormField
           control={form.control}
           name="visibility"

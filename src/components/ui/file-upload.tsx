@@ -3,6 +3,7 @@ import React, {useRef, useState} from 'react'
 import {motion} from 'framer-motion'
 import {IconUpload} from '@tabler/icons-react'
 import {useDropzone} from 'react-dropzone'
+import {ALLOWED_IMAGE_MIME_TYPES} from '@/services/types/domain/file-types'
 
 const mainVariant = {
   initial: {
@@ -27,27 +28,71 @@ const secondaryVariant = {
 
 export const FileUpload = ({
   onChange,
+  multi = false,
+  onlyimage = false,
+  isUploading = false,
 }: {
   onChange?: (files: File[]) => void
+  multi?: boolean
+  onlyimage?: boolean
+  isUploading?: boolean
 }) => {
   const [files, setFiles] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const isValidFile = (file: File): boolean => {
+    if (onlyimage) {
+      return ALLOWED_IMAGE_MIME_TYPES.includes(file.type as any)
+    }
+    return true
+  }
+
   const handleFileChange = (newFiles: File[]) => {
-    setFiles((prevFiles) => [...prevFiles, ...newFiles])
-    onChange && onChange(newFiles)
+    // Ne pas permettre de nouveaux uploads pendant l'upload en cours
+    if (isUploading) {
+      return
+    }
+
+    // Filtrer les fichiers selon le type si onlyimage est activé
+    const validFiles = newFiles.filter(isValidFile)
+
+    if (validFiles.length === 0) {
+      console.warn('Aucun fichier valide sélectionné')
+      return
+    }
+
+    if (multi) {
+      setFiles((prevFiles) => [...prevFiles, ...validFiles])
+      onChange && onChange(validFiles)
+    } else {
+      // Si multi est false, ne garder que le dernier fichier
+      setFiles(validFiles.slice(-1))
+      onChange && onChange(validFiles.slice(-1))
+    }
   }
 
   const handleClick = () => {
+    if (isUploading) {
+      return
+    }
     fileInputRef.current?.click()
   }
 
   const {getRootProps, isDragActive} = useDropzone({
-    multiple: false,
+    multiple: multi,
     noClick: true,
+    disabled: isUploading,
+    accept: onlyimage
+      ? {
+          'image/*': ['.webp', '.jpeg', '.jpg', '.png'],
+        }
+      : undefined,
     onDrop: handleFileChange,
-    onDropRejected: (error) => {
-      console.log(error)
+    onDropRejected: (rejectedFiles) => {
+      console.warn('Fichiers rejetés:', rejectedFiles)
+      if (onlyimage) {
+        console.warn('Seules les images sont autorisées (WebP, JPEG, JPG, PNG)')
+      }
     },
   })
 
@@ -55,25 +100,40 @@ export const FileUpload = ({
     <div className="w-full" {...getRootProps()}>
       <motion.div
         onClick={handleClick}
-        whileHover="animate"
-        className="group/file relative block w-full cursor-pointer overflow-hidden rounded-lg p-10"
+        whileHover={isUploading ? undefined : 'animate'}
+        className={cn(
+          'group/file relative block w-full overflow-hidden rounded-lg p-10',
+          isUploading ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+        )}
       >
         <input
           ref={fileInputRef}
           id="file-upload-handle"
           type="file"
+          multiple={multi}
+          accept={onlyimage ? ALLOWED_IMAGE_MIME_TYPES.join(',') : undefined}
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
+          disabled={isUploading}
         />
+
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
           <GridPattern />
         </div>
         <div className="flex flex-col items-center justify-center">
           <p className="relative z-20 font-sans text-base font-bold text-neutral-700 dark:text-neutral-300">
-            Upload file
+            {isUploading
+              ? 'Uploading...'
+              : onlyimage
+                ? 'Upload image'
+                : 'Upload file'}
           </p>
           <p className="relative z-20 mt-2 font-sans text-base font-normal text-neutral-400 dark:text-neutral-400">
-            Drag or drop your files here or click to upload
+            {isUploading
+              ? 'Please wait while your files are being uploaded'
+              : onlyimage
+                ? `Drag or drop ${multi ? 'your images' : 'your image'} here or click to upload (WebP, JPEG, PNG)`
+                : `Drag or drop ${multi ? 'your files' : 'your file'} here or click to upload`}
           </p>
           <div className="relative mx-auto mt-10 w-full max-w-xl">
             {files.length > 0 &&
@@ -83,7 +143,8 @@ export const FileUpload = ({
                   layoutId={idx === 0 ? 'file-upload' : 'file-upload-' + idx}
                   className={cn(
                     'relative z-40 mx-auto mt-4 flex w-full flex-col items-start justify-start overflow-hidden rounded-md bg-white p-4 md:h-24 dark:bg-neutral-900',
-                    'shadow-sm'
+                    'shadow-sm',
+                    isUploading && 'opacity-75'
                   )}
                 >
                   <div className="flex w-full items-center justify-between gap-4">
@@ -95,14 +156,27 @@ export const FileUpload = ({
                     >
                       {file.name}
                     </motion.p>
-                    <motion.p
-                      initial={{opacity: 0}}
-                      animate={{opacity: 1}}
-                      layout
-                      className="shadow-input w-fit flex-shrink-0 rounded-lg px-2 py-1 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-white"
-                    >
-                      {(file.size / (1024 * 1024)).toFixed(2)} MB
-                    </motion.p>
+                    <div className="flex items-center gap-2">
+                      {isUploading && (
+                        <motion.div
+                          animate={{rotate: 360}}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
+                          className="h-4 w-4 rounded-full border-2 border-blue-500 border-t-transparent"
+                        />
+                      )}
+                      <motion.p
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        layout
+                        className="shadow-input w-fit flex-shrink-0 rounded-lg px-2 py-1 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-white"
+                      >
+                        {(file.size / (1024 * 1024)).toFixed(2)} MB
+                      </motion.p>
+                    </div>
                   </div>
 
                   <div className="mt-2 flex w-full flex-col items-start justify-between text-sm text-neutral-600 md:flex-row md:items-center dark:text-neutral-400">
@@ -119,9 +193,11 @@ export const FileUpload = ({
                       initial={{opacity: 0}}
                       animate={{opacity: 1}}
                       layout
+                      className={cn(isUploading && 'text-blue-500')}
                     >
-                      modified{' '}
-                      {new Date(file.lastModified).toLocaleDateString()}
+                      {isUploading
+                        ? 'Uploading...'
+                        : `modified ${new Date(file.lastModified).toLocaleDateString()}`}
                     </motion.p>
                   </div>
                 </motion.div>
@@ -137,10 +213,17 @@ export const FileUpload = ({
                 }}
                 className={cn(
                   'relative z-40 mx-auto mt-4 flex h-32 w-full max-w-[8rem] items-center justify-center rounded-md bg-white group-hover/file:shadow-2xl dark:bg-neutral-900',
-                  'shadow-[0px_10px_50px_rgba(0,0,0,0.1)]'
+                  'shadow-[0px_10px_50px_rgba(0,0,0,0.1)]',
+                  isUploading && 'opacity-75'
                 )}
               >
-                {isDragActive ? (
+                {isUploading ? (
+                  <motion.div
+                    animate={{rotate: 360}}
+                    transition={{duration: 1, repeat: Infinity, ease: 'linear'}}
+                    className="h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent"
+                  />
+                ) : isDragActive ? (
                   <motion.p
                     initial={{opacity: 0}}
                     animate={{opacity: 1}}
@@ -155,7 +238,7 @@ export const FileUpload = ({
               </motion.div>
             )}
 
-            {!files.length && (
+            {!files.length && !isUploading && (
               <motion.div
                 variants={secondaryVariant}
                 className="absolute inset-0 z-30 mx-auto mt-4 flex h-32 w-full max-w-[8rem] items-center justify-center rounded-md border border-dashed border-sky-400 bg-transparent opacity-0"
