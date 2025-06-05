@@ -9,14 +9,31 @@ import {getStorageConfig} from '@/lib/files/storage/env'
 
 import {
   DeleteFile,
+  EntityType,
+  FileCategory,
   FileListResponse,
   FileResponse,
   GetFile,
   ListFiles,
   UploadFile,
+  UploadFileForEntity,
 } from './types/domain/file-types'
 
 const {config} = getStorageConfig()
+
+/**
+ * Génère un nom de fichier unique basé sur l'entité
+ */
+const generateFilePath = (
+  entityType: EntityType,
+  entityId: string,
+  file: File,
+  category: FileCategory = 'image'
+): string => {
+  const timestamp = Date.now()
+  const fileExtension = file.name.split('.').pop()
+  return `${entityType}s/${entityId}/${category}-${timestamp}.${fileExtension}`
+}
 
 const getFileUrl = (path: string) => {
   const baseUrl = process.env.SUPABASE_URL
@@ -32,6 +49,44 @@ const getFileUrl = (path: string) => {
   // Ajouter le basePath pour l'URL publique
   const fullPath = `${config.basePath}/${path}`
   return `${baseUrl}/storage/v1/object/public/${bucket}/${fullPath}`
+}
+
+/**
+ * Upload un fichier avec génération automatique du chemin pour une entité
+ *
+ * Génère automatiquement un chemin de la forme : `{entityType}s/{entityId}/{category}-{timestamp}.{extension}`
+ *
+ * Exemples :
+ * - User profile: "users/123/profile-1703123456789.jpg"
+ * - Organization logo: "organizations/456/logo-1703123456789.png"
+ * - Product image: "products/789/image-1703123456789.webp"
+ */
+export const uploadFileForEntityService = async (
+  params: UploadFileForEntity
+): Promise<FileResponse> => {
+  const {file, entityType, entityId, category = 'image'} = params
+
+  // Validation de la taille
+  if (file.size > config.maxFileSize) {
+    throw FileErrors.FILE_TOO_LARGE(file.size, config.maxFileSize)
+  }
+
+  // Validation du type MIME
+  if (!config.allowedMimeTypes.includes(file.type)) {
+    throw FileErrors.INVALID_FILE_TYPE(file.type)
+  }
+
+  // Générer le chemin automatiquement
+  const path = generateFilePath(entityType, entityId, file, category)
+
+  await uploadFile(file, path)
+  return {
+    path,
+    url: getFileUrl(path),
+    size: file.size,
+    type: file.type,
+    name: file.name,
+  }
 }
 
 /**

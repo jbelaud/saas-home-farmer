@@ -3,7 +3,7 @@
 import {revalidatePath} from 'next/cache'
 
 import {getAuthUser} from '@/services/authentication/auth-utils'
-import {uploadFileService} from '@/services/facades/file-service-facade'
+import {uploadFileForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {UpdateUser} from '@/services/types/domain/user-types'
 
@@ -108,14 +108,11 @@ export async function uploadProfileImageAction(
   }
 
   try {
-    // Générer un nom de fichier unique avec timestamp et l'ID utilisateur
-    const timestamp = Date.now()
-    const fileExtension = file.name.split('.').pop()
-    const fileName = `users/${user.id}/profile-${timestamp}.${fileExtension}`
-
-    const result = await uploadFileService({
+    const result = await uploadFileForEntityService({
       file,
-      path: fileName,
+      entityType: 'user',
+      entityId: user.id,
+      category: 'profile',
     })
 
     return {
