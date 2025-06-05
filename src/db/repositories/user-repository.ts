@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {eq, sql} from 'drizzle-orm'
 
 import db from '@/db/models/db'
@@ -221,4 +222,50 @@ export const createUserAndOrganizationTxnDao = async (
       organizationId: newOrganization.id,
     }
   })
+}
+
+/**
+ * Recherche des utilisateurs par nom ou email (LIKE/ILIKE),
+ * possibilité d'exclure ceux déjà membres d'une organisation.
+ */
+export const searchUsersDao = async (
+  query: string,
+  excludeOrganizationId?: string
+): Promise<UserModel[]> => {
+  let whereClause: any
+  if (excludeOrganizationId) {
+    const userOrgs = await db
+      .select({userId: userOrganizations.userId})
+      .from(userOrganizations)
+      .where(eq(userOrganizations.organizationId, excludeOrganizationId))
+    const excludedUserIds = userOrgs.map((uo) => uo.userId)
+
+    whereClause = (
+      fields: typeof users._.columns,
+      {ilike, or, notInArray, and}: any
+    ) =>
+      and(
+        or(ilike(fields.name, `%${query}%`), ilike(fields.email, `%${query}%`)),
+        notInArray(fields.id, excludedUserIds.length ? excludedUserIds : [''])
+      )
+  } else {
+    whereClause = (fields: typeof users._.columns, {ilike, or}: any) =>
+      or(ilike(fields.name, `%${query}%`), ilike(fields.email, `%${query}%`))
+  }
+
+  const rows = await db.query.users.findMany({
+    where: whereClause,
+    columns: {
+      id: true,
+      name: true,
+      email: true,
+      emailVerified: true,
+      createdAt: true,
+      updatedAt: true,
+      image: true,
+      password: true,
+      visibility: true,
+    },
+  })
+  return rows
 }

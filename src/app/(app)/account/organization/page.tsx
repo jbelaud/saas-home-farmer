@@ -19,9 +19,9 @@ export default async function OrganizationsPage() {
     <div className="container mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mes Organisations</h1>
-        <Button asChild>
+        {/* <Button asChild>
           <Link href="/account/organization/new">Créer une organisation</Link>
-        </Button>
+        </Button> */}
       </div>
 
       {organizations.length === 0 ? (

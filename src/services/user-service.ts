@@ -3,6 +3,7 @@ import {
   createUserDao,
   getUserByEmailDao,
   getUserByIdDao,
+  searchUsersDao,
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
 
@@ -93,4 +94,21 @@ export const createUserOrganizationService = async (userParams: CreateUser) => {
   )
 
   return result
+}
+
+/**
+ * Recherche des utilisateurs par nom ou email (LIKE/ILIKE),
+ * possibilité d'exclure ceux déjà membres d'une organisation.
+ */
+export const searchUsersService = async (
+  query: string,
+  excludeOrganizationId?: string
+) => {
+  if (!query || query.trim().length < 2) {
+    throw new ValidationError(
+      'Le terme de recherche doit contenir au moins 2 caractères.'
+    )
+  }
+  // Optionnel : on pourrait ajouter une vérification d'autorisation ici
+  return await searchUsersDao(query.trim(), excludeOrganizationId)
 }
