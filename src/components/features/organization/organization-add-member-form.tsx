@@ -38,44 +38,35 @@ export function OrganizationAddMemberForm({
   }
 
   return (
-    <div className="flex min-w-[300px] flex-col gap-2">
-      <div className="flex gap-2">
-        <Input
-          placeholder="Rechercher un utilisateur..."
-          value={query}
-          onChange={(e) => handleSearch(e.target.value)}
-          disabled={isPending}
-        />
-        <Button
-          disabled={!selectedUser || isPending}
-          onClick={() => {
-            if (!selectedUser) return
-            startTransition(async () => {
-              const res = await inviteUserToOrganizationAction(
-                organizationId,
-                selectedUser.id
-              )
-              if (res.success) {
-                toast.success(res.message || 'Membre ajouté')
-                setQuery('')
-                setResults([])
-                setSelectedUser(undefined)
-              } else {
-                toast.error(res.message || "Erreur lors de l'ajout")
-              }
-            })
-          }}
-        >
-          {isPending ? 'Ajout...' : 'Ajouter'}
-        </Button>
-      </div>
+    <div className="relative min-w-[300px]">
+      <Input
+        placeholder="Rechercher un utilisateur..."
+        value={query}
+        onChange={(e) => handleSearch(e.target.value)}
+        disabled={isPending}
+      />
       {results.length > 0 && (
-        <ul className="bg-popover max-h-48 overflow-auto rounded border p-2 shadow">
+        <ul className="bg-popover absolute right-0 left-0 z-50 mt-1 max-h-48 overflow-auto rounded border p-2 shadow">
           {results.map((user) => (
             <li
               key={user.id}
-              className={`hover:bg-accent cursor-pointer rounded p-2 ${selectedUser?.id === user.id ? 'bg-accent' : ''}`}
-              onClick={() => setSelectedUser(user)}
+              className="hover:bg-accent cursor-pointer rounded p-2"
+              onClick={() => {
+                startTransition(async () => {
+                  const res = await inviteUserToOrganizationAction(
+                    organizationId,
+                    user.id
+                  )
+                  if (res.success) {
+                    toast.success(res.message || 'Membre ajouté')
+                    setQuery('')
+                    setResults([])
+                    setSelectedUser(undefined)
+                  } else {
+                    toast.error(res.message || "Erreur lors de l'ajout")
+                  }
+                })
+              }}
             >
               <span className="font-medium">{user.name}</span>{' '}
               <span className="text-muted-foreground text-xs">
