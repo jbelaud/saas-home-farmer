@@ -8,6 +8,7 @@ import {FileErrors} from '@/lib/files/errors'
 import {getStorageConfig} from '@/lib/files/storage/env'
 
 import {
+  ALLOWED_IMAGE_MIME_TYPES,
   DeleteFile,
   EntityType,
   FileCategory,
@@ -74,6 +75,50 @@ export const uploadFileForEntityService = async (
   // Validation du type MIME
   if (!config.allowedMimeTypes.includes(file.type)) {
     throw FileErrors.INVALID_FILE_TYPE(file.type)
+  }
+
+  // Générer le chemin automatiquement
+  const path = generateFilePath(entityType, entityId, file, category)
+
+  await uploadFile(file, path)
+  return {
+    path,
+    url: getFileUrl(path),
+    size: file.size,
+    type: file.type,
+    name: file.name,
+  }
+}
+
+/**
+ * Upload une image avec génération automatique du chemin pour une entité
+ *
+ * Spécialisé pour les images uniquement avec validation stricte des types MIME
+ * Types autorisés : WebP, JPEG, JPG, PNG
+ *
+ * Exemples :
+ * - User profile: "users/123/profile-1703123456789.webp"
+ * - Organization logo: "organizations/456/logo-1703123456789.png"
+ */
+export const uploadImageForEntityService = async (
+  params: UploadFileForEntity
+): Promise<FileResponse> => {
+  const {file, entityType, entityId, category = 'image'} = params
+
+  // Validation de la taille
+  if (file.size > config.maxFileSize) {
+    throw FileErrors.FILE_TOO_LARGE(file.size, config.maxFileSize)
+  }
+
+  // Validation spécifique pour les images
+  if (
+    !ALLOWED_IMAGE_MIME_TYPES.includes(
+      file.type as (typeof ALLOWED_IMAGE_MIME_TYPES)[number]
+    )
+  ) {
+    throw new Error(
+      `Type d'image non supporté: ${file.type}. Types autorisés : ${ALLOWED_IMAGE_MIME_TYPES.join(', ')}`
+    )
   }
 
   // Générer le chemin automatiquement

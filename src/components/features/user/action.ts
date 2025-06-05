@@ -3,8 +3,12 @@
 import {revalidatePath} from 'next/cache'
 
 import {getAuthUser} from '@/services/authentication/auth-utils'
-import {uploadFileForEntityService} from '@/services/facades/file-service-facade'
+import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
+import {
+  EntityTypeConst,
+  FileCategoryConst,
+} from '@/services/types/domain/file-types'
 import {UpdateUser} from '@/services/types/domain/user-types'
 
 import {userFormSchema, UserFormSchemaType} from './user-form-validation'
@@ -108,11 +112,11 @@ export async function uploadProfileImageAction(
   }
 
   try {
-    const result = await uploadFileForEntityService({
+    const result = await uploadImageForEntityService({
       file,
-      entityType: 'user',
+      entityType: EntityTypeConst.USER,
       entityId: user.id,
-      category: 'profile',
+      category: FileCategoryConst.PROFILE,
     })
 
     return {

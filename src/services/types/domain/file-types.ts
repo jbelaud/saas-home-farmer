@@ -7,6 +7,33 @@ export type EntityType = 'user' | 'organization' | 'product' | 'generic'
 // Types de fichiers pour une entité
 export type FileCategory = 'profile' | 'logo' | 'banner' | 'document' | 'image'
 
+// Constantes pour les types d'entités
+export const EntityTypeConst = {
+  USER: 'user' as EntityType,
+  ORGANIZATION: 'organization' as EntityType,
+  PRODUCT: 'product' as EntityType,
+  GENERIC: 'generic' as EntityType,
+} as const
+
+// Constantes pour les catégories de fichiers
+export const FileCategoryConst = {
+  PROFILE: 'profile' as FileCategory,
+  LOGO: 'logo' as FileCategory,
+  BANNER: 'banner' as FileCategory,
+  DOCUMENT: 'document' as FileCategory,
+  IMAGE: 'image' as FileCategory,
+} as const
+
+// Types MIME autorisés pour les images
+export const ImageMimeTypes = {
+  WEBP: 'image/webp',
+  JPEG: 'image/jpeg',
+  JPG: 'image/jpg',
+  PNG: 'image/png',
+} as const
+
+export const ALLOWED_IMAGE_MIME_TYPES = Object.values(ImageMimeTypes)
+
 // Types pour les opérations
 export type UploadFile = {
   file: File
