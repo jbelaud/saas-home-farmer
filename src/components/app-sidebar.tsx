@@ -162,10 +162,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const {user, organizations} = useOrganization()
 
   const teams = organizations?.map((organization) => ({
-    id: organization.organization.id,
-    name: organization.organization.name,
+    id: organization.organization?.id ?? '',
+    name: organization.organization?.name ?? 'No name',
     logo: BookOpen,
-    plan: organization.organization.description || 'Default plan',
+    plan: organization.organization?.description || 'Default plan',
   }))
 
   return (
