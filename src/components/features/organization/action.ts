@@ -96,7 +96,7 @@ export async function inviteUserToOrganizationAction(
 ): Promise<MemberActionResult> {
   try {
     await inviteUserToOrganizationService({organizationId, userId})
-    revalidatePath(`/account/organization/${organizationId}/edit`)
+    revalidatePath(`/organization/${organizationId}/edit`)
     return {success: true, message: 'Membre ajouté avec succès'}
   } catch (error) {
     return {
@@ -130,7 +130,7 @@ export async function removeUserFromOrganizationAction(
 ): Promise<MemberActionResult> {
   try {
     await removeUserFromOrganizationService(userId, organizationId)
-    revalidatePath(`/account/organization/${organizationId}/edit`)
+    revalidatePath(`/organization/${organizationId}/edit`)
     return {success: true, message: 'Membre supprimé avec succès'}
   } catch (error) {
     return {

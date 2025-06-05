@@ -8,6 +8,7 @@ import * as z from 'zod'
 
 import {updateOrganizationAction} from '@/components/features/organization/action'
 import {Button} from '@/components/ui/button'
+import {FileUpload} from '@/components/ui/file-upload'
 import {
   Form,
   FormControl,
@@ -73,7 +74,7 @@ export function EditOrganizationForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <input type="hidden" {...form.register('id')} />
-
+        <FileUpload />
         <FormField
           control={form.control}
           name="name"

@@ -18,13 +18,13 @@ export default async function EditOrganizationPage({
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto">
         <h1 className="mb-8 text-2xl font-bold">
           Modifier l&apos;organisation
         </h1>
         <EditOrganizationForm organization={organization} />
       </div>
-      <div className="mx-auto mt-12 max-w-2xl">
+      <div className="mx-auto mt-12">
         <h2 className="mb-4 text-xl font-semibold">
           Membres de l&apos;organisation
         </h2>

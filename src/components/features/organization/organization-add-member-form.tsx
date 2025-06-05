@@ -2,7 +2,6 @@
 import {useState, useTransition} from 'react'
 import {toast} from 'sonner'
 
-import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {UserDTO} from '@/services/types/domain/user-types'
 
@@ -20,6 +19,7 @@ export function OrganizationAddMemberForm({
 }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<UserDTO[]>([])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedUser, setSelectedUser] = useState<UserDTO>()
   const [isPending, startTransition] = useTransition()
 

@@ -61,7 +61,7 @@ const data = {
         },
         {
           title: 'Organizations',
-          url: '/account/organization',
+          url: '/organization',
         },
         {
           title: 'Dashboard',
