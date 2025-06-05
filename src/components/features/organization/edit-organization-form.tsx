@@ -1,13 +1,18 @@
 'use client'
 
 import {zodResolver} from '@hookform/resolvers/zod'
+import Image from 'next/image'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
 import * as z from 'zod'
 
-import {updateOrganizationAction} from '@/components/features/organization/action'
+import {
+  updateOrganizationAction,
+  uploadOrganizationImageAction,
+} from '@/components/features/organization/action'
 import {Button} from '@/components/ui/button'
+import {Card, CardContent} from '@/components/ui/card'
 import {FileUpload} from '@/components/ui/file-upload'
 import {
   Form,
@@ -32,6 +37,10 @@ export function EditOrganizationForm({
   organization: Organization
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [organizationImage, setOrganizationImage] = useState(
+    organization.image ?? ''
+  )
 
   const form = useForm<FormValues>({
     resolver: zodResolver(organizationFormSchema),
@@ -70,11 +79,90 @@ export function EditOrganizationForm({
     }
   }
 
+  async function handleFileUpload(files: File[]) {
+    if (files.length === 0) return
+
+    const file = files[0]
+    setIsUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('organizationId', organization.id)
+
+      const result = await uploadOrganizationImageAction(undefined, formData)
+
+      if (result.success && result.imageUrl) {
+        // Mettre à jour le champ image dans le formulaire avec l'URL du fichier uploadé
+        form.setValue('image', result.imageUrl)
+        setOrganizationImage(result.imageUrl)
+
+        toast('Succès', {
+          description: result.message,
+        })
+      } else {
+        toast('Erreur', {
+          description: result.message || "Erreur lors de l'upload",
+        })
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'upload:", error)
+      toast('Erreur', {
+        description: "Impossible d'uploader l'image. Veuillez réessayer.",
+      })
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   return (
     <Form {...form}>
+      <Card className="mb-6">
+        <CardContent className="p-6">
+          <div className="flex flex-col items-center gap-4">
+            {organizationImage ? (
+              <div className="relative h-32 w-32 overflow-hidden rounded-lg">
+                <Image
+                  src={organizationImage}
+                  alt={organization.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="flex h-32 w-32 items-center justify-center rounded-lg border-dashed bg-gray-50 dark:bg-gray-900">
+                <div className="text-center">
+                  <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+                    <span className="text-xl font-semibold text-gray-600 dark:text-gray-300">
+                      {organization.name?.charAt(0)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500">Aucune image</p>
+                </div>
+              </div>
+            )}
+            <div className="text-center">
+              <h3 className="text-lg font-semibold">{organization.name}</h3>
+              <p className="text-muted-foreground text-sm">
+                @{organization.slug}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <input type="hidden" {...form.register('id')} />
-        <FileUpload />
+        <div className="space-y-2">
+          <FileUpload
+            onChange={handleFileUpload}
+            onlyimage={true}
+            multi={false}
+            isUploading={isUploading}
+          />
+          {isUploading && (
+            <p className="text-muted-foreground text-sm">Upload en cours...</p>
+          )}
+        </div>
         <FormField
           control={form.control}
           name="name"
@@ -120,27 +208,6 @@ export function EditOrganizationForm({
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="image"
-          render={({field}) => (
-            <FormItem>
-              <FormLabel>Image de l&apos;organisation</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="https://example.com/organization-image.jpg"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                URL de l&apos;image de l&apos;organisation. Laissez vide pour
-                supprimer l&apos;image.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
