@@ -17,6 +17,7 @@ export type Subjects =
   | 'User'
   | 'Subscription'
   | 'Organization'
+  | 'File'
   | 'Technical'
   | 'Log'
   | 'all'
@@ -34,6 +35,7 @@ export const SubjectsConst = {
   USER: 'User' as Subjects,
   SUBSCRIPTION: 'Subscription' as Subjects,
   ORGANIZATION: 'Organization' as Subjects,
+  FILE: 'File' as Subjects,
   TECHNICAL: 'Technical' as Subjects,
   LOG: 'Log' as Subjects,
   ALL: 'all' as Subjects,
@@ -75,6 +77,9 @@ export function buildAdminAbilities(builder: AppAbilityBuilder) {
 
   // Peut gérer toutes les organisations
   can(ActionsConst.MANAGE, SubjectsConst.ORGANIZATION)
+
+  // Peut gérer tous les fichiers
+  can(ActionsConst.MANAGE, SubjectsConst.FILE)
 
   // Peut gérer les aspects techniques et logs
   can(ActionsConst.MANAGE, SubjectsConst.TECHNICAL)
@@ -142,6 +147,9 @@ export function buildBaseUserAbilities(builder: AppAbilityBuilder, user: User) {
   can(ActionsConst.READ, SubjectsConst.ORGANIZATION) // Peut lire toutes les orgs (public info)
   can(ActionsConst.CREATE, SubjectsConst.ORGANIZATION) // Peut créer une organisation
 
+  // Files - peut gérer ses propres fichiers
+  can(ActionsConst.MANAGE, SubjectsConst.FILE, {userId: user.id})
+
   // Peut lire les logs (accès en lecture seule)
   can(ActionsConst.READ, SubjectsConst.LOG)
 
@@ -174,6 +182,10 @@ export function buildOrganizationalAbilities(
       can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION, {
         organizationId: orgContext.organizationId,
       })
+      // Peut gérer tous les fichiers de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.FILE, {
+        organizationId: orgContext.organizationId,
+      })
       break
 
     case UserOrganizationRoleConst.ADMIN:
@@ -195,6 +207,10 @@ export function buildOrganizationalAbilities(
       can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION, {
         organizationId: orgContext.organizationId,
       })
+      // Peut gérer les fichiers de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.FILE, {
+        organizationId: orgContext.organizationId,
+      })
       break
 
     case UserOrganizationRoleConst.MEMBER:
@@ -208,6 +224,10 @@ export function buildOrganizationalAbilities(
       })
       // Peut lire les subscriptions de l'organisation
       can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION, {
+        organizationId: orgContext.organizationId,
+      })
+      // Peut lire les fichiers de l'organisation
+      can(ActionsConst.READ, SubjectsConst.FILE, {
         organizationId: orgContext.organizationId,
       })
       break

@@ -8,6 +8,12 @@ import {FileErrors} from '@/lib/files/errors'
 import {getStorageConfig} from '@/lib/files/storage/env'
 
 import {
+  canAccessFileByPath,
+  canUploadFile,
+} from './authorization/file-authorization'
+import {AuthorizationError} from './errors/authorization-error'
+import {ValidationError} from './errors/validation-error'
+import {
   ALLOWED_IMAGE_MIME_TYPES,
   DeleteFile,
   EntityType,
@@ -19,6 +25,12 @@ import {
   UploadFile,
   UploadFileForEntity,
 } from './types/domain/file-types'
+import {
+  deleteFileSchema,
+  getFileSchema,
+  uploadFileForEntitySchema,
+  uploadFileSchema,
+} from './validation/file-validation'
 
 const {config} = getStorageConfig()
 
@@ -65,7 +77,23 @@ const getFileUrl = (path: string) => {
 export const uploadFileForEntityService = async (
   params: UploadFileForEntity
 ): Promise<FileResponse> => {
+  // Validation des paramètres
+  const parsed = uploadFileForEntitySchema.safeParse({
+    entityType: params.entityType,
+    entityId: params.entityId,
+    category: params.category,
+  })
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
   const {file, entityType, entityId, category = 'image'} = params
+
+  // Vérification des autorisations
+  const granted = await canUploadFile(entityType, entityId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
 
   // Validation de la taille
   if (file.size > config.maxFileSize) {
@@ -103,7 +131,23 @@ export const uploadFileForEntityService = async (
 export const uploadImageForEntityService = async (
   params: UploadFileForEntity
 ): Promise<FileResponse> => {
+  // Validation des paramètres
+  const parsed = uploadFileForEntitySchema.safeParse({
+    entityType: params.entityType,
+    entityId: params.entityId,
+    category: params.category,
+  })
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
   const {file, entityType, entityId, category = 'image'} = params
+
+  // Vérification des autorisations
+  const granted = await canUploadFile(entityType, entityId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
 
   // Validation de la taille
   if (file.size > config.maxFileSize) {
@@ -140,7 +184,21 @@ export const uploadImageForEntityService = async (
 export const uploadFileService = async (
   params: UploadFile
 ): Promise<FileResponse> => {
+  // Validation des paramètres
+  const parsed = uploadFileSchema.safeParse({
+    path: params.path,
+  })
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
   const {file, path} = params
+
+  // Vérification des autorisations basée sur le chemin
+  const granted = await canAccessFileByPath(path)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
 
   // Validation de la taille
   if (file.size > config.maxFileSize) {
@@ -166,7 +224,22 @@ export const uploadFileService = async (
  * Supprime un fichier
  */
 export const deleteFileService = async (params: DeleteFile): Promise<void> => {
+  // Validation des paramètres
+  const parsed = deleteFileSchema.safeParse({
+    path: params.path,
+  })
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
   const {path} = params
+
+  // Vérification des autorisations basée sur le chemin
+  const granted = await canAccessFileByPath(path)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
   return await deleteFile(path)
 }
 
@@ -176,7 +249,22 @@ export const deleteFileService = async (params: DeleteFile): Promise<void> => {
 export const getFileService = async (
   params: GetFile
 ): Promise<FileResponse> => {
+  // Validation des paramètres
+  const parsed = getFileSchema.safeParse({
+    path: params.path,
+  })
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
   const {path} = params
+
+  // Vérification des autorisations basée sur le chemin
+  const granted = await canAccessFileByPath(path)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
   const blob = await getFile(path)
   return {
     path,
