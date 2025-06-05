@@ -9,6 +9,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import {OrganizationAddMemberForm} from './organization-add-member-form'
+
 export default async function OrganizationMembersTable({
   organizationId,
 }: {
@@ -18,6 +20,13 @@ export default async function OrganizationMembersTable({
 
   return (
     <div className="overflow-x-auto">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Membres</h3>
+        <OrganizationAddMemberForm
+          organizationId={organizationId}
+          existingMemberIds={members.map((m) => m.id)}
+        />
+      </div>
       <Table>
         <TableHeader>
           <TableRow>

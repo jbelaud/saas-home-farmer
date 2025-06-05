@@ -3,8 +3,13 @@
 import {revalidatePath} from 'next/cache'
 
 import {getAuthUser} from '@/services/authentication/auth-utils'
-import {updateOrganizationService} from '@/services/facades/organization-service-facade'
+import {
+  inviteUserToOrganizationService,
+  updateOrganizationService,
+} from '@/services/facades/organization-service-facade'
 import {UpdateOrganization} from '@/services/types/domain/organization-types'
+import {User, UserDTO} from '@/services/types/domain/user-types'
+import {searchUsersService} from '@/services/user-service'
 
 import {
   organizationFormSchema,
@@ -77,4 +82,43 @@ export async function updateOrganizationAction(
       message: "Échec de la mise à jour de l'organisation",
     }
   }
+}
+
+export type MemberActionResult = {
+  success: boolean
+  message?: string
+}
+
+export async function inviteUserToOrganizationAction(
+  organizationId: string,
+  userId: string
+): Promise<MemberActionResult> {
+  try {
+    await inviteUserToOrganizationService({organizationId, userId})
+    revalidatePath(`/account/organization/${organizationId}/edit`)
+    return {success: true, message: 'Membre ajouté avec succès'}
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Erreur inconnue',
+    }
+  }
+}
+
+export async function searchUsersForOrganizationAction(
+  organizationId: string,
+  query: string
+): Promise<UserDTO[]> {
+  console.log('organizationId', organizationId)
+  console.log('query', query)
+  if (!query || query.length < 2) return []
+  const users = await searchUsersService(query, organizationId)
+  // On retourne seulement les infos nécessaires pour l'autocomplete
+  console.log('users', users)
+  return users.map((u: User) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    image: u.image ?? undefined,
+  }))
 }
