@@ -11,16 +11,16 @@ import React, {
 import {UserOrganizationRoleConst} from '@/services/types/domain/auth-types'
 import {
   Organization,
-  UserOrganizationAndOrganization,
+  UserOrganizationData,
 } from '@/services/types/domain/organization-types'
 import {User} from '@/services/types/domain/user-types'
 
 interface OrganizationContextType {
   // États
   user: User | null
-  organizations: UserOrganizationAndOrganization[]
+  organizations: UserOrganizationData[]
   currentOrganization: Organization | null
-  currentUserOrganization: UserOrganizationAndOrganization | null
+  currentUserOrganization: UserOrganizationData | null
 
   // Actions
   setUser: (user: User | null) => void
@@ -50,16 +50,16 @@ export function OrganizationProvider({
   // Dérivation de l'organisation utilisateur courante
   const currentUserOrganization =
     organizations.find(
-      (org) => org.organization.id === currentOrganization?.id
+      (org) => org.organization?.id === currentOrganization?.id
     ) || null
 
   // Fonction pour changer d'organisation
   const handleSetCurrentOrganization = (organizationId: string) => {
     const userOrg = organizations.find(
-      (org) => org.organization.id === organizationId
+      (org) => org.organization?.id === organizationId
     )
     if (userOrg) {
-      setCurrentOrganization(userOrg.organization)
+      setCurrentOrganization(userOrg.organization ?? null)
       // Stocker la sélection dans localStorage pour la persistance
       localStorage.setItem('selectedOrganizationId', organizationId)
     }
@@ -73,16 +73,16 @@ export function OrganizationProvider({
 
       if (savedOrganizationId) {
         const savedOrg = organizations.find(
-          (org) => org.organization.id === savedOrganizationId
+          (org) => org.organization?.id === savedOrganizationId
         )
         if (savedOrg) {
-          setCurrentOrganization(savedOrg.organization)
+          setCurrentOrganization(savedOrg.organization ?? null)
           return
         }
       }
 
       // Par défaut, sélectionner la première organisation
-      setCurrentOrganization(organizations[0].organization)
+      setCurrentOrganization(organizations[0].organization ?? null)
     }
   }, [organizations])
 

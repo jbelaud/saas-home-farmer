@@ -12,6 +12,7 @@ import {
   userOrganizations,
 } from '@/db/models/organization-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
+import {UserOrganizationData} from '@/services/types/domain/organization-types'
 
 // ===== CRUD ORGANIZATIONS =====
 
@@ -150,18 +151,11 @@ export const getUserOrganizationsDao = async (
 
 export const getOrganizationMembersDao = async (
   organizationId: string
-): Promise<UserOrganizationModel[]> => {
+): Promise<UserOrganizationData[]> => {
   const rows = await db.query.userOrganizations.findMany({
     where: (userOrg, {eq}) => eq(userOrg.organizationId, organizationId),
     with: {
-      user: {
-        columns: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-        },
-      },
+      user: true,
     },
   })
   return rows

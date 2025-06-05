@@ -6,13 +6,16 @@ import {
   UpdateOrganizationModel,
   UserOrganizationModel,
 } from '@/db/models/organization-model'
+import {UserModel} from '@/db/models/user-model'
 
 // Types de domaine découplés des types Drizzle
 export type Organization = OrganizationModel
 export type UserOrganization = UserOrganizationModel
-export type UserOrganizationAndOrganization = UserOrganizationModel & {
-  organization: OrganizationModel
+export type UserOrganizationData = UserOrganizationModel & {
+  user?: UserModel
+  organization?: OrganizationModel
 }
+
 export type OrganizationRole = OrganizationRoleEnumModel
 
 // Types pour les opérations

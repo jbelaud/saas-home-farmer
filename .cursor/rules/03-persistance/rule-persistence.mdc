@@ -250,6 +250,22 @@ export type AuthUser = {
 }
 ```
 
+Exemple de Types de Domaine imbriqué avec relations :
+- Nommé le type <EntityRelation>Data : exemple UserOrganizationData
+[organization-types.ts](mdc:src/services/types/domain/organization-types.ts)
+
+```ts
+//entity organisation
+export type Organization = OrganizationModel
+//entity user/organisation (la relation n/n) mais contenant que les ID
+export type UserOrganization = UserOrganizationModel
+//entity user/organisation (la relation n/n) mais contenant les entités complètes (utile pour le system de query drizzle)
+export type UserOrganizationData = UserOrganizationModel & {
+  user?: UserModel
+  organization?: OrganizationModel
+}
+```
+
 # Bonnes Pratiques
 
 - **Inférence de type TypeScript** : Utiliser l'inférence de type pour la sécurité
