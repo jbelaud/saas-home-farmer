@@ -8,6 +8,7 @@ import {
   getAuthUser,
   getAuthUserId,
 } from '@/services/authentication/auth-service'
+import {hasRequiredRoles} from '@/services/authentication/auth-util'
 import {canManageUsers} from '@/services/authorization/user-authorization'
 import {
   getActiveSubscriptionsByUserEmailService,
@@ -17,13 +18,34 @@ import {
   getAllUsersWithPaginationService,
   getUserByIdService,
 } from '@/services/facades/user-service-facade'
-import {User, UserDTO} from '@/services/types/domain/user-types'
+import {
+  RequireAuthOptions,
+  Roles,
+  User,
+  UserDTO,
+} from '@/services/types/domain/user-types'
 
 export const getConnectedUser = cache(async () => {
   const user = await getAuthUser()
   if (!user) return
   return userDTO(user as User)
 })
+
+export async function requireActionAuth(options?: RequireAuthOptions) {
+  const user = await getAuthUser()
+
+  if (!user) {
+    throw new Error('Utilisateur non authentifié')
+  }
+  if (
+    options?.roles &&
+    !hasRequiredRoles(user, options.roles as unknown as Roles[])
+  ) {
+    throw new Error('Accès interdit')
+  }
+
+  return user
+}
 
 const userIdSchema = z.object({
   id: z.string(),

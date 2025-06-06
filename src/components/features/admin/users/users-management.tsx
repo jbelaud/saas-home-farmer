@@ -3,6 +3,7 @@
 import {formatDistanceToNow} from 'date-fns'
 import {fr} from 'date-fns/locale'
 import {useRouter, useSearchParams} from 'next/navigation'
+import {toast} from 'sonner'
 
 import {deleteUserAction, updateUserAction} from '@/app/admin/users/actions'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
@@ -171,10 +172,9 @@ export default function UsersManagement({
                           )
 
                           if (result.success) {
-                            // Rafraîchir la page
-                            window.location.reload()
+                            toast.success(result.message)
                           } else {
-                            console.error('Erreur:', result.message)
+                            toast.error(result.message)
                           }
                         }}
                       />
@@ -187,10 +187,9 @@ export default function UsersManagement({
                           const result = await deleteUserAction(id)
 
                           if (result.success) {
-                            // Rafraîchir la page
-                            window.location.reload()
+                            toast.success(result.message)
                           } else {
-                            console.error('Erreur:', result.message)
+                            toast.error(result.message)
                           }
                         }}
                       />

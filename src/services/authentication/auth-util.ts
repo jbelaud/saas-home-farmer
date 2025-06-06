@@ -25,6 +25,29 @@ export function hasRequiredRole(userConnected?: User, requestedRole?: Roles) {
   })
 }
 
+export function hasRequiredRoles(
+  userConnected?: User,
+  requestedRoles?: Roles[]
+) {
+  if (!userConnected || !requestedRoles || requestedRoles.length === 0) {
+    return false
+  }
+
+  // Vérifier que l'utilisateur a des rôles
+  const userRoles = userConnected?.roles ?? ['public']
+
+  // Vérifier si l'utilisateur a au moins un des rôles requis
+  return requestedRoles.some((requestedRole) => {
+    const requestedRoleIndex = roleHierarchy.indexOf(requestedRole)
+    if (requestedRoleIndex === -1) return false
+
+    return userRoles.some((userRole) => {
+      const userRoleIndex = roleHierarchy.indexOf(userRole as Roles)
+      return userRoleIndex !== -1 && userRoleIndex >= requestedRoleIndex
+    })
+  })
+}
+
 export const isAdmin = (user?: User | null) => {
   if (!user) return false
   return (

@@ -2,7 +2,9 @@
 
 import {revalidatePath} from 'next/cache'
 
+import {requireActionAuth} from '@/app/dal/user-dal'
 import {updateUserService} from '@/services/facades/user-service-facade'
+import {RoleConst} from '@/services/types/domain/auth-types'
 
 export type FormState = {
   success: boolean
@@ -15,6 +17,9 @@ export async function updateUserAction(
   prevState?: FormState,
   formData?: FormData
 ): Promise<FormState> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
   if (!formData) {
     return {success: false, message: 'Données invalides'}
   }

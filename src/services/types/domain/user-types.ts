@@ -18,6 +18,10 @@ export type User = UserModel & {
   roles?: Roles[]
   organizations?: UserOrganizationData[]
 }
+export type RequireAuthOptions = {
+  roles?: Roles[]
+  active?: boolean
+}
 export type UserVisibility = User['visibility']
 
 // Types pour les rôles
