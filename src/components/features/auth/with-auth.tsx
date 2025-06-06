@@ -17,7 +17,7 @@ const withAuth = <P extends object>(
     const authUser = await getAuthUser()
     const hasRole = hasRequiredRole(
       authUser,
-      requiredRole ? (requiredRole as Roles) : 'user'
+      requiredRole ? (requiredRole as Roles) : RoleConst.USER
     )
 
     if (!authUser) {

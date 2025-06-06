@@ -21,6 +21,16 @@ Les rôles globaux sont définis dans [auth-types.ts](mdc:src/services/types/dom
 ### Hiérarchie des Rôles Globaux
 
 ```typescript
+
+export const RoleConst = {
+  PUBLIC: 'public' as Roles,
+  USER: 'user' as Roles,
+  REDACTOR: 'redactor' as Roles,
+  MODERATOR: 'moderator' as Roles,
+  ADMIN: 'admin' as Roles,
+  SUPER_ADMIN: 'super_admin' as Roles,
+} as const
+
 export const roleHierarchy = [
   'public',
   'user', 
@@ -102,17 +112,17 @@ export function defineAbilitiesFor(
   orgContext?: OrganizationContext
 ) {
   // 1. SUPER_ADMIN → Permissions complètes
-  if (user.roles?.includes(ROLE_SUPER_ADMIN)) {
+  if (user.roles?.includes(RoleConst.SUPER_ADMIN)) {
     return buildSuperAdminAbilities()
   }
   
   // 2. ADMIN → Permissions étendues (bypass organisationnel)
-  if (user.roles?.includes(ROLE_ADMIN)) {
+  if (user.roles?.includes(RoleConst.ADMIN)) {
     return buildAdminAbilities()
   }
   
   // 3. USER → Permissions de base + rôles organisationnels
-  if (user.roles?.includes(ROLE_USER)) {
+  if (user.roles?.includes(RoleConst.USER)) {
     return buildUserAbilities(user, orgContext)
   }
   

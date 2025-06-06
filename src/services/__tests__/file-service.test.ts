@@ -254,7 +254,7 @@ describe('[USER] File Service - Own Files', () => {
       email: 'other@example.com',
       emailVerified: new Date(),
       image: null,
-      roles: ['user'],
+      roles: [RoleConst.USER],
       visibility: 'private',
       password: 'password',
       createdAt: new Date(),

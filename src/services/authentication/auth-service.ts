@@ -1,6 +1,8 @@
 import {getUserByEmailDao} from '@/db/repositories/user-repository'
 import {auth} from '@/lib/auth'
 
+import {RoleConst} from '../types/domain/auth-types'
+
 export const getAuthUser = async () => {
   const session = await auth()
   if (!session?.user?.email) return
@@ -16,7 +18,7 @@ export const getSessionAuth = async () => {
 
 export const isAuthAdmin = async () => {
   const authUser = await getAuthUser()
-  return authUser?.roles?.includes('admin')
+  return authUser?.roles?.includes(RoleConst.ADMIN)
 }
 
 export const getAuthUserId = async () => {

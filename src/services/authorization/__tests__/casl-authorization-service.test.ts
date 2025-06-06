@@ -336,7 +336,7 @@ describe('CASL Abilities', () => {
         id: 'user-123',
         name: 'John Doe',
         email: 'john@test.com',
-        role: 'user',
+        role: RoleConst.USER,
       }
 
       const filtered = filterFields(
@@ -371,7 +371,7 @@ describe('CASL Abilities', () => {
         id: 'user-123',
         name: 'John Doe',
         email: 'john@test.com',
-        role: 'user',
+        role: RoleConst.USER,
       }
 
       const filtered = filterFields(
@@ -461,7 +461,7 @@ describe('CASL Abilities', () => {
       id: 'multi-user',
       email: 'multi@test.com',
       name: 'Multi Role User',
-      roles: ['user'],
+      roles: [RoleConst.USER],
       createdAt: new Date(),
       updatedAt: new Date(),
       emailVerified: null,

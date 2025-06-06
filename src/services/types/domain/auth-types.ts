@@ -29,13 +29,6 @@ export const roleHierarchy = [
   'super_admin',
 ] satisfies Roles[]
 
-// export const ROLE_PUBLIC = 'public'
-// export const ROLE_USER = 'user'
-// export const ROLE_REDACTOR = 'redactor'
-// export const ROLE_MODERATOR = 'moderator'
-// export const ROLE_ADMIN = 'admin'
-// export const ROLE_SUPER_ADMIN = 'super_admin'
-
 // Context pour spécifier l'organisation COURANTE
 export interface OrganizationContext {
   organizationId: string // Quelle org est active maintenant
