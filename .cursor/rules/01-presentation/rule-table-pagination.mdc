@@ -618,6 +618,7 @@ export async function deleteItem(id: string) {
 1. **Imports Shadcn UI**
    - Toujours utiliser le format `@mikecodeur/ui/components/<component>`
    - Exemple : `import {Button} from '@mikecodeur/ui/components/button'`
+   - Regle UI UX dans [rule-table-ui-ux-pagination.mdc](mdc:.cursor/rules/01-presentation/rule-table-ui-ux-pagination.mdc)
 
 2. **Gestion des searchParams**
    - Utiliser les searchParams pour la pagination et la recherche
