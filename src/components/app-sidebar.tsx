@@ -23,9 +23,28 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import {isAdmin} from '@/services/authentication/auth-util'
 
 // This is sample data.
 const data = {
+  adminNavMain: [
+    {
+      title: 'Adminitration',
+      url: '#',
+      icon: Settings2,
+      isActive: true,
+      items: [
+        {
+          title: 'Admin',
+          url: '/admin',
+        },
+        {
+          title: 'Users',
+          url: '/admin/users',
+        },
+      ],
+    },
+  ],
   navMain: [
     {
       title: 'Account',
@@ -136,8 +155,17 @@ const data = {
   ],
 }
 
+function buildMenu(isAdmin: boolean) {
+  if (isAdmin) {
+    return [...data.adminNavMain, ...data.navMain]
+  }
+  return data.navMain
+}
+
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const {user, organizations} = useOrganization()
+  const admin = isAdmin(user)
+  const menuItems = buildMenu(admin ?? false)
 
   const teams = organizations?.map((organization) => ({
     id: organization.organization?.id ?? '',
@@ -152,7 +180,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={teams || []} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={menuItems} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

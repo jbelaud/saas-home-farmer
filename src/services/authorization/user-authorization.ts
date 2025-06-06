@@ -28,7 +28,7 @@ export const canUpdateUser = async (resourceId: string): Promise<boolean> => {
 }
 
 // Fonction de compatibilité - maintenant basée sur CASL
-export const isAdmin = async (): Promise<boolean> => {
+export const isAuthAdmin = async (): Promise<boolean> => {
   const authUser = await getAuthUser()
   return isUserAdmin(authUser)
 }

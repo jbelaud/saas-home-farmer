@@ -25,7 +25,8 @@ export function hasRequiredRole(userConnected?: User, requestedRole?: Roles) {
   })
 }
 
-export const isAdmin = async (user: User) => {
+export const isAdmin = (user?: User | null) => {
+  if (!user) return false
   return (
     user?.roles?.includes(RoleConst.ADMIN) ||
     user?.roles?.includes(RoleConst.SUPER_ADMIN)
