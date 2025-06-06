@@ -1,18 +1,24 @@
 import {
   createUserAndOrganizationTxnDao,
   createUserDao,
+  getAllUsersWithPaginationDao,
   getUserByEmailDao,
   getUserByIdDao,
   searchUsersDao,
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
 
-import {canReadUser, canUpdateUser} from './authorization/user-authorization'
+import {
+  canManageUsers,
+  canReadUser,
+  canUpdateUser,
+} from './authorization/user-authorization'
 import {AuthorizationError} from './errors/authorization-error'
 import {
   ValidationError,
   ValidationParsedZodError,
 } from './errors/validation-error'
+import {Pagination} from './types/common-type'
 import {CreateOrganization} from './types/domain/organization-types'
 import {CreateUser, UpdateUser} from './types/domain/user-types'
 import {
@@ -111,4 +117,20 @@ export const searchUsersService = async (
   }
   // Optionnel : on pourrait ajouter une vérification d'autorisation ici
   return await searchUsersDao(query.trim(), excludeOrganizationId)
+}
+
+/**
+ * Récupère tous les utilisateurs avec pagination pour l'administration
+ * Requiert des permissions d'administrateur
+ */
+export const getAllUsersWithPaginationService = async (
+  pagination: Pagination,
+  search?: string
+) => {
+  const granted = await canManageUsers()
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  return await getAllUsersWithPaginationDao(pagination, search)
 }

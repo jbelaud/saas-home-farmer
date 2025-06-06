@@ -147,6 +147,73 @@ export const getPublicUsersWithPaginationDao = async (
   }
 }
 
+export const getAllUsersWithPaginationDao = async (
+  pagination: Pagination,
+  search?: string
+): Promise<PaginatedResponse<User>> => {
+  // Construire la clause WHERE pour la recherche
+  let whereClause: any = undefined
+  if (search && search.trim()) {
+    const searchTerm = search.trim()
+    whereClause = (fields: typeof users._.columns, {ilike, or}: any) =>
+      or(
+        ilike(fields.name, `%${searchTerm}%`),
+        ilike(fields.email, `%${searchTerm}%`)
+      )
+  }
+
+  const [rows, [{count}]] = await Promise.all([
+    db.query.users.findMany({
+      where: whereClause,
+      with: {
+        userRoles: {
+          with: {
+            role: {
+              columns: {
+                name: true,
+              },
+            },
+          },
+        },
+        userOrganizations: {
+          with: {
+            organization: true,
+          },
+        },
+      },
+      limit: pagination.limit,
+      offset: pagination.offset,
+      orderBy: (users, {desc}) => [desc(users.createdAt)],
+    }),
+    db
+      .select({count: sql<number>`count(*)`})
+      .from(users)
+      .where(whereClause),
+  ])
+
+  // Transformer les données pour inclure les rôles et organisations
+  const transformedUsers = rows.map((row) => {
+    const roles = row?.userRoles?.map((r) => r.role.name) ?? []
+    const organizations = row?.userOrganizations ?? []
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {userRoles, userOrganizations, ...rest} = row
+    return {
+      ...rest,
+      roles,
+      organizations,
+    }
+  })
+
+  return {
+    data: transformedUsers.length === 0 ? [] : transformedUsers,
+    pagination: {
+      rowCount: count,
+      pageSize: pagination.limit,
+    },
+  }
+}
+
 export const updateUserSafeByUidDao = async (
   user: UpdateUserModel,
   uid: string

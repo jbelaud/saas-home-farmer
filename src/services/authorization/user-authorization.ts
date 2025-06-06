@@ -32,3 +32,8 @@ export const isAuthAdmin = async (): Promise<boolean> => {
   const authUser = await getAuthUser()
   return isUserAdmin(authUser)
 }
+
+export const canManageUsers = async (): Promise<boolean> => {
+  const authUser = await getAuthUser()
+  return isUserAdmin(authUser)
+}

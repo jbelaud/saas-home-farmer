@@ -8,3 +8,5 @@ export const getUserByEmailService =
 export const createUserService = userServiceInterceptor.createUserService
 export const createUserOrganizationService =
   userServiceInterceptor.createUserOrganizationService
+export const getAllUsersWithPaginationService =
+  userServiceInterceptor.getAllUsersWithPaginationService

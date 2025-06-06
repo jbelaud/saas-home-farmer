@@ -1,4 +1,6 @@
-export default async function AdminPage() {
+import {withAuthAdmin} from '@/components/features/auth/with-auth'
+
+async function AdminPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="mx-auto">
@@ -7,3 +9,4 @@ export default async function AdminPage() {
     </div>
   )
 }
+export default withAuthAdmin(AdminPage)

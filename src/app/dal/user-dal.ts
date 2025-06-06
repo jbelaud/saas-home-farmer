@@ -81,3 +81,27 @@ export const isPaidUser = cache(async (): Promise<boolean> => {
     return false
   }
 })
+
+export const getAllUsersWithPaginationDal = cache(
+  async (pagination: {limit: number; offset: number}, search?: string) => {
+    const {getAllUsersWithPaginationService} = await import(
+      '@/services/facades/user-service-facade'
+    )
+    return await getAllUsersWithPaginationService(pagination, search)
+  }
+)
+
+export const getUserPermissionsDal = cache(async () => {
+  const {canManageUsers} = await import(
+    '@/services/authorization/user-authorization'
+  )
+
+  const canManage = await canManageUsers()
+
+  return {
+    canCreate: canManage,
+    canEdit: canManage,
+    canDelete: canManage,
+    canManage,
+  }
+})
