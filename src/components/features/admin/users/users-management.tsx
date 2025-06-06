@@ -37,7 +37,7 @@ interface Props {
   searchQuery: string
 }
 
-export function UsersManagement({
+export default function UsersManagement({
   initialUsers,
   currentPage,
   pageSize,

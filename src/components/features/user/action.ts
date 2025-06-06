@@ -11,7 +11,10 @@ import {
 } from '@/services/types/domain/file-types'
 import {UpdateUser} from '@/services/types/domain/user-types'
 
-import {userFormSchema, UserFormSchemaType} from './user-form-validation'
+import {
+  userFormSchema,
+  UserFormSchemaType,
+} from '../admin/users/user-form-validation'
 
 type ValidationError = {
   field: keyof UserFormSchemaType

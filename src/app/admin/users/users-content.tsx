@@ -2,7 +2,7 @@ import {
   getAllUsersWithPaginationDal,
   getUserPermissionsDal,
 } from '@/app/dal/user-dal'
-import {UsersManagement} from '@/components/features/user/users-management'
+import UsersManagement from '@/components/features/admin/users/users-management'
 
 type SearchParamsType = Promise<{
   page?: string

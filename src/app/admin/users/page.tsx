@@ -1,8 +1,8 @@
 import {Metadata} from 'next'
 import {Suspense} from 'react'
 
+import {UsersManagementSkeleton} from '@/components/features/admin/users/users-management-skeleton'
 import {withAuthAdmin} from '@/components/features/auth/with-auth'
-import {UsersManagementSkeleton} from '@/components/features/user/users-management-skeleton'
 
 import UsersContent from './users-content'
 

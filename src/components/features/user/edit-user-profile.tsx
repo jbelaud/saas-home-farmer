@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/select'
 import {User} from '@/services/types/domain/user-types'
 
-import {userFormSchema} from './user-form-validation'
+import {userFormSchema} from '../admin/users/user-form-validation'
 
 type FormValues = z.infer<typeof userFormSchema>
 
