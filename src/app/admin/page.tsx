@@ -1,10 +1,23 @@
+import {Suspense} from 'react'
+
+import {AdminDashboardSkeleton} from '@/components/features/admin/dashboard/admin-dashboard-skeleton'
 import {withAuthAdmin} from '@/components/features/auth/with-auth'
+
+import AdminDashboardContent from './admin-dashboard-content'
 
 async function AdminPage() {
   return (
     <div className="container mx-auto py-8">
-      <div className="mx-auto">
-        <h1 className="mb-8 text-2xl font-bold">Administration</h1>
+      <div className="mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">
+            Dashboard Administration
+          </h1>
+        </div>
+
+        <Suspense fallback={<AdminDashboardSkeleton />}>
+          <AdminDashboardContent />
+        </Suspense>
       </div>
     </div>
   )
