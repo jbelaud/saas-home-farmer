@@ -1,10 +1,16 @@
+import {cache} from 'react'
+
 import {
   canCreateOrganization,
   canDeleteOrganization,
   canManageOrganizationMembers,
   canUpdateOrganization,
 } from '@/services/authorization/organization-authorization'
-import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
+import {
+  getAllOrganizationsWithPaginationService,
+  getOrganizationMembersService,
+} from '@/services/facades/organization-service-facade'
+import {Pagination} from '@/services/types/common-type'
 
 export type OrganizationMemberDTO = {
   id: string
@@ -13,6 +19,16 @@ export type OrganizationMemberDTO = {
   image: string | null
   role: string
   joinedAt: Date
+}
+
+export type OrganizationDTO = {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  image: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export async function getOrganizationMembersDal(
@@ -34,6 +50,13 @@ export async function getOrganizationMembersDal(
   })
 }
 
+export const getAllOrganizationsWithPaginationDal = cache(
+  async (pagination: Pagination, search?: string) => {
+    // Utiliser le service pour récupérer les organisations avec pagination et recherche
+    return await getAllOrganizationsWithPaginationService(pagination, search)
+  }
+)
+
 export async function getOrganizationPermissions(organizationId?: string) {
   const [canCreate, canEdit, canDelete, canManageMembers] = await Promise.all([
     canCreateOrganization(),
@@ -49,3 +72,15 @@ export async function getOrganizationPermissions(organizationId?: string) {
     canManageMembers,
   }
 }
+
+export const getOrganizationAdminPermissionsDal = cache(async () => {
+  // Pour l'admin, on peut gérer toutes les organisations
+  const [canCreate] = await Promise.all([canCreateOrganization()])
+
+  return {
+    canCreate,
+    canEdit: true, // Admin peut éditer toutes les organisations
+    canDelete: true, // Admin peut supprimer toutes les organisations
+    canManage: true, // Admin peut gérer toutes les organisations
+  }
+})

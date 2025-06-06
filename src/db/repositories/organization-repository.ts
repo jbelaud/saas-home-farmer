@@ -1,4 +1,4 @@
-import {and, eq, sql} from 'drizzle-orm'
+import {and, eq, or, sql} from 'drizzle-orm'
 
 import db from '@/db/models/db'
 import {
@@ -68,6 +68,45 @@ export const getOrganizationsDao = async (
       .offset(pagination.offset)
       .orderBy(organizations.createdAt),
     db.select({count: sql<number>`count(*)`}).from(organizations),
+  ])
+
+  return {
+    data: rows.length === 0 ? [] : rows,
+    pagination: {
+      rowCount: count,
+      pageSize: pagination.limit,
+    },
+  }
+}
+
+export const getAllOrganizationsWithPaginationDao = async (
+  pagination: Pagination,
+  search?: string
+): Promise<PaginatedResponse<OrganizationModel>> => {
+  // Construire la clause WHERE pour la recherche
+  let searchCondition
+  if (search && search.trim()) {
+    const searchTerm = search.trim()
+    searchCondition = or(
+      sql`${organizations.name} ILIKE ${`%${searchTerm}%`}`,
+      sql`${organizations.slug} ILIKE ${`%${searchTerm}%`}`,
+      sql`${organizations.description} ILIKE ${`%${searchTerm}%`}`
+    )
+  }
+
+  // Récupérer les organisations avec recherche
+  const [rows, [{count}]] = await Promise.all([
+    db
+      .select()
+      .from(organizations)
+      .where(searchCondition)
+      .limit(pagination.limit)
+      .offset(pagination.offset)
+      .orderBy(sql`${organizations.createdAt} DESC`),
+    db
+      .select({count: sql<number>`count(*)`})
+      .from(organizations)
+      .where(searchCondition),
   ])
 
   return {

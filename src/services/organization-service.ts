@@ -3,6 +3,7 @@ import {
   createUserOrganizationDao,
   deleteOrganizationDao,
   deleteUserOrganizationDao,
+  getAllOrganizationsWithPaginationDao,
   getOrganizationByIdDao,
   getOrganizationBySlugDao,
   getOrganizationMembersDao,
@@ -153,6 +154,15 @@ export const deleteOrganizationService = async (id: string) => {
 
 export const getOrganizationsService = async (pagination: Pagination) => {
   return await getOrganizationsDao(pagination)
+}
+
+export const getAllOrganizationsWithPaginationService = async (
+  pagination: Pagination,
+  search?: string
+) => {
+  // Pour l'administration, on utilise directement le DAO avec recherche
+  // TODO: Ajouter une vérification d'autorisation admin si nécessaire
+  return await getAllOrganizationsWithPaginationDao(pagination, search)
 }
 
 // ===== USER ORGANIZATIONS MANAGEMENT =====

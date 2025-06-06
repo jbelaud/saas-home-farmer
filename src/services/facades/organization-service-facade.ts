@@ -13,6 +13,8 @@ export const deleteOrganizationService =
   organizationServiceInterceptor.deleteOrganizationService
 export const getOrganizationsService =
   organizationServiceInterceptor.getOrganizationsService
+export const getAllOrganizationsWithPaginationService =
+  organizationServiceInterceptor.getAllOrganizationsWithPaginationService
 
 // USER ORGANIZATIONS MANAGEMENT
 export const getUserOrganizationsService =
