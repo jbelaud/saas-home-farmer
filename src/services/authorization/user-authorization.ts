@@ -1,5 +1,5 @@
 import {getUserByIdDao} from '@/db/repositories/user-repository'
-import {getAuthUser} from '@/services/authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
 
 import {isUserAdmin, userCanOnResource} from './authorization-service'
 import {ActionsConst, SubjectsConst} from './casl-abilities'

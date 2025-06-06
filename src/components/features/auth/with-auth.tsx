@@ -1,11 +1,9 @@
 import {forbidden, redirect} from 'next/navigation'
 import React from 'react'
 
-import {
-  getAuthUser,
-  hasRequiredRole,
-} from '@/services/authentication/auth-utils'
-import {ROLE_ADMIN} from '@/services/types/domain/auth-types'
+import {getAuthUser} from '@/services/authentication/auth-service'
+import {hasRequiredRole} from '@/services/authentication/auth-util'
+import {RoleConst} from '@/services/types/domain/auth-types'
 import {Roles, User} from '@/services/types/domain/user-types'
 
 export type WithAuthProps = {
@@ -37,4 +35,4 @@ export default withAuth
 
 export const withAuthAdmin = <P extends object>(
   WrappedComponent: React.ComponentType<P & WithAuthProps>
-) => withAuth(WrappedComponent, ROLE_ADMIN)
+) => withAuth(WrappedComponent, RoleConst.ADMIN)

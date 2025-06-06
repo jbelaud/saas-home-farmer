@@ -4,6 +4,7 @@ import db from '@/db/models/db'
 import {
   type AddRoleModel,
   type AddUserRoleModel,
+  RoleEnumModel,
   type RoleModel,
   roles,
   type UpdateRoleModel,
@@ -12,8 +13,6 @@ import {
   userRoles,
   users,
 } from '@/db/models/user-model'
-
-type RoleName = 'user' | 'admin' | 'public'
 
 // Gestion des rôles
 export const createRoleDao = async (role: AddRoleModel): Promise<RoleModel> => {
@@ -35,7 +34,7 @@ export const getRoleByIdDao = async (
 }
 
 export const getRoleByNameDao = async (
-  name: RoleName
+  name: RoleEnumModel
 ): Promise<RoleModel | undefined> => {
   const row = await db.query.roles.findFirst({
     where: (role, {eq}) => eq(role.name, name),
@@ -114,7 +113,7 @@ export const getUsersWithRoleDao = async (
 
 export const hasUserRoleDao = async (
   userId: string,
-  roleName: RoleName
+  roleName: RoleEnumModel
 ): Promise<boolean> => {
   const result = await db
     .select({count: userRoles.userId})

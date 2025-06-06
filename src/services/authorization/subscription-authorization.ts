@@ -1,6 +1,6 @@
 import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
 
-import {getAuthUser} from '../authentication/auth-utils'
+import {getAuthUser} from '../authentication/auth-service'
 import {userCan, userCanOnResource} from './authorization-service'
 import {ActionsConst, SubjectsConst} from './casl-abilities'
 

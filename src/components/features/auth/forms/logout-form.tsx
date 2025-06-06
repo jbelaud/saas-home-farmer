@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import {APP_DESCRIPTION} from '@/lib/constants'
-import {getAuthUser} from '@/services/authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
 
 import LogoutButton from './logout-button'
 

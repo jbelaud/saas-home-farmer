@@ -5,7 +5,7 @@ import {
 } from '@/app/dal/stripe-dal'
 import {getActiveSubscriptionsByEmailDal} from '@/app/dal/user-dal'
 import PricingPlans from '@/components/features/payment/pricing'
-import {getAuthUser} from '@/services/authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
 
 export default async function Page() {
   const user = await getAuthUser()

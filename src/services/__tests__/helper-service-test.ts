@@ -1,7 +1,7 @@
 import {type Session} from 'next-auth'
 import {vi} from 'vitest'
 
-import {getAuthUser, getSessionAuth} from '../authentication/auth-utils'
+import {getAuthUser, getSessionAuth} from '../authentication/auth-service'
 import {User} from '../types/domain/user-types'
 
 export const setupSessionMocked = async (session: Session | null = null) => {

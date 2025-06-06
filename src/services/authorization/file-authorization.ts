@@ -1,7 +1,7 @@
 import {getOrganizationByIdDao} from '@/db/repositories/organization-repository'
 import {getUserByIdDao} from '@/db/repositories/user-repository'
 
-import {getAuthUser} from '../authentication/auth-utils'
+import {getAuthUser} from '../authentication/auth-service'
 import {OrganizationContext} from '../types/domain/auth-types'
 import {EntityType, EntityTypeConst} from '../types/domain/file-types'
 import {User} from '../types/domain/user-types'

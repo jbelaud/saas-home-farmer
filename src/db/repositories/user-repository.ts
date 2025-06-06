@@ -17,7 +17,7 @@ import {
 } from '@/db/models/user-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {
-  ROLE_USER,
+  RoleConst,
   UserOrganizationRoleConst,
 } from '@/services/types/domain/auth-types'
 import {User} from '@/services/types/domain/user-types'
@@ -180,7 +180,7 @@ export const createUserAndOrganizationTxnDao = async (
     const [userRole] = await tx
       .select()
       .from(roles)
-      .where(eq(roles.name, ROLE_USER))
+      .where(eq(roles.name, RoleConst.USER))
       .limit(1)
 
     if (!userRole) {
@@ -216,7 +216,7 @@ export const createUserAndOrganizationTxnDao = async (
     return {
       user: {
         ...newUser,
-        roles: ['user'],
+        roles: [RoleConst.USER],
         organizations: [],
       },
       organizationId: newOrganization.id,

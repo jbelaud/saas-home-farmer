@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 
-import {ROLE_ADMIN, ROLE_USER} from '@/services/types/domain/auth-types'
+import {RoleConst} from '@/services/types/domain/auth-types'
 
 import type {User} from '../../types/domain/user-types'
 import {
@@ -22,7 +22,7 @@ describe('CASL Abilities', () => {
     id: 'user-123',
     email: 'user@test.com',
     name: 'Regular User',
-    roles: [ROLE_USER],
+    roles: [RoleConst.USER],
     createdAt: new Date(),
     updatedAt: new Date(),
     emailVerified: null,
@@ -35,7 +35,7 @@ describe('CASL Abilities', () => {
     id: 'admin-123',
     email: 'admin@test.com',
     name: 'Admin User',
-    roles: [ROLE_ADMIN],
+    roles: [RoleConst.ADMIN],
     createdAt: new Date(),
     updatedAt: new Date(),
     emailVerified: null,
@@ -48,7 +48,7 @@ describe('CASL Abilities', () => {
     id: 'super-admin-123',
     email: 'super@test.com',
     name: 'Super Admin',
-    roles: [ROLE_ADMIN], // On garde ADMIN puisque SUPER_ADMIN n'existe pas
+    roles: [RoleConst.ADMIN], // On garde ADMIN puisque SUPER_ADMIN n'existe pas
     createdAt: new Date(),
     updatedAt: new Date(),
     emailVerified: null,

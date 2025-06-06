@@ -1,5 +1,5 @@
 import {getOrganizationByIdDao} from '@/db/repositories/organization-repository'
-import {getAuthUser} from '@/services/authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
 import {
   OrganizationContext,
   UserOrganizationRoleConst,

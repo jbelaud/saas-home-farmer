@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest'
 
 import {
-  ROLE_USER,
+  RoleConst,
   UserOrganizationRoleConst,
 } from '@/services/types/domain/auth-types'
 import {type OrganizationRole} from '@/services/types/domain/organization-types'
@@ -27,7 +27,7 @@ const createUserWithOrgRole = (
   emailVerified: null,
   image: null,
   password: null,
-  roles: [ROLE_USER],
+  roles: [RoleConst.USER],
   organizations: [
     {
       userId: id,
@@ -223,7 +223,7 @@ describe('buildOrganizationalAbilities', () => {
         emailVerified: null,
         image: null,
         password: null,
-        roles: [ROLE_USER],
+        roles: [RoleConst.USER],
         organizations: [
           {
             userId,

@@ -1,6 +1,6 @@
 import {redirect} from 'next/navigation'
 
-import {getAuthUser} from '@/services/authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
 
 import Logout from '../../../components/features/auth/forms/logout-form'
 

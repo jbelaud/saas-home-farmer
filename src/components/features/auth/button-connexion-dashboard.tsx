@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import {Button} from '@/components/ui/button'
-import {getAuthUser} from '@/services/authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
 
 export default async function ButtonConnexionDashboard() {
   const user = await getAuthUser()

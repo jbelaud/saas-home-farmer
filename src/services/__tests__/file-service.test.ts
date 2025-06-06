@@ -67,7 +67,7 @@ import {
   getFileService,
   uploadFileForEntityService,
 } from '../file-service'
-import {UserOrganizationRoleConst} from '../types/domain/auth-types'
+import {RoleConst, UserOrganizationRoleConst} from '../types/domain/auth-types'
 import {
   DeleteFile,
   EntityTypeConst,
@@ -129,7 +129,7 @@ describe('[ADMIN] File Service', () => {
       email: 'test@example.com',
       emailVerified: new Date(),
       image: null,
-      roles: ['user'],
+      roles: [RoleConst.USER],
       visibility: 'private',
       password: 'password',
       createdAt: new Date(),

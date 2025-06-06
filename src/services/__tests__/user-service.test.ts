@@ -7,6 +7,7 @@ vi.mock('@/db/repositories/user-repository', () => ({
 
 import * as userRepository from '@/db/repositories/user-repository'
 
+import {RoleConst} from '../types/domain/auth-types'
 import {User} from '../types/domain/user-types'
 import {getUserByIdService, searchUsersService} from '../user-service'
 import {setupAuthUserMocked} from './helper-service-test'
@@ -20,7 +21,7 @@ const userTest = {
   email: 'test@example.com',
   emailVerified: new Date(),
   image: null,
-  roles: ['user'],
+  roles: [RoleConst.USER],
   visibility: 'private',
   password: 'password',
   createdAt: new Date(),
@@ -54,7 +55,7 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
   it("[ADMIN] devrait appelé `getUserByIdDao` si l'utilisateur est un `admin`", async () => {
     const user = {
       ...userTest,
-      roles: ['admin'],
+      roles: [RoleConst.ADMIN],
     } satisfies User
     setupAuthUserMocked(user)
     const result = await getUserByIdService(differentUserId)

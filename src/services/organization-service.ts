@@ -14,7 +14,7 @@ import {
   updateOrganizationDao,
   updateUserOrganizationRoleDao,
 } from '@/db/repositories/organization-repository'
-import {getAuthUser} from '@/services/authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
 
 import {
   canChangeOrganizationMemberRole,

@@ -8,9 +8,7 @@ import {
 
 import {
   OrganizationContext,
-  ROLE_ADMIN,
-  ROLE_SUPER_ADMIN,
-  ROLE_USER,
+  RoleConst,
   UserOrganizationRoleConst,
 } from '../types/domain/auth-types'
 import {OrganizationRole} from '../types/domain/organization-types'
@@ -47,19 +45,19 @@ export function defineAbilitiesFor(
   }
 
   // SUPER_ADMIN - permissions complètes
-  if (user.roles?.includes(ROLE_SUPER_ADMIN)) {
+  if (user.roles?.includes(RoleConst.SUPER_ADMIN)) {
     buildSuperAdminAbilities(builder)
     return builder.build()
   }
 
   // ADMIN - permissions étendues
-  if (user.roles?.includes(ROLE_ADMIN)) {
+  if (user.roles?.includes(RoleConst.ADMIN)) {
     buildAdminAbilities(builder)
     return builder.build()
   }
 
   // USER - permissions standards
-  if (user.roles?.includes(ROLE_USER)) {
+  if (user.roles?.includes(RoleConst.USER)) {
     buildUserAbilities(builder, user, orgContext)
     return builder.build()
   }
@@ -162,7 +160,7 @@ export function filterFields<T extends Record<string, unknown>>(
  */
 export function isUserAdmin(user?: User): boolean {
   if (!user) return false
-  return user.roles?.includes(ROLE_ADMIN) ?? false
+  return user.roles?.includes(RoleConst.ADMIN) ?? false
 }
 
 /**
@@ -220,6 +218,7 @@ export function isOrganizationAdmin(
   )
 }
 function buildSuperAdminAbilities(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   builder: AbilityBuilder<MongoAbility<AbilityTuple, MongoQuery>>
 ) {
   throw new Error('Function not implemented.')

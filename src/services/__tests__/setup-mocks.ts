@@ -5,7 +5,7 @@ vi.mock('@/db/models/db', () => ({
   default: {},
 }))
 
-vi.mock('../authentication/auth-utils', () => ({
+vi.mock('../authentication/auth-service', () => ({
   getAuthUser: vi.fn(),
   getSessionAuth: vi.fn(),
 }))

@@ -4,7 +4,10 @@ import {notFound} from 'next/navigation'
 import {cache} from 'react'
 import {z} from 'zod'
 
-import {getAuthUser, getAuthUserId} from '@/services/authentication/auth-utils'
+import {
+  getAuthUser,
+  getAuthUserId,
+} from '@/services/authentication/auth-service'
 import {
   getActiveSubscriptionsByUserEmailService,
   getSubscriptionByUserIdService,

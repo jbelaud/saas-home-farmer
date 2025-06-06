@@ -2,7 +2,7 @@
 
 import {revalidatePath} from 'next/cache'
 
-import {getAuthUser} from '@/services/authentication/auth-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {
