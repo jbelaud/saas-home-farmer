@@ -8,11 +8,15 @@ import {
   getAuthUser,
   getAuthUserId,
 } from '@/services/authentication/auth-service'
+import {canManageUsers} from '@/services/authorization/user-authorization'
 import {
   getActiveSubscriptionsByUserEmailService,
   getSubscriptionByUserIdService,
 } from '@/services/facades/subscription-service-facade'
-import {getUserByIdService} from '@/services/facades/user-service-facade'
+import {
+  getAllUsersWithPaginationService,
+  getUserByIdService,
+} from '@/services/facades/user-service-facade'
 import {User, UserDTO} from '@/services/types/domain/user-types'
 
 export const getConnectedUser = cache(async () => {
@@ -84,18 +88,11 @@ export const isPaidUser = cache(async (): Promise<boolean> => {
 
 export const getAllUsersWithPaginationDal = cache(
   async (pagination: {limit: number; offset: number}, search?: string) => {
-    const {getAllUsersWithPaginationService} = await import(
-      '@/services/facades/user-service-facade'
-    )
     return await getAllUsersWithPaginationService(pagination, search)
   }
 )
 
 export const getUserPermissionsDal = cache(async () => {
-  const {canManageUsers} = await import(
-    '@/services/authorization/user-authorization'
-  )
-
   const canManage = await canManageUsers()
 
   return {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {eq, sql} from 'drizzle-orm'
+import {eq, or, sql} from 'drizzle-orm'
 
 import db from '@/db/models/db'
 import {
@@ -152,61 +152,39 @@ export const getAllUsersWithPaginationDao = async (
   search?: string
 ): Promise<PaginatedResponse<User>> => {
   // Construire la clause WHERE pour la recherche
-  let whereClause: any = undefined
+  let searchCondition: any = undefined
   if (search && search.trim()) {
     const searchTerm = search.trim()
-    whereClause = (fields: typeof users._.columns, {ilike, or}: any) =>
-      or(
-        ilike(fields.name, `%${searchTerm}%`),
-        ilike(fields.email, `%${searchTerm}%`)
-      )
+    searchCondition = or(
+      sql`${users.name} ILIKE ${`%${searchTerm}%`}`,
+      sql`${users.email} ILIKE ${`%${searchTerm}%`}`
+    )
   }
 
-  const [rows, [{count}]] = await Promise.all([
-    db.query.users.findMany({
-      where: whereClause,
-      with: {
-        userRoles: {
-          with: {
-            role: {
-              columns: {
-                name: true,
-              },
-            },
-          },
-        },
-        userOrganizations: {
-          with: {
-            organization: true,
-          },
-        },
-      },
-      limit: pagination.limit,
-      offset: pagination.offset,
-      orderBy: (users, {desc}) => [desc(users.createdAt)],
-    }),
+  // Récupérer les utilisateurs de base
+  const [baseUsers, [{count}]] = await Promise.all([
+    db
+      .select()
+      .from(users)
+      .where(searchCondition)
+      .limit(pagination.limit)
+      .offset(pagination.offset)
+      .orderBy(sql`${users.createdAt} DESC`),
     db
       .select({count: sql<number>`count(*)`})
       .from(users)
-      .where(whereClause),
+      .where(searchCondition),
   ])
 
-  // Transformer les données pour inclure les rôles et organisations
-  const transformedUsers = rows.map((row) => {
-    const roles = row?.userRoles?.map((r) => r.role.name) ?? []
-    const organizations = row?.userOrganizations ?? []
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {userRoles, userOrganizations, ...rest} = row
-    return {
-      ...rest,
-      roles,
-      organizations,
-    }
-  })
+  // Transformer en User avec rôles et organisations (simplifié pour l'admin)
+  const transformedUsers: User[] = baseUsers.map((user) => ({
+    ...user,
+    roles: [], // Les rôles seront chargés à la demande si nécessaire
+    organizations: [], // Les organisations seront chargées à la demande si nécessaire
+  }))
 
   return {
-    data: transformedUsers.length === 0 ? [] : transformedUsers,
+    data: transformedUsers,
     pagination: {
       rowCount: count,
       pageSize: pagination.limit,
