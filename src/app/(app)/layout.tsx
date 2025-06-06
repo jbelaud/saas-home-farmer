@@ -1,10 +1,10 @@
 import {Metadata} from 'next'
 import React from 'react'
 
-import {AppSidebar} from '@/components/app-sidebar'
 import {OrganizationProvider} from '@/components/context/organizarion-provider'
 import {AppBreadcrumb} from '@/components/features/app-breadcrumb'
 import withAuth from '@/components/features/auth/with-auth'
+import {AppSidebar} from '@/components/features/layouts/sidebar/app-sidebar'
 import {Separator} from '@/components/ui/separator'
 import {
   SidebarInset,

@@ -12,9 +12,9 @@ import {
 import * as React from 'react'
 
 import {useOrganization} from '@/components/context/organizarion-provider'
-import {NavMain} from '@/components/nav-main'
-import {NavProjects} from '@/components/nav-projects'
-import {NavUser} from '@/components/nav-user'
+import {NavMain} from '@/components/features/layouts/sidebar/nav-main'
+import {NavProjects} from '@/components/features/layouts/sidebar/nav-projects'
+import {NavUser} from '@/components/features/layouts/sidebar/nav-user'
 import {TeamSwitcher} from '@/components/team-switcher'
 import {
   Sidebar,
@@ -32,7 +32,7 @@ const data = {
       title: 'Adminitration',
       url: '#',
       icon: Settings2,
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: 'Admin',

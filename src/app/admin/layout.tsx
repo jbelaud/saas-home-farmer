@@ -1,9 +1,9 @@
 import {Metadata} from 'next'
 import React from 'react'
 
-import {AdminSidebar} from '@/components/admin-sidebar'
 import {AppBreadcrumb} from '@/components/features/app-breadcrumb'
 import {withAuthAdmin} from '@/components/features/auth/with-auth'
+import {AdminSidebar} from '@/components/features/layouts/sidebar/admin-sidebar'
 import {Separator} from '@/components/ui/separator'
 import {
   SidebarInset,
