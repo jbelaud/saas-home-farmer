@@ -42,8 +42,8 @@ export function DeleteUserDialog({
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="destructive" size="sm">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Supprimer
+          <Trash2 className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Supprimer</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

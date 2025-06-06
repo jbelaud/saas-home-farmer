@@ -78,8 +78,8 @@ export function EditUserDialog({user, onSave}: EditUserDialogProps) {
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Edit className="mr-2 h-4 w-4" />
-          Modifier
+          <Edit className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Modifier</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

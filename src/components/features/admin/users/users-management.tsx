@@ -105,9 +105,9 @@ export default function UsersManagement({
             <TableRow>
               <TableHead>Utilisateur</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Rôle</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Créé</TableHead>
+              <TableHead className="hidden lg:table-cell">Rôle</TableHead>
+              <TableHead className="hidden lg:table-cell">Statut</TableHead>
+              <TableHead className="hidden md:table-cell">Créé</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -132,12 +132,12 @@ export default function UsersManagement({
                   </div>
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>
+                <TableCell className="hidden lg:table-cell">
                   <Badge variant="outline">
                     {getUserRoleDisplay(user.roles)}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden lg:table-cell">
                   <Badge
                     variant={
                       getUserStatusDisplay(user) === 'Actif'
@@ -148,7 +148,7 @@ export default function UsersManagement({
                     {getUserStatusDisplay(user)}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-muted-foreground text-sm">
+                <TableCell className="text-muted-foreground hidden text-sm md:table-cell">
                   {formatDistanceToNow(new Date(user.createdAt!), {
                     addSuffix: true,
                     locale: fr,
