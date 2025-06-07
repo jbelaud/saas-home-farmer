@@ -99,13 +99,15 @@ export default function OrganizationsManagement({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Organisation</TableHead>
-              <TableHead>Slug</TableHead>
-              <TableHead className="hidden lg:table-cell">
+              <TableHead className="w-[250px]">Organisation</TableHead>
+              <TableHead className="w-[120px]">Slug</TableHead>
+              <TableHead className="hidden w-[300px] lg:table-cell">
                 Description
               </TableHead>
-              <TableHead className="hidden md:table-cell">Créée</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="hidden w-[140px] md:table-cell">
+                Créée
+              </TableHead>
+              <TableHead className="w-[120px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -136,7 +138,7 @@ export default function OrganizationsManagement({
                   <Badge variant="outline">{organization.slug}</Badge>
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">
-                  <div className="max-w-xs truncate">
+                  <div className="w-[280px] truncate">
                     {organization.description || 'Aucune description'}
                   </div>
                 </TableCell>
