@@ -35,12 +35,17 @@ const data = {
       isActive: false,
       items: [
         {
-          title: 'Admin',
+          title: 'Dashboard Admin',
           url: '/admin',
         },
+
         {
           title: 'Users',
           url: '/admin/users',
+        },
+        {
+          title: 'Organizations',
+          url: '/admin/organizations',
         },
       ],
     },
@@ -53,17 +58,18 @@ const data = {
       isActive: true,
       items: [
         {
-          title: 'Profile',
+          title: 'Dashboard',
+          url: '/dashboard',
+        },
+        {
+          title: 'Account',
           url: '/account',
         },
         {
           title: 'Organizations',
           url: '/organization',
         },
-        {
-          title: 'Dashboard',
-          url: '/dashboard',
-        },
+
         {
           title: 'Settings',
           url: '#',
@@ -108,29 +114,6 @@ const data = {
         },
         {
           title: 'Changelog',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Settings',
-      url: '#',
-      icon: Settings2,
-      items: [
-        {
-          title: 'General',
-          url: '#',
-        },
-        {
-          title: 'Team',
-          url: '#',
-        },
-        {
-          title: 'Billing',
-          url: '#',
-        },
-        {
-          title: 'Limits',
           url: '#',
         },
       ],

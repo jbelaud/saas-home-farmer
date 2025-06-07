@@ -192,7 +192,7 @@ export function EditUserProfileForm({user}: {user: User}) {
         />
 
         <Button type="submit" disabled={isSubmitting} className="mb-8">
-          {isSubmitting ? 'Updating...' : 'Update Profile'}
+          {isSubmitting ? 'Updating...' : 'Enregistrer'}
         </Button>
       </form>
     </Form>

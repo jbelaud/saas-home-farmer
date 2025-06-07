@@ -27,6 +27,10 @@ const data = {
       isActive: true,
       items: [
         {
+          title: 'Dashboard Admin',
+          url: '/admin',
+        },
+        {
           title: 'Utilisateurs',
           url: '/admin/users',
         },
@@ -44,6 +48,18 @@ const data = {
       items: [
         {
           title: 'General',
+          url: '#',
+        },
+        {
+          title: 'Team',
+          url: '#',
+        },
+        {
+          title: 'Billing',
+          url: '#',
+        },
+        {
+          title: 'Limits',
           url: '#',
         },
       ],

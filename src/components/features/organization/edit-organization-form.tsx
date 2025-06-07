@@ -220,7 +220,7 @@ export function EditOrganizationForm({
           disabled={isSubmitting || !canEdit}
           className="mb-8"
         >
-          {isSubmitting ? 'Mise à jour...' : "Mettre à jour l'organisation"}
+          {isSubmitting ? 'Mise à jour...' : 'Enregistrer'}
         </Button>
       </form>
     </Form>
