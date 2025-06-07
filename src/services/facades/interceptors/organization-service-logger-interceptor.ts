@@ -15,28 +15,38 @@ const organizationServiceInterceptor = new Proxy(organizationServiceMethods, {
     if (typeof originalMethod === 'function') {
       // Retourner une nouvelle fonction qui intercepte les appels
       return async function (...args: unknown[]) {
-        logger.info(`Appel de la méthode ${String(property)}`)
+        logger.info(
+          `[ORGANIZATION-SERVICE] Appel de la méthode ${String(property)}`
+        )
         logger.debug(
-          `Appel de la méthode ${String(property)} avec les arguments `,
+          `[ORGANIZATION-SERVICE] Appel de la méthode ${String(property)} avec les arguments `,
           {args}
         )
         try {
           // Appel de la méthode originale
           const result = await originalMethod.apply(target, args)
 
-          logger.info(`Retour de la méthode ${String(property)}`)
-          logger.debug(`Résultat de la méthode ${String(property)} `, result)
+          logger.info(
+            `[ORGANIZATION-SERVICE] Retour de la méthode ${String(property)}`
+          )
+          logger.debug(
+            `[ORGANIZATION-SERVICE] Résultat de la méthode ${String(property)} `,
+            result
+          )
           return result
         } catch (error) {
           if (error instanceof AuthorizationError) {
             logger.error(
-              `Authorisation Erreur dans la méthode ${String(property)} :`,
+              `[ORGANIZATION-SERVICE] Authorisation Erreur dans la méthode ${String(property)} :`,
               (error as Error).message
             )
           } else {
-            logger.error(`Erreur dans la méthode ${String(property)} :`, error)
+            logger.error(
+              `[ORGANIZATION-SERVICE] Erreur dans la méthode ${String(property)} :`,
+              error
+            )
             logger.debug(
-              `Erreur dans la méthode ${String(property)} : ${(error as Error).message}`,
+              `[ORGANIZATION-SERVICE] Erreur dans la méthode ${String(property)} : ${(error as Error).message}`,
               error
             )
           }
