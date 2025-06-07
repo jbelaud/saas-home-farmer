@@ -3,7 +3,6 @@
 import {revalidatePath} from 'next/cache'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
-import {getAuthUser} from '@/services/authentication/auth-service'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {
   inviteUserToOrganizationService,
@@ -102,6 +101,7 @@ export async function inviteUserToOrganizationAction(
   userId: string,
   role?: 'ADMIN' | 'MEMBER'
 ): Promise<MemberActionResult> {
+  await requireActionAuth()
   try {
     await inviteUserToOrganizationService({
       organizationId,
@@ -122,6 +122,7 @@ export async function searchUsersForOrganizationAction(
   organizationId: string,
   query: string
 ): Promise<UserDTO[]> {
+  await requireActionAuth()
   console.log('organizationId', organizationId)
   console.log('query', query)
   if (!query || query.length < 2) return []
@@ -140,6 +141,7 @@ export async function removeUserFromOrganizationAction(
   organizationId: string,
   userId: string
 ): Promise<MemberActionResult> {
+  await requireActionAuth()
   try {
     await removeUserFromOrganizationService(userId, organizationId)
     revalidatePath(`/organization/${organizationId}/edit`)
@@ -162,7 +164,7 @@ export async function uploadOrganizationImageAction(
   prevState?: UploadImageState,
   formData?: FormData
 ): Promise<UploadImageState> {
-  const user = await getAuthUser()
+  const user = await requireActionAuth()
   if (!user) {
     return {success: false, message: 'Utilisateur non trouvé'}
   }
