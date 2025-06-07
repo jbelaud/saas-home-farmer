@@ -137,7 +137,7 @@ export function AdminDashboard({stats}: AdminDashboardProps) {
       </div>
 
       {/* Graphiques */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Croissance des utilisateurs */}
         <Card>
           <CardHeader>
@@ -148,13 +148,16 @@ export function AdminDashboard({stats}: AdminDashboardProps) {
               Évolution mensuelle des nouveaux utilisateurs
             </p>
           </CardHeader>
-          <CardContent>
-            <ChartContainer className="min-h-[320px]" config={userChartConfig}>
+          <CardContent className="w-full">
+            <ChartContainer
+              className="min-h-[320px] w-full"
+              config={userChartConfig}
+            >
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart
                   accessibilityLayer
                   data={formattedUserGrowth}
-                  margin={{top: 20, right: 30, left: 20, bottom: 20}}
+                  margin={{top: 20, right: 12, left: 12, bottom: 20}}
                 >
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis
@@ -196,15 +199,15 @@ export function AdminDashboard({stats}: AdminDashboardProps) {
               Évolution mensuelle des nouvelles organisations
             </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="w-full">
             <ChartContainer
-              className="min-h-[320px]"
+              className="min-h-[320px] w-full"
               config={organizationChartConfig}
             >
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart
                   data={formattedOrganizationGrowth}
-                  margin={{top: 20, right: 30, left: 20, bottom: 20}}
+                  margin={{top: 20, right: 12, left: 12, bottom: 20}}
                 >
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis
