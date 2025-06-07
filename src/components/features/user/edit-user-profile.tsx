@@ -168,25 +168,7 @@ export function EditUserProfileForm({user}: {user: User}) {
             </FormItem>
           )}
         />
-        {/* <FormField
-          control={form.control}
-          name="image"
-          render={({field}) => (
-            <FormItem>
-              <FormLabel>Profile Image URL</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="https://example.com/your-image.jpg"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Leave empty to remove the profile image
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
+
         <FormField
           control={form.control}
           name="visibility"

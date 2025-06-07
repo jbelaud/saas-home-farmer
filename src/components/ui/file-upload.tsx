@@ -31,33 +31,44 @@ export const FileUpload = ({
   multi = false,
   onlyimage = false,
   isUploading = false,
+  maxSize = Number(process.env.MAX_FILE_SIZE) || 1048576, // 1MB par défaut
 }: {
   onChange?: (files: File[]) => void
   multi?: boolean
   onlyimage?: boolean
   isUploading?: boolean
+  maxSize?: number
 }) => {
   const [files, setFiles] = useState<File[]>([])
+  const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isValidFile = (file: File): boolean => {
-    if (onlyimage) {
-      return ALLOWED_IMAGE_MIME_TYPES.includes(file.type as any)
+    if (onlyimage && !ALLOWED_IMAGE_MIME_TYPES.includes(file.type as any)) {
+      setError('Seules les images sont autorisées (WebP, JPEG, JPG, PNG)')
+      return false
     }
+
+    if (file.size > maxSize) {
+      setError(
+        `Le fichier est trop volumineux. Taille maximale: ${(maxSize / (1024 * 1024)).toFixed(2)} MB`
+      )
+      return false
+    }
+
+    setError(null)
     return true
   }
 
   const handleFileChange = (newFiles: File[]) => {
-    // Ne pas permettre de nouveaux uploads pendant l'upload en cours
     if (isUploading) {
       return
     }
 
-    // Filtrer les fichiers selon le type si onlyimage est activé
+    setError(null)
     const validFiles = newFiles.filter(isValidFile)
 
     if (validFiles.length === 0) {
-      console.warn('Aucun fichier valide sélectionné')
       return
     }
 
@@ -65,7 +76,6 @@ export const FileUpload = ({
       setFiles((prevFiles) => [...prevFiles, ...validFiles])
       onChange && onChange(validFiles)
     } else {
-      // Si multi est false, ne garder que le dernier fichier
       setFiles(validFiles.slice(-1))
       onChange && onChange(validFiles.slice(-1))
     }
@@ -91,7 +101,7 @@ export const FileUpload = ({
     onDropRejected: (rejectedFiles) => {
       console.warn('Fichiers rejetés:', rejectedFiles)
       if (onlyimage) {
-        console.warn('Seules les images sont autorisées (WebP, JPEG, JPG, PNG)')
+        setError('Seules les images sont autorisées (WebP, JPEG, JPG, PNG)')
       }
     },
   })
@@ -128,13 +138,17 @@ export const FileUpload = ({
                 ? 'Upload image'
                 : 'Upload file'}
           </p>
-          <p className="relative z-20 mt-2 font-sans text-base font-normal text-neutral-400 dark:text-neutral-400">
-            {isUploading
-              ? 'Please wait while your files are being uploaded'
-              : onlyimage
-                ? `Drag or drop ${multi ? 'your images' : 'your image'} here or click to upload (WebP, JPEG, PNG)`
-                : `Drag or drop ${multi ? 'your files' : 'your file'} here or click to upload`}
-          </p>
+          <div className="relative z-20 mt-2 font-sans text-base font-normal text-neutral-400 dark:text-neutral-400">
+            {error ? (
+              <span className="text-red-500">{error}</span>
+            ) : isUploading ? (
+              'Please wait while your files are being uploaded'
+            ) : onlyimage ? (
+              `Drag or drop ${multi ? 'your images' : 'your image'} here or click to upload (WebP, JPEG, PNG)`
+            ) : (
+              `Drag or drop ${multi ? 'your files' : 'your file'} here or click to upload`
+            )}
+          </div>
           <div className="relative mx-auto mt-10 w-full max-w-xl">
             {files.length > 0 &&
               files.map((file, idx) => (
