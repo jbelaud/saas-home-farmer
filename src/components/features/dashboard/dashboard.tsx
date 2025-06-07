@@ -168,17 +168,17 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
+          <div className="grid gap-4 lg:grid-cols-4">
+            <Card className="col-span-2">
               <CardHeader>
                 <CardTitle>Revenus Mensuels</CardTitle>
                 <CardDescription>
                   L&apos;évolution des revenus sur les 6 derniers mois
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="w-full">
                 <ChartContainer
-                  className="min-h-[320px]"
+                  className="min-h-[320px] w-full"
                   config={revenueChartConfig}
                 >
                   <ResponsiveContainer width="100%" height={300}>
@@ -217,16 +217,16 @@ export default function DashboardPage() {
                 </ChartContainer>
               </CardContent>
             </Card>
-            <Card className="col-span-3">
+            <Card className="col-span-2">
               <CardHeader>
                 <CardTitle>Répartition des Ventes</CardTitle>
                 <CardDescription>
                   Distribution des ventes par catégorie
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="w-full">
                 <ChartContainer
-                  className="min-h-[320px]"
+                  className="min-h-[320px] w-full"
                   config={salesChartConfig}
                 >
                   <ResponsiveContainer width="100%" height={300}>
@@ -261,8 +261,8 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
+          <div className="grid gap-4 lg:grid-cols-4">
+            <Card className="col-span-2">
               <CardHeader>
                 <CardTitle>Transactions Récentes</CardTitle>
                 <CardDescription>
@@ -330,7 +330,7 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="col-span-3">
+            <Card className="col-span-2">
               <CardHeader>
                 <CardTitle>Objectifs Trimestriels</CardTitle>
                 <CardDescription>
