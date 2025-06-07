@@ -2,6 +2,7 @@
 
 import {revalidatePath} from 'next/cache'
 
+import {requireActionAuth} from '@/app/dal/user-dal'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {
@@ -37,7 +38,8 @@ export async function updateOrganizationAction(
   prevState?: FormState,
   formData?: FormData
 ): Promise<FormState> {
-  const user = await getAuthUser()
+  const user = await requireActionAuth()
+
   if (!user) {
     return {success: false, message: 'Utilisateur non trouvé'}
   }

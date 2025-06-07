@@ -2,7 +2,7 @@
 
 import {revalidatePath} from 'next/cache'
 
-import {getAuthUser} from '@/services/authentication/auth-service'
+import {requireActionAuth} from '@/app/dal/user-dal'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {
@@ -35,7 +35,7 @@ export async function updateUserAction(
   prevState?: FormState,
   formData?: FormData
 ): Promise<FormState> {
-  const user = await getAuthUser()
+  const user = await requireActionAuth()
   if (!user) {
     return {success: false, message: 'User not found'}
   }
@@ -101,7 +101,7 @@ export async function uploadProfileImageAction(
   prevState?: UploadImageState,
   formData?: FormData
 ): Promise<UploadImageState> {
-  const user = await getAuthUser()
+  const user = await requireActionAuth()
   if (!user) {
     return {success: false, message: 'User not found'}
   }
