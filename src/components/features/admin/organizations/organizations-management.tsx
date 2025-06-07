@@ -2,7 +2,8 @@
 
 import {formatDistanceToNow} from 'date-fns'
 import {fr} from 'date-fns/locale'
-import {Building2} from 'lucide-react'
+import {Building2, Users} from 'lucide-react'
+import Link from 'next/link'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {toast} from 'sonner'
 
@@ -12,6 +13,7 @@ import {
 } from '@/app/admin/organizations/actions'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
+import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {
   Table,
@@ -151,6 +153,18 @@ export default function OrganizationsManagement({
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
+                    {permissions.canManage && (
+                      <Button variant="outline" size="sm" asChild>
+                        <Link
+                          href={`/admin/organizations/${organization.id}/edit`}
+                        >
+                          <Users className="h-4 w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">
+                            Éditer membres
+                          </span>
+                        </Link>
+                      </Button>
+                    )}
                     {permissions.canEdit && (
                       <EditOrganizationDialog
                         organization={organization}
