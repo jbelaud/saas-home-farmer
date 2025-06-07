@@ -99,10 +99,15 @@ export type MemberActionResult = {
 
 export async function inviteUserToOrganizationAction(
   organizationId: string,
-  userId: string
+  userId: string,
+  role?: 'ADMIN' | 'MEMBER'
 ): Promise<MemberActionResult> {
   try {
-    await inviteUserToOrganizationService({organizationId, userId})
+    await inviteUserToOrganizationService({
+      organizationId,
+      userId,
+      role: role || 'MEMBER',
+    })
     revalidatePath(`/organization/${organizationId}/edit`)
     return {success: true, message: 'Membre ajouté avec succès'}
   } catch (error) {
