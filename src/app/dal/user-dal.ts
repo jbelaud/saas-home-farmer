@@ -10,6 +10,7 @@ import {
 } from '@/services/authentication/auth-service'
 import {hasRequiredRoles} from '@/services/authentication/auth-util'
 import {canManageUsers} from '@/services/authorization/user-authorization'
+import {AuthorizationError} from '@/services/errors/authorization-error'
 import {
   getActiveSubscriptionsByUserEmailService,
   getSubscriptionByUserIdService,
@@ -35,13 +36,13 @@ export async function requireActionAuth(options?: RequireAuthOptions) {
   const user = await getAuthUser()
 
   if (!user) {
-    throw new Error('Utilisateur non authentifié')
+    throw new AuthorizationError('Utilisateur non authentifié')
   }
   if (
     options?.roles &&
     !hasRequiredRoles(user, options.roles as unknown as Roles[])
   ) {
-    throw new Error('Accès interdit')
+    throw new AuthorizationError('Accès interdit')
   }
 
   return user
