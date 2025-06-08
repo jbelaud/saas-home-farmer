@@ -167,6 +167,33 @@ const seed = async () => {
     ON CONFLICT ("userId", "organizationId") DO NOTHING;
   `)
 
+  // 6. Insérer des projets pour tester les permissions
+  await client.query(`
+    INSERT INTO "project" (name, description, "organization_id", "created_by")
+    SELECT 
+      project_data.name,
+      project_data.description,
+      o.id as "organization_id",
+      u.id as "created_by"
+    FROM (
+      VALUES 
+        -- 1 projet pour TechCorp Solutions
+        ('Plateforme E-commerce', 'Développement d''une plateforme de vente en ligne moderne avec Next.js', 'techcorp-solutions', 'admin@mikecodeur.com'),
+        
+        -- 2 projets pour Marketing Pro
+        ('Campagne Digitale 2024', 'Stratégie marketing complète pour les réseaux sociaux', 'marketing-pro', 'user-admin@gmail.com'),
+        ('Site Web Corporate', 'Refonte complète du site vitrine de l''entreprise', 'marketing-pro', 'admin-owner@gmail.com'),
+        
+        -- 0 projet pour Acme Corp (comme demandé - vide)
+        
+        -- 1 projet pour Evil Corp
+        ('Audit Sécurité', 'Audit complet de la sécurité informatique', 'evil-corp', 'user@gmail.com')
+    ) AS project_data(name, description, org_slug, creator_email)
+    JOIN "organization" o ON o.slug = project_data.org_slug
+    JOIN "user" u ON u.email = project_data.creator_email
+    ON CONFLICT DO NOTHING;
+  `)
+
   const end = Date.now()
 
   console.log('✅ Seed inserted in', end - start, 'ms')
@@ -181,6 +208,12 @@ const seed = async () => {
   )
   console.log('🔹 Cas de chevauchement : admin-owner, moderator-member')
   console.log('🔹 Utilisateur isolé : user-isolated (aucune organisation)')
+  console.log('')
+  console.log('📝 Projets créés par organisation :')
+  console.log('🔹 TechCorp Solutions : 1 projet (Plateforme E-commerce)')
+  console.log('🔹 Marketing Pro : 2 projets (Campagne Digitale + Site Web)')
+  console.log('🔹 Acme Corp : 0 projet (vide pour tests)')
+  console.log('🔹 Evil Corp : 1 projet (Audit Sécurité)')
   console.log('')
 
   process.exit(0)

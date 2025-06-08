@@ -54,12 +54,8 @@ const menuData = {
       title: 'Account',
       url: '#',
       icon: SquareTerminal,
-      isActive: true,
+      isActive: false,
       items: [
-        {
-          title: 'Dashboard',
-          url: '/dashboard',
-        },
         {
           title: 'Account',
           url: '/account',
@@ -68,13 +64,27 @@ const menuData = {
           title: 'Organizations',
           url: '/organizations',
         },
-        {
-          title: 'Projects',
-          url: '/team/{{orgSlug}}/projects',
-        },
+
         {
           title: 'Settings',
           url: '#',
+        },
+      ],
+    },
+    {
+      title: 'Projects',
+      url: '#',
+      icon: SquareTerminal,
+      isActive: true,
+      items: [
+        {
+          title: 'Dashboard',
+          url: '/dashboard',
+        },
+
+        {
+          title: 'Projects',
+          url: '/team/{{orgSlug}}/projects',
         },
       ],
     },
