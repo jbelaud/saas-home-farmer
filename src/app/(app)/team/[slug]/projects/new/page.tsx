@@ -1,21 +1,44 @@
 import {Metadata} from 'next'
+import {forbidden, notFound} from 'next/navigation'
 
+import {getOrganizationBySlugDal} from '@/app/dal/organization-dal'
 import {CreateProjectForm} from '@/components/features/projects/create-project-form'
-import {getOrganizationsByUserIdService} from '@/services/facades/organization-service-facade'
+import {canCreateProject} from '@/services/authorization/project-authorization'
 
 export const metadata: Metadata = {
   title: 'Nouveau projet',
   description: 'Créer un nouveau projet',
 }
 
-export default async function NewProjectPage() {
-  const organizations = await getOrganizationsByUserIdService()
+interface NewProjectPageProps {
+  params: Promise<{
+    slug: string
+  }>
+}
+
+export default async function NewProjectPage({params}: NewProjectPageProps) {
+  const {slug} = await params
+
+  // Récupérer l'organisation par slug
+  const organization = await getOrganizationBySlugDal(slug)
+  if (!organization) {
+    notFound()
+  }
+
+  // Vérifier les permissions pour créer un projet dans cette organisation
+  const canCreate = await canCreateProject(organization.id)
+  if (!canCreate) {
+    forbidden()
+  }
 
   return (
     <div className="container mx-auto py-8">
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-8 text-2xl font-bold">Créer un nouveau projet</h1>
-        <CreateProjectForm organizations={organizations} />
+        <CreateProjectForm
+          organization={organization}
+          organizationSlug={slug}
+        />
       </div>
     </div>
   )

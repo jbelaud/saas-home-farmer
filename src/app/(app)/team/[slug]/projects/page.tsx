@@ -16,18 +16,24 @@ type SearchParamsType = Promise<{
   search?: string
 }>
 
-export default async function ProjectsPage({
-  searchParams,
-}: {
+interface ProjectsPageProps {
+  params: Promise<{
+    slug: string
+  }>
   searchParams: SearchParamsType
-}) {
-  const params = await searchParams
-  const suspenseKey = `page=${params.page || '1'}-limit=${params.limit || '20'}-search=${params.search || ''}`
+}
+
+export default async function ProjectsPage({
+  params,
+  searchParams,
+}: ProjectsPageProps) {
+  const searchStore = await searchParams
+  const suspenseKey = `page=${searchStore.page || '1'}-limit=${searchStore.limit || '20'}-search=${searchStore.search || ''}`
 
   return (
     <div className="bg-background">
       <Suspense key={suspenseKey} fallback={<ProjectsManagementSkeleton />}>
-        <ProjectsContent searchParams={searchParams} />
+        <ProjectsContent params={params} searchParams={searchParams} />
       </Suspense>
     </div>
   )

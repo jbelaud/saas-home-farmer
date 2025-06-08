@@ -2,6 +2,7 @@ import {cache} from 'react'
 
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {
+  canCreateProject,
   canDeleteProject,
   canUpdateProject,
 } from '@/services/authorization/project-authorization'
@@ -16,6 +17,21 @@ export const getAllProjectsWithPaginationDal = cache(
     search?: string
   ): Promise<PaginatedResponse<Project>> => {
     const filters: ProjectFilters = search ? {name: search} : {}
+    return await getProjectsWithPaginationService({limit, offset}, filters)
+  }
+)
+
+// Nouvelle fonction pour récupérer les projets par organisation avec pagination
+export const getProjectsByOrganizationWithPaginationDal = cache(
+  async (
+    organizationId: string,
+    {limit, offset}: {limit: number; offset: number},
+    search?: string
+  ): Promise<PaginatedResponse<Project>> => {
+    const filters: ProjectFilters = {
+      organizationId,
+      ...(search ? {name: search} : {}),
+    }
     return await getProjectsWithPaginationService({limit, offset}, filters)
   }
 )
@@ -42,6 +58,31 @@ export const getProjectAdminPermissionsDal = cache(async () => {
     canManage: true,
   }
 })
+
+// Nouvelle fonction pour récupérer les permissions par organisation
+export const getProjectPermissionsByOrganizationDal = cache(
+  async (organizationId: string) => {
+    const user = await getAuthUser()
+    if (!user) {
+      return {
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      }
+    }
+
+    // Vérifier les permissions pour cette organisation
+    const canCreate = await canCreateProject(organizationId)
+
+    return {
+      canCreate,
+      canEdit: true, // Sera vérifié au niveau projet
+      canDelete: true, // Sera vérifié au niveau projet
+      canManage: canCreate, // Si on peut créer, on peut gérer les projets de l'organisation
+    }
+  }
+)
 
 export async function getProjectPermissions(projectId?: string) {
   if (!projectId) {

@@ -12,7 +12,6 @@ import {
   updateProjectAction,
 } from '@/app/(app)/team/[slug]/projects/actions'
 import {Avatar, AvatarFallback} from '@/components/ui/avatar'
-import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {
@@ -31,6 +30,8 @@ import {ProjectsPagination} from './projects-pagination'
 import {ProjectsToolbar} from './projects-toolbar'
 
 interface Props {
+  organizationId: string
+  organizationSlug: string
   initialProjects: Project[]
   currentPage: number
   pageSize: number
@@ -45,6 +46,8 @@ interface Props {
 }
 
 export default function ProjectsManagement({
+  organizationId,
+  organizationSlug,
   initialProjects,
   currentPage,
   pageSize,
@@ -82,7 +85,7 @@ export default function ProjectsManagement({
           <CardTitle>Gestion des projets</CardTitle>
           {permissions.canCreate && (
             <Button asChild>
-              <Link href="/projects/new">
+              <Link href={`/team/${organizationSlug}/projects/new`}>
                 <Plus className="mr-2 h-4 w-4" />
                 Nouveau projet
               </Link>
@@ -103,9 +106,6 @@ export default function ProjectsManagement({
           <TableHeader>
             <TableRow>
               <TableHead>Projet</TableHead>
-              <TableHead className="hidden md:table-cell">
-                Organisation
-              </TableHead>
               <TableHead className="hidden xl:table-cell">
                 Description
               </TableHead>
@@ -124,13 +124,10 @@ export default function ProjectsManagement({
                   </Avatar>
                   <div>
                     <div className="font-medium">{project.name}</div>
-                    <div className="text-muted-foreground text-sm md:hidden">
+                    <div className="text-muted-foreground text-sm xl:hidden">
                       {project.description || 'Aucune description'}
                     </div>
                   </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <Badge variant="outline">{project.organizationId}</Badge>
                 </TableCell>
                 <TableCell className="hidden xl:table-cell">
                   <div className="truncate">
@@ -147,7 +144,9 @@ export default function ProjectsManagement({
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/projects/${project.id}/edit`}>
+                      <Link
+                        href={`/team/${organizationSlug}/projects/${project.id}/edit`}
+                      >
                         <Edit className="h-4 w-4 sm:mr-2" />
                         <span className="hidden sm:inline">Gérer</span>
                       </Link>
@@ -157,6 +156,7 @@ export default function ProjectsManagement({
                         project={project}
                         onSave={async (id, data) => {
                           const formData = new FormData()
+                          formData.append('organizationId', organizationId)
                           formData.append('name', data.name)
                           if (data.description) {
                             formData.append('description', data.description)

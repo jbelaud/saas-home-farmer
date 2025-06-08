@@ -32,6 +32,7 @@ export async function updateProjectAction(
 
     const name = formData.get('name') as string
     const description = formData.get('description') as string
+    const organizationId = formData.get('organizationId') as string
 
     // Validation basique
     if (!name) {
@@ -42,13 +43,24 @@ export async function updateProjectAction(
       }
     }
 
+    if (!organizationId) {
+      return {
+        success: false,
+        message: "L'organisation est requise",
+        errors: [
+          {field: 'organizationId', message: "L'organisation est requise"},
+        ],
+      }
+    }
+
     await updateProjectService({
       id,
       name,
       description: description || undefined,
     })
 
-    revalidatePath('/projects')
+    // Revalider le chemin spécifique à l'organisation
+    revalidatePath('/team/[slug]/projects', 'page')
     return {
       success: true,
       message: 'Projet mis à jour avec succès',
@@ -69,7 +81,8 @@ export async function deleteProjectAction(id: string): Promise<FormState> {
 
     await deleteProjectService(id)
 
-    revalidatePath('/projects')
+    // Revalider le chemin spécifique à l'organisation
+    revalidatePath('/team/[slug]/projects', 'page')
     return {
       success: true,
       message: 'Projet supprimé avec succès',
@@ -128,7 +141,8 @@ export async function createProjectAction(
       createdBy: user.id,
     })
 
-    revalidatePath('/projects')
+    // Revalider le chemin spécifique à l'organisation
+    revalidatePath('/team/[slug]/projects', 'page')
     return {
       success: true,
       message: 'Projet créé avec succès',

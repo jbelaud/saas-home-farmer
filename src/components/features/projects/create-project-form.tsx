@@ -8,10 +8,6 @@ import {toast} from 'sonner'
 import * as z from 'zod'
 
 import {createProjectAction} from '@/app/(app)/team/[slug]/projects/actions'
-import {
-  useAuthUserRole,
-  useOrganization,
-} from '@/components/context/organizarion-provider'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -29,13 +25,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {Textarea} from '@/components/ui/textarea'
 import {Organization} from '@/services/types/domain/organization-types'
 
@@ -48,24 +37,23 @@ const projectFormSchema = z.object({
 type ProjectFormValues = z.infer<typeof projectFormSchema>
 
 interface CreateProjectFormProps {
-  organizations: Organization[]
+  organization: Organization
+  organizationSlug: string
 }
 
-export function CreateProjectForm({organizations}: CreateProjectFormProps) {
+export function CreateProjectForm({
+  organization,
+  organizationSlug,
+}: CreateProjectFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
-
-  // Récupérer l'organisation courante et le rôle de l'utilisateur
-  const {currentOrganization} = useOrganization()
-  const {isAdmin} = useAuthUserRole()
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
       name: '',
       description: '',
-      // Pré-remplir avec l'organisation courante si elle existe
-      organizationId: currentOrganization?.id || '',
+      organizationId: organization.id,
     },
   })
 
@@ -83,7 +71,7 @@ export function CreateProjectForm({organizations}: CreateProjectFormProps) {
 
     if (result.success) {
       toast.success(result.message)
-      router.push('/projects')
+      router.push(`/team/${organizationSlug}/projects`)
     } else {
       if (result.errors) {
         for (const error of result.errors) {
@@ -97,100 +85,30 @@ export function CreateProjectForm({organizations}: CreateProjectFormProps) {
     }
   }
 
-  // Vérifier les conditions d'affichage
-  if (organizations.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Nouveau projet</CardTitle>
-          <CardDescription>Aucune organisation disponible</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Vous devez être membre d&apos;au moins une organisation pour créer
-            un projet.
-          </p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  // Pour les non-admin, vérifier qu'il y a une organisation courante
-  if (!isAdmin && !currentOrganization) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Nouveau projet</CardTitle>
-          <CardDescription>Aucune organisation sélectionnée</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Veuillez sélectionner une organisation dans le menu de navigation
-            pour créer un projet.
-          </p>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>Nouveau projet</CardTitle>
         <CardDescription>
-          {isAdmin
-            ? 'Créez un nouveau projet dans une de vos organisations.'
-            : `Créez un nouveau projet dans l'organisation ${currentOrganization?.name || 'courante'}.`}
+          Créez un nouveau projet dans l&apos;organisation {organization.name}.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Afficher le sélecteur d'organisation seulement pour les ADMIN */}
-            {isAdmin ? (
-              <FormField
-                control={form.control}
-                name="organizationId"
-                render={({field}) => (
-                  <FormItem>
-                    <FormLabel>Organisation</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionnez une organisation" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {organizations.map((org) => (
-                          <SelectItem key={org.id} value={org.id}>
-                            {org.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : (
-              /* Pour les non-admin, afficher l'organisation courante en lecture seule */
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Organisation</label>
-                <div className="border-input bg-muted flex h-10 w-full rounded-md border px-3 py-2 text-sm">
-                  {currentOrganization?.name ||
-                    'Aucune organisation sélectionnée'}
-                </div>
-                {/* Champ caché pour soumettre l'ID */}
-                <input
-                  type="hidden"
-                  {...form.register('organizationId')}
-                  value={currentOrganization?.id || ''}
-                />
+            {/* Afficher l'organisation en lecture seule */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Organisation</label>
+              <div className="border-input bg-muted flex h-10 w-full rounded-md border px-3 py-2 text-sm">
+                {organization.name}
               </div>
-            )}
+              {/* Champ caché pour soumettre l'ID */}
+              <input
+                type="hidden"
+                {...form.register('organizationId')}
+                value={organization.id}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -228,7 +146,9 @@ export function CreateProjectForm({organizations}: CreateProjectFormProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push('/projects')}
+                onClick={() =>
+                  router.push(`/team/${organizationSlug}/projects`)
+                }
               >
                 Annuler
               </Button>
