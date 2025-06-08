@@ -11,11 +11,12 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import {APP_NAME} from '@/lib/constants'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
 export const metadata: Metadata = {
-  title: 'App',
-  description: "Page d'app",
+  title: `Espace utilisateur ${APP_NAME}`,
+  description: "Page d'espace utilisateur",
 }
 
 async function AppLayout({children}: {children: React.ReactNode}) {

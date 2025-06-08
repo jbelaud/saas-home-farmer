@@ -69,6 +69,11 @@ const eslintConfig = [
       'react/prop-types': 'off',
       'i18n-text/no-en': 'off',
 
+      // ✅ Ajout des règles pour les template strings
+      'prefer-template': 'error',
+      'no-useless-concat': 'error',
+      'no-template-curly-in-string': 'error',
+
       'github/no-implicit-buggy-globals': 'off',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',

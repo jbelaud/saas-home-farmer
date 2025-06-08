@@ -32,7 +32,7 @@ export function AdminDashboard({stats}: AdminDashboardProps) {
   const formatMonthData = (data: {month: string; count: number}[]) => {
     return data.map((item) => ({
       ...item,
-      monthLabel: new Date(item.month + '-01').toLocaleDateString('fr-FR', {
+      monthLabel: new Date(`${item.month}-01`).toLocaleDateString('fr-FR', {
         month: 'short',
         year: '2-digit',
       }),

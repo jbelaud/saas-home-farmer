@@ -10,11 +10,12 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import {APP_NAME} from '@/lib/constants'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
 export const metadata: Metadata = {
-  title: 'App',
-  description: "Page d'app",
+  title: `Espace administrateur ${APP_NAME}`,
+  description: "Page d'espace administrateur",
 }
 
 async function AppLayout({children}: {children: React.ReactNode}) {
