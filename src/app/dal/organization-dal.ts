@@ -8,6 +8,7 @@ import {
 } from '@/services/authorization/organization-authorization'
 import {
   getAllOrganizationsWithPaginationService,
+  getOrganizationBySlugService,
   getOrganizationMembersService,
 } from '@/services/facades/organization-service-facade'
 import {Pagination} from '@/services/types/common-type'
@@ -72,6 +73,26 @@ export async function getOrganizationPermissions(organizationId?: string) {
     canManageMembers,
   }
 }
+
+export const getOrganizationBySlugDal = cache(
+  async (slug: string): Promise<OrganizationDTO | null> => {
+    const organization = await getOrganizationBySlugService(slug)
+
+    if (!organization) {
+      return null
+    }
+
+    return {
+      id: organization.id,
+      name: organization.name,
+      slug: organization.slug,
+      description: organization.description ?? null,
+      image: organization.image ?? null,
+      createdAt: organization.createdAt ?? null,
+      updatedAt: organization.updatedAt ?? null,
+    }
+  }
+)
 
 export const getOrganizationAdminPermissionsDal = cache(async () => {
   // Pour l'admin, on peut gérer toutes les organisations

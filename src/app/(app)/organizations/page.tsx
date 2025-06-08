@@ -20,7 +20,7 @@ export default async function OrganizationsPage() {
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mes Organisations</h1>
         {/* <Button asChild>
-          <Link href="/organization/new">Créer une organisation</Link>
+          <Link href="/organizations/new">Créer une organisation</Link>
         </Button> */}
       </div>
 
@@ -30,7 +30,7 @@ export default async function OrganizationsPage() {
             Vous n&apos;avez pas encore d&apos;organisation.
           </p>
           <Button asChild>
-            <Link href="/organization/new">
+            <Link href="/organizations/new">
               Créer votre première organisation
             </Link>
           </Button>
@@ -60,12 +60,12 @@ export default async function OrganizationsPage() {
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button variant="outline" asChild>
-                  <Link href={`/organization/${organization.id}/edit`}>
+                  <Link href={`/organizations/${organization.id}/edit`}>
                     Voir les détails
                   </Link>
                 </Button>
                 <Button asChild>
-                  <Link href={`/organization/${organization.id}/edit`}>
+                  <Link href={`/organizations/${organization.id}/edit`}>
                     Modifier
                   </Link>
                 </Button>

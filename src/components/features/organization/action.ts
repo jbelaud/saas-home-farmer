@@ -108,7 +108,7 @@ export async function inviteUserToOrganizationAction(
       userId,
       role: role || 'MEMBER',
     })
-    revalidatePath(`/organization/${organizationId}/edit`)
+    revalidatePath(`/organizations/${organizationId}/edit`)
     return {success: true, message: 'Membre ajouté avec succès'}
   } catch (error) {
     return {
@@ -144,7 +144,7 @@ export async function removeUserFromOrganizationAction(
   await requireActionAuth()
   try {
     await removeUserFromOrganizationService(userId, organizationId)
-    revalidatePath(`/organization/${organizationId}/edit`)
+    revalidatePath(`/organizations/${organizationId}/edit`)
     return {success: true, message: 'Membre supprimé avec succès'}
   } catch (error) {
     return {

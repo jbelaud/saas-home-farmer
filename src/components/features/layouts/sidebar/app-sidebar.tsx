@@ -67,7 +67,7 @@ const data = {
         },
         {
           title: 'Organizations',
-          url: '/organization',
+          url: '/organizations',
         },
         {
           title: 'Projects',
