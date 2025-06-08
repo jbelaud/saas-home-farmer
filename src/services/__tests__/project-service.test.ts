@@ -223,7 +223,7 @@ describe('[PUBLIC] Project Service', () => {
     await expect(getProjectByIdService(projectId)).rejects.toThrow(
       AuthorizationError
     )
-    expect(getProjectByIdDao).not.toHaveBeenCalled()
+    expect(getProjectByIdDao).toHaveBeenCalledTimes(1) //Seulement 1 (dans canRead)
   })
 
   it('should NOT create projects as public user', async () => {
