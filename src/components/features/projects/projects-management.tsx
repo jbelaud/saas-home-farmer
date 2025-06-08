@@ -87,6 +87,7 @@ export default function ProjectsManagement({
           totalProjects={totalProjects}
           onPerPageChange={handlePerPageChange}
           perPage={pageSize.toString()}
+          canCreate={permissions.canCreate}
         />
 
         <Table>
