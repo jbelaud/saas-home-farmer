@@ -146,14 +146,299 @@ describe('[ADMIN] CRUD : Project Service', () => {
   })
 })
 
-describe('[USER] CRUD : Project Service', () => {
+describe('[PUBLIC] Project Service', () => {
+  const projectId = faker.string.uuid()
+  const organizationId = faker.string.uuid()
+
+  beforeEach(() => {
+    setupAuthUserMocked(undefined)
+    vi.clearAllMocks()
+  })
+
+  it('should NOT access projects as public user', async () => {
+    await expect(getProjectByIdService(projectId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(getProjectByIdDao).toHaveBeenCalledTimes(1) //Seulement 1 (dans canRead)
+  })
+
+  it('should NOT create projects as public user', async () => {
+    const createData: CreateProject = {
+      name: 'Test Project',
+      organizationId,
+    }
+
+    await expect(createProjectService(createData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(createProjectDao).not.toHaveBeenCalled()
+  })
+})
+
+// ===== TESTS RÔLES ORGANISATIONNELS =====
+
+describe('[ORGANIZATION OWNER] CRUD : Project Service', () => {
   const organizationId = faker.string.uuid()
   const projectId = faker.string.uuid()
+  const taskId = faker.string.uuid()
 
   const projectData: Project = {
     id: projectId,
     name: 'Test Project',
     description: 'Description du projet',
+    organizationId,
+    createdBy: userTest.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const taskData: Task = {
+    id: taskId,
+    title: 'Test Task',
+    description: 'Description de la tâche',
+    status: 'todo',
+    dueDate: new Date(),
+    projectId,
+    organizationId,
+    createdBy: userTest.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  beforeEach(() => {
+    const userOwner = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId,
+          role: UserOrganizationRoleConst.OWNER,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userOwner)
+    vi.clearAllMocks()
+
+    vi.mocked(createProjectDao).mockResolvedValue(projectData)
+    vi.mocked(getProjectByIdDao).mockResolvedValue(projectData)
+    vi.mocked(updateProjectByIdDao).mockResolvedValue()
+    vi.mocked(deleteProjectByIdDao).mockResolvedValue()
+    vi.mocked(getProjectsByOrganizationIdDao).mockResolvedValue([projectData])
+
+    vi.mocked(createTaskDao).mockResolvedValue(taskData)
+    vi.mocked(getTaskByIdDao).mockResolvedValue(taskData)
+    vi.mocked(updateTaskByIdDao).mockResolvedValue()
+    vi.mocked(deleteTaskByIdDao).mockResolvedValue()
+    vi.mocked(getTasksByProjectIdDao).mockResolvedValue([taskData])
+  })
+
+  it('should create a project as owner', async () => {
+    const createData: CreateProject = {
+      name: 'Test Project',
+      description: 'Description du projet',
+      organizationId,
+      createdBy: userTest.id,
+    }
+
+    const result = await createProjectService(createData)
+
+    expect(result).toEqual(projectData)
+    expect(createProjectDao).toHaveBeenCalledWith(createData)
+  })
+
+  it('should read project as owner', async () => {
+    const result = await getProjectByIdService(projectId)
+
+    expect(result).toEqual(projectData)
+    expect(getProjectByIdDao).toHaveBeenCalledWith(projectId)
+  })
+
+  it('should update project as owner', async () => {
+    const updateData: UpdateProject = {
+      id: projectId,
+      name: 'Updated Project',
+    }
+
+    const result = await updateProjectService(updateData)
+
+    expect(result).toEqual(projectData)
+    expect(updateProjectByIdDao).toHaveBeenCalled()
+  })
+
+  it('should delete project as owner', async () => {
+    await deleteProjectService(projectId)
+
+    expect(deleteProjectByIdDao).toHaveBeenCalledWith(projectId)
+  })
+
+  it('should create a task as owner', async () => {
+    const createData: CreateTask = {
+      title: 'Test Task',
+      description: 'Description de la tâche',
+      status: 'todo',
+      dueDate: new Date(),
+      projectId,
+      organizationId,
+      createdBy: userTest.id,
+    }
+
+    const result = await createTaskService(createData)
+
+    expect(result).toEqual(taskData)
+    expect(createTaskDao).toHaveBeenCalledWith(createData)
+  })
+
+  it('should read task as owner', async () => {
+    const result = await getTaskByIdService(taskId)
+
+    expect(result).toEqual(taskData)
+    expect(getTaskByIdDao).toHaveBeenCalledWith(taskId)
+  })
+})
+
+describe('[ORGANIZATION ADMIN] CRUD : Project Service', () => {
+  const organizationId = faker.string.uuid()
+  const projectId = faker.string.uuid()
+  const taskId = faker.string.uuid()
+
+  const projectData: Project = {
+    id: projectId,
+    name: 'Test Project',
+    description: 'Description du projet',
+    organizationId,
+    createdBy: userTest.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const taskData: Task = {
+    id: taskId,
+    title: 'Test Task',
+    description: 'Description de la tâche',
+    status: 'todo',
+    dueDate: new Date(),
+    projectId,
+    organizationId,
+    createdBy: userTest.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  beforeEach(() => {
+    const userOrgAdmin = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId,
+          role: UserOrganizationRoleConst.ADMIN,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userOrgAdmin)
+    vi.clearAllMocks()
+
+    vi.mocked(createProjectDao).mockResolvedValue(projectData)
+    vi.mocked(getProjectByIdDao).mockResolvedValue(projectData)
+    vi.mocked(updateProjectByIdDao).mockResolvedValue()
+    vi.mocked(deleteProjectByIdDao).mockResolvedValue()
+    vi.mocked(getProjectsByOrganizationIdDao).mockResolvedValue([projectData])
+
+    vi.mocked(createTaskDao).mockResolvedValue(taskData)
+    vi.mocked(getTaskByIdDao).mockResolvedValue(taskData)
+    vi.mocked(updateTaskByIdDao).mockResolvedValue()
+    vi.mocked(deleteTaskByIdDao).mockResolvedValue()
+    vi.mocked(getTasksByProjectIdDao).mockResolvedValue([taskData])
+  })
+
+  it('should create a project as admin', async () => {
+    const createData: CreateProject = {
+      name: 'Test Project',
+      description: 'Description du projet',
+      organizationId,
+      createdBy: userTest.id,
+    }
+
+    const result = await createProjectService(createData)
+
+    expect(result).toEqual(projectData)
+    expect(createProjectDao).toHaveBeenCalledWith(createData)
+  })
+
+  it('should read project as admin', async () => {
+    const result = await getProjectByIdService(projectId)
+
+    expect(result).toEqual(projectData)
+    expect(getProjectByIdDao).toHaveBeenCalledWith(projectId)
+  })
+
+  it('should update project as admin', async () => {
+    const updateData: UpdateProject = {
+      id: projectId,
+      name: 'Updated Project',
+    }
+
+    const result = await updateProjectService(updateData)
+
+    expect(result).toEqual(projectData)
+    expect(updateProjectByIdDao).toHaveBeenCalled()
+  })
+
+  it('should delete project as admin', async () => {
+    await deleteProjectService(projectId)
+
+    expect(deleteProjectByIdDao).toHaveBeenCalledWith(projectId)
+  })
+
+  it('should create a task as admin', async () => {
+    const createData: CreateTask = {
+      title: 'Test Task',
+      description: 'Description de la tâche',
+      status: 'todo',
+      dueDate: new Date(),
+      projectId,
+      organizationId,
+      createdBy: userTest.id,
+    }
+
+    const result = await createTaskService(createData)
+
+    expect(result).toEqual(taskData)
+    expect(createTaskDao).toHaveBeenCalledWith(createData)
+  })
+
+  it('should read task as admin', async () => {
+    const result = await getTaskByIdService(taskId)
+
+    expect(result).toEqual(taskData)
+    expect(getTaskByIdDao).toHaveBeenCalledWith(taskId)
+  })
+})
+
+describe('[ORGANIZATION MEMBER] CRUD : Project Service', () => {
+  const organizationId = faker.string.uuid()
+  const projectId = faker.string.uuid()
+  const taskId = faker.string.uuid()
+
+  const projectData: Project = {
+    id: projectId,
+    name: 'Test Project',
+    description: 'Description du projet',
+    organizationId,
+    createdBy: userTest.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const taskData: Task = {
+    id: taskId,
+    title: 'Test Task',
+    description: 'Description de la tâche',
+    status: 'todo',
+    dueDate: new Date(),
+    projectId,
     organizationId,
     createdBy: userTest.id,
     createdAt: new Date(),
@@ -176,8 +461,13 @@ describe('[USER] CRUD : Project Service', () => {
     vi.clearAllMocks()
 
     vi.mocked(getProjectByIdDao).mockResolvedValue(projectData)
+    vi.mocked(getTaskByIdDao).mockResolvedValue(taskData)
+    vi.mocked(createTaskDao).mockResolvedValue(taskData)
+    vi.mocked(updateTaskByIdDao).mockResolvedValue()
+    vi.mocked(deleteTaskByIdDao).mockResolvedValue()
   })
 
+  // PROJETS - MEMBER peut seulement lire
   it('should NOT create a project as member', async () => {
     const createData: CreateProject = {
       name: 'Test Project',
@@ -208,33 +498,142 @@ describe('[USER] CRUD : Project Service', () => {
     )
     expect(updateProjectByIdDao).not.toHaveBeenCalled()
   })
-})
 
-describe('[PUBLIC] Project Service', () => {
-  const projectId = faker.string.uuid()
-  const organizationId = faker.string.uuid()
-
-  beforeEach(() => {
-    setupAuthUserMocked(undefined)
-    vi.clearAllMocks()
-  })
-
-  it('should NOT access projects as public user', async () => {
-    await expect(getProjectByIdService(projectId)).rejects.toThrow(
+  it('should NOT delete project as member', async () => {
+    await expect(deleteProjectService(projectId)).rejects.toThrow(
       AuthorizationError
     )
-    expect(getProjectByIdDao).toHaveBeenCalledTimes(1) //Seulement 1 (dans canRead)
+    expect(deleteProjectByIdDao).not.toHaveBeenCalled()
   })
 
-  it('should NOT create projects as public user', async () => {
+  // TÂCHES - MEMBER peut créer et gérer ses propres tâches
+  it('should create a task as member', async () => {
+    const createData: CreateTask = {
+      title: 'Test Task',
+      description: 'Description de la tâche',
+      status: 'todo',
+      dueDate: new Date(),
+      projectId,
+      organizationId,
+      createdBy: userTest.id,
+    }
+
+    const result = await createTaskService(createData)
+
+    expect(result).toEqual(taskData)
+    expect(createTaskDao).toHaveBeenCalledWith(createData)
+  })
+
+  it('should read task as member', async () => {
+    const result = await getTaskByIdService(taskId)
+
+    expect(result).toEqual(taskData)
+    expect(getTaskByIdDao).toHaveBeenCalledWith(taskId)
+  })
+})
+
+describe('[USER NOT IN ORGANIZATION] CRUD : Project Service', () => {
+  const organizationId = faker.string.uuid()
+  const otherOrganizationId = faker.string.uuid()
+  const projectId = faker.string.uuid()
+  const taskId = faker.string.uuid()
+
+  const projectData: Project = {
+    id: projectId,
+    name: 'Test Project',
+    description: 'Description du projet',
+    organizationId, // Projet dans une autre organisation
+    createdBy: faker.string.uuid(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const taskData: Task = {
+    id: taskId,
+    title: 'Test Task',
+    description: 'Description de la tâche',
+    status: 'todo',
+    dueDate: new Date(),
+    projectId,
+    organizationId, // Tâche dans une autre organisation
+    createdBy: faker.string.uuid(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  beforeEach(() => {
+    // Utilisateur avec accès à une autre organisation
+    const userNotInOrg = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId: otherOrganizationId, // Différente de celle du projet
+          role: UserOrganizationRoleConst.OWNER,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userNotInOrg)
+    vi.clearAllMocks()
+
+    vi.mocked(getProjectByIdDao).mockResolvedValue(projectData)
+    vi.mocked(getTaskByIdDao).mockResolvedValue(taskData)
+  })
+
+  it('should NOT create a project in organization user is not member of', async () => {
     const createData: CreateProject = {
       name: 'Test Project',
-      organizationId,
+      organizationId, // Organisation dont l'utilisateur n'est pas membre
     }
 
     await expect(createProjectService(createData)).rejects.toThrow(
       AuthorizationError
     )
     expect(createProjectDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT read project from organization user is not member of', async () => {
+    await expect(getProjectByIdService(projectId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(getProjectByIdDao).toHaveBeenCalledWith(projectId) // Appelé pour vérifier l'organisation
+  })
+
+  it('should NOT update project from organization user is not member of', async () => {
+    const updateData: UpdateProject = {
+      id: projectId,
+      name: 'Updated Project',
+    }
+
+    await expect(updateProjectService(updateData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(updateProjectByIdDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT delete project from organization user is not member of', async () => {
+    await expect(deleteProjectService(projectId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(deleteProjectByIdDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT create task in project from organization user is not member of', async () => {
+    const createData: CreateTask = {
+      title: 'Test Task',
+      projectId, // Projet dans une organisation dont l'utilisateur n'est pas membre
+      organizationId,
+    }
+
+    await expect(createTaskService(createData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(createTaskDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT read task from organization user is not member of', async () => {
+    await expect(getTaskByIdService(taskId)).rejects.toThrow(AuthorizationError)
+    expect(getTaskByIdDao).toHaveBeenCalledWith(taskId) // Appelé pour vérifier l'organisation
   })
 })

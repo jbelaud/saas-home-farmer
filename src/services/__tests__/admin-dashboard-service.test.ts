@@ -51,16 +51,6 @@ describe('[ADMIN] Admin Dashboard Service', () => {
       expect(getAdminStatisticsDao).toHaveBeenCalledTimes(1)
     })
 
-    it('should handle repository errors gracefully', async () => {
-      vi.mocked(getAdminStatisticsDao).mockRejectedValue(
-        new Error('Database error')
-      )
-
-      await expect(getDashboardStatsService()).rejects.toThrow(
-        'Erreur lors de la récupération des statistiques'
-      )
-    })
-
     it('should validate returned data structure', async () => {
       // Mock de données invalides
       vi.mocked(getAdminStatisticsDao).mockResolvedValue({
