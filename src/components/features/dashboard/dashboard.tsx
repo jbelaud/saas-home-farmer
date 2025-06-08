@@ -77,9 +77,11 @@ export default function DashboardPage() {
   } satisfies ChartConfig
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Tableau de Bord</h2>
+        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+          Tableau de Bord
+        </h2>
         <div className="flex items-center space-x-2">
           {/* Pas de contenu supplémentaire ici */}
         </div>
@@ -93,7 +95,7 @@ export default function DashboardPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -168,8 +170,8 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-4">
-            <Card className="col-span-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Revenus Mensuels</CardTitle>
                 <CardDescription>
@@ -178,10 +180,10 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="w-full">
                 <ChartContainer
-                  className="min-h-[320px] w-full"
+                  className="min-h-[250px] w-full md:min-h-[320px]"
                   config={revenueChartConfig}
                 >
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       accessibilityLayer
                       data={revenueData}
@@ -217,7 +219,7 @@ export default function DashboardPage() {
                 </ChartContainer>
               </CardContent>
             </Card>
-            <Card className="col-span-2">
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Répartition des Ventes</CardTitle>
                 <CardDescription>
@@ -226,10 +228,10 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="w-full">
                 <ChartContainer
-                  className="min-h-[320px] w-full"
+                  className="min-h-[250px] w-full md:min-h-[320px]"
                   config={salesChartConfig}
                 >
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={salesData}
                       margin={{top: 20, right: 30, left: 20, bottom: 20}}
@@ -261,8 +263,8 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-4">
-            <Card className="col-span-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Transactions Récentes</CardTitle>
                 <CardDescription>
@@ -330,7 +332,7 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="col-span-2">
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Objectifs Trimestriels</CardTitle>
                 <CardDescription>
