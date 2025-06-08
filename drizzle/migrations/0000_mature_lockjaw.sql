@@ -1,4 +1,5 @@
 CREATE TYPE "public"."organization_role" AS ENUM('OWNER', 'ADMIN', 'MEMBER');--> statement-breakpoint
+CREATE TYPE "public"."task_status" AS ENUM('todo', 'in_progress', 'done');--> statement-breakpoint
 CREATE TYPE "public"."subscription_plan" AS ENUM('CODEMAIL_FREE', 'CODEMAIL_PRO', 'CODEMAIL_LIFETIME');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status" AS ENUM('active', 'grace_period', 'canceled', 'expired');--> statement-breakpoint
 CREATE TYPE "public"."subscription_types" AS ENUM('subscription', 'payment');--> statement-breakpoint
@@ -21,6 +22,29 @@ CREATE TABLE "user_organization" (
 	"role" "organization_role" DEFAULT 'MEMBER' NOT NULL,
 	"joinedAt" timestamp DEFAULT now(),
 	CONSTRAINT "user_organization_userId_organizationId_pk" PRIMARY KEY("userId","organizationId")
+);
+--> statement-breakpoint
+CREATE TABLE "project" (
+	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"name" text NOT NULL,
+	"description" text,
+	"organization_id" uuid NOT NULL,
+	"created_by" uuid,
+	"createdat" timestamp DEFAULT now(),
+	"updatedat" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE "task" (
+	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"title" text NOT NULL,
+	"description" text,
+	"status" "task_status" DEFAULT 'todo' NOT NULL,
+	"due_date" timestamp,
+	"project_id" uuid NOT NULL,
+	"organization_id" uuid NOT NULL,
+	"created_by" uuid,
+	"createdat" timestamp DEFAULT now(),
+	"updatedat" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "subscription" (
@@ -119,6 +143,11 @@ CREATE TABLE "verificationToken" (
 --> statement-breakpoint
 ALTER TABLE "user_organization" ADD CONSTRAINT "user_organization_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_organization" ADD CONSTRAINT "user_organization_organizationId_organization_id_fk" FOREIGN KEY ("organizationId") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "project" ADD CONSTRAINT "project_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "project" ADD CONSTRAINT "project_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "task" ADD CONSTRAINT "task_project_id_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "public"."project"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "task" ADD CONSTRAINT "task_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "task" ADD CONSTRAINT "task_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "authenticator" ADD CONSTRAINT "authenticator_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
