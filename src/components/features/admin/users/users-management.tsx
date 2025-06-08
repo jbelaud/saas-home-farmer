@@ -87,11 +87,11 @@ export default function UsersManagement({
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0 sm:border">
+      <CardHeader className="px-4 sm:px-6">
         <CardTitle>Gestion des utilisateurs</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 sm:px-6">
         <UsersToolbar
           onSearch={handleSearch}
           initialSearch={searchQuery}
