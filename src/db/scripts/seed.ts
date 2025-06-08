@@ -28,26 +28,44 @@ const seed = async () => {
   await client.query(`
     INSERT INTO "role" (name, description)
     VALUES
+      ('public', 'Utilisateur public avec accès minimal'),
       ('user', 'Utilisateur standard avec accès limité'),
+      ('redactor', 'Rédacteur avec permissions d''édition'),
+      ('moderator', 'Modérateur avec permissions étendues'),
       ('admin', 'Administrateur avec tous les privilèges'),
-      ('public', 'Utilisateur public avec accès minimal')
+      ('super_admin', 'Super administrateur avec accès total')
     ON CONFLICT (name) DO NOTHING;
   `)
 
-  // 2. Insérer les utilisateurs (sans le champ role qui n'existe plus)
+  // 2. Insérer les utilisateurs - Jeu de test complet
   await client.query(`
     INSERT INTO "user" (email, name, "emailVerified", image, visibility)
     VALUES
+      -- Cas spéciaux Mike Codeur
       ('admin@mikecodeur.com', 'Mike Codeur', '2024-09-05', 'https://www.gravatar.com/avatar/ed8d664fa6324576c806b9ee59c302c6', 'private'),
-      ('user@gmail.com', 'Bob', '2024-09-01', 'https://randomuser.me/api/portraits/med/men/3.jpg', 'public'),
-      ('admin@gmail.com', 'Admin', NULL, 'https://randomuser.me/api/portraits/med/men/4.jpg', 'public'),
-      ('guest@gmail.com', 'Charlie', '2024-08-15', 'https://randomuser.me/api/portraits/med/men/5.jpg', 'public'),
-      ('julien@gmail.com', 'Julien', '2024-08-15', 'https://randomuser.me/api/portraits/med/men/6.jpg', 'public'),
-      ('moderator@gmail.com', 'David', '2024-08-20', 'https://randomuser.me/api/portraits/med/men/7.jpg', 'public'),
       ('ons@mikecodeur.com', 'Ons', '2024-09-03', 'https://randomuser.me/api/portraits/med/women/8.jpg', 'public'),
+      
+      -- Rôles globaux purs (sans organisations)
       ('superadmin@gmail.com', 'Frank', '2024-09-04', 'https://randomuser.me/api/portraits/med/men/9.jpg', 'public'),
-      ('moderator-2@gmail.com', 'Julie', '2024-09-04', 'https://randomuser.me/api/portraits/med/women/10.jpg', 'public'),
-      ('redactor-2@gmail.com', 'Grace', '2024-09-02', 'https://randomuser.me/api/portraits/med/women/11.jpg', 'public')
+      ('admin@gmail.com', 'Admin', NULL, 'https://randomuser.me/api/portraits/med/men/4.jpg', 'public'),
+      ('moderator@gmail.com', 'David', '2024-08-20', 'https://randomuser.me/api/portraits/med/men/7.jpg', 'public'),
+      ('redactor@gmail.com', 'Grace', '2024-09-02', 'https://randomuser.me/api/portraits/med/women/11.jpg', 'public'),
+      ('public@gmail.com', 'Charlie', '2024-08-15', 'https://randomuser.me/api/portraits/med/men/5.jpg', 'public'),
+      
+      -- Utilisateur multi-organisations (cas complexe)
+      ('user@gmail.com', 'Bob', '2024-09-01', 'https://randomuser.me/api/portraits/med/men/3.jpg', 'public'),
+      
+      -- Utilisateurs spécialisés par rôle organisationnel
+      ('user-owner@gmail.com', 'Julien', '2024-08-15', 'https://randomuser.me/api/portraits/med/men/6.jpg', 'public'),
+      ('user-admin@gmail.com', 'Sophie', '2024-08-25', 'https://randomuser.me/api/portraits/med/women/12.jpg', 'public'),
+      ('user-member@gmail.com', 'Lucas', '2024-08-30', 'https://randomuser.me/api/portraits/med/men/13.jpg', 'public'),
+      
+      -- Cas de chevauchement intéressants
+      ('admin-owner@gmail.com', 'Emma', '2024-09-01', 'https://randomuser.me/api/portraits/med/women/14.jpg', 'public'),
+      ('moderator-member@gmail.com', 'Julie', '2024-09-04', 'https://randomuser.me/api/portraits/med/women/10.jpg', 'public'),
+      
+      -- Utilisateur isolé (sans organisations)
+      ('user-isolated@gmail.com', 'Thomas', '2024-08-10', 'https://randomuser.me/api/portraits/med/men/15.jpg', 'public')
     ON CONFLICT (email) DO NOTHING;
   `)
 
@@ -59,19 +77,29 @@ const seed = async () => {
       r.id as "roleId"
     FROM "user" u, "role" r
     WHERE 
+      -- Cas spéciaux Mike Codeur
       (u.email = 'admin@mikecodeur.com' AND r.name = 'admin') OR
-      (u.email = 'user@gmail.com' AND r.name = 'user') OR
-      (u.email = 'admin@gmail.com' AND r.name = 'admin') OR
-      (u.email = 'guest@gmail.com' AND r.name = 'public') OR
-      (u.email = 'julien@gmail.com' AND r.name = 'user') OR
-      (u.email = 'moderator@gmail.com' AND r.name = 'admin') OR
-      (u.email = 'moderator@gmail.com' AND r.name = 'user') OR
       (u.email = 'ons@mikecodeur.com' AND r.name = 'admin') OR
-      (u.email = 'superadmin@gmail.com' AND r.name = 'admin') OR
-      (u.email = 'superadmin@gmail.com' AND r.name = 'user') OR
-      (u.email = 'moderator-2@gmail.com' AND r.name = 'admin') OR
-      (u.email = 'moderator-2@gmail.com' AND r.name = 'user') OR
-      (u.email = 'redactor-2@gmail.com' AND r.name = 'user')
+      
+      -- Rôles globaux purs
+      (u.email = 'superadmin@gmail.com' AND r.name = 'super_admin') OR
+      (u.email = 'admin@gmail.com' AND r.name = 'admin') OR
+      (u.email = 'moderator@gmail.com' AND r.name = 'moderator') OR
+      (u.email = 'redactor@gmail.com' AND r.name = 'redactor') OR
+      (u.email = 'public@gmail.com' AND r.name = 'public') OR
+      
+      -- Utilisateurs avec contexte organisationnel
+      (u.email = 'user@gmail.com' AND r.name = 'user') OR
+      (u.email = 'user-owner@gmail.com' AND r.name = 'user') OR
+      (u.email = 'user-admin@gmail.com' AND r.name = 'user') OR
+      (u.email = 'user-member@gmail.com' AND r.name = 'user') OR
+      
+      -- Cas de chevauchement
+      (u.email = 'admin-owner@gmail.com' AND r.name = 'admin') OR
+      (u.email = 'moderator-member@gmail.com' AND r.name = 'moderator') OR
+      
+      -- Utilisateur isolé
+      (u.email = 'user-isolated@gmail.com' AND r.name = 'user')
     ON CONFLICT ("userId", "roleId") DO NOTHING;
   `)
 
@@ -93,36 +121,67 @@ const seed = async () => {
       u.id as "userId",
       o.id as "organizationId",
       CASE 
+        -- Cas spéciaux Mike Codeur
         WHEN u.email = 'admin@mikecodeur.com' AND o.slug = 'techcorp-solutions' THEN 'OWNER'
         WHEN u.email = 'ons@mikecodeur.com' AND o.slug = 'techcorp-solutions' THEN 'ADMIN'
-        WHEN u.email = 'julien@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
+        
+        -- user@gmail.com : Cas multi-organisations complexe
+        -- MEMBER dans TechCorp, ADMIN dans Acme Corp, OWNER dans Evil Corp
         WHEN u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
         WHEN u.email = 'user@gmail.com' AND o.slug = 'acme-corp' THEN 'ADMIN'
-        WHEN u.email = 'user@gmail.com' AND o.slug = 'evil-corp' THEN 'MEMBER'
-        WHEN u.email = 'moderator@gmail.com' AND o.slug = 'marketing-pro' THEN 'OWNER'
-        WHEN u.email = 'moderator-2@gmail.com' AND o.slug = 'marketing-pro' THEN 'ADMIN'
-        WHEN u.email = 'redactor-2@gmail.com' AND o.slug = 'marketing-pro' THEN 'MEMBER'
-        WHEN u.email = 'admin@gmail.com' AND o.slug = 'marketing-pro' THEN 'MEMBER'
+        WHEN u.email = 'user@gmail.com' AND o.slug = 'evil-corp' THEN 'OWNER'
+        
+        -- Utilisateurs spécialisés par rôle organisationnel
+        WHEN u.email = 'user-owner@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'OWNER'
+        WHEN u.email = 'user-admin@gmail.com' AND o.slug = 'marketing-pro' THEN 'ADMIN'
+        WHEN u.email = 'user-member@gmail.com' AND o.slug = 'acme-corp' THEN 'MEMBER'
+        
+        -- Cas de chevauchement (rôle global élevé + rôle org)
+        WHEN u.email = 'admin-owner@gmail.com' AND o.slug = 'marketing-pro' THEN 'OWNER'
+        WHEN u.email = 'moderator-member@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
+        
         ELSE 'MEMBER'
       END::organization_role
     FROM "user" u, "organization" o
     WHERE 
+      -- Cas spéciaux Mike Codeur
       (u.email = 'admin@mikecodeur.com' AND o.slug = 'techcorp-solutions') OR
       (u.email = 'ons@mikecodeur.com' AND o.slug = 'techcorp-solutions') OR
-      (u.email = 'julien@gmail.com' AND o.slug = 'techcorp-solutions') OR
+      
+      -- user@gmail.com dans 3 organisations avec rôles différents
       (u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions') OR
       (u.email = 'user@gmail.com' AND o.slug = 'acme-corp') OR
       (u.email = 'user@gmail.com' AND o.slug = 'evil-corp') OR
-      (u.email = 'moderator@gmail.com' AND o.slug = 'marketing-pro') OR
-      (u.email = 'moderator-2@gmail.com' AND o.slug = 'marketing-pro') OR
-      (u.email = 'redactor-2@gmail.com' AND o.slug = 'marketing-pro') OR
-      (u.email = 'admin@gmail.com' AND o.slug = 'marketing-pro')
+      
+      -- Utilisateurs spécialisés (1 org chacun)
+      (u.email = 'user-owner@gmail.com' AND o.slug = 'techcorp-solutions') OR
+      (u.email = 'user-admin@gmail.com' AND o.slug = 'marketing-pro') OR
+      (u.email = 'user-member@gmail.com' AND o.slug = 'acme-corp') OR
+      
+      -- Cas de chevauchement
+      (u.email = 'admin-owner@gmail.com' AND o.slug = 'marketing-pro') OR
+      (u.email = 'moderator-member@gmail.com' AND o.slug = 'techcorp-solutions')
+      
+      -- Note: user-isolated@gmail.com n'est dans aucune organisation (test isolation)
+      -- Note: Les rôles globaux purs ne sont dans aucune organisation (test bypass)
     ON CONFLICT ("userId", "organizationId") DO NOTHING;
   `)
 
   const end = Date.now()
 
   console.log('✅ Seed inserted in', end - start, 'ms')
+  console.log('')
+  console.log('📊 Jeu de test créé avec succès :')
+  console.log(
+    '🔹 Rôles globaux purs : superadmin, admin, moderator, redactor, public'
+  )
+  console.log('🔹 Utilisateur multi-org : user@gmail.com (MEMBER→ADMIN→OWNER)')
+  console.log(
+    '🔹 Utilisateurs spécialisés : user-owner, user-admin, user-member'
+  )
+  console.log('🔹 Cas de chevauchement : admin-owner, moderator-member')
+  console.log('🔹 Utilisateur isolé : user-isolated (aucune organisation)')
+  console.log('')
 
   process.exit(0)
 }
