@@ -44,6 +44,7 @@ const db = drizzle(pool, {
 ```
 
 Exemple de Schéma:
+- preferer le snake_case pour le nom des colonnes (ex : emailVerified: timestamp('email_verified'))
 [user-model.ts](mdc:src/db/models/user-model.ts)
 ```ts
 import { relations, sql } from 'drizzle-orm'
@@ -72,9 +73,9 @@ export const users = pgTable('user', {
     .primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
-  emailVerified: timestamp('emailVerified', { mode: 'date' }),
-  createdAt: timestamp('createdat', { mode: 'date' }).defaultNow(),
-  updatedAt: timestamp('updatedat', { mode: 'date' }).defaultNow(),
+  emailVerified: timestamp('email_verified', { mode: 'date' }),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow(),
   image: text('image'),
   role: userRoleEnum('role').default('user').notNull(),
   password: text('password'),
