@@ -33,9 +33,11 @@ export default async function OrganizationMembersTable({
           <TableRow>
             <TableHead>Avatar</TableHead>
             <TableHead>Nom</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Rôle</TableHead>
-            <TableHead>Date d&apos;ajout</TableHead>
+            <TableHead className="hidden sm:table-cell">Email</TableHead>
+            <TableHead className="hidden md:table-cell">Rôle</TableHead>
+            <TableHead className="hidden lg:table-cell">
+              Date d&apos;ajout
+            </TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -51,10 +53,24 @@ export default async function OrganizationMembersTable({
                   )}
                 </Avatar>
               </TableCell>
-              <TableCell>{member.name}</TableCell>
-              <TableCell>{member.email}</TableCell>
-              <TableCell>{member.role}</TableCell>
               <TableCell>
+                <div className="flex flex-col">
+                  <span className="font-medium">{member.name}</span>
+                  <span className="text-muted-foreground text-sm sm:hidden">
+                    {member.email}
+                  </span>
+                  <span className="text-muted-foreground text-xs md:hidden">
+                    {member.role}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">
+                {member.email}
+              </TableCell>
+              <TableCell className="hidden md:table-cell">
+                {member.role}
+              </TableCell>
+              <TableCell className="hidden lg:table-cell">
                 {member.joinedAt
                   ? new Date(member.joinedAt).toLocaleDateString()
                   : ''}
