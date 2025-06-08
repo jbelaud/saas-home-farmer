@@ -149,6 +149,42 @@ export const canDeleteOrganization = async (
 }
 
 /**
+ * Vérifie si l'utilisateur connecté peut lire les membres d'une organisation
+ * @param resourceId - ID de l'organisation
+ * @returns true si l'accès est autorisé
+ */
+export const canReadOrganizationMember = async (
+  resourceId: string
+): Promise<boolean> => {
+  const authUser = await getAuthUser()
+
+  // Créer le contexte organisationnel
+  const orgContext: OrganizationContext = {
+    organizationId: resourceId,
+  }
+
+  // Vérification précoce pour performance
+  if (!userCan(authUser, ActionsConst.READ, SubjectsConst.USER, orgContext)) {
+    return false
+  }
+
+  // Récupération de l'organisation pour vérifier son existence
+  const organization = await getOrganizationByIdDao(resourceId)
+  if (!organization) return false
+
+  // Utiliser CASL avec contexte organisationnel
+  return userCanOnResource(
+    authUser,
+    ActionsConst.READ,
+    SubjectsConst.USER,
+    {
+      organizationId: resourceId,
+    },
+    orgContext
+  )
+}
+
+/**
  * Vérifie si l'utilisateur connecté peut gérer les membres d'une organisation
  * @param resourceId - ID de l'organisation
  * @returns true si l'accès est autorisé

@@ -13,7 +13,8 @@ export default async function EditOrganizationPage({
 }) {
   const {id} = await params
   const organization = await getOrganizationByIdService(id)
-  const {canManageMembers, canEdit} = await getOrganizationPermissions(id)
+  const {canReadMembers, canManageMembers, canEdit} =
+    await getOrganizationPermissions(id)
 
   if (!organization) {
     notFound()
@@ -31,14 +32,17 @@ export default async function EditOrganizationPage({
         <h2 className="mb-4 text-xl font-semibold">
           Membres de l&apos;organisation
         </h2>
-        {canManageMembers ? (
+        {canReadMembers ? (
           <Suspense fallback={<div>Chargement des membres...</div>}>
-            <OrganizationMembersTable organizationId={organization.id} />
+            <OrganizationMembersTable
+              organizationId={organization.id}
+              canManageMembers={canManageMembers}
+            />
           </Suspense>
         ) : (
           <p className="text-muted-foreground text-sm">
-            Vous n&apos;avez pas les droits nécessaires pour gérer les membres
-            de cette organisation.
+            Vous n&apos;avez pas les droits nécessaires pour voir les membres de
+            cette organisation.
           </p>
         )}
       </div>

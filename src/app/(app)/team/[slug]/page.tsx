@@ -1,10 +1,15 @@
-import {notFound} from 'next/navigation'
+import {forbidden, notFound} from 'next/navigation'
 
 import {
   getOrganizationBySlugDal,
   getOrganizationMembersDal,
+  OrganizationMemberDTO,
 } from '@/app/dal/organization-dal'
 import {TeamPageContent} from '@/components/features/team/team-page-content'
+import {
+  canReadOrganization,
+  canReadOrganizationMember,
+} from '@/services/authorization/organization-authorization'
 
 interface TeamPageProps {
   params: Promise<{
@@ -21,14 +26,18 @@ export default async function TeamPage({params}: TeamPageProps) {
   if (!organization) {
     notFound()
   }
+  const canRead = await canReadOrganization(organization.id)
+  console.log('canRead', canRead)
+  if (!canRead) {
+    forbidden()
+  }
+  // Vérifier les permissions pour lire les membres
+  const canReadMembers = await canReadOrganizationMember(organization.id)
 
   // Récupérer les membres de l'organisation
-  let members: Awaited<ReturnType<typeof getOrganizationMembersDal>> = []
-  try {
+  let members: OrganizationMemberDTO[] = []
+  if (canReadMembers) {
     members = await getOrganizationMembersDal(organization.id)
-  } catch (error) {
-    console.error('Erreur lors de la récupération des membres:', error)
-    // Continuer sans afficher les membres si l'utilisateur n'a pas les permissions
   }
 
   return <TeamPageContent organization={organization} members={members} />

@@ -4,6 +4,7 @@ import {
   canCreateOrganization,
   canDeleteOrganization,
   canManageOrganizationMembers,
+  canReadOrganizationMember,
   canUpdateOrganization,
 } from '@/services/authorization/organization-authorization'
 import {
@@ -59,17 +60,20 @@ export const getAllOrganizationsWithPaginationDal = cache(
 )
 
 export async function getOrganizationPermissions(organizationId?: string) {
-  const [canCreate, canEdit, canDelete, canManageMembers] = await Promise.all([
-    canCreateOrganization(),
-    organizationId ? canUpdateOrganization(organizationId) : false,
-    organizationId ? canDeleteOrganization(organizationId) : false,
-    organizationId ? canManageOrganizationMembers(organizationId) : false,
-  ])
+  const [canCreate, canEdit, canDelete, canReadMembers, canManageMembers] =
+    await Promise.all([
+      canCreateOrganization(),
+      organizationId ? canUpdateOrganization(organizationId) : false,
+      organizationId ? canDeleteOrganization(organizationId) : false,
+      organizationId ? canReadOrganizationMember(organizationId) : false,
+      organizationId ? canManageOrganizationMembers(organizationId) : false,
+    ])
 
   return {
     canCreate,
     canEdit,
     canDelete,
+    canReadMembers,
     canManageMembers,
   }
 }

@@ -14,8 +14,10 @@ import {RemoveMemberButton} from './remove-member-button'
 
 export default async function OrganizationMembersTable({
   organizationId,
+  canManageMembers = false,
 }: {
   organizationId: string
+  canManageMembers?: boolean
 }) {
   const members = await getOrganizationMembersDal(organizationId)
 
@@ -23,10 +25,12 @@ export default async function OrganizationMembersTable({
     <div className="overflow-x-auto">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold">Membres</h3>
-        <OrganizationAddMemberForm
-          organizationId={organizationId}
-          existingMemberIds={members.map((m) => m.id)}
-        />
+        {canManageMembers && (
+          <OrganizationAddMemberForm
+            organizationId={organizationId}
+            existingMemberIds={members.map((m) => m.id)}
+          />
+        )}
       </div>
       <Table>
         <TableHeader>
@@ -76,11 +80,15 @@ export default async function OrganizationMembersTable({
                   : ''}
               </TableCell>
               <TableCell>
-                <RemoveMemberButton
-                  organizationId={organizationId}
-                  userId={member.id}
-                  userName={member.name}
-                />
+                {canManageMembers ? (
+                  <RemoveMemberButton
+                    organizationId={organizationId}
+                    userId={member.id}
+                    userName={member.name}
+                  />
+                ) : (
+                  <span className="text-muted-foreground text-sm">-</span>
+                )}
               </TableCell>
             </TableRow>
           ))}

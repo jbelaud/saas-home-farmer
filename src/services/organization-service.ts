@@ -22,8 +22,8 @@ import {
   canCreateOrganization,
   canDeleteOrganization,
   canInviteToOrganization,
-  canManageOrganizationMembers,
   canReadOrganization,
+  canReadOrganizationMember,
   canRemoveFromOrganization,
   canUpdateOrganization,
 } from './authorization/organization-authorization'
@@ -208,7 +208,7 @@ export const getOrganizationMembersService = async (organizationId: string) => {
   }
   const parsedUuid = parsed.data
 
-  const granted = await canManageOrganizationMembers(parsedUuid)
+  const granted = await canReadOrganizationMember(parsedUuid)
   if (!granted) {
     throw new AuthorizationError()
   }

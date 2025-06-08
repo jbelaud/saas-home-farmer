@@ -5,6 +5,7 @@ import {
   createOrganizationDao,
   deleteOrganizationDao,
   getOrganizationByIdDao,
+  getOrganizationMembersDao,
   getOrganizationsByUserIdDao,
   getOrganizationsDao,
   updateOrganizationDao,
@@ -15,6 +16,7 @@ import {
   createOrganizationService,
   deleteOrganizationService,
   getOrganizationByIdService,
+  getOrganizationMembersService,
   getOrganizationsByUserIdService,
   getOrganizationsService,
   updateOrganizationService,
@@ -31,6 +33,44 @@ import {userTest, userTestAdmin} from './service-test-data'
 
 // Mock des DAOs
 vi.mock('@/db/repositories/organization-repository')
+
+// Mock des données de test pour les membres
+const mockMemberData = [
+  {
+    userId: 'user-1',
+    organizationId: 'org-1',
+    role: UserOrganizationRoleConst.MEMBER,
+    joinedAt: new Date(),
+    user: {
+      id: 'user-1',
+      name: 'John Doe',
+      email: 'john@example.com',
+      image: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      emailVerified: null,
+      password: null,
+      visibility: 'public' as const,
+    },
+  },
+  {
+    userId: 'user-2',
+    organizationId: 'org-1',
+    role: UserOrganizationRoleConst.ADMIN,
+    joinedAt: new Date(),
+    user: {
+      id: 'user-2',
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      image: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      emailVerified: null,
+      password: null,
+      visibility: 'public' as const,
+    },
+  },
+]
 
 describe('[ADMIN] CRUD : OrganizationService', () => {
   const organizationId = faker.string.uuid()
@@ -440,5 +480,115 @@ describe('[PUBLIC] OrganizationService', () => {
       AuthorizationError
     )
     expect(getOrganizationByIdDao).not.toHaveBeenCalled()
+  })
+})
+
+describe('[ORGANIZATION MEMBER READ ACCESS] getOrganizationMembersService', () => {
+  const organizationId = faker.string.uuid()
+  const organizationData: Organization = {
+    id: organizationId,
+    name: 'Test Organization',
+    slug: 'test-organization',
+    description: 'Description de test',
+    image: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(getOrganizationByIdDao).mockResolvedValue(organizationData)
+    vi.mocked(getOrganizationMembersDao).mockResolvedValue(mockMemberData)
+  })
+
+  it('[ORGANIZATION OWNER] should be able to read organization members', async () => {
+    const userOwner = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId,
+          role: UserOrganizationRoleConst.OWNER,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userOwner)
+
+    const result = await getOrganizationMembersService(organizationId)
+
+    expect(result).toEqual(mockMemberData)
+    expect(getOrganizationMembersDao).toHaveBeenCalledWith(organizationId)
+  })
+
+  it('[ORGANIZATION ADMIN] should be able to read organization members', async () => {
+    const userAdmin = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId,
+          role: UserOrganizationRoleConst.ADMIN,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userAdmin)
+
+    const result = await getOrganizationMembersService(organizationId)
+
+    expect(result).toEqual(mockMemberData)
+    expect(getOrganizationMembersDao).toHaveBeenCalledWith(organizationId)
+  })
+
+  it('[ORGANIZATION MEMBER] should be able to read organization members', async () => {
+    const userMember = {
+      ...userTest,
+      organizations: [
+        {
+          userId: userTest.id,
+          organizationId,
+          role: UserOrganizationRoleConst.MEMBER,
+          joinedAt: new Date(),
+        },
+      ],
+    }
+    setupAuthUserMocked(userMember)
+
+    const result = await getOrganizationMembersService(organizationId)
+
+    expect(result).toEqual(mockMemberData)
+    expect(getOrganizationMembersDao).toHaveBeenCalledWith(organizationId)
+  })
+
+  it('[ADMIN SYSTEM] should be able to read organization members', async () => {
+    setupAuthUserMocked(userTestAdmin)
+
+    const result = await getOrganizationMembersService(organizationId)
+
+    expect(result).toEqual(mockMemberData)
+    expect(getOrganizationMembersDao).toHaveBeenCalledWith(organizationId)
+  })
+
+  it('[USER NOT IN ORGANIZATION] should NOT be able to read organization members', async () => {
+    const userNotInOrg = {
+      ...userTest,
+      organizations: [], // Pas membre de cette organisation
+    }
+    setupAuthUserMocked(userNotInOrg)
+
+    await expect(getOrganizationMembersService(organizationId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(getOrganizationMembersDao).not.toHaveBeenCalled()
+  })
+
+  it('[PUBLIC/GUEST] should NOT be able to read organization members', async () => {
+    setupAuthUserMocked(undefined) // Pas d'utilisateur connecté
+
+    await expect(getOrganizationMembersService(organizationId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(getOrganizationMembersDao).not.toHaveBeenCalled()
   })
 })
