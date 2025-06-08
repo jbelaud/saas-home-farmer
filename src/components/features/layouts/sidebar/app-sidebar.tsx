@@ -25,11 +25,11 @@ import {
 } from '@/components/ui/sidebar'
 import {isAdmin} from '@/services/authentication/auth-util'
 
-// This is sample data.
-const data = {
+// Configuration simple et lisible du menu - comme à l'origine
+const menuData = {
   adminNavMain: [
     {
-      title: 'Adminitration',
+      title: 'Administration',
       url: '#',
       icon: Settings2,
       isActive: false,
@@ -38,7 +38,6 @@ const data = {
           title: 'Dashboard Admin',
           url: '/admin',
         },
-
         {
           title: 'Users',
           url: '/admin/users',
@@ -71,7 +70,7 @@ const data = {
         },
         {
           title: 'Projects',
-          url: '/projects',
+          url: '/team/{{orgSlug}}/projects',
         },
         {
           title: 'Settings',
@@ -141,33 +140,77 @@ const data = {
   ],
 }
 
-function buildMenu(isAdmin: boolean) {
-  if (isAdmin) {
-    return [...data.adminNavMain, ...data.navMain]
+// Fonction simple pour remplacer les placeholders dans les URLs
+function replaceUrlPlaceholders(url: string, orgSlug: string): string {
+  return url.replace('{{orgSlug}}', orgSlug)
+}
+
+// Fonction pour créer une copie mutable d'un item avec remplacement d'URL
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createMenuItemWithUrls(item: any, orgSlug: string) {
+  return {
+    ...item,
+    url: replaceUrlPlaceholders(item.url, orgSlug),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    items: item.items?.map((subItem: any) => ({
+      ...subItem,
+      url: replaceUrlPlaceholders(subItem.url, orgSlug),
+    })),
   }
-  return data.navMain
+}
+
+// Fonction principale pour construire le menu - simple et claire
+function buildMenu(isAdminUser: boolean, orgSlug: string) {
+  // Créer une copie mutable du menu utilisateur avec URLs mises à jour
+  const userMenu = menuData.navMain.map((item) =>
+    createMenuItemWithUrls(item, orgSlug)
+  )
+
+  // Si admin, ajouter le menu admin au début
+  if (isAdminUser) {
+    const adminMenu = menuData.adminNavMain.map((item) => ({...item}))
+    return [...adminMenu, ...userMenu]
+  }
+
+  return userMenu
 }
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const {user, organizations} = useOrganization()
-  const admin = isAdmin(user)
-  const menuItems = buildMenu(admin ?? false)
+  const {user, organizations, currentOrganization} = useOrganization()
 
-  const teams = organizations?.map((organization) => ({
-    id: organization.organization?.id ?? '',
-    name: organization.organization?.name ?? 'No name',
-    logo: BookOpen,
-    plan: organization.organization?.description || 'Default plan',
-  }))
+  // États dérivés avec mémorisation
+  const isAdminUser = React.useMemo(() => isAdmin(user) ?? false, [user])
+  const currentOrgSlug = React.useMemo(
+    () => currentOrganization?.slug || 'default',
+    [currentOrganization]
+  )
+
+  // Construction dynamique du menu avec mémorisation
+  const menuItems = React.useMemo(
+    () => buildMenu(isAdminUser, currentOrgSlug),
+    [isAdminUser, currentOrgSlug]
+  )
+
+  // Transformation des organisations en équipes
+  const teams = React.useMemo(
+    () =>
+      organizations?.map((org) => ({
+        id: org.organization?.id ?? '',
+        name: org.organization?.name ?? 'No name',
+        logo: BookOpen,
+        plan: org.organization?.description || 'Default plan',
+      })) || [],
+    [organizations]
+  )
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={teams || []} />
+        <TeamSwitcher teams={teams} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={menuItems} />
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={menuData.projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user || undefined} />

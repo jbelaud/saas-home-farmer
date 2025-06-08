@@ -10,7 +10,7 @@ import {toast} from 'sonner'
 import {
   deleteProjectAction,
   updateProjectAction,
-} from '@/app/(app)/projects/actions'
+} from '@/app/(app)/team/[slug]/projects/actions'
 import {Avatar, AvatarFallback} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
