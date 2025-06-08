@@ -29,6 +29,7 @@ interface OrganizationContextType {
   // Actions
   setUser: (user: User | null) => void
   setCurrentOrganization: (organizationId: string) => void
+  setCurrentOrganizationWithoutRedirect: (organizationId: string) => void
 }
 
 const OrganizationContext = createContext<OrganizationContextType | undefined>(
@@ -58,7 +59,7 @@ export function OrganizationProvider({
       (org) => org.organization?.id === currentOrganization?.id
     ) || null
 
-  // Fonction pour changer d'organisation
+  // Fonction pour changer d'organisation avec redirection
   const handleSetCurrentOrganization = (organizationId: string) => {
     const userOrg = organizations.find(
       (org) => org.organization?.id === organizationId
@@ -69,6 +70,20 @@ export function OrganizationProvider({
       localStorage.setItem('selectedOrganizationId', organizationId)
       // Rediriger vers la page de l'équipe
       router.push(`/team/${userOrg.organization.slug}`)
+    }
+  }
+
+  // Fonction pour changer d'organisation sans redirection
+  const handleSetCurrentOrganizationWithoutRedirect = (
+    organizationId: string
+  ) => {
+    const userOrg = organizations.find(
+      (org) => org.organization?.id === organizationId
+    )
+    if (userOrg && userOrg.organization) {
+      setCurrentOrganization(userOrg.organization)
+      // Stocker la sélection dans localStorage pour la persistance
+      localStorage.setItem('selectedOrganizationId', organizationId)
     }
   }
 
@@ -103,6 +118,8 @@ export function OrganizationProvider({
     // Actions
     setUser,
     setCurrentOrganization: handleSetCurrentOrganization,
+    setCurrentOrganizationWithoutRedirect:
+      handleSetCurrentOrganizationWithoutRedirect,
   }
 
   return (
