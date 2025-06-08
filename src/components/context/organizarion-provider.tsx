@@ -1,5 +1,6 @@
 'use client'
 
+import {useRouter} from 'next/navigation'
 import React, {
   createContext,
   useContext,
@@ -43,6 +44,7 @@ export function OrganizationProvider({
   children,
   initialUser = null,
 }: OrganizationProviderProps) {
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(initialUser)
   const [currentOrganization, setCurrentOrganization] =
     useState<Organization | null>(null)
@@ -61,10 +63,12 @@ export function OrganizationProvider({
     const userOrg = organizations.find(
       (org) => org.organization?.id === organizationId
     )
-    if (userOrg) {
-      setCurrentOrganization(userOrg.organization ?? null)
+    if (userOrg && userOrg.organization) {
+      setCurrentOrganization(userOrg.organization)
       // Stocker la sélection dans localStorage pour la persistance
       localStorage.setItem('selectedOrganizationId', organizationId)
+      // Rediriger vers la page de l'équipe
+      router.push(`/team/${userOrg.organization.slug}`)
     }
   }
 
