@@ -194,6 +194,36 @@ const seed = async () => {
     ON CONFLICT DO NOTHING;
   `)
 
+  // 7. Insérer des tâches pour tester différents états de projets
+  await client.query(`
+    INSERT INTO "task" (title, description, status, "due_date", "project_id", "organization_id", "created_by")
+    SELECT 
+      task_data.title,
+      task_data.description,
+      task_data.status::task_status,
+      task_data.due_date::timestamp,
+      p.id as "project_id",
+      p."organization_id",
+      u.id as "created_by"
+    FROM (
+      VALUES 
+        -- 2 tâches pour TechCorp - Plateforme E-commerce
+        ('Configuration Next.js', 'Mise en place de l''architecture Next.js avec TypeScript', 'done', '2024-09-15', 'Plateforme E-commerce', 'admin@mikecodeur.com'),
+        ('Intégration Stripe', 'Implémentation du système de paiement avec Stripe', 'in_progress', '2024-12-01', 'Plateforme E-commerce', 'ons@mikecodeur.com'),
+        
+        -- 1 tâche pour Marketing Pro - Campagne Digitale
+        ('Création des visuels', 'Design des bannières pour les réseaux sociaux', 'todo', '2024-11-15', 'Campagne Digitale 2024', 'user-admin@gmail.com'),
+        
+        -- 0 tâche pour Marketing Pro - Site Web Corporate (pas de VALUES pour ce projet)
+        
+        -- 1 tâche pour Evil Corp - Audit Sécurité  
+        ('Scan des vulnérabilités', 'Analyse complète des failles de sécurité', 'in_progress', '2024-10-30', 'Audit Sécurité', 'user@gmail.com')
+    ) AS task_data(title, description, status, due_date, project_name, creator_email)
+    JOIN "project" p ON p.name = task_data.project_name
+    JOIN "user" u ON u.email = task_data.creator_email
+    ON CONFLICT DO NOTHING;
+  `)
+
   const end = Date.now()
 
   console.log('✅ Seed inserted in', end - start, 'ms')
@@ -209,11 +239,17 @@ const seed = async () => {
   console.log('🔹 Cas de chevauchement : admin-owner, moderator-member')
   console.log('🔹 Utilisateur isolé : user-isolated (aucune organisation)')
   console.log('')
-  console.log('📝 Projets créés par organisation :')
-  console.log('🔹 TechCorp Solutions : 1 projet (Plateforme E-commerce)')
-  console.log('🔹 Marketing Pro : 2 projets (Campagne Digitale + Site Web)')
+  console.log('📝 Projets et tâches créés par organisation :')
+  console.log('🔹 TechCorp Solutions : 1 projet (2 tâches)')
+  console.log('  └─ Plateforme E-commerce: Configuration ✅ + Intégration 🔄')
+  console.log('🔹 Marketing Pro : 2 projets (1 tâche total)')
+  console.log('  ├─ Campagne Digitale: Création visuels 📋')
+  console.log('  └─ Site Web Corporate: 0 tâche (vide)')
   console.log('🔹 Acme Corp : 0 projet (vide pour tests)')
-  console.log('🔹 Evil Corp : 1 projet (Audit Sécurité)')
+  console.log('🔹 Evil Corp : 1 projet (1 tâche)')
+  console.log('  └─ Audit Sécurité: Scan vulnérabilités 🔄')
+  console.log('')
+  console.log('📊 Statuts des tâches : ✅ Done | 🔄 In Progress | 📋 Todo')
   console.log('')
 
   process.exit(0)
