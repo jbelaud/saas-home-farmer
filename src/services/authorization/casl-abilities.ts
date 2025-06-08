@@ -17,6 +17,8 @@ export type Subjects =
   | 'User'
   | 'Subscription'
   | 'Organization'
+  | 'Project'
+  | 'Task'
   | 'File'
   | 'Technical'
   | 'Log'
@@ -35,6 +37,8 @@ export const SubjectsConst = {
   USER: 'User' as Subjects,
   SUBSCRIPTION: 'Subscription' as Subjects,
   ORGANIZATION: 'Organization' as Subjects,
+  PROJECT: 'Project' as Subjects,
+  TASK: 'Task' as Subjects,
   FILE: 'File' as Subjects,
   TECHNICAL: 'Technical' as Subjects,
   LOG: 'Log' as Subjects,
@@ -77,6 +81,10 @@ export function buildAdminAbilities(builder: AppAbilityBuilder) {
 
   // Peut gérer toutes les organisations
   can(ActionsConst.MANAGE, SubjectsConst.ORGANIZATION)
+
+  // Peut gérer tous les projets et tâches
+  can(ActionsConst.MANAGE, SubjectsConst.PROJECT)
+  can(ActionsConst.MANAGE, SubjectsConst.TASK)
 
   // Peut gérer tous les fichiers
   can(ActionsConst.MANAGE, SubjectsConst.FILE)
@@ -182,6 +190,13 @@ export function buildOrganizationalAbilities(
       can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION, {
         organizationId: orgContext.organizationId,
       })
+      // Peut gérer tous les projets et tâches de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.PROJECT, {
+        organizationId: orgContext.organizationId,
+      })
+      can(ActionsConst.MANAGE, SubjectsConst.TASK, {
+        organizationId: orgContext.organizationId,
+      })
       // Peut gérer tous les fichiers de l'organisation
       can(ActionsConst.MANAGE, SubjectsConst.FILE, {
         organizationId: orgContext.organizationId,
@@ -207,6 +222,13 @@ export function buildOrganizationalAbilities(
       can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION, {
         organizationId: orgContext.organizationId,
       })
+      // Peut gérer les projets et tâches de l'organisation
+      can(ActionsConst.MANAGE, SubjectsConst.PROJECT, {
+        organizationId: orgContext.organizationId,
+      })
+      can(ActionsConst.MANAGE, SubjectsConst.TASK, {
+        organizationId: orgContext.organizationId,
+      })
       // Peut gérer les fichiers de l'organisation
       can(ActionsConst.MANAGE, SubjectsConst.FILE, {
         organizationId: orgContext.organizationId,
@@ -224,6 +246,19 @@ export function buildOrganizationalAbilities(
       })
       // Peut lire les subscriptions de l'organisation
       can(ActionsConst.READ, SubjectsConst.SUBSCRIPTION, {
+        organizationId: orgContext.organizationId,
+      })
+      // Peut lire les projets et créer/modifier ses tâches
+      can(ActionsConst.READ, SubjectsConst.PROJECT, {
+        organizationId: orgContext.organizationId,
+      })
+      can(ActionsConst.READ, SubjectsConst.TASK, {
+        organizationId: orgContext.organizationId,
+      })
+      can(ActionsConst.CREATE, SubjectsConst.TASK, {
+        organizationId: orgContext.organizationId,
+      })
+      can(ActionsConst.UPDATE, SubjectsConst.TASK, {
         organizationId: orgContext.organizationId,
       })
       // Peut lire les fichiers de l'organisation
