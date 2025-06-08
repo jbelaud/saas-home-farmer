@@ -1,7 +1,6 @@
 'use client'
 
-import {Plus, Search, X} from 'lucide-react'
-import Link from 'next/link'
+import {Search, X} from 'lucide-react'
 import React, {useState} from 'react'
 
 import {Button} from '@/components/ui/button'
@@ -20,7 +19,6 @@ interface ProjectsToolbarProps {
   totalProjects: number
   onPerPageChange?: (perPage: string) => void
   perPage: string
-  canCreate?: boolean
 }
 
 export function ProjectsToolbar({
@@ -29,7 +27,6 @@ export function ProjectsToolbar({
   totalProjects,
   onPerPageChange,
   perPage,
-  canCreate = false,
 }: ProjectsToolbarProps) {
   const [searchValue, setSearchValue] = useState(initialSearch)
 
@@ -51,14 +48,6 @@ export function ProjectsToolbar({
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div className="flex items-center gap-2">
-        {canCreate && (
-          <Button asChild>
-            <Link href="/projects/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Nouveau projet
-            </Link>
-          </Button>
-        )}
         {onSearch && (
           <div className="relative flex w-[250px] items-center">
             <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />

@@ -2,7 +2,7 @@
 
 import {formatDistanceToNow} from 'date-fns'
 import {fr} from 'date-fns/locale'
-import {Edit, Folder} from 'lucide-react'
+import {Edit, Folder, Plus} from 'lucide-react'
 import Link from 'next/link'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {toast} from 'sonner'
@@ -78,7 +78,17 @@ export default function ProjectsManagement({
   return (
     <Card className="border-0 sm:border">
       <CardHeader className="px-4 sm:px-6">
-        <CardTitle>Gestion des projets</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Gestion des projets</CardTitle>
+          {permissions.canCreate && (
+            <Button asChild>
+              <Link href="/projects/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Nouveau projet
+              </Link>
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="px-4 sm:px-6">
         <ProjectsToolbar
@@ -87,7 +97,6 @@ export default function ProjectsManagement({
           totalProjects={totalProjects}
           onPerPageChange={handlePerPageChange}
           perPage={pageSize.toString()}
-          canCreate={permissions.canCreate}
         />
 
         <Table>
