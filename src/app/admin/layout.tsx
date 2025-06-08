@@ -32,7 +32,9 @@ async function AppLayout({children}: {children: React.ReactNode}) {
             </div>
           </header>
           <main className="flex-1">
-            <div className="mx-auto w-full max-w-7xl px-4 py-4">{children}</div>
+            <div className="mx-auto w-full max-w-7xl px-1 py-4 md:px-4">
+              {children}
+            </div>
           </main>
         </div>
       </SidebarInset>
