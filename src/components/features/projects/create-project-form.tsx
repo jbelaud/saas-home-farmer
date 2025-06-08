@@ -8,6 +8,10 @@ import {toast} from 'sonner'
 import * as z from 'zod'
 
 import {createProjectAction} from '@/app/(app)/projects/actions'
+import {
+  useAuthUserRole,
+  useOrganization,
+} from '@/components/context/organizarion-provider'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -51,12 +55,17 @@ export function CreateProjectForm({organizations}: CreateProjectFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
+  // Récupérer l'organisation courante et le rôle de l'utilisateur
+  const {currentOrganization} = useOrganization()
+  const {isAdmin} = useAuthUserRole()
+
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
       name: '',
       description: '',
-      organizationId: '',
+      // Pré-remplir avec l'organisation courante si elle existe
+      organizationId: currentOrganization?.id || '',
     },
   })
 
@@ -88,6 +97,7 @@ export function CreateProjectForm({organizations}: CreateProjectFormProps) {
     }
   }
 
+  // Vérifier les conditions d'affichage
   if (organizations.length === 0) {
     return (
       <Card>
@@ -105,44 +115,82 @@ export function CreateProjectForm({organizations}: CreateProjectFormProps) {
     )
   }
 
+  // Pour les non-admin, vérifier qu'il y a une organisation courante
+  if (!isAdmin && !currentOrganization) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Nouveau projet</CardTitle>
+          <CardDescription>Aucune organisation sélectionnée</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            Veuillez sélectionner une organisation dans le menu de navigation
+            pour créer un projet.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Nouveau projet</CardTitle>
         <CardDescription>
-          Créez un nouveau projet dans une de vos organisations.
+          {isAdmin
+            ? 'Créez un nouveau projet dans une de vos organisations.'
+            : `Créez un nouveau projet dans l'organisation ${currentOrganization?.name || 'courante'}.`}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="organizationId"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>Organisation</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez une organisation" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {organizations.map((org) => (
-                        <SelectItem key={org.id} value={org.id}>
-                          {org.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Afficher le sélecteur d'organisation seulement pour les ADMIN */}
+            {isAdmin ? (
+              <FormField
+                control={form.control}
+                name="organizationId"
+                render={({field}) => (
+                  <FormItem>
+                    <FormLabel>Organisation</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez une organisation" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {organizations.map((org) => (
+                          <SelectItem key={org.id} value={org.id}>
+                            {org.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : (
+              /* Pour les non-admin, afficher l'organisation courante en lecture seule */
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Organisation</label>
+                <div className="border-input bg-muted flex h-10 w-full rounded-md border px-3 py-2 text-sm">
+                  {currentOrganization?.name ||
+                    'Aucune organisation sélectionnée'}
+                </div>
+                {/* Champ caché pour soumettre l'ID */}
+                <input
+                  type="hidden"
+                  {...form.register('organizationId')}
+                  value={currentOrganization?.id || ''}
+                />
+              </div>
+            )}
 
             <FormField
               control={form.control}

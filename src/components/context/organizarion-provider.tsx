@@ -8,7 +8,10 @@ import React, {
   useState,
 } from 'react'
 
-import {UserOrganizationRoleConst} from '@/services/types/domain/auth-types'
+import {
+  RoleConst,
+  UserOrganizationRoleConst,
+} from '@/services/types/domain/auth-types'
 import {
   Organization,
   UserOrganizationData,
@@ -133,5 +136,27 @@ export function useOrganizationRole() {
     isOwner,
     isAdmin,
     isMember,
+  }
+}
+
+// Hook utilitaire pour vérifier les permissions dans l'organisation courante
+export function useAuthUserRole() {
+  const {user} = useOrganization()
+
+  const isAdmin = user?.roles?.includes(RoleConst.ADMIN)
+  const isUser = user?.roles?.includes(RoleConst.USER)
+
+  const isSuperAdmin = user?.roles?.includes(RoleConst.SUPER_ADMIN)
+  const isPublic = user?.roles?.includes(RoleConst.PUBLIC)
+  const isRedactor = user?.roles?.includes(RoleConst.REDACTOR)
+  const isModerator = user?.roles?.includes(RoleConst.MODERATOR)
+
+  return {
+    isAdmin,
+    isUser,
+    isSuperAdmin,
+    isPublic,
+    isRedactor,
+    isModerator,
   }
 }
