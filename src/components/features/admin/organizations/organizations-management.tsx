@@ -85,11 +85,11 @@ export default function OrganizationsManagement({
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0 sm:border">
+      <CardHeader className="px-4 sm:px-6">
         <CardTitle>Gestion des organisations</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 sm:px-6">
         <OrganizationsToolbar
           onSearch={handleSearch}
           initialSearch={searchQuery}
@@ -101,15 +101,13 @@ export default function OrganizationsManagement({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[250px]">Organisation</TableHead>
-              <TableHead className="w-[120px]">Slug</TableHead>
-              <TableHead className="hidden w-[300px] lg:table-cell">
+              <TableHead>Organisation</TableHead>
+              <TableHead className="hidden md:table-cell">Slug</TableHead>
+              <TableHead className="hidden xl:table-cell">
                 Description
               </TableHead>
-              <TableHead className="hidden w-[140px] md:table-cell">
-                Créée
-              </TableHead>
-              <TableHead className="w-[120px]">Actions</TableHead>
+              <TableHead className="hidden lg:table-cell">Créée</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -136,15 +134,15 @@ export default function OrganizationsManagement({
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   <Badge variant="outline">{organization.slug}</Badge>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  <div className="w-[280px] truncate">
+                <TableCell className="hidden xl:table-cell">
+                  <div className="truncate">
                     {organization.description || 'Aucune description'}
                   </div>
                 </TableCell>
-                <TableCell className="text-muted-foreground hidden text-sm md:table-cell">
+                <TableCell className="text-muted-foreground hidden text-sm lg:table-cell">
                   {organization.createdAt &&
                     formatDistanceToNow(new Date(organization.createdAt), {
                       addSuffix: true,

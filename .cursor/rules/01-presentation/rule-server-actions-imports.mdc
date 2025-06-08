@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: **action**
 alwaysApply: false
 ---
 # Server Actions - Règles d'Importation

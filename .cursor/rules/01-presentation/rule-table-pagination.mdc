@@ -1,6 +1,6 @@
 ---
 description: 
-globs: src/app/(app)/**,src/app/admin/**
+globs: src/app/(app)/**,src/app/admin/**,**table**
 alwaysApply: false
 ---
 # Structure d'un tableau avec pagination et recherche

@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: **action**
 alwaysApply: false
 ---
 # Sécurisation des Server Actions avec requireActionAuth()
