@@ -1,13 +1,26 @@
-import {Metadata} from 'next'
+import {getTranslations, setRequestLocale} from 'next-intl/server'
 import {PropsWithChildren} from 'react'
 
-import {APP_DESCRIPTION} from '@/lib/constants'
+import {routing} from '@/i18n/routing'
 
-export const metadata: Metadata = {
-  title: APP_DESCRIPTION,
-  description: 'Authentication',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+  const t = await getTranslations({locale, namespace: 'AuthLayout'})
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  }
 }
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({locale}))
+}
 export default function AuthLayout({children}: PropsWithChildren) {
   return (
     <div className="bg-muted/10 dark:bg-background flex min-h-screen flex-col">

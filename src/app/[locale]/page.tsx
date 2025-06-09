@@ -1,14 +1,42 @@
 import {BarChart2, ShieldCheck, Zap} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import {getTranslations, setRequestLocale} from 'next-intl/server'
 
 import ButtonConnexionDashboard from '@/components/features/auth/button-connexion-dashboard'
 import ImageTheme from '@/components/image-theme'
 import {ModeToggle} from '@/components/theme-toggle'
 import {Button} from '@/components/ui/button'
+import {routing} from '@/i18n/routing'
 import {APP_NAME} from '@/lib/constants'
 
-export default function Home() {
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({locale}))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+  const t = await getTranslations({locale, namespace: 'HomePage'})
+
+  return {
+    title: t('metadata.title'),
+    description: t('metadata.description'),
+  }
+}
+
+export default async function Home({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+  const t = await getTranslations('HomePage')
   return (
     <div className="bg-background text-foreground flex min-h-screen flex-col">
       {/* Header */}
@@ -28,13 +56,13 @@ export default function Home() {
         </div>
         <nav className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 gap-8 text-sm font-medium md:flex">
           <Link href="#features" className="hover:text-primary transition">
-            Fonctionnalités
+            {t('navigation.features')}
           </Link>
           <Link href="/pricing" className="hover:text-primary transition">
-            Tarifs
+            {t('navigation.pricing')}
           </Link>
           <Link href="/contact" className="hover:text-primary transition">
-            Contact
+            {t('navigation.contact')}
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
@@ -46,14 +74,13 @@ export default function Home() {
       {/* Hero */}
       <section className="flex flex-col items-center justify-center px-4 py-16 text-center">
         <h1 className="mx-auto mb-4 max-w-4xl text-4xl font-bold md:text-6xl">
-          La plateforme SaaS moderne pour booster votre business
+          {t('hero.title')}
         </h1>
         <p className="text-muted-foreground mb-8 max-w-xl text-lg">
-          Gérez, analysez et développez votre activité avec des outils puissants
-          et une interface intuitive.
+          {t('hero.description')}
         </p>
         <Button size="lg" className="mb-8">
-          <Link href="/register">Essayez gratuitement</Link>
+          <Link href="/register">{t('hero.cta')}</Link>
         </Button>
       </section>
 
@@ -78,23 +105,29 @@ export default function Home() {
       >
         <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
           <Zap className="text-primary mx-auto mb-4" size={40} />
-          <h3 className="mb-2 text-lg font-semibold">Automatisation</h3>
+          <h3 className="mb-2 text-lg font-semibold">
+            {t('features.automation.title')}
+          </h3>
           <p className="text-muted-foreground">
-            Automatisez vos tâches répétitives et gagnez du temps au quotidien.
+            {t('features.automation.description')}
           </p>
         </div>
         <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
           <BarChart2 className="text-primary mx-auto mb-4" size={40} />
-          <h3 className="mb-2 text-lg font-semibold">Analyse avancée</h3>
+          <h3 className="mb-2 text-lg font-semibold">
+            {t('features.analytics.title')}
+          </h3>
           <p className="text-muted-foreground">
-            Obtenez des rapports détaillés pour piloter votre croissance.
+            {t('features.analytics.description')}
           </p>
         </div>
         <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
           <ShieldCheck className="text-primary mx-auto mb-4" size={40} />
-          <h3 className="mb-2 text-lg font-semibold">Sécurité optimale</h3>
+          <h3 className="mb-2 text-lg font-semibold">
+            {t('features.security.title')}
+          </h3>
           <p className="text-muted-foreground">
-            Vos données sont protégées grâce à notre infrastructure sécurisée.
+            {t('features.security.description')}
           </p>
         </div>
       </section>
@@ -115,82 +148,87 @@ export default function Home() {
               />
               <span className="text-lg font-bold">{APP_NAME}</span>
             </div>
-            <p className="text-muted-foreground mb-2 text-sm">By Mike Codeur</p>
+            <p className="text-muted-foreground mb-2 text-sm">
+              {t('footer.byMike')}
+            </p>
             <p className="text-muted-foreground text-xs">
-              © {new Date().getFullYear()} {APP_NAME}. Tous droits réservés.
+              © {new Date().getFullYear()} {APP_NAME}.{' '}
+              {t('footer.allRightsReserved')}
             </p>
           </div>
           <div>
-            <h4 className="mb-3 font-semibold">Produit</h4>
+            <h4 className="mb-3 font-semibold">{t('footer.product.title')}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="#features" className="hover:underline">
-                  Fonctionnalités
+                  {t('footer.product.features')}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="hover:underline">
-                  Tarifs
+                  {t('footer.product.pricing')}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="hover:underline">
-                  Démo
+                  {t('footer.product.demo')}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="hover:underline">
-                  Nouveautés
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-3 font-semibold">Ressources</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="#" className="hover:underline">
-                  Documentation
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:underline">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:underline">
-                  Support
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:underline">
-                  API
+                  {t('footer.product.updates')}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 font-semibold">Légal & Contact</h4>
+            <h4 className="mb-3 font-semibold">
+              {t('footer.resources.title')}
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="#" className="hover:underline">
-                  Mentions légales
+                  {t('footer.resources.documentation')}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="hover:underline">
-                  Politique de confidentialité
+                  {t('footer.resources.blog')}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="hover:underline">
-                  Contact
+                  {t('footer.resources.support')}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="hover:underline">
-                  Recrutement
+                  {t('footer.resources.api')}
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 font-semibold">{t('footer.legal.title')}</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="#" className="hover:underline">
+                  {t('footer.legal.terms')}
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  {t('footer.legal.privacy')}
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  {t('footer.legal.contact')}
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:underline">
+                  {t('footer.legal.careers')}
                 </Link>
               </li>
             </ul>

@@ -1,15 +1,37 @@
-import {Metadata} from 'next'
+import {getTranslations, setRequestLocale} from 'next-intl/server'
 
-import {terms} from './terms'
+import {routing} from '@/i18n/routing'
 
-export const metadata: Metadata = {
-  title: "Condition d'utilisation",
-  description: "Page de condition d'utilisation",
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({locale}))
 }
-const Page = () => {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+  const t = await getTranslations({locale, namespace: 'TermsPage'})
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  }
+}
+
+const Page = async ({params}: {params: Promise<{locale: string}>}) => {
+  const {locale} = await params
+  setRequestLocale(locale)
+  const t = await getTranslations('TermsPage')
+  const terms = t.raw('terms') as Array<{
+    title: string
+    contents: string[]
+  }>
+
   return (
     <div className="mx-auto max-w-3xl p-6 text-lg">
-      <h1 className="mb-4 text-3xl font-bold">Conditions d&apos;Utilisation</h1>
+      <h1 className="mb-4 text-3xl font-bold">{t('title')}</h1>
       {terms.map((term, index) => {
         return <Term key={term.title} {...term} index={index + 1} />
       })}

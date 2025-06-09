@@ -6,5 +6,121 @@
   "LocaleLayout": {
     "title": "Next SaaS Boilerplate",
     "description": "Next SaaS Boilerplate"
+  },
+  "PublicLayout": {
+    "title": "Página Pública",
+    "description": "Página Pública"
+  },
+  "AuthLayout": {
+    "title": "Autenticación",
+    "description": "Autenticación"
+  },
+  "HomePage": {
+    "title": "Plataforma SaaS moderna para impulsar tu negocio",
+    "description": "Gestiona, analiza y desarrolla tu actividad con herramientas potentes y una interfaz intuitiva.",
+    "metadata": {
+      "title": "Inicio - Next SaaS Boilerplate",
+      "description": "Plataforma SaaS moderna para impulsar tu negocio"
+    },
+    "navigation": {
+      "features": "Características",
+      "pricing": "Precios",
+      "contact": "Contacto"
+    },
+    "hero": {
+      "title": "Plataforma SaaS moderna para impulsar tu negocio",
+      "description": "Gestiona, analiza y desarrolla tu actividad con herramientas potentes y una interfaz intuitiva.",
+      "cta": "Prueba gratis"
+    },
+    "features": {
+      "automation": {
+        "title": "Automatización",
+        "description": "Automatiza tus tareas repetitivas y ahorra tiempo diariamente."
+      },
+      "analytics": {
+        "title": "Análisis Avanzado",
+        "description": "Obtén informes detallados para impulsar tu crecimiento."
+      },
+      "security": {
+        "title": "Seguridad Óptima",
+        "description": "Tus datos están protegidos con nuestra infraestructura segura."
+      }
+    },
+    "footer": {
+      "byMike": "By Mike Codeur",
+      "allRightsReserved": "Todos los derechos reservados.",
+      "product": {
+        "title": "Producto",
+        "features": "Características",
+        "pricing": "Precios",
+        "demo": "Demo",
+        "updates": "Novedades"
+      },
+      "resources": {
+        "title": "Recursos",
+        "documentation": "Documentación",
+        "blog": "Blog",
+        "support": "Soporte",
+        "api": "API"
+      },
+      "legal": {
+        "title": "Legal y Contacto",
+        "terms": "Aviso Legal",
+        "privacy": "Política de Privacidad",
+        "contact": "Contacto",
+        "careers": "Empleos"
+      }
+    }
+  },
+  "TermsPage": {
+    "title": "Términos de Uso",
+    "description": "Página de términos de uso",
+    "terms": [
+      {
+        "title": "Introducción",
+        "contents": [
+          "Al usar este servicio, usted acepta los términos de uso. Por favor, léalos cuidadosamente antes de acceder o usar el servicio.",
+          "Este servicio está diseñado para ayudar a los empresarios a gestionar sus finanzas y actividades deportivas. Su uso está sujeto a las condiciones establecidas a continuación."
+        ]
+      },
+      {
+        "title": "Aceptación de los Términos",
+        "contents": [
+          "Al acceder o usar este servicio, usted acepta estar sujeto a estos términos. Si no acepta estos términos, por favor no use el servicio.",
+          "Nos reservamos el derecho de modificar estos términos en cualquier momento. Cualquier cambio será publicado en esta página. Su uso continuado del servicio después de tales modificaciones constituye su aceptación de dichas modificaciones."
+        ]
+      },
+      {
+        "title": "Uso del Servicio",
+        "contents": [
+          "Usted es responsable de mantener la confidencialidad de su información de inicio de sesión.",
+          "Usted acepta no usar el servicio para fines ilegales o no autorizados.",
+          "Usted acepta no acceder al código fuente del servicio o modificarlo de ninguna manera.",
+          "Usted acepta no usar el servicio para cualquier actividad que pueda dañar la seguridad o integridad del servicio o cualquier otro sistema informático."
+        ]
+      },
+      {
+        "title": "Datos del Usuario",
+        "contents": [
+          "Usted retiene la propiedad de todos los datos que ingrese o cargue en el servicio.",
+          "No reclamaremos ningún derecho de propiedad sobre sus datos.",
+          "Usted consiente que usemos sus datos para proporcionar y mejorar el servicio, así como para fines analíticos y de marketing."
+        ]
+      },
+      {
+        "title": "Limitación de Responsabilidad",
+        "contents": [
+          "No seremos responsables de daños directos, indirectos, incidentales, especiales o consecuentes que surjan del uso o la incapacidad de usar el servicio.",
+          "No garantizamos que el servicio esté libre de errores o interrupciones."
+        ]
+      },
+      {
+        "title": "Ley Aplicable",
+        "contents": [
+          "Estos términos se rigen por las leyes vigentes en su país de residencia.",
+          "Cualquier disputa que surja de estos términos estará sujeta a la jurisdicción exclusiva de los tribunales competentes de su país de residencia."
+        ]
+      }
+    ]
   }
 }

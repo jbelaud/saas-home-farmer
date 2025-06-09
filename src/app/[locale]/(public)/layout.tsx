@@ -1,16 +1,31 @@
-import {Metadata} from 'next'
 import Link from 'next/link'
+import {getTranslations, setRequestLocale} from 'next-intl/server'
 import {PropsWithChildren} from 'react'
 
 import {ModeToggle} from '@/components/theme-toggle'
 import {Button} from '@/components/ui/button'
+import {routing} from '@/i18n/routing'
 
-export const metadata: Metadata = {
-  title: 'App',
-  description: "Page d'app",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+  const t = await getTranslations({locale, namespace: 'PublicLayout'})
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  }
 }
 
-export default function AppLayout({children}: PropsWithChildren) {
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({locale}))
+}
+
+export default function PublicLayout({children}: PropsWithChildren) {
   return (
     <div className="flex h-screen flex-col">
       <header className="border-b">
