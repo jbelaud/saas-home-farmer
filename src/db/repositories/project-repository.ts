@@ -1,4 +1,4 @@
-import {and, eq, sql} from 'drizzle-orm'
+import {and, eq, ilike, sql} from 'drizzle-orm'
 
 import db from '@/db/models/db'
 import {
@@ -100,9 +100,13 @@ export const getProjectsWithPaginationDao = async (
   if (filters?.createdBy) {
     whereConditions.push(eq(projects.createdBy, filters.createdBy))
   }
+  if (filters?.name) {
+    whereConditions.push(ilike(projects.name, `%${filters.name}%`))
+  }
 
   const whereClause =
     whereConditions.length > 0 ? and(...whereConditions) : undefined
+  console.log('whereClause', whereClause)
 
   const [rows, [{count}]] = await Promise.all([
     db
