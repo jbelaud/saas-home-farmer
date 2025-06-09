@@ -2,5 +2,9 @@
   "HomePage": {
     "title": "Hola mundo!",
     "about": "Ir a la página de acerca de"
+  },
+  "LocaleLayout": {
+    "title": "Next SaaS Boilerplate",
+    "description": "Next SaaS Boilerplate"
   }
 }
