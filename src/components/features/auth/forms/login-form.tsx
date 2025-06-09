@@ -4,6 +4,7 @@ import React from 'react'
 import {useActionState} from 'react'
 import {useFormStatus} from 'react-dom'
 
+import {loginAction} from '@/app/[locale]/(auth)/action'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -15,8 +16,6 @@ import {
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {cn} from '@/lib/utils'
-
-import {loginAction} from '../../../../app/(auth)/action'
 
 // Type pour le résultat de l'action de login
 
@@ -100,9 +99,9 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
               </div>
               <div className="text-center text-sm">
                 Pas encore de compte?{' '}
-                <a href="/register" className="underline underline-offset-4">
+                <Link href="/register" className="underline underline-offset-4">
                   S&apos;inscrire
-                </a>
+                </Link>
               </div>
             </div>
           </form>

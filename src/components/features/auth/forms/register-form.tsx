@@ -4,6 +4,7 @@ import React from 'react'
 import {useActionState} from 'react'
 import {useFormStatus} from 'react-dom'
 
+import {registerAction} from '@/app/[locale]/(auth)/action'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -15,8 +16,6 @@ import {
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {cn} from '@/lib/utils'
-
-import {registerAction} from '../../../../app/(auth)/action'
 
 export function RegisterForm({
   className,
@@ -79,9 +78,9 @@ export function RegisterForm({
               <SubmitButton />
               <div className="text-center text-sm">
                 Vous avez déjà un compte?{' '}
-                <a href="/login" className="underline underline-offset-4">
+                <Link href="/login" className="underline underline-offset-4">
                   Se connecter
-                </a>
+                </Link>
               </div>
             </div>
           </form>

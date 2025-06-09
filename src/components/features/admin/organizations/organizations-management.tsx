@@ -10,7 +10,7 @@ import {toast} from 'sonner'
 import {
   deleteOrganizationAction,
   updateOrganizationAction,
-} from '@/app/admin/organizations/actions'
+} from '@/app/[locale]/admin/organizations/actions'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'

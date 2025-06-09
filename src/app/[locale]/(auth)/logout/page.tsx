@@ -1,8 +1,7 @@
 import {redirect} from 'next/navigation'
 
+import Logout from '@/components/features/auth/forms/logout-form'
 import {getAuthUser} from '@/services/authentication/auth-service'
-
-import Logout from '../../../components/features/auth/forms/logout-form'
 
 async function Page() {
   const user = await getAuthUser()

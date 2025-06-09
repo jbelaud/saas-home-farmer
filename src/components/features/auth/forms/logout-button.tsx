@@ -3,9 +3,8 @@
 import {useRouter} from 'next/navigation'
 import {useState} from 'react'
 
+import {logoutAction} from '@/app/[locale]/(auth)/action'
 import {Button} from '@/components/ui/button'
-
-import {logoutAction} from '../../../../app/(auth)/action'
 
 export default function LogoutButton() {
   const [pending, setPending] = useState(false)

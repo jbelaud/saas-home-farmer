@@ -7,7 +7,7 @@ import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
 import * as z from 'zod'
 
-import {createProjectAction} from '@/app/(app)/team/[slug]/projects/actions'
+import {createProjectAction} from '@/app/[locale]/(app)/team/[slug]/projects/actions'
 import {Button} from '@/components/ui/button'
 import {
   Card,

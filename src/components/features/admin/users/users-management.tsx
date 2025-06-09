@@ -5,7 +5,10 @@ import {fr} from 'date-fns/locale'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {toast} from 'sonner'
 
-import {deleteUserAction, updateUserAction} from '@/app/admin/users/actions'
+import {
+  deleteUserAction,
+  updateUserAction,
+} from '@/app/[locale]/admin/users/actions'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
