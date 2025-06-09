@@ -5,6 +5,7 @@ import {getTranslations, setRequestLocale} from 'next-intl/server'
 
 import ButtonConnexionDashboard from '@/components/features/auth/button-connexion-dashboard'
 import ImageTheme from '@/components/image-theme'
+import {LangToggle} from '@/components/lang-toggle'
 import {ModeToggle} from '@/components/theme-toggle'
 import {Button} from '@/components/ui/button'
 import {routing} from '@/i18n/routing'
@@ -66,6 +67,7 @@ export default async function Home({
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <LangToggle />
           <ButtonConnexionDashboard />
           <ModeToggle />
         </div>

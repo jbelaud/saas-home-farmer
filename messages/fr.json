@@ -7,6 +7,14 @@
     "title": "Next SaaS Boilerplate",
     "description": "Next SaaS Boilerplate"
   },
+  "LangToggle": {
+    "label": "Changer de langue",
+    "languages": {
+      "fr": "Français",
+      "en": "English",
+      "es": "Español"
+    }
+  },
   "PublicLayout": {
     "title": "Page Publique",
     "description": "Page Publique"
