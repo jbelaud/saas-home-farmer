@@ -31,20 +31,25 @@ export function ProjectsToolbar({
 }: ProjectsToolbarProps) {
   const [searchValue, setSearchValue] = useState(initialSearch)
 
-  // Système de debounce avec react-use
   useDebounce(
     () => {
       if (onSearch) {
         onSearch(searchValue)
       }
     },
-    500, // Délai de 500ms
+    300,
     [searchValue]
   )
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearchValue(value)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && onSearch) {
+      onSearch(searchValue)
+    }
   }
 
   const handleClearSearch = () => {
@@ -62,6 +67,7 @@ export function ProjectsToolbar({
               className="pr-8 pl-8"
               value={searchValue}
               onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
             />
             {searchValue && (
               <Button
