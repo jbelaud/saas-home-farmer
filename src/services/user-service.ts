@@ -8,6 +8,7 @@ import {
   searchUsersDao,
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
+import {hashPassword} from '@/lib/crypto'
 
 import {
   canManageUsers,
@@ -86,6 +87,10 @@ export const createUserOrganizationService = async (userParams: CreateUser) => {
     throw new ValidationParsedZodError(parsed.error)
   }
   const userParamsSanitized = parsed.data
+
+  // Hasher le mot de passe avant de créer l'utilisateur
+  const hashedPassword = await hashPassword(userParamsSanitized.password)
+  userParamsSanitized.password = hashedPassword
 
   const slug = await generateUniqueSlug(userParamsSanitized.email.split('@')[0])
 
