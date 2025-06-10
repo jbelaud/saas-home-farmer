@@ -8,7 +8,7 @@ import Home from '@/app/[locale]/page'
 vi.mock('@/components/features/auth/button-connexion-dashboard', () => ({
   default: () => <button>Connexion Dashboard Mock</button>,
 }))
-
+//pas de tests pour les RSC faire que des RCC
 describe.skip("Page d'accueil", () => {
   beforeEach(() => {
     vi.clearAllMocks()
