@@ -169,6 +169,42 @@ export async function registerAction(
   }
 }
 
+/**
+ * Action pour l'inscription avec un provider OAuth (Google, Apple)
+ */
+export async function registerProviderAction(
+  provider: 'google' | 'apple'
+  //prevState?: LoginResult
+): Promise<LoginResult> {
+  console.log('registerProviderAction appelé', provider)
+  try {
+    // Rediriger vers la page de connexion du provider
+    await signIn(provider, {
+      callbackUrl: '/dashboard',
+      redirect: false,
+    })
+
+    return {
+      success: true,
+      message: 'Redirection vers le provider...',
+    }
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error
+    }
+
+    console.error('Erreur lors de la connexion avec le provider:', error)
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Une erreur est survenue lors de la connexion avec le provider',
+    }
+  }
+}
+
 export async function logoutAction() {
   await signOut()
 }
