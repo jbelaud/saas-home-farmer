@@ -1,3 +1,4 @@
+import {generateUniqueSlug} from '@/db/repositories/organization-repository'
 import {
   createUserAndOrganizationTxnDao,
   createUserDao,
@@ -86,10 +87,12 @@ export const createUserOrganizationService = async (userParams: CreateUser) => {
   }
   const userParamsSanitized = parsed.data
 
+  const slug = await generateUniqueSlug(userParamsSanitized.email.split('@')[0])
+
   // Créer les données de l'organisation basées sur l'email de l'utilisateur
   const organizationData: CreateOrganization = {
-    name: `${userParamsSanitized.email} organization`,
-    slug: userParamsSanitized.email.split('@')[0],
+    name: `${userParamsSanitized.name} organization`,
+    slug,
     description: `Organization for ${userParamsSanitized.email}`,
   }
 

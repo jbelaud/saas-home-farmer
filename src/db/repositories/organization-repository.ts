@@ -14,6 +14,36 @@ import {
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {UserOrganizationData} from '@/services/types/domain/organization-types'
 
+/**
+ * Génère un slug unique pour une organisation
+ * @param name Le nom de l'organisation
+ * @returns Un slug unique basé sur le nom
+ */
+export const generateUniqueSlug = async (name: string): Promise<string> => {
+  // Fonction pour générer un slug à partir d'un nom
+  const generateSlug = (baseName: string): string => {
+    return `${baseName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Math.random().toString(36).substring(2, 6)}`
+  }
+
+  // Générer le premier slug
+  let slug = generateSlug(name)
+  let attempts = 0
+  const maxAttempts = 10 // Limite de tentatives pour éviter une boucle infinie
+
+  // Vérifier si le slug existe déjà
+  while (attempts < maxAttempts) {
+    const existingOrg = await getOrganizationBySlugDao(slug)
+    if (!existingOrg) {
+      return slug
+    }
+    slug = generateSlug(name)
+    attempts++
+  }
+
+  // Si on n'a pas trouvé de slug unique après maxAttempts, on ajoute un timestamp
+  return `${generateSlug(name)}-${Date.now()}`
+}
+
 // ===== CRUD ORGANIZATIONS =====
 
 export const createOrganizationDao = async (
