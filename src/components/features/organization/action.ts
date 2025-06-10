@@ -52,7 +52,7 @@ export async function updateOrganizationAction(
     name: formData.get('name') as string,
     slug: formData.get('slug') as string,
     description: formData.get('description') as string,
-    image: formData.get('image') as string,
+    image: (formData.get('image') as string) || '',
   }
 
   // STEP 1 : Valider les données avec le schéma Zod côté back

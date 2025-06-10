@@ -18,7 +18,7 @@ export const organizationFormSchema = z.object({
     .string()
     .max(500, 'La description ne doit pas dépasser 500 caractères')
     .optional(),
-  image: z.string().url('URL invalide').optional(),
+  image: z.string().url('URL invalide').optional().or(z.literal('')),
 })
 
 export type OrganizationFormSchemaType = z.infer<typeof organizationFormSchema>
