@@ -125,6 +125,11 @@ const seed = async () => {
         WHEN u.email = 'admin@mikecodeur.com' AND o.slug = 'techcorp-solutions' THEN 'OWNER'
         WHEN u.email = 'ons@mikecodeur.com' AND o.slug = 'techcorp-solutions' THEN 'ADMIN'
         
+        -- admin@gmail.com dans 3 organisations avec rôles différents
+        WHEN u.email = 'admin@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
+        WHEN u.email = 'admin@gmail.com' AND o.slug = 'marketing-pro' THEN 'ADMIN'
+        WHEN u.email = 'admin@gmail.com' AND o.slug = 'acme-corp' THEN 'OWNER'
+        
         -- user@gmail.com : Cas multi-organisations complexe
         -- MEMBER dans TechCorp, ADMIN dans Acme Corp, OWNER dans Evil Corp
         WHEN u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
@@ -148,6 +153,11 @@ const seed = async () => {
       (u.email = 'admin@mikecodeur.com' AND o.slug = 'techcorp-solutions') OR
       (u.email = 'ons@mikecodeur.com' AND o.slug = 'techcorp-solutions') OR
       
+      -- admin@gmail.com dans 3 organisations
+      (u.email = 'admin@gmail.com' AND o.slug = 'techcorp-solutions') OR
+      (u.email = 'admin@gmail.com' AND o.slug = 'marketing-pro') OR
+      (u.email = 'admin@gmail.com' AND o.slug = 'acme-corp') OR
+      
       -- user@gmail.com dans 3 organisations avec rôles différents
       (u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions') OR
       (u.email = 'user@gmail.com' AND o.slug = 'acme-corp') OR
@@ -163,7 +173,6 @@ const seed = async () => {
       (u.email = 'moderator-member@gmail.com' AND o.slug = 'techcorp-solutions')
       
       -- Note: user-isolated@gmail.com n'est dans aucune organisation (test isolation)
-      -- Note: Les rôles globaux purs ne sont dans aucune organisation (test bypass)
     ON CONFLICT ("userId", "organizationId") DO NOTHING;
   `)
 
