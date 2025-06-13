@@ -9,6 +9,7 @@ import {
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
 import {auth} from '@/lib/better-auth/auth' // path to your Better Auth server instance
+import {authClient} from '@/lib/better-auth/auth-client'
 //import {authClient} from '@/lib/better-auth/auth-client' //import the auth client
 //import {signIn, signOut} from '@/lib/next-auth/next-auth'
 import {isValidationParsedZodError} from '@/services/errors/validation-error'
@@ -67,7 +68,7 @@ export async function loginAction(
       }
     }
 
-    const {email} = validationResult.data
+    const {email, password} = validationResult.data
 
     // Vérifier si l'utilisateur existe en base de données
     try {
@@ -110,11 +111,24 @@ export async function loginAction(
     const response = await auth.api.signInEmail({
       body: {
         email,
-        password: '123456',
+        password,
       },
       asResponse: true, // returns a response object instead of data
     })
-    console.log(` après signIn${response}`)
+    console.log(` après signIn${response}`, response)
+    if (!response.ok) {
+      return {
+        success: false,
+        message: 'Identifiants invalides',
+        errors: [
+          {
+            field: 'email',
+            message: 'Identifiants invalides',
+          },
+        ],
+      }
+    }
+
     redirect('/verify-request')
   } catch (error) {
     if (isRedirectError(error)) {
@@ -191,13 +205,22 @@ export async function registerAction(
     }
   }
 
+  const {data, error} = await authClient.signUp.email({
+    email: email,
+    password,
+    name,
+    //image: 'https://example.com/image.png',
+  })
+  console.log('data', data)
+  console.log('error', error)
+
   // Créer l'utilisateur et son organisation dans la base de données
   try {
-    const result = await createUserOrganizationService({
-      name,
-      email,
-      // password,
-    })
+    // const result = await createUserOrganizationService({
+    //   name,
+    //   email,
+    //   // password,
+    // })
 
     // await signIn('resend', {
     //   email: result.user.email,
@@ -205,7 +228,7 @@ export async function registerAction(
     //   redirect: false,
     // })
 
-    console.log('Utilisateur et organisation créés:', result)
+    // console.log('Utilisateur et organisation créés:', result)
 
     redirect('/verify-request')
   } catch (error) {

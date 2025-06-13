@@ -168,7 +168,7 @@ export async function registerAction(
     }
   }
 
-  const {name, email, password} = validationResult.data
+  const {name, email} = validationResult.data
 
   // Vérifier si l'email est disponible
   const isEmailAvailable = await isEmailAvailableService(email)

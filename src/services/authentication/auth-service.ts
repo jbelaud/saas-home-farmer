@@ -1,18 +1,21 @@
-import {getUserByEmailDao} from '@/db/repositories/user-repository'
-import {auth} from '@/lib/next-auth/next-auth'
+import {headers} from 'next/headers'
+
+import {getUserByIdDao} from '@/db/repositories/user-repository'
+import {auth} from '@/lib/better-auth/auth'
 
 import {RoleConst} from '../types/domain/auth-types'
 
 export const getAuthUser = async () => {
-  const session = await auth()
-  if (!session?.user?.email) return
-  const email = session?.user?.email ?? ''
-  const user = await getUserByEmailDao(email)
+  const session = await getSessionAuth()
+  if (!session?.session?.userId) return
+  const user = await getUserByIdDao(session.session.userId)
   return user
 }
 
 export const getSessionAuth = async () => {
-  const session = await auth()
+  const session = await auth.api.getSession({
+    headers: await headers(), // you need to pass the headers object.
+  })
   return session
 }
 

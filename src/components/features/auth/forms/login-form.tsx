@@ -92,7 +92,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                     required
                   />
                 </div>
-                {/* <div className="grid gap-3">
+                <div className="grid gap-3">
                   <div className="flex items-center">
                     <Label htmlFor="password">Mot de passe</Label>
                     <a
@@ -108,7 +108,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                     type="password"
                     required
                   />
-                </div> */}
+                </div>
                 <SubmitButton />
               </div>
               <div className="text-center text-sm">

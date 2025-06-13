@@ -1,5 +1,6 @@
 import {betterAuth} from 'better-auth'
 import {drizzleAdapter} from 'better-auth/adapters/drizzle'
+import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
 
@@ -9,5 +10,10 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+  },
+  advanced: {
+    database: {
+      generateId: () => uuidv4(),
+    },
   },
 })
