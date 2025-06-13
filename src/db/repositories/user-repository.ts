@@ -314,3 +314,13 @@ export const searchUsersDao = async (
   })
   return rows
 }
+
+/**
+ * Vérifie si un email existe déjà dans la base de données
+ */
+export const isEmailExistsDao = async (email: string): Promise<boolean> => {
+  const user = await db.query.users.findFirst({
+    where: eq(users.email, email),
+  })
+  return !!user
+}

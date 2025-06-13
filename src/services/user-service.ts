@@ -5,6 +5,7 @@ import {
   getAllUsersWithPaginationDao,
   getUserByEmailDao,
   getUserByIdDao,
+  isEmailExistsDao,
   searchUsersDao,
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
@@ -141,4 +142,14 @@ export const getAllUsersWithPaginationService = async (
   }
 
   return await getAllUsersWithPaginationDao(pagination, search)
+}
+
+/**
+ * Vérifie si un email est disponible pour l'inscription
+ */
+export const isEmailAvailableService = async (
+  email: string
+): Promise<boolean> => {
+  const exists = await isEmailExistsDao(email)
+  return !exists
 }

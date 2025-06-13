@@ -9,19 +9,28 @@ import {
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
 import {signIn, signOut} from '@/lib/auth'
+import {isValidationParsedZodError} from '@/services/errors/validation-error'
 import {
   createUserOrganizationService,
   getUserByEmailService,
+  isEmailAvailableService,
 } from '@/services/facades/user-service-facade'
 
-type LoginResult = {
-  success: boolean
+type ValidationError = {
+  field: keyof typeof authRegisterFormSchema._type
   message: string
-} | null
+}
+
+type FormState = {
+  success: boolean
+  errors?: ValidationError[]
+  message?: string
+}
+
 /**
  * Action de login utilisant NextAuth
  */
-export async function loginAction(prevState: LoginResult, formData: FormData) {
+export async function loginAction(prevState: FormState, formData: FormData) {
   console.log('login appelé')
   try {
     // Validation Zod des données du formulaire
@@ -30,12 +39,15 @@ export async function loginAction(prevState: LoginResult, formData: FormData) {
     })
 
     if (!validationResult.success) {
-      const errors = validationResult.error.errors
-        .map((err) => err.message)
-        .join(', ')
+      const validationErrors: ValidationError[] =
+        validationResult.error.errors.map((err) => ({
+          field: err.path[0] as keyof typeof authLoginFormSchema._type,
+          message: err.message,
+        }))
       return {
         success: false,
-        message: errors,
+        message: 'Erreur de validation',
+        errors: validationErrors,
       }
     }
 
@@ -49,6 +61,12 @@ export async function loginAction(prevState: LoginResult, formData: FormData) {
         return {
           success: false,
           message: 'Aucun compte trouvé avec cet email',
+          errors: [
+            {
+              field: 'email',
+              message: 'Aucun compte trouvé avec cet email',
+            },
+          ],
         }
       }
 
@@ -58,41 +76,50 @@ export async function loginAction(prevState: LoginResult, formData: FormData) {
       return {
         success: false,
         message: "Une erreur est survenue lors de la vérification de l'email",
+        errors: [
+          {
+            field: 'email',
+            message:
+              "Une erreur est survenue lors de la vérification de l'email",
+          },
+        ],
       }
     }
 
     console.log(' avant signIn', email)
-    // Utilisation de l'API de signIn côté serveur
-    // await signIn('credentials', {
-    //   email,
-    //   password,
-    //   redirect: false,
-    // })
     await signIn('resend', {
       email,
       redirect: false,
     })
     console.log(' après signIn')
-    // Si tout se passe bien, rediriger vers le tableau de bord
     redirect('/verify-request')
   } catch (error) {
-    //https://github.com/nextauthjs/next-auth/discussions/9389#discussioncomment-8046451
     if (isRedirectError(error)) {
       throw error
     }
     console.log(' erreur', error)
-    // Gérer les erreurs d'authentification
     if (error instanceof AuthError) {
       return {
         success: false,
         message: 'Identifiants invalides',
+        errors: [
+          {
+            field: 'email',
+            message: 'Identifiants invalides',
+          },
+        ],
       }
     }
 
-    // Gérer les autres erreurs
     return {
       success: false,
       message: 'Une erreur est survenue lors de la connexion',
+      errors: [
+        {
+          field: 'email',
+          message: 'Une erreur est survenue lors de la connexion',
+        },
+      ],
     }
   }
 }
@@ -100,71 +127,87 @@ export async function loginAction(prevState: LoginResult, formData: FormData) {
 /**
  * Action d'inscription d'un nouvel utilisateur
  */
-export async function registerAction(
-  prevState: LoginResult,
-  formData: FormData
-) {
-  try {
-    // Validation Zod des données du formulaire
-    const validationResult = authRegisterFormSchema.safeParse({
-      name: formData.get('name'),
-      email: formData.get('email'),
-      password: formData.get('password'),
-      confirmPassword: formData.get('confirmPassword'),
-    })
+export async function registerAction(prevState: FormState, formData: FormData) {
+  // Validation Zod des données du formulaire
+  const validationResult = authRegisterFormSchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+    confirmPassword: formData.get('confirmPassword'),
+  })
 
-    if (!validationResult.success) {
-      const errors = validationResult.error.errors
-        .map((err) => err.message)
-        .join(', ')
-      return {
-        success: false,
-        message: errors,
-      }
-    }
-
-    const {name, email, password} = validationResult.data
-
-    // Créer l'utilisateur et son organisation dans la base de données
-    try {
-      const result = await createUserOrganizationService({
-        name,
-        email,
-        password,
-      })
-
-      await signIn('resend', {
-        email: result.user.email,
-        password: result.user.password, //not used with Resend
-        redirect: false,
-      })
-
-      console.log('Utilisateur et organisation créés:', result)
-
-      redirect('/verify-request')
-    } catch (error) {
-      if (isRedirectError(error)) {
-        console.log('Erreur de redirection:', error)
-        throw error
-      }
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Une erreur est survenue lors de la création du compte',
-      }
-    }
-  } catch (error) {
-    if (isRedirectError(error)) {
-      throw error
-    }
-
-    console.log("Erreur d'inscription:", error)
-
+  if (!validationResult.success) {
+    const validationErrors: ValidationError[] =
+      validationResult.error.errors.map((err) => ({
+        field: err.path[0] as keyof typeof authRegisterFormSchema._type,
+        message: err.message,
+      }))
     return {
       success: false,
-      message: "Une erreur est survenue lors de l'inscription",
+      message: 'Erreur de validation',
+      errors: validationErrors,
+    }
+  }
+
+  const {name, email, password} = validationResult.data
+
+  // Vérifier si l'email est disponible
+  const isEmailAvailable = await isEmailAvailableService(email)
+  if (!isEmailAvailable) {
+    return {
+      success: false,
+      errors: [
+        {
+          field: 'email',
+          message: 'Cet email est déjà utilisé',
+        },
+      ],
+    }
+  }
+
+  // Créer l'utilisateur et son organisation dans la base de données
+  try {
+    const result = await createUserOrganizationService({
+      name,
+      email,
+      password,
+    })
+
+    await signIn('resend', {
+      email: result.user.email,
+      password: result.user.password, //not used with Resend
+      redirect: false,
+    })
+
+    console.log('Utilisateur et organisation créés:', result)
+
+    redirect('/verify-request')
+  } catch (error) {
+    if (isRedirectError(error)) {
+      console.log('Erreur de redirection:', error)
+      throw error
+    }
+    // Si l'erreur est une erreur de validation Zod au niveau Service
+    const validationError = isValidationParsedZodError(error)
+
+    if (validationError) {
+      return {
+        success: false,
+        message: `Erreur de validation : ${error.message}`,
+        errors: error.zodErrorFields?.errors.map((err) => ({
+          field: err.path[0] as keyof typeof authRegisterFormSchema._type,
+          message: err.message,
+        })),
+      }
+    }
+    // Si l'erreur est une erreur technique generique
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? `Error technique : ${error.message}`
+          : 'Une erreur est survenue lors de la création du compte',
+      errors: [],
     }
   }
 }
@@ -174,8 +217,7 @@ export async function registerAction(
  */
 export async function registerProviderAction(
   provider: 'google' | 'apple'
-  //prevState?: LoginResult
-): Promise<LoginResult> {
+): Promise<FormState> {
   console.log('registerProviderAction appelé', provider)
   try {
     // Rediriger vers la page de connexion du provider
@@ -201,6 +243,15 @@ export async function registerProviderAction(
         error instanceof Error
           ? error.message
           : 'Une erreur est survenue lors de la connexion avec le provider',
+      errors: [
+        {
+          field: 'email',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Une erreur est survenue lors de la connexion avec le provider',
+        },
+      ],
     }
   }
 }

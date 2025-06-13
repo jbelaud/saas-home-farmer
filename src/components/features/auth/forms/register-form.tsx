@@ -1,13 +1,17 @@
 'use client'
+import {zodResolver} from '@hookform/resolvers/zod'
+import {AlertCircle} from 'lucide-react'
 import Link from 'next/link'
 import React, {useState} from 'react'
-import {useActionState} from 'react'
-import {useFormStatus} from 'react-dom'
+import {useForm} from 'react-hook-form'
+import {toast} from 'sonner'
 
 import {
   registerAction,
   registerProviderAction,
 } from '@/app/[locale]/(auth)/action'
+import {authRegisterFormSchema} from '@/components/features/auth/auth-form-validation'
+import {Alert, AlertDescription} from '@/components/ui/alert'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -16,21 +20,52 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
 import {cn} from '@/lib/utils'
+
+type FormValues = {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+}
+
+type ValidationError = {
+  field: keyof FormValues
+  message: string
+}
+
+type FormState = {
+  success: boolean
+  errors?: ValidationError[]
+  message?: string
+}
 
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const [showForm, setShowForm] = useState(false)
-  const [state, formAction] = useActionState(registerAction, {
-    success: false,
-    message: '',
-  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
-  const error = state && !state.success ? state.message : null
+  const form = useForm<FormValues>({
+    resolver: zodResolver(authRegisterFormSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  })
 
   const handleProviderAction = async (provider: 'google' | 'apple') => {
     try {
@@ -40,6 +75,54 @@ export function RegisterForm({
       }
     } catch (error) {
       console.error('Erreur lors de la connexion avec le provider:', error)
+    }
+  }
+
+  const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true)
+    setFormError(null)
+    const formData = new FormData()
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value)
+    })
+
+    try {
+      const result = (await registerAction(
+        {
+          success: false,
+          message: '',
+        },
+        formData
+      )) as FormState
+
+      if (!result.success) {
+        // Afficher le message d'erreur général
+        setFormError(
+          result.message || "Une erreur est survenue lors de l'inscription"
+        )
+        toast.error('Erreur', {
+          description:
+            result.message || "Une erreur est survenue lors de l'inscription",
+        })
+
+        // Gérer les erreurs par champs
+        if (result.errors) {
+          result.errors.forEach((error) => {
+            form.setError(error.field, {
+              type: 'manual',
+              message: error.message,
+            })
+          })
+        }
+      }
+    } catch {
+      const errorMessage = "Une erreur est survenue lors de l'inscription"
+      setFormError(errorMessage)
+      toast.error('Erreur', {
+        description: errorMessage,
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -99,52 +182,86 @@ export function RegisterForm({
                 Créer un compte avec email
               </Button>
             ) : (
-              <form action={formAction}>
-                {error && (
-                  <div className="mb-4 text-sm text-red-500">{error}</div>
-                )}
-                <div className="grid gap-6">
-                  <div className="grid gap-3">
-                    <Label htmlFor="name">Nom complet</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      type="text"
-                      placeholder="Jean Dupont"
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-3">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="jean@example.com"
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-3">
-                    <Label htmlFor="password">Mot de passe</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-3">
-                    <Label htmlFor="confirmPassword">
-                      Confirmer le mot de passe
-                    </Label>
-                    <Input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
-                      required
-                    />
-                  </div>
-                  <SubmitButton />
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
+                  {formError && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{formError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Nom complet</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Jean Dupont" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="jean@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Mot de passe</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>Confirmer le mot de passe</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Inscription en cours...' : "S'inscrire"}
+                  </Button>
+
                   <div className="text-center text-sm">
                     Vous avez déjà un compte?{' '}
                     <Link
@@ -154,8 +271,8 @@ export function RegisterForm({
                       Se connecter
                     </Link>
                   </div>
-                </div>
-              </form>
+                </form>
+              </Form>
             )}
           </div>
         </CardContent>
@@ -166,15 +283,5 @@ export function RegisterForm({
         <Link href="/privacy">Politique de confidentialité</Link>.
       </div>
     </div>
-  )
-}
-
-// Composant de bouton de soumission qui montre l'état de chargement
-function SubmitButton() {
-  const {pending} = useFormStatus()
-  return (
-    <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Inscription en cours...' : "S'inscrire"}
-    </Button>
   )
 }
