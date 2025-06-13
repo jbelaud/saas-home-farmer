@@ -268,6 +268,84 @@ export const createUserAndOrganizationTxnDao = async (
   })
 }
 
+export const createUserRoleAndOrganizationTxnDao = async (
+  userId: string,
+  organizationData: AddOrganizationModel
+): Promise<{user: User; organizationId: string}> => {
+  return await db.transaction(async (tx) => {
+    // 1. Récupérer l'utilisateur existant
+    const existingUser = await tx.query.user.findFirst({
+      where: eq(users.id, userId),
+    })
+
+    if (!existingUser) {
+      throw new Error('User not found')
+    }
+
+    // 2. Récupérer le rôle 'user'
+    const [userRole] = await tx
+      .select()
+      .from(roles)
+      .where(eq(roles.name, RoleConst.USER))
+      .limit(1)
+
+    if (!userRole) {
+      throw new Error('Role "user" not found')
+    }
+
+    // 3. Assigner le rôle 'user' à l'utilisateur
+    await tx.insert(userRoles).values({
+      userId: existingUser.id,
+      roleId: userRole.id,
+      assignedAt: new Date(),
+    })
+
+    // 4. Créer l'organisation
+    const [newOrganization] = await tx
+      .insert(organizations)
+      .values({
+        name: organizationData.name,
+        slug: organizationData.slug,
+        description: organizationData.description,
+        image: organizationData.image,
+      })
+      .returning()
+
+    // 5. Créer la relation user-organization avec le rôle OWNER
+    await tx.insert(userOrganizations).values({
+      userId: existingUser.id,
+      organizationId: newOrganization.id,
+      role: UserOrganizationRoleConst.OWNER,
+    })
+
+    const existingUserWithRoles = await tx.query.user.findFirst({
+      where: eq(users.id, userId),
+      with: {
+        userRoles: {
+          with: {
+            role: {
+              columns: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    })
+    // 4. Retourner les données créées
+    const roles_ =
+      existingUserWithRoles?.userRoles?.map((r) => r.role.name) ?? []
+    return {
+      user: {
+        ...existingUser,
+        roles: roles_,
+        organizations: [],
+      },
+      organizationId: newOrganization.id,
+    }
+  })
+}
+
 /**
  * Recherche des utilisateurs par nom ou email (LIKE/ILIKE),
  * possibilité d'exclure ceux déjà membres d'une organisation.

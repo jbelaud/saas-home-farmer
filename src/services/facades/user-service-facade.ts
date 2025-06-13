@@ -12,3 +12,5 @@ export const getAllUsersWithPaginationService =
   userServiceInterceptor.getAllUsersWithPaginationService
 export const isEmailAvailableService =
   userServiceInterceptor.isEmailAvailableService
+export const createOrganizationForUserService =
+  userServiceInterceptor.createOrganizationForUserService

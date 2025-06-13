@@ -2,6 +2,7 @@ import {generateUniqueSlug} from '@/db/repositories/organization-repository'
 import {
   createUserAndOrganizationTxnDao,
   createUserDao,
+  createUserRoleAndOrganizationTxnDao,
   getAllUsersWithPaginationDao,
   getUserByEmailDao,
   getUserByIdDao,
@@ -82,6 +83,12 @@ export const updateUserService = async (userParams: UpdateUser) => {
   await updateUserSafeByUidDao(userParamsSanitized, resourceUid)
 }
 
+/**
+ * Crée un utilisateur et une organisation
+ * @deprecated Utiliser createUserRoleAndOrganizationTxnDao
+ * @param userParams
+ * @returns
+ */
 export const createUserOrganizationService = async (userParams: CreateUser) => {
   const parsed = createUserServiceSchema.safeParse(userParams)
   if (!parsed.success) {
@@ -90,7 +97,7 @@ export const createUserOrganizationService = async (userParams: CreateUser) => {
   const userParamsSanitized = parsed.data
 
   // Hasher le mot de passe avant de créer l'utilisateur
-  const hashedPassword = await hashPassword(userParamsSanitized.password)
+  const hashedPassword = await hashPassword(userParamsSanitized.password ?? '')
   userParamsSanitized.password = hashedPassword
 
   const slug = await generateUniqueSlug(userParamsSanitized.email.split('@')[0])
@@ -105,6 +112,36 @@ export const createUserOrganizationService = async (userParams: CreateUser) => {
   // Utiliser la fonction transactionnelle
   const result = await createUserAndOrganizationTxnDao(
     userParamsSanitized,
+    organizationData
+  )
+
+  return result
+}
+
+export const createOrganizationForUserService = async (
+  userParams: CreateUser
+) => {
+  const parsed = createUserServiceSchema.safeParse(userParams)
+  if (!parsed.success) {
+    throw new ValidationParsedZodError(parsed.error)
+  }
+  const userParamsSanitized = parsed.data
+  const user = await getUserByEmailDao(userParamsSanitized.email)
+  if (!user) {
+    throw new ValidationError('User not found')
+  }
+  const slug = await generateUniqueSlug(userParamsSanitized.email.split('@')[0])
+
+  // Créer les données de l'organisation basées sur l'email de l'utilisateur
+  const organizationData: CreateOrganization = {
+    name: `${userParamsSanitized.name} organization`,
+    slug,
+    description: `Organization for ${userParamsSanitized.email}`,
+  }
+
+  // Utiliser la fonction transactionnelle avec l'utilisateur existant
+  const result = await createUserRoleAndOrganizationTxnDao(
+    user.id,
     organizationData
   )
 

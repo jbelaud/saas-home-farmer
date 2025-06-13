@@ -3,8 +3,9 @@
 import {useRouter} from 'next/navigation'
 import {useState} from 'react'
 
-import {logoutAction} from '@/app/[locale]/(auth)/action'
+//import {logoutAction} from '@/app/[locale]/(auth)/action'
 import {Button} from '@/components/ui/button'
+import {authClient} from '@/lib/better-auth/auth-client'
 
 export default function LogoutButton() {
   const [pending, setPending] = useState(false)
@@ -12,7 +13,8 @@ export default function LogoutButton() {
 
   const handleClick = async () => {
     setPending(true)
-    await logoutAction()
+    // await logoutAction()
+    await authClient.signOut()
     setPending(false)
     router.push('/login/')
   }

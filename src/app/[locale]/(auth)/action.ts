@@ -14,7 +14,7 @@ import {authClient} from '@/lib/better-auth/auth-client'
 //import {signIn, signOut} from '@/lib/next-auth/next-auth'
 import {isValidationParsedZodError} from '@/services/errors/validation-error'
 import {
-  createUserOrganizationService,
+  createOrganizationForUserService,
   getUserByEmailService,
   isEmailAvailableService,
 } from '@/services/facades/user-service-facade'
@@ -53,6 +53,7 @@ export async function loginAction(
     // Validation Zod des données du formulaire
     const validationResult = authLoginFormSchema.safeParse({
       email: formData.get('email'),
+      password: formData.get('password'),
     })
 
     if (!validationResult.success) {
@@ -103,7 +104,6 @@ export async function loginAction(
       }
     }
 
-    console.log(' avant signIn', email)
     // await signIn('resend', {
     //   email,
     //   redirect: false,
@@ -111,7 +111,7 @@ export async function loginAction(
     const response = await auth.api.signInEmail({
       body: {
         email,
-        password,
+        password: password ?? '',
       },
       asResponse: true, // returns a response object instead of data
     })
@@ -129,7 +129,11 @@ export async function loginAction(
       }
     }
 
-    redirect('/verify-request')
+    //redirect('/verify-request')
+    return {
+      success: true,
+      message: 'Connexion réussie',
+    }
   } catch (error) {
     if (isRedirectError(error)) {
       throw error
@@ -216,12 +220,21 @@ export async function registerAction(
 
   // Créer l'utilisateur et son organisation dans la base de données
   try {
-    // const result = await createUserOrganizationService({
-    //   name,
-    //   email,
-    //   // password,
-    // })
+    const result = await createOrganizationForUserService({
+      name,
+      email,
+      // password,
+    })
+    console.log('result createOrganizationForUserService', result)
 
+    const response = await auth.api.signInEmail({
+      body: {
+        email,
+        password: password ?? '',
+      },
+      asResponse: true, // returns a response object instead of data
+    })
+    console.log('result signInEmail', response)
     // await signIn('resend', {
     //   email: result.user.email,
     //   //password: result.user.password, //not used with Resend
@@ -310,5 +323,5 @@ export async function registerProviderAction(
 }
 
 export async function logoutAction() {
-  //await signOut()
+  //await auth.api.signOut()
 }

@@ -22,7 +22,7 @@ export const createUserServiceSchema = baseUserServiceSchema.extend({
     .max(30, {
       message: 'Le nom ne doit pas contenir plus de 30 caractères.',
     }),
-  password: z.string(),
+  password: z.string().optional(),
   email: z.string().email({
     message: "L'email n'est pas valide.",
   }),

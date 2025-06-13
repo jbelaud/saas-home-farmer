@@ -2,6 +2,10 @@ import z from 'zod'
 
 export const authLoginFormSchema = z.object({
   email: z.string().email('Adresse email invalide'),
+  password: z
+    .string()
+    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+    .optional(),
 })
 
 export const authRegisterFormSchema = authLoginFormSchema
