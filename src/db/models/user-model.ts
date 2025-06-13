@@ -27,7 +27,7 @@ export const userVisibilityEnum = pgEnum('user_visibility', [
 ])
 
 //uuid_generate_v4() : CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA public;
-export const users = pgTable('user', {
+export const nextauthUsers = pgTable('nextauth_user', {
   id: uuid('id')
     .default(sql`uuid_generate_v4()`)
     .primaryKey(),
@@ -58,12 +58,12 @@ export const userRoles = pgTable(
   {
     userId: uuid('userId')
       .notNull()
-      .references(() => users.id, {onDelete: 'cascade'}),
+      .references(() => nextauthUsers.id, {onDelete: 'cascade'}),
     roleId: uuid('roleId')
       .notNull()
       .references(() => roles.id, {onDelete: 'cascade'}),
     assignedAt: timestamp('assignedAt', {mode: 'date'}).defaultNow(),
-    assignedBy: uuid('assignedBy').references(() => users.id),
+    assignedBy: uuid('assignedBy').references(() => nextauthUsers.id),
   },
   (userRole) => ({
     compoundKey: primaryKey({
@@ -72,12 +72,12 @@ export const userRoles = pgTable(
   })
 )
 
-export const accounts = pgTable(
-  'account',
+export const nextauthAccounts = pgTable(
+  'nextauth_account',
   {
     userId: uuid('userId')
       .notNull()
-      .references(() => users.id, {onDelete: 'cascade'}),
+      .references(() => nextauthUsers.id, {onDelete: 'cascade'}),
     type: text('type').$type<AdapterAccount['type']>().notNull(),
     provider: text('provider').notNull(),
     providerAccountId: text('providerAccountId').notNull(),
@@ -96,14 +96,16 @@ export const accounts = pgTable(
   })
 )
 
-export const sessions = pgTable('session', {
+export const nextauthSessions = pgTable('nextauth_session', {
   sessionToken: text('sessionToken').notNull().primaryKey(),
-  userId: uuid('userId').references(() => users.id, {onDelete: 'cascade'}),
+  userId: uuid('userId').references(() => nextauthUsers.id, {
+    onDelete: 'cascade',
+  }),
   expires: timestamp('expires', {mode: 'date'}).notNull(),
 })
 
-export const verificationTokens = pgTable(
-  'verificationToken',
+export const nextauthVerificationTokens = pgTable(
+  'nextauth_verificationToken',
   {
     identifier: text('identifier').notNull(),
     token: text('token').notNull(),
@@ -118,7 +120,9 @@ export const authenticators = pgTable(
   'authenticator',
   {
     credentialID: text('credentialID').notNull().unique(),
-    userId: uuid('userId').references(() => users.id, {onDelete: 'cascade'}),
+    userId: uuid('userId').references(() => nextauthUsers.id, {
+      onDelete: 'cascade',
+    }),
 
     providerAccountId: text('providerAccountId').notNull(),
     credentialPublicKey: text('credentialPublicKey').notNull(),
@@ -134,10 +138,10 @@ export const authenticators = pgTable(
   })
 )
 
-export const usersRelations = relations(users, ({one, many}) => ({
-  account: one(accounts, {
-    fields: [users.id],
-    references: [accounts.userId],
+export const usersRelations = relations(nextauthUsers, ({one, many}) => ({
+  account: one(nextauthAccounts, {
+    fields: [nextauthUsers.id],
+    references: [nextauthAccounts.userId],
   }),
   userRoles: many(userRoles, {
     relationName: 'userToRoles',
@@ -161,9 +165,9 @@ export const rolesRelations = relations(roles, ({many}) => ({
 }))
 
 export const userRolesRelations = relations(userRoles, ({one}) => ({
-  user: one(users, {
+  user: one(nextauthUsers, {
     fields: [userRoles.userId],
-    references: [users.id],
+    references: [nextauthUsers.id],
     relationName: 'userToRoles',
   }),
   role: one(roles, {
@@ -171,16 +175,16 @@ export const userRolesRelations = relations(userRoles, ({one}) => ({
     references: [roles.id],
     relationName: 'roleToUsers',
   }),
-  assignedByUser: one(users, {
+  assignedByUser: one(nextauthUsers, {
     fields: [userRoles.assignedBy],
-    references: [users.id],
+    references: [nextauthUsers.id],
     relationName: 'assignedBy',
   }),
 }))
 
-export type UserModel = typeof users.$inferSelect
-export type AddUserModel = typeof users.$inferInsert
-export type UpdateUserModel = typeof users.$inferInsert
+export type UserModel = typeof nextauthUsers.$inferSelect
+export type AddUserModel = typeof nextauthUsers.$inferInsert
+export type UpdateUserModel = typeof nextauthUsers.$inferInsert
 
 export type RoleModel = typeof roles.$inferSelect
 export type AddRoleModel = typeof roles.$inferInsert
