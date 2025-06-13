@@ -1,7 +1,7 @@
 import {drizzle} from 'drizzle-orm/node-postgres'
 import {Pool} from 'pg'
 
-import * as auth from './auth-schema'
+import * as auth from './auth-model'
 import * as organization from './organization-model'
 import * as project from './project-model'
 import * as subscription from './subscription-model'

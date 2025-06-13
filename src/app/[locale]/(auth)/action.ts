@@ -192,7 +192,7 @@ export async function registerAction(
 
     await signIn('resend', {
       email: result.user.email,
-      password: result.user.password, //not used with Resend
+      //password: result.user.password, //not used with Resend
       redirect: false,
     })
 

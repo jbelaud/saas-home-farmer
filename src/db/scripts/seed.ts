@@ -39,33 +39,33 @@ const seed = async () => {
 
   // 2. Insérer les utilisateurs - Jeu de test complet
   await client.query(`
-    INSERT INTO "user" (email, name, "emailVerified", image, visibility)
+    INSERT INTO "user" (email, name, email_verified, image, visibility)
     VALUES
       -- Cas spéciaux Mike Codeur
-      ('admin@mikecodeur.com', 'Mike Codeur', '2024-09-05', 'https://www.gravatar.com/avatar/ed8d664fa6324576c806b9ee59c302c6', 'private'),
-      ('ons@mikecodeur.com', 'Ons', '2024-09-03', 'https://randomuser.me/api/portraits/med/women/8.jpg', 'public'),
+      ('admin@mikecodeur.com', 'Mike Codeur', true, 'https://www.gravatar.com/avatar/ed8d664fa6324576c806b9ee59c302c6', 'private'),
+      ('ons@mikecodeur.com', 'Ons', true, 'https://randomuser.me/api/portraits/med/women/8.jpg', 'public'),
       
       -- Rôles globaux purs (sans organisations)
-      ('superadmin@gmail.com', 'Frank', '2024-09-04', 'https://randomuser.me/api/portraits/med/men/9.jpg', 'public'),
-      ('admin@gmail.com', 'Admin', NULL, 'https://randomuser.me/api/portraits/med/men/4.jpg', 'public'),
-      ('moderator@gmail.com', 'David', '2024-08-20', 'https://randomuser.me/api/portraits/med/men/7.jpg', 'public'),
-      ('redactor@gmail.com', 'Grace', '2024-09-02', 'https://randomuser.me/api/portraits/med/women/11.jpg', 'public'),
-      ('public@gmail.com', 'Charlie', '2024-08-15', 'https://randomuser.me/api/portraits/med/men/5.jpg', 'public'),
+      ('superadmin@gmail.com', 'Frank', true, 'https://randomuser.me/api/portraits/med/men/9.jpg', 'public'),
+      ('admin@gmail.com', 'Admin', false, 'https://randomuser.me/api/portraits/med/men/4.jpg', 'public'),
+      ('moderator@gmail.com', 'David', true, 'https://randomuser.me/api/portraits/med/men/7.jpg', 'public'),
+      ('redactor@gmail.com', 'Grace', true, 'https://randomuser.me/api/portraits/med/women/11.jpg', 'public'),
+      ('public@gmail.com', 'Charlie', true, 'https://randomuser.me/api/portraits/med/men/5.jpg', 'public'),
       
       -- Utilisateur multi-organisations (cas complexe)
-      ('user@gmail.com', 'Bob', '2024-09-01', 'https://randomuser.me/api/portraits/med/men/3.jpg', 'public'),
+      ('user@gmail.com', 'Bob', true, 'https://randomuser.me/api/portraits/med/men/3.jpg', 'public'),
       
       -- Utilisateurs spécialisés par rôle organisationnel
-      ('user-owner@gmail.com', 'Julien', '2024-08-15', 'https://randomuser.me/api/portraits/med/men/6.jpg', 'public'),
-      ('user-admin@gmail.com', 'Sophie', '2024-08-25', 'https://randomuser.me/api/portraits/med/women/12.jpg', 'public'),
-      ('user-member@gmail.com', 'Lucas', '2024-08-30', 'https://randomuser.me/api/portraits/med/men/13.jpg', 'public'),
+      ('user-owner@gmail.com', 'Julien', true, 'https://randomuser.me/api/portraits/med/men/6.jpg', 'public'),
+      ('user-admin@gmail.com', 'Sophie', true, 'https://randomuser.me/api/portraits/med/women/12.jpg', 'public'),
+      ('user-member@gmail.com', 'Lucas', true, 'https://randomuser.me/api/portraits/med/men/13.jpg', 'public'),
       
       -- Cas de chevauchement intéressants
-      ('admin-owner@gmail.com', 'Emma', '2024-09-01', 'https://randomuser.me/api/portraits/med/women/14.jpg', 'public'),
-      ('moderator-member@gmail.com', 'Julie', '2024-09-04', 'https://randomuser.me/api/portraits/med/women/10.jpg', 'public'),
+      ('admin-owner@gmail.com', 'Emma', true, 'https://randomuser.me/api/portraits/med/women/14.jpg', 'public'),
+      ('moderator-member@gmail.com', 'Julie', true, 'https://randomuser.me/api/portraits/med/women/10.jpg', 'public'),
       
       -- Utilisateur isolé (sans organisations)
-      ('user-isolated@gmail.com', 'Thomas', '2024-08-10', 'https://randomuser.me/api/portraits/med/men/15.jpg', 'public')
+      ('user-isolated@gmail.com', 'Thomas', true, 'https://randomuser.me/api/portraits/med/men/15.jpg', 'public')
     ON CONFLICT (email) DO NOTHING;
   `)
 

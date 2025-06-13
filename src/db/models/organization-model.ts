@@ -8,7 +8,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-import {users} from './user-model'
+import {user} from './auth-model'
 
 // Enum pour les rôles organisationnels
 export const organizationRoleEnum = pgEnum('organization_role', [
@@ -36,7 +36,7 @@ export const userOrganizations = pgTable(
   {
     userId: uuid('userId')
       .notNull()
-      .references(() => users.id, {onDelete: 'cascade'}),
+      .references(() => user.id, {onDelete: 'cascade'}),
     organizationId: uuid('organizationId')
       .notNull()
       .references(() => organizations.id, {onDelete: 'cascade'}),
@@ -61,9 +61,9 @@ export const organizationsRelations = relations(organizations, ({many}) => ({
 export const userOrganizationsRelations = relations(
   userOrganizations,
   ({one}) => ({
-    user: one(users, {
+    user: one(user, {
       fields: [userOrganizations.userId],
-      references: [users.id],
+      references: [user.id],
       relationName: 'userToOrganizations',
     }),
     organization: one(organizations, {

@@ -10,7 +10,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-import {users} from './user-model'
+import {user} from './auth-model'
 
 // Define enums for type safety
 export const subscriptionPlanEnum = pgEnum('subscription_plan', [
@@ -79,9 +79,9 @@ export const subscriptions = pgTable(
 
 // Define relations if needed
 export const subscriptionsRelations = relations(subscriptions, ({one}) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [subscriptions.userId],
-    references: [users.id],
+    references: [user.id],
   }),
 }))
 

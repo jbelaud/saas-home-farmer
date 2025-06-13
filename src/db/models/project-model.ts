@@ -1,8 +1,8 @@
 import {relations, sql} from 'drizzle-orm'
 import {pgEnum, pgTable, text, timestamp, uuid} from 'drizzle-orm/pg-core'
 
+import {user} from './auth-model'
 import {organizations} from './organization-model'
-import {users} from './user-model'
 
 // Enum pour le statut des tâches
 export const taskStatusEnum = pgEnum('task_status', [
@@ -21,7 +21,7 @@ export const projects = pgTable('project', {
   organizationId: uuid('organization_id')
     .notNull()
     .references(() => organizations.id, {onDelete: 'cascade'}),
-  createdBy: uuid('created_by').references(() => users.id, {
+  createdBy: uuid('created_by').references(() => user.id, {
     onDelete: 'set null',
   }),
   createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
@@ -43,7 +43,7 @@ export const tasks = pgTable('task', {
   organizationId: uuid('organization_id')
     .notNull()
     .references(() => organizations.id, {onDelete: 'cascade'}),
-  createdBy: uuid('created_by').references(() => users.id, {
+  createdBy: uuid('created_by').references(() => user.id, {
     onDelete: 'set null',
   }),
   createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
@@ -56,9 +56,9 @@ export const projectsRelations = relations(projects, ({one, many}) => ({
     fields: [projects.organizationId],
     references: [organizations.id],
   }),
-  createdBy: one(users, {
+  createdBy: one(user, {
     fields: [projects.createdBy],
-    references: [users.id],
+    references: [user.id],
   }),
   tasks: many(tasks),
 }))
@@ -73,9 +73,9 @@ export const tasksRelations = relations(tasks, ({one}) => ({
     fields: [tasks.organizationId],
     references: [organizations.id],
   }),
-  createdBy: one(users, {
+  createdBy: one(user, {
     fields: [tasks.createdBy],
-    references: [users.id],
+    references: [user.id],
   }),
 }))
 
