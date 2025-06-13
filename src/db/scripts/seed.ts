@@ -105,21 +105,21 @@ const seed = async () => {
 
   // 4. Insérer les organisations
   await client.query(`
-    INSERT INTO "organization" (name, slug, description, image)
+    INSERT INTO "organization" (name, slug, description, logo, created_at, updated_at)
     VALUES
-      ('TechCorp Solutions', 'techcorp-solutions', 'Une entreprise de développement logiciel innovante', 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400'),
-      ('Marketing Pro', 'marketing-pro', 'Agence de marketing digital et communication', 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=400'),
-      ('Acme Corp.', 'acme-corp', 'Startup innovante en technologie', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400'),
-      ('Evil Corp.', 'evil-corp', 'Entreprise de cybersécurité', 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400')
+      ('TechCorp Solutions', 'techcorp-solutions', 'Une entreprise de développement logiciel innovante', 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400', NOW(), NOW()),
+      ('Marketing Pro', 'marketing-pro', 'Agence de marketing digital et communication', 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=400', NOW(), NOW()),
+      ('Acme Corp.', 'acme-corp', 'Startup innovante en technologie', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400', NOW(), NOW()),
+      ('Evil Corp.', 'evil-corp', 'Entreprise de cybersécurité', 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400', NOW(), NOW())
     ON CONFLICT (slug) DO NOTHING;
   `)
 
   // 5. Assigner les utilisateurs aux organisations avec des rôles
   await client.query(`
-    INSERT INTO "user_organization" ("userId", "organizationId", role)
+    INSERT INTO "member" (organization_id, user_id, role, created_at)
     SELECT 
-      u.id as "userId",
-      o.id as "organizationId",
+      o.id as "organization_id",
+      u.id as "user_id",
       CASE 
         -- Cas spéciaux Mike Codeur
         WHEN u.email = 'admin@mikecodeur.com' AND o.slug = 'techcorp-solutions' THEN 'OWNER'
@@ -146,7 +146,8 @@ const seed = async () => {
         WHEN u.email = 'moderator-member@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'MEMBER'
         
         ELSE 'MEMBER'
-      END::organization_role
+      END::organization_role,
+      NOW()
     FROM "user" u, "organization" o
     WHERE 
       -- Cas spéciaux Mike Codeur
@@ -173,7 +174,7 @@ const seed = async () => {
       (u.email = 'moderator-member@gmail.com' AND o.slug = 'techcorp-solutions')
       
       -- Note: user-isolated@gmail.com n'est dans aucune organisation (test isolation)
-    ON CONFLICT ("userId", "organizationId") DO NOTHING;
+    ON CONFLICT (organization_id, user_id) DO NOTHING;
   `)
 
   // 6. Insérer des projets pour tester les permissions

@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {eq, or, sql} from 'drizzle-orm'
 
-import {user as users} from '@/db/models/auth-model'
+import {member, user as users} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {
   AddOrganizationModel,
-  organizations,
-  userOrganizations,
+  organization,
 } from '@/db/models/organization-model'
 import {
   AddUserModel,
@@ -45,7 +44,7 @@ export const getUserByIdDao = async (
           },
         },
       },
-      userOrganizations: {
+      members: {
         with: {
           organization: true,
         },
@@ -53,14 +52,14 @@ export const getUserByIdDao = async (
     },
   })
   const roles = row?.userRoles?.map((r) => r.role.name) ?? []
-  const organizations = row?.userOrganizations ?? []
+  const organizations = row?.members ?? []
 
   if (!row) {
     return undefined
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {userRoles, userOrganizations, ...rest} = row
+  const {userRoles, members, ...rest} = row
   return {
     ...rest,
     roles,
@@ -98,7 +97,7 @@ export const getUserByEmailDao = async (
           },
         },
       },
-      userOrganizations: {
+      members: {
         with: {
           organization: true,
         },
@@ -106,14 +105,14 @@ export const getUserByEmailDao = async (
     },
   })
   const roles = row?.userRoles?.map((r) => r.role.name) ?? []
-  const organizations = row?.userOrganizations ?? []
+  const organizations = row?.members ?? []
 
   if (!row) {
     return undefined
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {userRoles, userOrganizations, ...rest} = row
+  const {userRoles, members, ...rest} = row
   return {
     ...rest,
     roles,
@@ -240,20 +239,21 @@ export const createUserAndOrganizationTxnDao = async (
 
     // 4. Créer l'organisation
     const [newOrganization] = await tx
-      .insert(organizations)
+      .insert(organization)
       .values({
         name: organizationData.name,
         slug: organizationData.slug,
         description: organizationData.description,
-        image: organizationData.image,
+        logo: organizationData.logo,
       })
       .returning()
 
     // 5. Créer la relation user-organization avec le rôle OWNER
-    await tx.insert(userOrganizations).values({
+    await tx.insert(member).values({
       userId: newUser.id,
       organizationId: newOrganization.id,
       role: UserOrganizationRoleConst.OWNER,
+      createdAt: new Date(),
     })
 
     // 6. Retourner les données créées
@@ -302,20 +302,21 @@ export const createUserRoleAndOrganizationTxnDao = async (
 
     // 4. Créer l'organisation
     const [newOrganization] = await tx
-      .insert(organizations)
+      .insert(organization)
       .values({
         name: organizationData.name,
         slug: organizationData.slug,
         description: organizationData.description,
-        image: organizationData.image,
+        logo: organizationData.logo,
       })
       .returning()
 
     // 5. Créer la relation user-organization avec le rôle OWNER
-    await tx.insert(userOrganizations).values({
+    await tx.insert(member).values({
       userId: existingUser.id,
       organizationId: newOrganization.id,
       role: UserOrganizationRoleConst.OWNER,
+      createdAt: new Date(),
     })
 
     const existingUserWithRoles = await tx.query.user.findFirst({
@@ -357,9 +358,9 @@ export const searchUsersDao = async (
   let whereClause: any
   if (excludeOrganizationId) {
     const userOrgs = await db
-      .select({userId: userOrganizations.userId})
-      .from(userOrganizations)
-      .where(eq(userOrganizations.organizationId, excludeOrganizationId))
+      .select({userId: member.userId})
+      .from(member)
+      .where(eq(member.organizationId, excludeOrganizationId))
     const excludedUserIds = userOrgs.map((uo) => uo.userId)
 
     whereClause = (

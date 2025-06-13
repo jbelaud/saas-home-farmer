@@ -18,9 +18,9 @@ const db = drizzle(pool, {
   schema: {
     ...auth,
     ...user,
-    ...subscription,
     ...organization,
     ...project,
+    ...subscription,
   },
 })
 

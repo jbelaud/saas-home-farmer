@@ -3,8 +3,10 @@ import {
   boolean,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
+  unique,
   uuid,
 } from 'drizzle-orm/pg-core'
 
@@ -12,6 +14,7 @@ export const userVisibilityEnum = pgEnum('user_visibility', [
   'public',
   'private',
 ])
+
 export const user = pgTable('user', {
   id: uuid('id')
     .default(sql`uuid_generate_v4()`)
@@ -26,6 +29,44 @@ export const user = pgTable('user', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   visibility: userVisibilityEnum('visibility').default('private').notNull(),
 })
+
+export const roleEnum = pgEnum('role_type', [
+  'public',
+  'user',
+  'redactor',
+  'moderator',
+  'admin',
+  'super_admin',
+])
+
+export const roles = pgTable('role', {
+  id: uuid('id')
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey(),
+  name: roleEnum('name').notNull().unique(),
+  description: text('description'),
+  createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
+  updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
+})
+
+export const userRoles = pgTable(
+  'user_role',
+  {
+    userId: uuid('userId')
+      .notNull()
+      .references(() => user.id, {onDelete: 'cascade'}),
+    roleId: uuid('roleId')
+      .notNull()
+      .references(() => roles.id, {onDelete: 'cascade'}),
+    assignedAt: timestamp('assignedAt', {mode: 'date'}).defaultNow(),
+    assignedBy: uuid('assignedBy').references(() => user.id),
+  },
+  (userRole) => ({
+    compoundKey: primaryKey({
+      columns: [userRole.userId, userRole.roleId],
+    }),
+  })
+)
 
 export const session = pgTable('session', {
   id: uuid('id')
@@ -71,4 +112,70 @@ export const verification = pgTable('verification', {
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+// export const organization = pgTable('organization', {
+//   id: text('id').primaryKey(),
+//   name: text('name').notNull(),
+//   slug: text('slug').unique(),
+//   logo: text('logo'),
+//   createdAt: timestamp('created_at').notNull(),
+//   metadata: text('metadata'),
+// })
+
+// Table des organisations
+export const organization = pgTable('organization', {
+  id: uuid('id')
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').unique(),
+  description: text('description'),
+  createdAt: timestamp('created_at', {mode: 'date'}).defaultNow(),
+  updatedAt: timestamp('updated_at', {mode: 'date'}).defaultNow(),
+  logo: text('logo'),
+  metadata: text('metadata'),
+})
+
+export const organizationRoleEnum = pgEnum('organization_role', [
+  'OWNER',
+  'ADMIN',
+  'MEMBER',
+])
+
+export const member = pgTable(
+  'member',
+  {
+    id: uuid('id')
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey(),
+    organizationId: uuid('organization_id')
+      .notNull()
+      .references(() => organization.id, {onDelete: 'cascade'}),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, {onDelete: 'cascade'}),
+    //role: text('role').default('member').notNull(),
+    role: organizationRoleEnum('role').default('MEMBER').notNull(),
+    createdAt: timestamp('created_at').notNull(),
+  },
+  (table) => ({
+    unq: unique().on(table.organizationId, table.userId),
+  })
+)
+
+export const invitation = pgTable('invitation', {
+  id: uuid('id')
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey(),
+  organizationId: uuid('organization_id')
+    .notNull()
+    .references(() => organization.id, {onDelete: 'cascade'}),
+  email: text('email').notNull(),
+  role: text('role'),
+  status: text('status').default('pending').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  inviterId: uuid('inviter_id')
+    .notNull()
+    .references(() => user.id, {onDelete: 'cascade'}),
 })

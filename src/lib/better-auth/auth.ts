@@ -1,6 +1,7 @@
 import {betterAuth} from 'better-auth'
 import {drizzleAdapter} from 'better-auth/adapters/drizzle'
 import {nextCookies} from 'better-auth/next-js'
+import {organization} from 'better-auth/plugins'
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
@@ -17,5 +18,5 @@ export const auth = betterAuth({
       generateId: () => uuidv4(),
     },
   },
-  plugins: [nextCookies()],
+  plugins: [organization(), nextCookies()],
 })

@@ -1,86 +1,35 @@
-import {relations, sql} from 'drizzle-orm'
-import {
-  pgEnum,
-  pgTable,
-  primaryKey,
-  text,
-  timestamp,
-  uuid,
-} from 'drizzle-orm/pg-core'
+import {relations} from 'drizzle-orm'
 
-import {user} from './auth-model'
-
-// Enum pour les rôles organisationnels
-export const organizationRoleEnum = pgEnum('organization_role', [
-  'OWNER',
-  'ADMIN',
-  'MEMBER',
-])
-
-// Table des organisations
-export const organizations = pgTable('organization', {
-  id: uuid('id')
-    .default(sql`uuid_generate_v4()`)
-    .primaryKey(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  description: text('description'),
-  image: text('image'),
-  createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
-  updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
-})
-
-// Table de liaison many-to-many entre users et organizations
-export const userOrganizations = pgTable(
-  'user_organization',
-  {
-    userId: uuid('userId')
-      .notNull()
-      .references(() => user.id, {onDelete: 'cascade'}),
-    organizationId: uuid('organizationId')
-      .notNull()
-      .references(() => organizations.id, {onDelete: 'cascade'}),
-    role: organizationRoleEnum('role').default('MEMBER').notNull(),
-    joinedAt: timestamp('joinedAt', {mode: 'date'}).defaultNow(),
-  },
-  (userOrganization) => ({
-    compoundKey: primaryKey({
-      columns: [userOrganization.userId, userOrganization.organizationId],
-    }),
-  })
-)
+import {member, organization, organizationRoleEnum, user} from './auth-model'
 
 // Relations pour organizations
-export const organizationsRelations = relations(organizations, ({many}) => ({
-  userOrganizations: many(userOrganizations, {
+export const organizationsRelations = relations(organization, ({many}) => ({
+  members: many(member, {
     relationName: 'organizationToUsers',
   }),
 }))
 
 // Relations pour userOrganizations
-export const userOrganizationsRelations = relations(
-  userOrganizations,
-  ({one}) => ({
-    user: one(user, {
-      fields: [userOrganizations.userId],
-      references: [user.id],
-      relationName: 'userToOrganizations',
-    }),
-    organization: one(organizations, {
-      fields: [userOrganizations.organizationId],
-      references: [organizations.id],
-      relationName: 'organizationToUsers',
-    }),
-  })
-)
+export const membersRelations = relations(member, ({one}) => ({
+  user: one(user, {
+    fields: [member.userId],
+    references: [user.id],
+    relationName: 'userToOrganizations',
+  }),
+  organization: one(organization, {
+    fields: [member.organizationId],
+    references: [organization.id],
+    relationName: 'organizationToUsers',
+  }),
+}))
 
 // Types TypeScript
-export type OrganizationModel = typeof organizations.$inferSelect
-export type AddOrganizationModel = typeof organizations.$inferInsert
-export type UpdateOrganizationModel = typeof organizations.$inferInsert
+export type OrganizationModel = typeof organization.$inferSelect
+export type AddOrganizationModel = typeof organization.$inferInsert
+export type UpdateOrganizationModel = typeof organization.$inferInsert
 
-export type UserOrganizationModel = typeof userOrganizations.$inferSelect
-export type AddUserOrganizationModel = typeof userOrganizations.$inferInsert
+export type MemberModel = typeof member.$inferSelect
+export type AddMemberModel = typeof member.$inferInsert
 
 export type OrganizationRoleEnumModel =
   (typeof organizationRoleEnum.enumValues)[number]

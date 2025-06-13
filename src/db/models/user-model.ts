@@ -1,25 +1,7 @@
-import {relations, sql} from 'drizzle-orm'
-import {
-  pgEnum,
-  pgTable,
-  primaryKey,
-  text,
-  timestamp,
-  uuid,
-} from 'drizzle-orm/pg-core'
+import {relations} from 'drizzle-orm'
 
 //import type {AdapterAccount} from 'next-auth/adapters'
-import {account, user} from './auth-model'
-import {userOrganizations} from './organization-model'
-
-export const roleEnum = pgEnum('role_type', [
-  'public',
-  'user',
-  'redactor',
-  'moderator',
-  'admin',
-  'super_admin',
-])
+import {account, member, roleEnum, roles, user, userRoles} from './auth-model'
 
 // //uuid_generate_v4() : CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA public;
 // /**
@@ -41,35 +23,9 @@ export const roleEnum = pgEnum('role_type', [
 // })
 
 // Nouvelle table pour les rôles
-export const roles = pgTable('role', {
-  id: uuid('id')
-    .default(sql`uuid_generate_v4()`)
-    .primaryKey(),
-  name: roleEnum('name').notNull().unique(),
-  description: text('description'),
-  createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
-  updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
-})
 
 // Table de liaison pour la relation many-to-many entre users et roles
-export const userRoles = pgTable(
-  'user_role',
-  {
-    userId: uuid('userId')
-      .notNull()
-      .references(() => user.id, {onDelete: 'cascade'}),
-    roleId: uuid('roleId')
-      .notNull()
-      .references(() => roles.id, {onDelete: 'cascade'}),
-    assignedAt: timestamp('assignedAt', {mode: 'date'}).defaultNow(),
-    assignedBy: uuid('assignedBy').references(() => user.id),
-  },
-  (userRole) => ({
-    compoundKey: primaryKey({
-      columns: [userRole.userId, userRole.roleId],
-    }),
-  })
-)
+
 /**
  * @deprecated This table is deprecated and will be removed in a future version.
  * Please use the new auth schema from auth-schema.ts instead.
@@ -160,7 +116,7 @@ export const usersRelations = relations(user, ({one, many}) => ({
   assignedRoles: many(userRoles, {
     relationName: 'assignedBy',
   }),
-  userOrganizations: many(userOrganizations, {
+  members: many(member, {
     relationName: 'userToOrganizations',
   }),
   // userOrganizations: many(userOrganizations, {

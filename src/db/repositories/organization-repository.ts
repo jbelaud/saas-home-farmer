@@ -2,13 +2,13 @@ import {and, eq, or, sql} from 'drizzle-orm'
 
 import db from '@/db/models/db'
 import {
+  AddMemberModel,
   AddOrganizationModel,
-  AddUserOrganizationModel,
+  MemberModel,
   OrganizationModel,
   OrganizationRoleEnumModel,
   organizations,
   UpdateOrganizationModel,
-  UserOrganizationModel,
   userOrganizations,
 } from '@/db/models/organization-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
@@ -151,8 +151,8 @@ export const getAllOrganizationsWithPaginationDao = async (
 // ===== CRUD USER-ORGANIZATIONS =====
 
 export const createUserOrganizationDao = async (
-  userOrganization: AddUserOrganizationModel
-): Promise<UserOrganizationModel> => {
+  userOrganization: AddMemberModel
+): Promise<MemberModel> => {
   const row = await db
     .insert(userOrganizations)
     .values(userOrganization)
@@ -163,7 +163,7 @@ export const createUserOrganizationDao = async (
 export const getUserOrganizationDao = async (
   userId: string,
   organizationId: string
-): Promise<UserOrganizationModel | undefined> => {
+): Promise<MemberModel | undefined> => {
   const row = await db.query.userOrganizations.findFirst({
     where: (userOrg, {eq, and}) =>
       and(
@@ -208,7 +208,7 @@ export const deleteUserOrganizationDao = async (
 
 export const getUserOrganizationsDao = async (
   userId: string
-): Promise<UserOrganizationModel[]> => {
+): Promise<MemberModel[]> => {
   const rows = await db.query.userOrganizations.findMany({
     where: (userOrg, {eq}) => eq(userOrg.userId, userId),
     with: {
