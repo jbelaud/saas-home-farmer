@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {eq, or, sql} from 'drizzle-orm'
 
+import {user as users} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {
   AddOrganizationModel,
@@ -13,7 +14,6 @@ import {
   UpdateUserModel,
   UserModel,
   userRoles,
-  users,
 } from '@/db/models/user-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {
@@ -21,7 +21,6 @@ import {
   UserOrganizationRoleConst,
 } from '@/services/types/domain/auth-types'
 import {User} from '@/services/types/domain/user-types'
-
 // CRUD
 export const createUserDao = async (user: AddUserModel) => {
   const row = await db
@@ -34,7 +33,7 @@ export const createUserDao = async (user: AddUserModel) => {
 export const getUserByIdDao = async (
   uid: string
 ): Promise<User | undefined> => {
-  const row = await db.query.users.findFirst({
+  const row = await db.query.user.findFirst({
     where: (user, {eq}) => eq(user.id, uid),
     with: {
       userRoles: {
@@ -87,7 +86,7 @@ export const deleteUserByIdDao = async (uid: string) => {
 export const getUserByEmailDao = async (
   email: string
 ): Promise<User | undefined> => {
-  const row = await db.query.users.findFirst({
+  const row = await db.query.user.findFirst({
     where: (user, {eq}) => eq(user.email, email),
     with: {
       userRoles: {
@@ -197,7 +196,7 @@ export const updateUserSafeByUidDao = async (
   uid: string
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {id, email, password, emailVerified, createdAt, ...rest} = user
+  const {id, email, /* password,*/ emailVerified, createdAt, ...rest} = user
   rest.updatedAt = new Date()
   await db
     .update(users)
@@ -216,7 +215,7 @@ export const createUserAndOrganizationTxnDao = async (
       .values({
         email: userData.email,
         name: userData.name,
-        password: userData.password,
+        //password: userData.password,
         visibility: userData.visibility,
       })
       .returning()
@@ -298,7 +297,7 @@ export const searchUsersDao = async (
       or(ilike(fields.name, `%${query}%`), ilike(fields.email, `%${query}%`))
   }
 
-  const rows = await db.query.users.findMany({
+  const rows = await db.query.user.findMany({
     where: whereClause,
     columns: {
       id: true,
@@ -308,7 +307,7 @@ export const searchUsersDao = async (
       createdAt: true,
       updatedAt: true,
       image: true,
-      password: true,
+      //password: true,
       visibility: true,
     },
   })
@@ -319,7 +318,7 @@ export const searchUsersDao = async (
  * Vérifie si un email existe déjà dans la base de données
  */
 export const isEmailExistsDao = async (email: string): Promise<boolean> => {
-  const user = await db.query.users.findFirst({
+  const user = await db.query.user.findFirst({
     where: eq(users.email, email),
   })
   return !!user

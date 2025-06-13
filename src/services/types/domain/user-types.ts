@@ -34,7 +34,7 @@ export type UserWithRoles = User & {
   roles: Role[]
 }
 
-export type CreateUser = Pick<AddUserModel, 'email' | 'name' | 'password'>
+export type CreateUser = Pick<AddUserModel, 'email' | 'name'>
 export type UpdateUser = {
   id: string
 } & Partial<Omit<UpdateUserModel, 'id'>>

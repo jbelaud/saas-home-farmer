@@ -1,5 +1,6 @@
 import {and, eq} from 'drizzle-orm'
 
+import {user as users} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {
   type AddRoleModel,
@@ -11,7 +12,6 @@ import {
   type UserModel,
   type UserRoleModel,
   userRoles,
-  users,
 } from '@/db/models/user-model'
 
 // Gestion des rôles
@@ -101,7 +101,7 @@ export const getUsersWithRoleDao = async (
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
       image: users.image,
-      password: users.password,
+      //password: users.password,
       visibility: users.visibility,
     })
     .from(userRoles)
@@ -128,7 +128,7 @@ export const hasUserRoleDao = async (
 export const getUserWithRolesDao = async (
   userId: string
 ): Promise<(UserModel & {roles: RoleModel[]}) | undefined> => {
-  const user = await db.query.users.findFirst({
+  const user = await db.query.user.findFirst({
     where: (user, {eq}) => eq(user.id, userId),
     with: {
       userRoles: {

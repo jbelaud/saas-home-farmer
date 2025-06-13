@@ -1,8 +1,8 @@
 import {sql} from 'drizzle-orm'
 
+import {user as users} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {organizations} from '@/db/models/organization-model'
-import {users} from '@/db/models/user-model'
 
 export type AdminStatsData = {
   totalUsers: number

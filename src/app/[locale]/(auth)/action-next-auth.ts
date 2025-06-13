@@ -8,7 +8,7 @@ import {
   authLoginFormSchema,
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
-import {auth} from '@/lib/better-auth/auth' // path to your Better Auth server instance
+import {signIn, signOut} from '@/lib/next-auth/next-auth'
 //import {authClient} from '@/lib/better-auth/auth-client' //import the auth client
 //import {signIn, signOut} from '@/lib/next-auth/next-auth'
 import {isValidationParsedZodError} from '@/services/errors/validation-error'
@@ -103,18 +103,11 @@ export async function loginAction(
     }
 
     console.log(' avant signIn', email)
-    // await signIn('resend', {
-    //   email,
-    //   redirect: false,
-    // })
-    const response = await auth.api.signInEmail({
-      body: {
-        email,
-        password: '123456',
-      },
-      asResponse: true, // returns a response object instead of data
+    await signIn('resend', {
+      email,
+      redirect: false,
     })
-    console.log(` après signIn${response}`)
+    console.log(' après signIn')
     redirect('/verify-request')
   } catch (error) {
     if (isRedirectError(error)) {
@@ -196,14 +189,14 @@ export async function registerAction(
     const result = await createUserOrganizationService({
       name,
       email,
-      // password,
+      //password,
     })
 
-    // await signIn('resend', {
-    //   email: result.user.email,
-    //   //password: result.user.password, //not used with Resend
-    //   redirect: false,
-    // })
+    await signIn('resend', {
+      email: result.user.email,
+      //password: result.user.password, //not used with Resend
+      redirect: false,
+    })
 
     console.log('Utilisateur et organisation créés:', result)
 
@@ -245,47 +238,43 @@ export async function registerProviderAction(
   provider: 'google' | 'apple'
 ): Promise<LoginFormState> {
   console.log('registerProviderAction appelé', provider)
-  return {
-    success: true,
-    message: 'Redirection vers le provider...',
+  try {
+    // Rediriger vers la page de connexion du provider
+    await signIn(provider, {
+      callbackUrl: '/dashboard',
+      redirect: false,
+    })
+
+    return {
+      success: true,
+      message: 'Redirection vers le provider...',
+    }
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error
+    }
+
+    console.error('Erreur lors de la connexion avec le provider:', error)
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Une erreur est survenue lors de la connexion avec le provider',
+      errors: [
+        {
+          field: 'email',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Une erreur est survenue lors de la connexion avec le provider',
+        },
+      ],
+    }
   }
-  // try {
-  //   // Rediriger vers la page de connexion du provider
-  //   await signIn(provider, {
-  //     callbackUrl: '/dashboard',
-  //     redirect: false,
-  //   })
-
-  //   return {
-  //     success: true,
-  //     message: 'Redirection vers le provider...',
-  //   }
-  // } catch (error) {
-  //   if (isRedirectError(error)) {
-  //     throw error
-  //   }
-
-  //   console.error('Erreur lors de la connexion avec le provider:', error)
-
-  //   return {
-  //     success: false,
-  //     message:
-  //       error instanceof Error
-  //         ? error.message
-  //         : 'Une erreur est survenue lors de la connexion avec le provider',
-  //     errors: [
-  //       {
-  //         field: 'email',
-  //         message:
-  //           error instanceof Error
-  //             ? error.message
-  //             : 'Une erreur est survenue lors de la connexion avec le provider',
-  //       },
-  //     ],
-  //   }
-  // }
 }
 
 export async function logoutAction() {
-  //await signOut()
+  await signOut()
 }
