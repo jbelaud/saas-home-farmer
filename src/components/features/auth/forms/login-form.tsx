@@ -5,6 +5,7 @@ import {useActionState} from 'react'
 import {useFormStatus} from 'react-dom'
 
 import {loginAction} from '@/app/[locale]/(auth)/action'
+import {authLoginFormSchema} from '@/components/features/auth/auth-form-validation'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -17,13 +18,26 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {cn} from '@/lib/utils'
 
-// Type pour le résultat de l'action de login
+type LoginValidationError = {
+  field: keyof typeof authLoginFormSchema._type
+  message: string
+}
+
+type LoginFormState = {
+  success: boolean
+  errors?: LoginValidationError[]
+  message?: string
+}
 
 export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
-  const [state, formAction] = useActionState(loginAction, {
-    success: false,
-    message: '',
-  })
+  const [state, formAction] = useActionState<LoginFormState, FormData>(
+    loginAction,
+    {
+      success: false,
+      message: '',
+      errors: [],
+    }
+  )
 
   const error = state && !state.success ? state.message : null
 

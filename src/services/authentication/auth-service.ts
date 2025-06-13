@@ -1,5 +1,5 @@
 import {getUserByEmailDao} from '@/db/repositories/user-repository'
-import {auth} from '@/lib/auth'
+import {auth} from '@/lib/next-auth/next-auth'
 
 import {RoleConst} from '../types/domain/auth-types'
 

@@ -7,7 +7,7 @@ import Resend from 'next-auth/providers/resend'
 import db from '@/db/models/db'
 import {EmailService} from '@/services/email-service'
 
-import MagicLinkMail from './emails/magic-link-email'
+import MagicLinkMail from '../emails/magic-link-email'
 
 export const authConfig: NextAuthConfig = {
   trustHost: true,
