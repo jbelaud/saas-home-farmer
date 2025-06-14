@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react'
 
+import {authClient} from '@/lib/better-auth/auth-client'
 import {
   RoleConst,
   UserOrganizationRoleConst,
@@ -65,6 +66,10 @@ export function OrganizationProvider({
       (org) => org.organization?.id === organizationId
     )
     if (userOrg && userOrg.organization) {
+      //Set organization in better auth plugin
+      authClient.organization.setActive({
+        organizationId: userOrg.organization.id,
+      })
       setCurrentOrganization(userOrg.organization)
       // Stocker la sélection dans localStorage pour la persistance
       localStorage.setItem('selectedOrganizationId', organizationId)
@@ -81,6 +86,10 @@ export function OrganizationProvider({
       (org) => org.organization?.id === organizationId
     )
     if (userOrg && userOrg.organization) {
+      //Set organization in better auth plugin
+      authClient.organization.setActive({
+        organizationId: userOrg.organization.id,
+      })
       setCurrentOrganization(userOrg.organization)
       // Stocker la sélection dans localStorage pour la persistance
       localStorage.setItem('selectedOrganizationId', organizationId)
@@ -99,6 +108,10 @@ export function OrganizationProvider({
         )
         if (savedOrg) {
           setCurrentOrganization(savedOrg.organization ?? null)
+          //Set organization in better auth plugin
+          authClient.organization.setActive({
+            organizationId: savedOrg.organization?.id ?? '',
+          })
           return
         }
       }

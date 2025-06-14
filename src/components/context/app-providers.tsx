@@ -5,7 +5,7 @@ import {PropsWithChildren} from 'react'
 import {Toaster} from '@/components/ui/sonner'
 import {User} from '@/services/types/domain/user-types'
 
-import NextAuthProvider from './auth-provider'
+import AuthProvider from './auth-provider'
 import {ThemeProvider} from './theme-provider'
 
 interface AppProvidersProps extends PropsWithChildren {
@@ -21,10 +21,10 @@ export function AppProviders({children}: AppProvidersProps) {
       storageKey="theme"
       disableTransitionOnChange
     >
-      <NextAuthProvider>
+      <AuthProvider>
         {children}
         <Toaster />
-      </NextAuthProvider>
+      </AuthProvider>
     </ThemeProvider>
   )
 }

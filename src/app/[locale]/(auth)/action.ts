@@ -173,15 +173,21 @@ export async function registerCredentialAction(
 
   // 4. Créer son organisation dans la base de données
   try {
-    const result = await createOrganizationForUserService(email)
-    console.log('result createOrganizationForUserService', result)
+    const userOrganization = await createOrganizationForUserService(email)
 
     const response = await auth.api.signInEmail({
       body: {
         email,
-        password: password ?? '',
+        password,
       },
       asResponse: true,
+    })
+
+    await auth.api.setActiveOrganization({
+      headers: response.headers,
+      body: {
+        organizationId: userOrganization.organizationId,
+      },
     })
 
     if (!response.ok && response.status !== 302) {

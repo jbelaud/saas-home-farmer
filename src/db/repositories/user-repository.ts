@@ -268,7 +268,7 @@ export const createUserAndOrganizationTxnDao = async (
 export const createUserRoleAndOrganizationTxnDao = async (
   userId: string,
   organizationData: AddOrganizationModel
-): Promise<{user: User; organizationId: string}> => {
+): Promise<{user: User; organizationId: string; organizationSlug: string}> => {
   return await db.transaction(async (tx) => {
     // 1. Récupérer l'utilisateur existant
     const existingUser = await tx.query.user.findFirst({
@@ -340,6 +340,7 @@ export const createUserRoleAndOrganizationTxnDao = async (
         organizations: [],
       },
       organizationId: newOrganization.id,
+      organizationSlug: newOrganization.slug ?? '',
     }
   })
 }
