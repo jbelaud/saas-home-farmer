@@ -3,7 +3,6 @@ import {motion} from 'framer-motion'
 import {Check} from 'lucide-react'
 // Import React
 import Link from 'next/link'
-import {useSession} from 'next-auth/react'
 import React from 'react'
 
 import {PriceRecap} from '@/components/features/checkout-stripe/actions'
@@ -18,6 +17,7 @@ import {
 } from '@/components/ui/card'
 import {Label} from '@/components/ui/label'
 import {Switch} from '@/components/ui/switch'
+import {useSession} from '@/lib/better-auth/auth-client'
 import {Subscription} from '@/services/types/domain/subscription-types'
 
 export default function PricingPlans({

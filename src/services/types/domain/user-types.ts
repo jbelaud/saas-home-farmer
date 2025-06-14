@@ -1,4 +1,4 @@
-import {Session} from 'next-auth'
+import {Session} from 'better-auth'
 
 import {
   AddUserModel,

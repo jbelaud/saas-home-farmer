@@ -1,7 +1,5 @@
 'use client'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {SessionProvider} from 'next-auth/react'
 import {PropsWithChildren} from 'react'
 
 //import {authClient} from '@/lib/better-auth/auth-client'
