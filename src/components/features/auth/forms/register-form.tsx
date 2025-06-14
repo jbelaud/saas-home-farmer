@@ -1,13 +1,14 @@
 'use client'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {AlertCircle} from 'lucide-react'
+import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import Link from 'next/link'
 import React, {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
 
 import {
-  registerAction,
+  registerCredentialAction,
   registerProviderAction,
 } from '@/app/[locale]/(auth)/action'
 import {authRegisterFormSchema} from '@/components/features/auth/auth-form-validation'
@@ -87,7 +88,7 @@ export function RegisterForm({
     })
 
     try {
-      const result = (await registerAction(
+      const result = (await registerCredentialAction(
         {
           success: false,
           message: '',
@@ -95,7 +96,7 @@ export function RegisterForm({
         formData
       )) as FormState
 
-      if (!result.success) {
+      if (result && !result?.success) {
         // Afficher le message d'erreur général
         setFormError(
           result.message || "Une erreur est survenue lors de l'inscription"
@@ -115,7 +116,11 @@ export function RegisterForm({
           })
         }
       }
-    } catch {
+    } catch (error) {
+      if (isRedirectError(error)) {
+        throw error
+      }
+
       const errorMessage = "Une erreur est survenue lors de l'inscription"
       setFormError(errorMessage)
       toast.error('Erreur', {

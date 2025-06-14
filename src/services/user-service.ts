@@ -118,25 +118,21 @@ export const createUserOrganizationService = async (userParams: CreateUser) => {
   return result
 }
 
-export const createOrganizationForUserService = async (
-  userParams: CreateUser
-) => {
-  const parsed = createUserServiceSchema.safeParse(userParams)
-  if (!parsed.success) {
-    throw new ValidationParsedZodError(parsed.error)
+export const createOrganizationForUserService = async (email: string) => {
+  if (!email) {
+    throw new ValidationError('Email is required')
   }
-  const userParamsSanitized = parsed.data
-  const user = await getUserByEmailDao(userParamsSanitized.email)
+  const user = await getUserByEmailDao(email)
   if (!user) {
     throw new ValidationError('User not found')
   }
-  const slug = await generateUniqueSlug(userParamsSanitized.email.split('@')[0])
+  const slug = await generateUniqueSlug(email.split('@')[0])
 
   // Créer les données de l'organisation basées sur l'email de l'utilisateur
   const organizationData: CreateOrganization = {
-    name: `${userParamsSanitized.name} organization`,
+    name: `${user.name} organization`,
     slug,
-    description: `Organization for ${userParamsSanitized.email}`,
+    description: `Organization for ${user.email}`,
   }
 
   // Utiliser la fonction transactionnelle avec l'utilisateur existant

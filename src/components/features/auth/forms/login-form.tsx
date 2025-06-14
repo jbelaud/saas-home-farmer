@@ -4,7 +4,7 @@ import React from 'react'
 import {useActionState} from 'react'
 import {useFormStatus} from 'react-dom'
 
-import {loginAction} from '@/app/[locale]/(auth)/action'
+import {loginCredentialAction} from '@/app/[locale]/(auth)/action'
 import {authLoginFormSchema} from '@/components/features/auth/auth-form-validation'
 import {Button} from '@/components/ui/button'
 import {
@@ -31,7 +31,7 @@ type LoginFormState = {
 
 export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
   const [state, formAction] = useActionState<LoginFormState, FormData>(
-    loginAction,
+    loginCredentialAction,
     {
       success: false,
       message: '',
@@ -87,7 +87,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                     id="email"
                     name="email"
                     type="email"
-                    defaultValue={'user@gmail.com'}
+                    defaultValue={'aa@gmail.com'}
                     placeholder="user@gmail.com"
                     required
                   />
@@ -106,6 +106,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                     id="password"
                     name="password"
                     type="password"
+                    defaultValue={'Azerty123'}
                     required
                   />
                 </div>

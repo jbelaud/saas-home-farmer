@@ -83,7 +83,7 @@ export const getUserByEmailDao = async (
   email: string
 ): Promise<User | undefined> => {
   const row = await db.query.user.findFirst({
-    where: (user, {eq}) => eq(user.email, email),
+    where: (user, {eq}) => eq(user.email, email.toLowerCase()),
     with: {
       userRoles: {
         with: {

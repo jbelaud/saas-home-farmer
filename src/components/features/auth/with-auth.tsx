@@ -19,8 +19,6 @@ const withAuth = <P extends object>(
       authUser,
       requiredRole ? (requiredRole as Roles) : RoleConst.USER
     )
-    console.log('withAuth authUser', authUser)
-    console.log('withAuth hasRole', hasRole)
 
     if (!authUser) {
       redirect('/login')

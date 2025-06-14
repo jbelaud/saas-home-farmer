@@ -2,7 +2,6 @@
 
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import {redirect} from 'next/navigation'
-import {AuthError} from 'next-auth'
 
 import {
   authLoginFormSchema,
@@ -42,15 +41,18 @@ type RegisterFormState = {
 }
 
 /**
- * Action de login utilisant NextAuth
+ * Action de connexion avec les credentials email/password
+ *
+ * @param prevState
+ * @param formData
+ * @returns
  */
-export async function loginAction(
+export async function loginCredentialAction(
   prevState: LoginFormState,
   formData: FormData
 ): Promise<LoginFormState> {
-  console.log('login appelé')
   try {
-    // Validation Zod des données du formulaire
+    // 1. Validation Server Zod des données du formulaire
     const validationResult = authLoginFormSchema.safeParse({
       email: formData.get('email'),
       password: formData.get('password'),
@@ -71,43 +73,17 @@ export async function loginAction(
 
     const {email, password} = validationResult.data
 
-    // Vérifier si l'utilisateur existe en base de données
-    try {
-      const user = await getUserByEmailService(email)
+    // 2. verification de l'email en bdd (optionel)
+    const user = await getUserByEmailService(email)
 
-      if (!user) {
-        return {
-          success: false,
-          message: 'Aucun compte trouvé avec cet email',
-          errors: [
-            {
-              field: 'email',
-              message: 'Aucun compte trouvé avec cet email',
-            },
-          ],
-        }
-      }
-
-      console.log('Utilisateur trouvé:', user.email)
-    } catch (error) {
-      console.error("Erreur lors de la vérification de l'email:", error)
+    if (!user) {
       return {
         success: false,
-        message: "Une erreur est survenue lors de la vérification de l'email",
-        errors: [
-          {
-            field: 'email',
-            message:
-              "Une erreur est survenue lors de la vérification de l'email",
-          },
-        ],
+        message: 'Aucun compte trouvé avec cet email',
       }
     }
 
-    // await signIn('resend', {
-    //   email,
-    //   redirect: false,
-    // })
+    // 3. connexion avec better auth
     const response = await auth.api.signInEmail({
       body: {
         email,
@@ -115,52 +91,24 @@ export async function loginAction(
       },
       asResponse: true, // returns a response object instead of data
     })
-    console.log(` après signIn${response}`, response)
-    if (!response.ok) {
+
+    if (!response.ok && response.status !== 302) {
       return {
         success: false,
         message: 'Identifiants invalides',
-        errors: [
-          {
-            field: 'email',
-            message: 'Identifiants invalides',
-          },
-        ],
       }
     }
 
-    //redirect('/verify-request')
-    return {
-      success: true,
-      message: 'Connexion réussie',
-    }
+    //4. redirection definie dans la configuration
+    redirect(response.headers.get('Location') ?? '/404')
   } catch (error) {
     if (isRedirectError(error)) {
       throw error
-    }
-    console.log(' erreur', error)
-    if (error instanceof AuthError) {
-      return {
-        success: false,
-        message: 'Identifiants invalides',
-        errors: [
-          {
-            field: 'email',
-            message: 'Identifiants invalides',
-          },
-        ],
-      }
     }
 
     return {
       success: false,
       message: 'Une erreur est survenue lors de la connexion',
-      errors: [
-        {
-          field: 'email',
-          message: 'Une erreur est survenue lors de la connexion',
-        },
-      ],
     }
   }
 }
@@ -168,11 +116,11 @@ export async function loginAction(
 /**
  * Action d'inscription d'un nouvel utilisateur
  */
-export async function registerAction(
+export async function registerCredentialAction(
   prevState: RegisterFormState,
   formData: FormData
 ): Promise<RegisterFormState> {
-  // Validation Zod des données du formulaire
+  // 1. Validation server  Zod des données du formulaire
   const validationResult = authRegisterFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
@@ -195,7 +143,7 @@ export async function registerAction(
 
   const {name, email, password} = validationResult.data
 
-  // Vérifier si l'email est disponible
+  // 2. Vérifier si l'email est disponible
   const isEmailAvailable = await isEmailAvailableService(email)
   if (!isEmailAvailable) {
     return {
@@ -209,22 +157,23 @@ export async function registerAction(
     }
   }
 
-  const {data, error} = await authClient.signUp.email({
-    email: email,
+  // 3. creation de l'utilisateur avec better auth
+  const {error} = await authClient.signUp.email({
+    email,
     password,
     name,
-    //image: 'https://example.com/image.png',
   })
-  console.log('data', data)
-  console.log('error', error)
 
-  // Créer l'utilisateur et son organisation dans la base de données
+  if (error) {
+    return {
+      success: false,
+      message: "Erreur lors de la création de l'utilisateur",
+    }
+  }
+
+  // 4. Créer son organisation dans la base de données
   try {
-    const result = await createOrganizationForUserService({
-      name,
-      email,
-      // password,
-    })
+    const result = await createOrganizationForUserService(email)
     console.log('result createOrganizationForUserService', result)
 
     const response = await auth.api.signInEmail({
@@ -232,21 +181,20 @@ export async function registerAction(
         email,
         password: password ?? '',
       },
-      asResponse: true, // returns a response object instead of data
+      asResponse: true,
     })
-    console.log('result signInEmail', response)
-    // await signIn('resend', {
-    //   email: result.user.email,
-    //   //password: result.user.password, //not used with Resend
-    //   redirect: false,
-    // })
 
-    // console.log('Utilisateur et organisation créés:', result)
+    if (!response.ok && response.status !== 302) {
+      return {
+        success: false,
+        message: 'Identifiants invalides',
+      }
+    }
 
-    redirect('/verify-request')
+    //4. redirection definie dans la configuration
+    redirect(response.headers.get('Location') ?? '/404')
   } catch (error) {
     if (isRedirectError(error)) {
-      console.log('Erreur de redirection:', error)
       throw error
     }
     // Si l'erreur est une erreur de validation Zod au niveau Service
