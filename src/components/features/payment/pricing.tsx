@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/card'
 import {Label} from '@/components/ui/label'
 import {Switch} from '@/components/ui/switch'
-import {useSession} from '@/lib/better-auth/auth-client'
+import {authClient} from '@/lib/better-auth/auth-client'
 import {Subscription} from '@/services/types/domain/subscription-types'
 
 export default function PricingPlans({
@@ -34,7 +34,7 @@ export default function PricingPlans({
   const subscription = subscriptions?.[0]
   console.log('subscription', subscription)
   const currentPlan = subscription?.plan || 'CODEMAIL_FREE'
-  const {data: session} = useSession()
+  const {data: session} = authClient.useSession()
   //console.log(session, status)
 
   const [isYearly, setIsYearly] = React.useState(false)
