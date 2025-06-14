@@ -51,6 +51,15 @@ export function OrganizationProvider({
   const [currentOrganization, setCurrentOrganization] =
     useState<Organization | null>(null)
 
+  // Fonction utilitaire pour définir l'organisation active
+  const setActiveOrganization = (organization: Organization) => {
+    authClient.organization.setActive({
+      organizationId: organization.id,
+    })
+    setCurrentOrganization(organization)
+    localStorage.setItem('selectedOrganizationId', organization.id)
+  }
+
   // Dérivation des organisations depuis l'utilisateur
   const organizations = useMemo(() => user?.organizations || [], [user])
 
@@ -62,19 +71,13 @@ export function OrganizationProvider({
 
   // Fonction pour changer d'organisation avec redirection
   const handleSetCurrentOrganization = (organizationId: string) => {
-    const userOrg = organizations.find(
+    const member = organizations.find(
       (org) => org.organization?.id === organizationId
     )
-    if (userOrg && userOrg.organization) {
-      //Set organization in better auth plugin
-      authClient.organization.setActive({
-        organizationId: userOrg.organization.id,
-      })
-      setCurrentOrganization(userOrg.organization)
-      // Stocker la sélection dans localStorage pour la persistance
-      localStorage.setItem('selectedOrganizationId', organizationId)
+    if (member && member.organization) {
+      setActiveOrganization(member.organization)
       // Rediriger vers la page de l'équipe
-      router.push(`/team/${userOrg.organization.slug}`)
+      router.push(`/team/${member.organization.slug}`)
     }
   }
 
@@ -82,17 +85,11 @@ export function OrganizationProvider({
   const handleSetCurrentOrganizationWithoutRedirect = (
     organizationId: string
   ) => {
-    const userOrg = organizations.find(
+    const member = organizations.find(
       (org) => org.organization?.id === organizationId
     )
-    if (userOrg && userOrg.organization) {
-      //Set organization in better auth plugin
-      authClient.organization.setActive({
-        organizationId: userOrg.organization.id,
-      })
-      setCurrentOrganization(userOrg.organization)
-      // Stocker la sélection dans localStorage pour la persistance
-      localStorage.setItem('selectedOrganizationId', organizationId)
+    if (member && member.organization) {
+      setActiveOrganization(member.organization)
     }
   }
 
@@ -103,21 +100,19 @@ export function OrganizationProvider({
       const savedOrganizationId = localStorage.getItem('selectedOrganizationId')
 
       if (savedOrganizationId) {
-        const savedOrg = organizations.find(
+        const member = organizations.find(
           (org) => org.organization?.id === savedOrganizationId
         )
-        if (savedOrg) {
-          setCurrentOrganization(savedOrg.organization ?? null)
-          //Set organization in better auth plugin
-          authClient.organization.setActive({
-            organizationId: savedOrg.organization?.id ?? '',
-          })
+        if (member && member.organization) {
+          setActiveOrganization(member.organization)
           return
         }
       }
 
       // Par défaut, sélectionner la première organisation
-      setCurrentOrganization(organizations[0].organization ?? null)
+      if (organizations[0].organization) {
+        setActiveOrganization(organizations[0].organization)
+      }
     }
   }, [organizations])
 
