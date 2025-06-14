@@ -4,6 +4,8 @@ import {
   Resend,
 } from 'resend'
 
+import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization-link-email'
+
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export const sendEmailService = async (
@@ -17,9 +19,7 @@ export const sendEmailService = async (
   const {error} = await resend.emails.send(
     {
       ...payload,
-      // from: params[0].from ?? process.env.EMAIL_FROM,
-      from: 'onboarding@resend.dev',
-      to: 'delivered@resend.dev',
+      from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
     },
     options
   )
@@ -50,17 +50,15 @@ export const sendOrganizationInvitation = async ({
   inviteLink,
 }: SendOrganizationInvitationParams) => {
   await sendEmailService({
-    subject: `Invitation à rejoindre ${teamName}`,
     to: email,
-    html: `
-      <p>Bonjour,</p>
-      <p>${invitedByUsername} (${invitedByEmail}) vous invite à rejoindre l'organisation ${teamName}.</p>
-      <p>Pour accepter cette invitation, veuillez cliquer sur le lien suivant :</p>
-      <p><a href="${inviteLink}">Accepter l'invitation</a></p>
-      <p>Ce lien expirera dans 24 heures.</p>
-      <p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.</p>
-      <p>Cordialement,<br>L'équipe ${teamName}</p>
-    `,
-    from: '',
+    subject: `Invitation à rejoindre ${teamName}`,
+    from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
+    text: `${invitedByUsername} (${invitedByEmail}) vous invite à rejoindre l'organisation ${teamName}. Pour accepter cette invitation, veuillez cliquer sur le lien suivant : ${inviteLink}`,
+    react: InvitationOrganizationLinkMail({
+      invitedByUsername,
+      invitedByEmail,
+      teamName,
+      inviteLink,
+    }),
   })
 }

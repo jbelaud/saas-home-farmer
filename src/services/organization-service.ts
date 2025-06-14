@@ -4,6 +4,7 @@ import {
   deleteOrganizationDao,
   deleteUserOrganizationDao,
   getAllOrganizationsWithPaginationDao,
+  getInvitationMembersDao,
   getMembersDao,
   getOrganizationByIdDao,
   getOrganizationBySlugDao,
@@ -37,6 +38,7 @@ import {UserOrganizationRoleConst} from './types/domain/auth-types'
 import {
   CreateMember,
   CreateOrganization,
+  InvitationWithUser,
   OrganizationRole,
   UpdateOrganization,
 } from './types/domain/organization-types'
@@ -350,4 +352,21 @@ export const getUserRoleInOrganizationService = async (
     userIdSanitized,
     organizationIdSanitized
   )
+}
+
+export const getInvitationMembersService = async (
+  organizationId: string
+): Promise<InvitationWithUser[]> => {
+  const parsed = organizationUuidSchema.safeParse(organizationId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+  const organizationIdSanitized = parsed.data
+
+  const granted = await canReadOrganizationMember(organizationIdSanitized)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  return await getInvitationMembersDao(organizationIdSanitized)
 }

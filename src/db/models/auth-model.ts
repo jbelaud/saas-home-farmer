@@ -1,4 +1,4 @@
-import {sql} from 'drizzle-orm'
+import {relations, sql} from 'drizzle-orm'
 import {
   boolean,
   pgEnum,
@@ -185,3 +185,18 @@ export const invitation = pgTable('invitation', {
     .notNull()
     .references(() => user.id, {onDelete: 'cascade'}),
 })
+
+export const invitationRelation = relations(invitation, ({one}) => ({
+  organization: one(organization, {
+    fields: [invitation.organizationId],
+    references: [organization.id],
+  }),
+  inviter: one(user, {
+    fields: [invitation.inviterId],
+    references: [user.id],
+  }),
+}))
+
+export type InvitationModel = typeof invitation.$inferSelect
+export type AddInvitationModel = typeof invitation.$inferInsert
+export type UpdateInvitationModel = typeof invitation.$inferInsert

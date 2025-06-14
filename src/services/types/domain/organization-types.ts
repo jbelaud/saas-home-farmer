@@ -1,4 +1,9 @@
 import {
+  AddInvitationModel,
+  InvitationModel,
+  UpdateInvitationModel,
+} from '@/db/models/auth-model'
+import {
   AddMemberModel,
   AddOrganizationModel,
   MemberModel,
@@ -25,3 +30,15 @@ export type UpdateOrganization = {
 } & Partial<Omit<UpdateOrganizationModel, 'id'>>
 
 export type CreateMember = AddMemberModel
+
+//invitation types
+export type Invitation = InvitationModel
+
+export type InvitationWithUser = Invitation & {
+  user: UserModel | null
+}
+
+export type CreateInvitation = AddInvitationModel
+export type UpdateInvitation = {
+  id: string
+} & Partial<Omit<UpdateInvitationModel, 'id'>>

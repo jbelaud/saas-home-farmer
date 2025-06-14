@@ -31,3 +31,5 @@ export const changeUserOrganizationRoleService =
   organizationServiceInterceptor.changeUserOrganizationRoleService
 export const getUserRoleInOrganizationService =
   organizationServiceInterceptor.getUserRoleInOrganizationService
+export const getInvitationMembersService =
+  organizationServiceInterceptor.getInvitationMembersService

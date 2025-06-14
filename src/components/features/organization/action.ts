@@ -111,10 +111,10 @@ export async function addUserToOrganizationAction(
       //console.log('hasPermission', hasPermission)
       // const headersList = await headers()
       // console.log('headersList', headersList)
-      const session = await auth.api.getSession({
-        headers: await headers(), // you need to pass the headers object.
-      })
-      console.log('session', session)
+      // const session = await auth.api.getSession({
+      //   headers: await headers(), // you need to pass the headers object.
+      // })
+      //console.log('session', session)
       const response = await auth.api.createInvitation({
         headers: await headers(),
         body: {
@@ -147,6 +147,34 @@ export async function addUserToOrganizationAction(
       message: error instanceof Error ? error.message : 'Erreur inconnue',
     }
   }
+}
+
+// Server action à créer (mock)
+export async function cancelMemberInvitationAction(
+  organizationId: string,
+  invitationId: string
+) {
+  // Utilisation des paramètres pour éviter les warnings linter
+  void organizationId
+  void invitationId
+  // À implémenter côté serveur
+
+  const response = await auth.api.cancelInvitation({
+    headers: await headers(),
+    body: {
+      invitationId,
+    },
+    asResponse: true,
+  })
+  console.log('createInvitation response', response)
+  if (!response.ok) {
+    return {
+      success: false,
+      message: "Erreur lors de l'envoi de l'invitation",
+    }
+  }
+  revalidatePath(`/organizations/${organizationId}/edit`)
+  return {success: true, message: 'Invitation annulée'}
 }
 
 export async function searchUsersForOrganizationAction(

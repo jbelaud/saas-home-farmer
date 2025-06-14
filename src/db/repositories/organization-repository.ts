@@ -11,7 +11,12 @@ import {
   UpdateOrganizationModel,
 } from '@/db/models/organization-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
-import {MemberData} from '@/services/types/domain/organization-types'
+import {
+  Invitation,
+  MemberData,
+} from '@/services/types/domain/organization-types'
+
+import {UserModel} from '../models/user-model'
 
 /**
  * Génère un slug unique pour une organisation
@@ -238,6 +243,35 @@ export const getOrganizationsByUserIdDao = async (
     .orderBy(organizations.name)
 
   return rows
+}
+
+export const getInvitationMembersDao = async (
+  organizationId: string
+): Promise<(Invitation & {user: UserModel | null})[]> => {
+  const rows = await db.query.invitation.findMany({
+    where: (invitation, {eq, and}) =>
+      and(
+        eq(invitation.organizationId, organizationId),
+        eq(invitation.status, 'pending')
+      ),
+    with: {
+      inviter: true,
+    },
+  })
+
+  const invitationsWithUsers = await Promise.all(
+    rows.map(async (invitation) => {
+      const user = await db.query.user.findFirst({
+        where: (user, {eq}) => eq(user.email, invitation.email),
+      })
+      return {
+        ...invitation,
+        user: user ?? null,
+      }
+    })
+  )
+
+  return invitationsWithUsers
 }
 
 export const getUserRoleInOrganizationDao = async (

@@ -9,6 +9,7 @@ import {
 } from '@/services/authorization/organization-authorization'
 import {
   getAllOrganizationsWithPaginationService,
+  getInvitationMembersService,
   getOrganizationBySlugService,
   getOrganizationMembersService,
 } from '@/services/facades/organization-service-facade'
@@ -38,6 +39,7 @@ export async function getOrganizationMembersDal(
   organizationId: string
 ): Promise<OrganizationMemberDTO[]> {
   const members = await getOrganizationMembersService(organizationId)
+
   return members.map((m) => {
     if (!m.user) {
       throw new Error('User data missing from organization member')
@@ -51,6 +53,52 @@ export async function getOrganizationMembersDal(
       joinedAt: m.createdAt,
     }
   })
+}
+
+export type MemberOrInvitationDTO = {
+  id: string
+  name: string | null
+  email: string
+  image: string | null
+  role: string | null
+  joinedAt: Date | null
+  status: 'member' | 'invited'
+}
+
+export async function getMembersAndInvitationsDal(
+  organizationId: string
+): Promise<MemberOrInvitationDTO[]> {
+  const [members, invitations] = await Promise.all([
+    getOrganizationMembersService(organizationId),
+    getInvitationMembersService(organizationId),
+  ])
+
+  const memberDTOs = members.map((m) => {
+    if (!m.user) {
+      throw new Error('User data missing from organization member')
+    }
+    return {
+      id: m.user.id,
+      name: m.user.name,
+      email: m.user.email,
+      image: m.user.image ?? null,
+      role: m.role,
+      joinedAt: m.createdAt,
+      status: 'member' as const,
+    }
+  })
+
+  const invitationDTOs = invitations.map((i) => ({
+    id: i.id,
+    name: i.user?.name ?? null,
+    email: i.email,
+    image: i.user?.image ?? null,
+    role: i.role,
+    joinedAt: i.expiresAt,
+    status: 'invited' as const,
+  }))
+
+  return [...memberDTOs, ...invitationDTOs]
 }
 
 export const getAllOrganizationsWithPaginationDal = cache(

@@ -1,4 +1,4 @@
-import {getOrganizationMembersDal} from '@/app/dal/organization-dal'
+import {getMembersAndInvitationsDal} from '@/app/dal/organization-dal'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {
   Table,
@@ -9,6 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import {CancelInvitationButton} from './cancel-invitation-button'
 import {OrganizationAddMemberForm} from './organization-add-member-form'
 import {RemoveMemberButton} from './remove-member-button'
 
@@ -19,7 +20,7 @@ export default async function OrganizationMembersTable({
   organizationId: string
   canManageMembers?: boolean
 }) {
-  const members = await getOrganizationMembersDal(organizationId)
+  const members = await getMembersAndInvitationsDal(organizationId)
 
   return (
     <div className="overflow-x-auto">
@@ -51,7 +52,7 @@ export default async function OrganizationMembersTable({
               <TableCell>
                 <Avatar>
                   {member.image ? (
-                    <AvatarImage src={member.image} alt={member.name} />
+                    <AvatarImage src={member.image} alt={member.name ?? ''} />
                   ) : (
                     <AvatarFallback>{member.name?.[0]}</AvatarFallback>
                   )}
@@ -59,7 +60,14 @@ export default async function OrganizationMembersTable({
               </TableCell>
               <TableCell>
                 <div className="flex flex-col">
-                  <span className="font-medium">{member.name}</span>
+                  <span className="flex items-center gap-2 font-medium">
+                    {member.name}
+                    {member.status === 'invited' && (
+                      <span className="ml-2 rounded bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
+                        Invitation en attente
+                      </span>
+                    )}
+                  </span>
                   <span className="text-muted-foreground text-sm sm:hidden">
                     {member.email}
                   </span>
@@ -81,11 +89,19 @@ export default async function OrganizationMembersTable({
               </TableCell>
               <TableCell>
                 {canManageMembers ? (
-                  <RemoveMemberButton
-                    organizationId={organizationId}
-                    userId={member.id}
-                    userName={member.name}
-                  />
+                  member.status === 'member' ? (
+                    <RemoveMemberButton
+                      organizationId={organizationId}
+                      userId={member.id}
+                      userName={member.name ?? ''}
+                    />
+                  ) : (
+                    <CancelInvitationButton
+                      organizationId={organizationId}
+                      invitationId={member.id}
+                      userEmail={member.email}
+                    />
+                  )
                 ) : (
                   <span className="text-muted-foreground text-sm">-</span>
                 )}
