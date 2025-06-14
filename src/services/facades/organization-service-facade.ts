@@ -23,8 +23,8 @@ export const getOrganizationsByUserIdService =
   organizationServiceInterceptor.getOrganizationsByUserIdService
 export const getOrganizationMembersService =
   organizationServiceInterceptor.getOrganizationMembersService
-export const inviteUserToOrganizationService =
-  organizationServiceInterceptor.inviteUserToOrganizationService
+export const createOrganizationMemberService =
+  organizationServiceInterceptor.createOrganizationMemberService
 export const removeUserFromOrganizationService =
   organizationServiceInterceptor.removeUserFromOrganizationService
 export const changeUserOrganizationRoleService =

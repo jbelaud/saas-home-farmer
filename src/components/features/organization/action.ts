@@ -1,11 +1,13 @@
 'use server'
 
 import {revalidatePath} from 'next/cache'
+import {headers} from 'next/headers'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
+import {auth} from '@/lib/better-auth/auth'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {
-  inviteUserToOrganizationService,
+  createOrganizationMemberService,
   removeUserFromOrganizationService,
   updateOrganizationService,
 } from '@/services/facades/organization-service-facade'
@@ -96,19 +98,47 @@ export type MemberActionResult = {
   message?: string
 }
 
-export async function inviteUserToOrganizationAction(
+export async function addUserToOrganizationAction(
   organizationId: string,
   userId: string,
-  role?: 'ADMIN' | 'MEMBER'
+  email: string,
+  role?: 'admin' | 'member',
+  sendInvitationEmail?: boolean
 ): Promise<MemberActionResult> {
   await requireActionAuth()
   try {
-    await inviteUserToOrganizationService({
-      organizationId,
-      userId,
-      role: role || 'MEMBER',
-      createdAt: new Date(),
-    })
+    if (sendInvitationEmail) {
+      //console.log('hasPermission', hasPermission)
+      // const headersList = await headers()
+      // console.log('headersList', headersList)
+      const session = await auth.api.getSession({
+        headers: await headers(), // you need to pass the headers object.
+      })
+      console.log('session', session)
+      const response = await auth.api.createInvitation({
+        headers: await headers(),
+        body: {
+          organizationId,
+          email: email,
+          role: 'member',
+        },
+        asResponse: true,
+      })
+      console.log('createInvitation response', response)
+      if (!response.ok) {
+        return {
+          success: false,
+          message: "Erreur lors de l'envoi de l'invitation",
+        }
+      }
+    } else {
+      await createOrganizationMemberService({
+        organizationId,
+        userId,
+        role: role || 'member',
+        createdAt: new Date(),
+      })
+    }
     revalidatePath(`/organizations/${organizationId}/edit`)
     return {success: true, message: 'Membre ajouté avec succès'}
   } catch (error) {

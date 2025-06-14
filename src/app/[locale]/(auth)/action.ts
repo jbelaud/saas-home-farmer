@@ -8,7 +8,6 @@ import {
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
 import {auth} from '@/lib/better-auth/auth' // path to your Better Auth server instance
-import {authClient} from '@/lib/better-auth/auth-client'
 //import {authClient} from '@/lib/better-auth/auth-client' //import the auth client
 //import {signIn, signOut} from '@/lib/next-auth/next-auth'
 import {isValidationParsedZodError} from '@/services/errors/validation-error'
@@ -158,13 +157,16 @@ export async function registerCredentialAction(
   }
 
   // 3. creation de l'utilisateur avec better auth
-  const {error} = await authClient.signUp.email({
-    email,
-    password,
-    name,
+  const response = await auth.api.signUpEmail({
+    body: {
+      name,
+      email,
+      password: password ?? '',
+    },
+    asResponse: true,
   })
 
-  if (error) {
+  if (!response.ok && response.status !== 302) {
     return {
       success: false,
       message: "Erreur lors de la création de l'utilisateur",

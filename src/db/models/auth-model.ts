@@ -144,9 +144,9 @@ export const organization = pgTable('organization', {
 })
 
 export const organizationRoleEnum = pgEnum('organization_role', [
-  'OWNER',
-  'ADMIN',
-  'MEMBER',
+  'admin',
+  'member',
+  'owner',
 ])
 
 export const member = pgTable(
@@ -162,7 +162,7 @@ export const member = pgTable(
       .notNull()
       .references(() => user.id, {onDelete: 'cascade'}),
     //role: text('role').default('member').notNull(),
-    role: organizationRoleEnum('role').default('MEMBER').notNull(),
+    role: organizationRoleEnum('role').default('member').notNull(),
     createdAt: timestamp('created_at').notNull(),
   },
   (table) => ({

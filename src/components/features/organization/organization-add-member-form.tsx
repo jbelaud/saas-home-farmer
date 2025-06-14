@@ -18,7 +18,7 @@ import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import {UserDTO} from '@/services/types/domain/user-types'
 
 import {
-  inviteUserToOrganizationAction,
+  addUserToOrganizationAction,
   searchUsersForOrganizationAction,
 } from './action'
 
@@ -34,7 +34,7 @@ export function OrganizationAddMemberForm({
   const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null)
   const [isPending, startTransition] = useTransition()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'MEMBER'>('MEMBER')
+  const [selectedRole, setSelectedRole] = useState<'admin' | 'member'>('member')
 
   function handleSearch(value: string) {
     setEmail(value)
@@ -68,10 +68,12 @@ export function OrganizationAddMemberForm({
     }
 
     startTransition(async () => {
-      const res = await inviteUserToOrganizationAction(
+      const res = await addUserToOrganizationAction(
         organizationId,
         selectedUser.id,
-        selectedRole
+        selectedUser.email,
+        selectedRole,
+        true
       )
 
       if (res.success) {
@@ -80,7 +82,7 @@ export function OrganizationAddMemberForm({
         setSelectedUser(null)
         setResults([])
         setIsModalOpen(false)
-        setSelectedRole('MEMBER')
+        setSelectedRole('member')
       } else {
         toast.error(res.message || "Erreur lors de l'invitation")
       }
@@ -200,7 +202,7 @@ export function OrganizationAddMemberForm({
             <RadioGroup
               value={selectedRole}
               onValueChange={(value: string) =>
-                setSelectedRole(value as 'ADMIN' | 'MEMBER')
+                setSelectedRole(value as 'admin' | 'member')
               }
               className="space-y-2"
             >

@@ -1,9 +1,6 @@
 import {and, eq, or, sql} from 'drizzle-orm'
 
-import {
-  member as userOrganizations,
-  organization as organizations,
-} from '@/db/models/auth-model'
+import {member, organization as organizations} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {
   AddMemberModel,
@@ -152,13 +149,10 @@ export const getAllOrganizationsWithPaginationDao = async (
 
 // ===== CRUD USER-ORGANIZATIONS =====
 
-export const createUserOrganizationDao = async (
+export const createOrganizationMemberDao = async (
   userOrganization: AddMemberModel
 ): Promise<MemberModel> => {
-  const row = await db
-    .insert(userOrganizations)
-    .values(userOrganization)
-    .returning()
+  const row = await db.insert(member).values(userOrganization).returning()
   return row[0]
 }
 
@@ -182,13 +176,10 @@ export const updateUserOrganizationRoleDao = async (
   role: OrganizationRoleEnumModel
 ): Promise<void> => {
   await db
-    .update(userOrganizations)
+    .update(member)
     .set({role})
     .where(
-      and(
-        eq(userOrganizations.userId, userId),
-        eq(userOrganizations.organizationId, organizationId)
-      )
+      and(eq(member.userId, userId), eq(member.organizationId, organizationId))
     )
 }
 
@@ -197,22 +188,17 @@ export const deleteUserOrganizationDao = async (
   organizationId: string
 ): Promise<void> => {
   await db
-    .delete(userOrganizations)
+    .delete(member)
     .where(
-      and(
-        eq(userOrganizations.userId, userId),
-        eq(userOrganizations.organizationId, organizationId)
-      )
+      and(eq(member.userId, userId), eq(member.organizationId, organizationId))
     )
 }
 
 // ===== REQUÊTES SPÉCIALISÉES =====
 
-export const getUserOrganizationsDao = async (
-  userId: string
-): Promise<MemberModel[]> => {
+export const getMembersDao = async (userId: string): Promise<MemberModel[]> => {
   const rows = await db.query.member.findMany({
-    where: (userOrg, {eq}) => eq(userOrg.userId, userId),
+    where: (member, {eq}) => eq(member.userId, userId),
     with: {
       organization: true,
     },
@@ -247,11 +233,8 @@ export const getOrganizationsByUserIdDao = async (
       updatedAt: organizations.updatedAt,
     })
     .from(organizations)
-    .innerJoin(
-      userOrganizations,
-      eq(organizations.id, userOrganizations.organizationId)
-    )
-    .where(eq(userOrganizations.userId, userId))
+    .innerJoin(member, eq(organizations.id, member.organizationId))
+    .where(eq(member.userId, userId))
     .orderBy(organizations.name)
 
   return rows

@@ -1,16 +1,16 @@
 import {
   createOrganizationDao,
-  createUserOrganizationDao,
+  createOrganizationMemberDao,
   deleteOrganizationDao,
   deleteUserOrganizationDao,
   getAllOrganizationsWithPaginationDao,
+  getMembersDao,
   getOrganizationByIdDao,
   getOrganizationBySlugDao,
   getOrganizationMembersDao,
   getOrganizationsByUserIdDao,
   getOrganizationsDao,
   getUserOrganizationDao,
-  getUserOrganizationsDao,
   getUserRoleInOrganizationDao,
   updateOrganizationDao,
   updateUserOrganizationRoleDao,
@@ -71,7 +71,7 @@ export const createOrganizationService = async (
   // Ajouter le créateur comme OWNER
   const authUser = await getAuthUser()
   if (authUser?.id) {
-    await createUserOrganizationDao({
+    await createOrganizationMemberDao({
       userId: authUser.id,
       organizationId: organization.id,
       role: UserOrganizationRoleConst.OWNER,
@@ -182,7 +182,7 @@ export const getUserOrganizationsService = async (userId?: string) => {
   }
   const parsedUuid = parsed.data
 
-  return await getUserOrganizationsDao(parsedUuid)
+  return await getMembersDao(parsedUuid)
 }
 
 export const getOrganizationsByUserIdService = async (userId?: string) => {
@@ -217,7 +217,7 @@ export const getOrganizationMembersService = async (organizationId: string) => {
   return await getOrganizationMembersDao(parsedUuid)
 }
 
-export const inviteUserToOrganizationService = async (
+export const createOrganizationMemberService = async (
   userOrganizationParams: CreateMember
 ) => {
   const parsed = createUserOrganizationServiceSchema.safeParse(
@@ -244,7 +244,7 @@ export const inviteUserToOrganizationService = async (
     )
   }
 
-  return await createUserOrganizationDao(params)
+  return await createOrganizationMemberDao(params)
 }
 
 export const removeUserFromOrganizationService = async (

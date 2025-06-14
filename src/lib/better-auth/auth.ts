@@ -6,6 +6,7 @@ import {organization} from 'better-auth/plugins'
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
+import {sendOrganizationInvitationService} from '@/services/facades/email-service-facade'
 
 export const auth = betterAuth({
   appName: 'Next Stripe SaaS boilerplate',
@@ -20,7 +21,21 @@ export const auth = betterAuth({
       generateId: () => uuidv4(),
     },
   },
-  plugins: [organization(), nextCookies()], //garder nextCookies() en dernier
+  plugins: [
+    organization({
+      async sendInvitationEmail(data) {
+        const inviteLink = `https://example.com/accept-invitation/${data.id}`
+        sendOrganizationInvitationService({
+          email: data.email,
+          invitedByUsername: data.inviter.user.name,
+          invitedByEmail: data.inviter.user.email,
+          teamName: data.organization.name,
+          inviteLink,
+        })
+      },
+    }),
+    nextCookies(),
+  ], //garder nextCookies() en dernier
   trustedOrigins: ['http://localhost:3000'],
   hooks: {
     after: createAuthRedirectMiddleware(),

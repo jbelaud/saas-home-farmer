@@ -33,3 +33,34 @@ export const sendEmailService = async (
 export const EmailService = {
   sendEmail: sendEmailService,
 }
+
+interface SendOrganizationInvitationParams {
+  email: string
+  invitedByUsername: string
+  invitedByEmail: string
+  teamName: string
+  inviteLink: string
+}
+
+export const sendOrganizationInvitation = async ({
+  email,
+  invitedByUsername,
+  invitedByEmail,
+  teamName,
+  inviteLink,
+}: SendOrganizationInvitationParams) => {
+  await sendEmailService({
+    subject: `Invitation à rejoindre ${teamName}`,
+    to: email,
+    html: `
+      <p>Bonjour,</p>
+      <p>${invitedByUsername} (${invitedByEmail}) vous invite à rejoindre l'organisation ${teamName}.</p>
+      <p>Pour accepter cette invitation, veuillez cliquer sur le lien suivant :</p>
+      <p><a href="${inviteLink}">Accepter l'invitation</a></p>
+      <p>Ce lien expirera dans 24 heures.</p>
+      <p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.</p>
+      <p>Cordialement,<br>L'équipe ${teamName}</p>
+    `,
+    from: '',
+  })
+}
