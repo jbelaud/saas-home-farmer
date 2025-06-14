@@ -2,7 +2,7 @@ import {betterAuth} from 'better-auth'
 import {drizzleAdapter} from 'better-auth/adapters/drizzle'
 import {createAuthMiddleware} from 'better-auth/api'
 import {nextCookies} from 'better-auth/next-js'
-import {organization} from 'better-auth/plugins'
+import {admin, organization} from 'better-auth/plugins'
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
@@ -22,9 +22,10 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    admin(),
     organization({
       async sendInvitationEmail(data) {
-        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/accept-invitation/${data.id}`
+        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invitations/${data.id}`
         sendOrganizationInvitationService({
           email: data.email,
           invitedByUsername: data.inviter.user.name,

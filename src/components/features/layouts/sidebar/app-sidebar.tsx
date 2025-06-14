@@ -64,6 +64,10 @@ const menuData = {
           title: 'Organizations',
           url: '/organizations',
         },
+        {
+          title: 'Invitations',
+          url: '/invitations',
+        },
 
         {
           title: 'Settings',
