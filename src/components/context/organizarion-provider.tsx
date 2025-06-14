@@ -14,17 +14,17 @@ import {
   UserOrganizationRoleConst,
 } from '@/services/types/domain/auth-types'
 import {
+  MemberData,
   Organization,
-  UserOrganizationData,
 } from '@/services/types/domain/organization-types'
 import {User} from '@/services/types/domain/user-types'
 
 interface OrganizationContextType {
   // États
   user: User | null
-  organizations: UserOrganizationData[]
+  organizations: MemberData[]
   currentOrganization: Organization | null
-  currentUserOrganization: UserOrganizationData | null
+  currentUserOrganization: MemberData | null
 
   // Actions
   setUser: (user: User | null) => void

@@ -35,8 +35,8 @@ import {
 import {Pagination} from './types/common-type'
 import {UserOrganizationRoleConst} from './types/domain/auth-types'
 import {
+  CreateMember,
   CreateOrganization,
-  CreateUserOrganization,
   OrganizationRole,
   UpdateOrganization,
 } from './types/domain/organization-types'
@@ -218,7 +218,7 @@ export const getOrganizationMembersService = async (organizationId: string) => {
 }
 
 export const inviteUserToOrganizationService = async (
-  userOrganizationParams: CreateUserOrganization
+  userOrganizationParams: CreateMember
 ) => {
   const parsed = createUserOrganizationServiceSchema.safeParse(
     userOrganizationParams

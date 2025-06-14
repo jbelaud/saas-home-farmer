@@ -10,8 +10,8 @@ import {UserModel} from '@/db/models/user-model'
 
 // Types de domaine découplés des types Drizzle
 export type Organization = OrganizationModel
-export type UserOrganization = MemberModel
-export type UserOrganizationData = MemberModel & {
+export type Member = MemberModel
+export type MemberData = MemberModel & {
   user?: UserModel
   organization?: OrganizationModel
 }
@@ -24,4 +24,4 @@ export type UpdateOrganization = {
   id: string
 } & Partial<Omit<UpdateOrganizationModel, 'id'>>
 
-export type CreateUserOrganization = AddMemberModel
+export type CreateMember = AddMemberModel

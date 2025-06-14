@@ -2,8 +2,8 @@ import {z} from 'zod'
 
 import {UserOrganizationRoleConst} from '../types/domain/auth-types'
 import {
+  CreateMember,
   CreateOrganization,
-  CreateUserOrganization,
   Organization,
   OrganizationRole,
   UpdateOrganization,
@@ -62,7 +62,7 @@ export const createUserOrganizationServiceSchema = z.object({
   }),
   createdAt: z.date(),
   role: organizationRoleSchema.default(UserOrganizationRoleConst.MEMBER),
-}) satisfies z.Schema<CreateUserOrganization>
+}) satisfies z.Schema<CreateMember>
 
 export const organizationUuidSchema = z.string().uuid({
   message: "L'identifiant organisation n'est pas valide.",

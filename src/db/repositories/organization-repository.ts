@@ -14,7 +14,7 @@ import {
   UpdateOrganizationModel,
 } from '@/db/models/organization-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
-import {UserOrganizationData} from '@/services/types/domain/organization-types'
+import {MemberData} from '@/services/types/domain/organization-types'
 
 /**
  * Génère un slug unique pour une organisation
@@ -222,7 +222,7 @@ export const getUserOrganizationsDao = async (
 
 export const getOrganizationMembersDao = async (
   organizationId: string
-): Promise<UserOrganizationData[]> => {
+): Promise<MemberData[]> => {
   const rows = await db.query.member.findMany({
     where: (userOrg, {eq}) => eq(userOrg.organizationId, organizationId),
     with: {
