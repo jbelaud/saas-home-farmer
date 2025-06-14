@@ -1,0 +1,54 @@
+import {headers} from 'next/headers'
+
+import {auth} from '@/lib/better-auth/auth'
+
+import {AcceptInvitationForm} from './accept-invitation-form'
+
+interface PageProps {
+  params: Promise<{id: string}>
+}
+
+export default async function AcceptInvitationPage({params}: PageProps) {
+  const {id} = await params
+
+  try {
+    const invitation = await auth.api.getInvitation({
+      headers: await headers(),
+      query: {
+        id,
+      },
+      // asResponse: true,
+    })
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <AcceptInvitationForm invitation={invitation} />
+      </div>
+    )
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log('error', error.message)
+      throw new Error(error.message)
+    }
+    throw new Error(
+      "Une erreur est survenue lors de la récupération de l'invitation"
+    )
+  }
+  // console.log('invitation', invitation)
+  // if (!invitation.ok) {
+  //   throw new Error(invitation.statusText)
+  // }
+
+  // const invitation = await authClient.organization.getInvitation({
+  //   fetchOptions: {
+  //     headers: await headers(),
+  //   },
+  //   query: {
+  //     id,
+  //   },
+  // })
+  // if (invitation.error) {
+  //   throw new Error(invitation.error.message)
+  // }
+
+  //console.log('invitation', invitation)
+}
