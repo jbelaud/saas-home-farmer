@@ -98,7 +98,7 @@ export default async function OrganizationMembersTable({
                   ) : (
                     <CancelInvitationButton
                       organizationId={organizationId}
-                      invitationId={member.id}
+                      invitationId={member.invitationId ?? ''}
                       userEmail={member.email}
                     />
                   )

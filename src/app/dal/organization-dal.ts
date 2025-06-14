@@ -57,6 +57,7 @@ export async function getOrganizationMembersDal(
 
 export type MemberOrInvitationDTO = {
   id: string
+  invitationId: string | null
   name: string | null
   email: string
   image: string | null
@@ -79,6 +80,7 @@ export async function getMembersAndInvitationsDal(
     }
     return {
       id: m.user.id,
+      invitationId: null,
       name: m.user.name,
       email: m.user.email,
       image: m.user.image ?? null,
@@ -89,7 +91,8 @@ export async function getMembersAndInvitationsDal(
   })
 
   const invitationDTOs = invitations.map((i) => ({
-    id: i.id,
+    id: i.user?.id ?? '',
+    invitationId: i.id,
     name: i.user?.name ?? null,
     email: i.email,
     image: i.user?.image ?? null,
