@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react'
 
-import {authClient} from '@/lib/better-auth/auth-client'
+//import {authClient} from '@/lib/better-auth/auth-client'
 import {
   RoleConst,
   UserOrganizationRoleConst,
@@ -53,9 +53,12 @@ export function OrganizationProvider({
 
   // Fonction utilitaire pour définir l'organisation active
   const setActiveOrganization = (organization: Organization) => {
-    authClient.organization.setActive({
-      organizationId: organization.id,
-    })
+    console.log('setActiveOrganization', organization)
+
+    //TODO: Uncomment this when the organization is set in the database
+    // authClient.organization.setActive({
+    //   organizationId: organization.id,
+    // })
     setCurrentOrganization(organization)
     localStorage.setItem('selectedOrganizationId', organization.id)
   }

@@ -103,6 +103,43 @@ const seed = async () => {
     ON CONFLICT ("userId", "roleId") DO NOTHING;
   `)
 
+  // 3.1 Insérer les comptes avec mots de passe
+  await client.query(`
+    INSERT INTO "account" (
+      "account_id",
+      "provider_id",
+      "user_id",
+      "password",
+      "created_at",
+      "updated_at"
+    )
+    SELECT 
+      uuid_generate_v4() as "account_id",
+      'credential' as "provider_id",
+      u.id as "user_id",
+      '48ea88853800794bc5312d8ad65fe149:d8503b790be4373e803d663b895438fa1e8f0b809a1b86a2b3fb6290f7f2310c4acb82dfe3737d2a3dd318a786653af3438022f24286ee0e9e8b2dda9b91f8f9' as "password",
+      NOW() as "created_at",
+      NOW() as "updated_at"
+    FROM "user" u
+    WHERE u.email IN (
+      'admin@mikecodeur.com',
+      'ons@mikecodeur.com',
+      'superadmin@gmail.com',
+      'admin@gmail.com',
+      'moderator@gmail.com',
+      'redactor@gmail.com',
+      'public@gmail.com',
+      'user@gmail.com',
+      'user-owner@gmail.com',
+      'user-admin@gmail.com',
+      'user-member@gmail.com',
+      'admin-owner@gmail.com',
+      'moderator-member@gmail.com',
+      'user-isolated@gmail.com'
+    )
+    ON CONFLICT ("account_id", "provider_id") DO NOTHING;
+  `)
+
   // 4. Insérer les organisations
   await client.query(`
     INSERT INTO "organization" (name, slug, description, logo, created_at, updated_at)

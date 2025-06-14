@@ -87,7 +87,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                     id="email"
                     name="email"
                     type="email"
-                    defaultValue={'aa@gmail.com'}
+                    defaultValue={'user@gmail.com'}
                     placeholder="user@gmail.com"
                     required
                   />
