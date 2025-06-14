@@ -1,4 +1,4 @@
-CREATE TYPE "public"."organization_role" AS ENUM('OWNER', 'ADMIN', 'MEMBER');--> statement-breakpoint
+CREATE TYPE "public"."organization_role" AS ENUM('admin', 'member', 'owner');--> statement-breakpoint
 CREATE TYPE "public"."role_type" AS ENUM('public', 'user', 'redactor', 'moderator', 'admin', 'super_admin');--> statement-breakpoint
 CREATE TYPE "public"."user_visibility" AS ENUM('public', 'private');--> statement-breakpoint
 CREATE TYPE "public"."task_status" AS ENUM('todo', 'in_progress', 'done');--> statement-breakpoint
@@ -18,25 +18,27 @@ CREATE TABLE "account" (
 	"scope" text,
 	"password" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "account_account_id_provider_id_unique" UNIQUE("account_id","provider_id")
 );
 --> statement-breakpoint
 CREATE TABLE "invitation" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"organization_id" text NOT NULL,
+	"organization_id" uuid NOT NULL,
 	"email" text NOT NULL,
 	"role" text,
 	"status" text DEFAULT 'pending' NOT NULL,
 	"expires_at" timestamp NOT NULL,
-	"inviter_id" text NOT NULL
+	"inviter_id" uuid NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "member" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"organization_id" text NOT NULL,
-	"user_id" text NOT NULL,
-	"role" "organization_role" DEFAULT 'MEMBER' NOT NULL,
-	"created_at" timestamp NOT NULL
+	"organization_id" uuid NOT NULL,
+	"user_id" uuid NOT NULL,
+	"role" "organization_role" DEFAULT 'member' NOT NULL,
+	"created_at" timestamp NOT NULL,
+	CONSTRAINT "member_organization_id_user_id_unique" UNIQUE("organization_id","user_id")
 );
 --> statement-breakpoint
 CREATE TABLE "organization" (

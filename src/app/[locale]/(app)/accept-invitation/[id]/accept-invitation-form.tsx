@@ -59,8 +59,11 @@ export function AcceptInvitationForm({invitation}: AcceptInvitationFormProps) {
       await authClient.organization.cancelInvitation({
         invitationId: invitation.id,
       })
+      await authClient.organization.rejectInvitation({
+        invitationId: invitation.id,
+      })
       toast.success('Invitation annulée avec succès')
-      router.push('/')
+      router.push('/dashboard')
     } catch (err) {
       console.error("Erreur lors de l'annulation de l'invitation:", err)
       toast.error('Erreur lors de l&apos;annulation de l&apos;invitation')

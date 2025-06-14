@@ -1,5 +1,5 @@
 {
-  "id": "e749baea-2d24-4eca-ab44-c8943f80cb64",
+  "id": "5efbcce1-1814-4866-a8f5-aab0c041f0eb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -107,7 +107,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "account_account_id_provider_id_unique": {
+          "name": "account_account_id_provider_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "account_id",
+            "provider_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -125,7 +134,7 @@
         },
         "organization_id": {
           "name": "organization_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -156,7 +165,7 @@
         },
         "inviter_id": {
           "name": "inviter_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         }
@@ -209,13 +218,13 @@
         },
         "organization_id": {
           "name": "organization_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -225,7 +234,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'MEMBER'"
+          "default": "'member'"
         },
         "created_at": {
           "name": "created_at",
@@ -264,7 +273,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "member_organization_id_user_id_unique": {
+          "name": "member_organization_id_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "organization_id",
+            "user_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1068,9 +1086,9 @@
       "name": "organization_role",
       "schema": "public",
       "values": [
-        "OWNER",
-        "ADMIN",
-        "MEMBER"
+        "admin",
+        "member",
+        "owner"
       ]
     },
     "public.role_type": {
