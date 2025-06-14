@@ -41,7 +41,7 @@ export function EditOrganizationForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [organizationImage, setOrganizationImage] = useState(
-    organization.image ?? ''
+    organization.logo ?? ''
   )
 
   const form = useForm<FormValues>({
@@ -49,9 +49,9 @@ export function EditOrganizationForm({
     defaultValues: {
       id: organization.id,
       name: organization.name,
-      slug: organization.slug,
+      slug: organization.slug ?? '',
       description: organization.description ?? '',
-      image: organization.image ?? '',
+      logo: organization.logo ?? '',
     },
   })
 
@@ -96,7 +96,7 @@ export function EditOrganizationForm({
 
       if (result.success && result.imageUrl) {
         // Mettre à jour le champ image dans le formulaire avec l'URL du fichier uploadé
-        form.setValue('image', result.imageUrl)
+        form.setValue('logo', result.imageUrl)
         setOrganizationImage(result.imageUrl)
 
         toast('Succès', {

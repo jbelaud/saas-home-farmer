@@ -61,7 +61,7 @@ export function TeamPageContent({organization, members}: TeamPageContentProps) {
           <div className="flex items-center space-x-4">
             <Avatar className="h-16 w-16">
               <AvatarImage
-                src={organization.image || ''}
+                src={organization.logo || ''}
                 alt={organization.name}
               />
               <AvatarFallback className="text-lg">

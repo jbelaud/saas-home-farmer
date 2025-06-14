@@ -1,19 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {eq, or, sql} from 'drizzle-orm'
 
-import {member, user as users} from '@/db/models/auth-model'
-import db from '@/db/models/db'
 import {
-  AddOrganizationModel,
+  member,
   organization,
-} from '@/db/models/organization-model'
-import {
-  AddUserModel,
   roles,
-  UpdateUserModel,
-  UserModel,
+  user as users,
   userRoles,
-} from '@/db/models/user-model'
+} from '@/db/models/auth-model'
+import db from '@/db/models/db'
+import {AddOrganizationModel} from '@/db/models/organization-model'
+import {AddUserModel, UpdateUserModel, UserModel} from '@/db/models/user-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {
   RoleConst,

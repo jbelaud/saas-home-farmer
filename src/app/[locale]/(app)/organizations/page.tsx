@@ -44,10 +44,10 @@ export default async function OrganizationsPage() {
                 <CardDescription>{organization.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                {organization.image && (
+                {organization.logo && (
                   <div className="relative mb-4 h-32 w-full">
                     <Image
-                      src={organization.image}
+                      src={organization.logo}
                       alt={organization.name}
                       fill
                       className="rounded-md object-cover"

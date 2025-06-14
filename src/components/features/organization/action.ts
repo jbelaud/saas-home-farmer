@@ -52,7 +52,7 @@ export async function updateOrganizationAction(
     name: formData.get('name') as string,
     slug: formData.get('slug') as string,
     description: formData.get('description') as string,
-    image: (formData.get('image') as string) || '',
+    logo: (formData.get('logo') as string) || '',
   }
 
   // STEP 1 : Valider les données avec le schéma Zod côté back
@@ -107,6 +107,7 @@ export async function inviteUserToOrganizationAction(
       organizationId,
       userId,
       role: role || 'MEMBER',
+      createdAt: new Date(),
     })
     revalidatePath(`/organizations/${organizationId}/edit`)
     return {success: true, message: 'Membre ajouté avec succès'}

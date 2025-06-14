@@ -60,6 +60,7 @@ export const createUserOrganizationServiceSchema = z.object({
   organizationId: z.string().uuid({
     message: "L'identifiant organisation n'est pas valide.",
   }),
+  createdAt: z.date(),
   role: organizationRoleSchema.default(UserOrganizationRoleConst.MEMBER),
 }) satisfies z.Schema<CreateUserOrganization>
 

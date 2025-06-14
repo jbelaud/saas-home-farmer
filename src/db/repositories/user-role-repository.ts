@@ -1,17 +1,15 @@
 import {and, eq} from 'drizzle-orm'
 
-import {user as users} from '@/db/models/auth-model'
+import {roles, user as users, userRoles} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {
   type AddRoleModel,
   type AddUserRoleModel,
   RoleEnumModel,
   type RoleModel,
-  roles,
   type UpdateRoleModel,
   type UserModel,
   type UserRoleModel,
-  userRoles,
 } from '@/db/models/user-model'
 
 // Gestion des rôles

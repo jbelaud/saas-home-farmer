@@ -116,11 +116,11 @@ export default function OrganizationsManagement({
                 <TableCell className="flex items-center gap-2">
                   <Avatar className="size-8">
                     <AvatarImage
-                      src={organization.image || ''}
+                      src={organization.logo || ''}
                       alt={organization.name}
                     />
                     <AvatarFallback>
-                      {organization.image ? (
+                      {organization.logo ? (
                         <Building2 className="h-4 w-4" />
                       ) : (
                         getOrganizationInitials(organization.name)

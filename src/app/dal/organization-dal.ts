@@ -28,9 +28,10 @@ export type OrganizationDTO = {
   name: string
   slug: string
   description: string | null
-  image: string | null
+  logo: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  metadata: string | null
 }
 
 export async function getOrganizationMembersDal(
@@ -47,7 +48,7 @@ export async function getOrganizationMembersDal(
       email: m.user.email,
       image: m.user.image ?? null,
       role: m.role,
-      joinedAt: m.joinedAt ?? new Date(),
+      joinedAt: m.createdAt,
     }
   })
 }
@@ -89,11 +90,12 @@ export const getOrganizationBySlugDal = cache(
     return {
       id: organization.id,
       name: organization.name,
-      slug: organization.slug,
+      slug: organization.slug ?? '',
       description: organization.description ?? null,
-      image: organization.image ?? null,
+      logo: organization.logo ?? null,
       createdAt: organization.createdAt ?? null,
       updatedAt: organization.updatedAt ?? null,
+      metadata: organization.metadata ?? null,
     }
   }
 )

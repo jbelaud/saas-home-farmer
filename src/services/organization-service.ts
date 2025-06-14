@@ -75,6 +75,7 @@ export const createOrganizationService = async (
       userId: authUser.id,
       organizationId: organization.id,
       role: UserOrganizationRoleConst.OWNER,
+      createdAt: new Date(),
     })
   }
 

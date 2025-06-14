@@ -1,5 +1,9 @@
 import {and, eq, or, sql} from 'drizzle-orm'
 
+import {
+  member as userOrganizations,
+  organization as organizations,
+} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {
   AddMemberModel,
@@ -7,9 +11,7 @@ import {
   MemberModel,
   OrganizationModel,
   OrganizationRoleEnumModel,
-  organizations,
   UpdateOrganizationModel,
-  userOrganizations,
 } from '@/db/models/organization-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {UserOrganizationData} from '@/services/types/domain/organization-types'
@@ -56,7 +58,7 @@ export const createOrganizationDao = async (
 export const getOrganizationByIdDao = async (
   id: string
 ): Promise<OrganizationModel | undefined> => {
-  const row = await db.query.organizations.findFirst({
+  const row = await db.query.organization.findFirst({
     where: (organization, {eq}) => eq(organization.id, id),
   })
   return row
@@ -65,7 +67,7 @@ export const getOrganizationByIdDao = async (
 export const getOrganizationBySlugDao = async (
   slug: string
 ): Promise<OrganizationModel | undefined> => {
-  const row = await db.query.organizations.findFirst({
+  const row = await db.query.organization.findFirst({
     where: (organization, {eq}) => eq(organization.slug, slug),
   })
   return row
@@ -164,7 +166,7 @@ export const getUserOrganizationDao = async (
   userId: string,
   organizationId: string
 ): Promise<MemberModel | undefined> => {
-  const row = await db.query.userOrganizations.findFirst({
+  const row = await db.query.member.findFirst({
     where: (userOrg, {eq, and}) =>
       and(
         eq(userOrg.userId, userId),
@@ -209,7 +211,7 @@ export const deleteUserOrganizationDao = async (
 export const getUserOrganizationsDao = async (
   userId: string
 ): Promise<MemberModel[]> => {
-  const rows = await db.query.userOrganizations.findMany({
+  const rows = await db.query.member.findMany({
     where: (userOrg, {eq}) => eq(userOrg.userId, userId),
     with: {
       organization: true,
@@ -221,7 +223,7 @@ export const getUserOrganizationsDao = async (
 export const getOrganizationMembersDao = async (
   organizationId: string
 ): Promise<UserOrganizationData[]> => {
-  const rows = await db.query.userOrganizations.findMany({
+  const rows = await db.query.member.findMany({
     where: (userOrg, {eq}) => eq(userOrg.organizationId, organizationId),
     with: {
       user: true,
@@ -239,7 +241,8 @@ export const getOrganizationsByUserIdDao = async (
       name: organizations.name,
       slug: organizations.slug,
       description: organizations.description,
-      image: organizations.image,
+      logo: organizations.logo,
+      metadata: organizations.metadata,
       createdAt: organizations.createdAt,
       updatedAt: organizations.updatedAt,
     })
@@ -258,7 +261,7 @@ export const getUserRoleInOrganizationDao = async (
   userId: string,
   organizationId: string
 ): Promise<OrganizationRoleEnumModel | null> => {
-  const row = await db.query.userOrganizations.findFirst({
+  const row = await db.query.member.findFirst({
     where: (userOrg, {eq, and}) =>
       and(
         eq(userOrg.userId, userId),

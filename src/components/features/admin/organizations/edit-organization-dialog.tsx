@@ -62,7 +62,7 @@ export function EditOrganizationDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: organization.name,
-      slug: organization.slug,
+      slug: organization.slug ?? '',
       description: organization.description || '',
     },
   })
