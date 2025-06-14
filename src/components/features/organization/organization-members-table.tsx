@@ -13,6 +13,12 @@ import {CancelInvitationButton} from './cancel-invitation-button'
 import {OrganizationAddMemberForm} from './organization-add-member-form'
 import {RemoveMemberButton} from './remove-member-button'
 
+function isInvitationExpired(joinedAt: Date | null): boolean {
+  if (!joinedAt) return false
+  const today = new Date()
+  return new Date(joinedAt) < today
+}
+
 export default async function OrganizationMembersTable({
   organizationId,
   canManageMembers = false,
@@ -63,8 +69,16 @@ export default async function OrganizationMembersTable({
                   <span className="flex items-center gap-2 font-medium">
                     {member.name}
                     {member.status === 'invited' && (
-                      <span className="ml-2 rounded bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
-                        Invitation en attente
+                      <span
+                        className={`ml-2 rounded px-2 py-0.5 text-xs font-semibold ${
+                          isInvitationExpired(member.joinedAt)
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+                        }`}
+                      >
+                        {isInvitationExpired(member.joinedAt)
+                          ? 'Invitation expirée'
+                          : 'Invitation en attente'}
                       </span>
                     )}
                   </span>

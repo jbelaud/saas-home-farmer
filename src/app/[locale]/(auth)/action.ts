@@ -1,6 +1,7 @@
 'use server'
 
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
+import {headers} from 'next/headers'
 import {redirect} from 'next/navigation'
 
 import {
@@ -176,21 +177,24 @@ export async function registerCredentialAction(
   // 4. Créer son organisation dans la base de données
   try {
     const userOrganization = await createOrganizationForUserService(email)
+    console.log('userOrganization', userOrganization)
 
     const response = await auth.api.signInEmail({
+      headers: await headers(),
       body: {
         email,
         password,
+        rememberMe: true,
       },
       asResponse: true,
     })
 
-    await auth.api.setActiveOrganization({
-      headers: response.headers,
-      body: {
-        organizationId: userOrganization.organizationId,
-      },
-    })
+    // await auth.api.setActiveOrganization({
+    //   headers: response2.headers,
+    //   body: {
+    //     organizationId: userOrganization.organizationId,
+    //   },
+    // })
 
     if (!response.ok && response.status !== 302) {
       return {
@@ -202,6 +206,7 @@ export async function registerCredentialAction(
     //4. redirection definie dans la configuration
     redirect(response.headers.get('Location') ?? '/404')
   } catch (error) {
+    console.log('error', error)
     if (isRedirectError(error)) {
       throw error
     }
