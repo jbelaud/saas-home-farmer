@@ -14,6 +14,9 @@ import {
 } from '@/services/facades/email-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
 
+export const requireEmailVerification =
+  process.env.BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION === 'true'
+
 export const auth = betterAuth({
   appName: 'Next Stripe SaaS boilerplate',
   database: drizzleAdapter(db, {
@@ -21,6 +24,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: requireEmailVerification,
     sendResetPassword: async ({user, url}) => {
       await sendResetPasswordLinkEmailService({
         email: user.email,
@@ -40,6 +44,9 @@ export const auth = betterAuth({
         url,
       })
     },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    expiresIn: 3600, // 1 hour
   },
   advanced: {
     database: {

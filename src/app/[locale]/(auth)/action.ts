@@ -9,7 +9,7 @@ import {
   authMagicLinkFormSchema,
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
-import {auth} from '@/lib/better-auth/auth' // path to your Better Auth server instance
+import {auth, requireEmailVerification} from '@/lib/better-auth/auth' // path to your Better Auth server instance
 import {isValidationParsedZodError} from '@/services/errors/validation-error'
 import {
   createOrganizationForUserService,
@@ -252,17 +252,6 @@ export async function registerCredentialAction(
   try {
     const userOrganization = await createOrganizationForUserService(email)
     console.log('userOrganization', userOrganization)
-
-    const response = await auth.api.signInEmail({
-      headers: await headers(),
-      body: {
-        email,
-        password,
-        rememberMe: true,
-      },
-      asResponse: true,
-    })
-
     // await auth.api.setActiveOrganization({
     //   headers: response2.headers,
     //   body: {
@@ -270,15 +259,27 @@ export async function registerCredentialAction(
     //   },
     // })
 
-    if (!response.ok && response.status !== 302) {
-      return {
-        success: false,
-        message: 'Identifiants invalides',
+    if (!requireEmailVerification) {
+      const response = await auth.api.signInEmail({
+        headers: await headers(),
+        body: {
+          email,
+          password,
+          rememberMe: true,
+        },
+        asResponse: true,
+      })
+
+      if (!response.ok && response.status !== 302) {
+        return {
+          success: false,
+          message: 'Identifiants invalides',
+        }
       }
+      redirect(response.headers.get('Location') ?? '/404')
     }
 
-    //4. redirection definie dans la configuration
-    redirect(response.headers.get('Location') ?? '/404')
+    redirect('/verify-request')
   } catch (error) {
     console.log('error', error)
     if (isRedirectError(error)) {
