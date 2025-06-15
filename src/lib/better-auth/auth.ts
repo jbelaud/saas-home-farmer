@@ -2,11 +2,14 @@ import {betterAuth} from 'better-auth'
 import {drizzleAdapter} from 'better-auth/adapters/drizzle'
 import {createAuthMiddleware} from 'better-auth/api'
 import {nextCookies} from 'better-auth/next-js'
-import {admin, organization} from 'better-auth/plugins'
+import {admin, magicLink, organization} from 'better-auth/plugins'
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
-import {sendOrganizationInvitationService} from '@/services/facades/email-service-facade'
+import {
+  sendMagicLinkEmailService,
+  sendOrganizationInvitationService,
+} from '@/services/facades/email-service-facade'
 
 export const auth = betterAuth({
   appName: 'Next Stripe SaaS boilerplate',
@@ -22,11 +25,19 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    magicLink({
+      sendMagicLink: async ({email, url}) => {
+        await sendMagicLinkEmailService({
+          email,
+          url,
+        })
+      },
+    }),
     admin(),
     organization({
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invitations/${data.id}`
-        sendOrganizationInvitationService({
+        await sendOrganizationInvitationService({
           email: data.email,
           invitedByUsername: data.inviter.user.name,
           invitedByEmail: data.inviter.user.email,

@@ -1,6 +1,6 @@
 import {GalleryVerticalEnd} from 'lucide-react'
 
-import {LoginForm} from '@/components/features/auth/forms/login-form'
+import {LoginForm} from '@/components/features/auth/forms/login'
 import {APP_NAME} from '@/lib/constants'
 
 export default function LoginPage() {

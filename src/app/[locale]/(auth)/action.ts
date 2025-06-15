@@ -6,6 +6,7 @@ import {redirect} from 'next/navigation'
 
 import {
   authLoginFormSchema,
+  authMagicLinkFormSchema,
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
 import {auth} from '@/lib/better-auth/auth' // path to your Better Auth server instance
@@ -28,6 +29,11 @@ type RegisterValidationError = {
   message: string
 }
 
+type MagicLinkValidationError = {
+  field: keyof typeof authMagicLinkFormSchema._type
+  message: string
+}
+
 type LoginFormState = {
   success: boolean
   errors?: LoginValidationError[]
@@ -37,6 +43,12 @@ type LoginFormState = {
 type RegisterFormState = {
   success: boolean
   errors?: RegisterValidationError[]
+  message?: string
+}
+
+type MagicLinkFormState = {
+  success: boolean
+  errors?: MagicLinkValidationError[]
   message?: string
 }
 
@@ -109,6 +121,70 @@ export async function loginCredentialAction(
     return {
       success: false,
       message: 'Une erreur est survenue lors de la connexion',
+    }
+  }
+}
+
+export async function loginMagicLinkAction(
+  prevState: MagicLinkFormState,
+  formData: FormData
+): Promise<MagicLinkFormState> {
+  try {
+    // 1. Validation Server Zod des données du formulaire
+    const validationResult = authMagicLinkFormSchema.safeParse({
+      email: formData.get('email'),
+    })
+
+    if (!validationResult.success) {
+      const validationErrors: MagicLinkValidationError[] =
+        validationResult.error.errors.map((err) => ({
+          field: err.path[0] as keyof typeof authMagicLinkFormSchema._type,
+          message: err.message,
+        }))
+      return {
+        success: false,
+        message: 'Erreur de validation',
+        errors: validationErrors,
+      }
+    }
+
+    const {email} = validationResult.data
+
+    // 2. Vérification de l'existence de l'utilisateur (optionnel)
+    const user = await getUserByEmailService(email)
+    if (!user) {
+      return {
+        success: false,
+        message: 'Aucun compte trouvé avec cet email',
+      }
+    }
+
+    // 3. Envoi du magic link avec better auth
+    const response = await auth.api.signInMagicLink({
+      headers: await headers(),
+      body: {
+        email,
+        callbackURL: '/dashboard',
+      },
+    })
+    console.log('response', response)
+
+    if (!response.status) {
+      return {
+        success: false,
+        message: "Erreur lors de l'envoi du magic link",
+      }
+    }
+
+    redirect('/verify-request')
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error
+    }
+
+    return {
+      success: false,
+      message: "Une erreur est survenue lors de l'envoi du magic link",
     }
   }
 }

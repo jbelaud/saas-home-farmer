@@ -4,3 +4,5 @@ import emailServiceInterceptor from './interceptors/email-service-logger-interce
 export const sendEmailService = emailServiceInterceptor.sendEmailService
 export const sendOrganizationInvitationService =
   emailServiceInterceptor.sendOrganizationInvitation
+export const sendMagicLinkEmailService =
+  emailServiceInterceptor.sendMagicLinkEmailService

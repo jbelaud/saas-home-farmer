@@ -5,6 +5,7 @@ import {
 } from 'resend'
 
 import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization-link-email'
+import MagicLinkMail from '@/lib/emails/magic-link-email'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -60,5 +61,24 @@ export const sendOrganizationInvitation = async ({
       teamName,
       inviteLink,
     }),
+  })
+}
+
+export const sendMagicLinkEmailService = async ({
+  email,
+  url,
+}: {
+  email: string
+  url: string
+}) => {
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  // const linkUrl = `${url}?token=${token}`
+  // console.log('linkUrl', linkUrl)
+  await EmailService.sendEmail({
+    to: email,
+    subject: 'Connexion au SaaS Mike Codeur Stripe',
+    from: fromEmail,
+    text: 'Connexion au SaaS Mike Codeur Stripe',
+    react: MagicLinkMail({url}),
   })
 }
