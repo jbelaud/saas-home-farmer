@@ -45,19 +45,19 @@ export function defineAbilitiesFor(
   }
 
   // SUPER_ADMIN - permissions complètes
-  if (user.roles?.includes(RoleConst.SUPER_ADMIN)) {
+  if (user.role === RoleConst.SUPER_ADMIN) {
     buildSuperAdminAbilities(builder)
     return builder.build()
   }
 
   // ADMIN - permissions étendues
-  if (user.roles?.includes(RoleConst.ADMIN)) {
+  if (user.role === RoleConst.ADMIN) {
     buildAdminAbilities(builder)
     return builder.build()
   }
 
   // USER - permissions standards
-  if (user.roles?.includes(RoleConst.USER)) {
+  if (user.role === RoleConst.USER) {
     buildUserAbilities(builder, user, orgContext)
     return builder.build()
   }
@@ -160,7 +160,7 @@ export function filterFields<T extends Record<string, unknown>>(
  */
 export function isUserAdmin(user?: User): boolean {
   if (!user) return false
-  return user.roles?.includes(RoleConst.ADMIN) ?? false
+  return user.role === RoleConst.ADMIN
 }
 
 /**

@@ -3,7 +3,6 @@ import {
   boolean,
   pgEnum,
   pgTable,
-  primaryKey,
   text,
   timestamp,
   unique,
@@ -15,6 +14,14 @@ export const userVisibilityEnum = pgEnum('user_visibility', [
   'private',
 ])
 
+export const roleEnum = pgEnum('role_type', [
+  'public',
+  'user',
+  'redactor',
+  'moderator',
+  'admin',
+  'super_admin',
+])
 export const user = pgTable('user', {
   id: uuid('id')
     .default(sql`uuid_generate_v4()`)
@@ -28,45 +35,40 @@ export const user = pgTable('user', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   visibility: userVisibilityEnum('visibility').default('private').notNull(),
+  role: roleEnum('role').notNull().default('user'),
+  banned: boolean('banned').default(false),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires'),
 })
 
-export const roleEnum = pgEnum('role_type', [
-  'public',
-  'user',
-  'redactor',
-  'moderator',
-  'admin',
-  'super_admin',
-])
+// export const roles = pgTable('role', {
+//   id: uuid('id')
+//     .default(sql`uuid_generate_v4()`)
+//     .primaryKey(),
+//   name: roleEnum('name').notNull().unique(),
+//   description: text('description'),
+//   createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
+//   updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
+// })
 
-export const roles = pgTable('role', {
-  id: uuid('id')
-    .default(sql`uuid_generate_v4()`)
-    .primaryKey(),
-  name: roleEnum('name').notNull().unique(),
-  description: text('description'),
-  createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
-  updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
-})
-
-export const userRoles = pgTable(
-  'user_role',
-  {
-    userId: uuid('userId')
-      .notNull()
-      .references(() => user.id, {onDelete: 'cascade'}),
-    roleId: uuid('roleId')
-      .notNull()
-      .references(() => roles.id, {onDelete: 'cascade'}),
-    assignedAt: timestamp('assignedAt', {mode: 'date'}).defaultNow(),
-    assignedBy: uuid('assignedBy').references(() => user.id),
-  },
-  (userRole) => ({
-    compoundKey: primaryKey({
-      columns: [userRole.userId, userRole.roleId],
-    }),
-  })
-)
+// export const userRoles = pgTable(
+//   'user_role',
+//   {
+//     userId: uuid('userId')
+//       .notNull()
+//       .references(() => user.id, {onDelete: 'cascade'}),
+//     roleId: uuid('roleId')
+//       .notNull()
+//       .references(() => roles.id, {onDelete: 'cascade'}),
+//     assignedAt: timestamp('assignedAt', {mode: 'date'}).defaultNow(),
+//     assignedBy: uuid('assignedBy').references(() => user.id),
+//   },
+//   (userRole) => ({
+//     compoundKey: primaryKey({
+//       columns: [userRole.userId, userRole.roleId],
+//     }),
+//   })
+// )
 
 export const session = pgTable('session', {
   id: uuid('id')

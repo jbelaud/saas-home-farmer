@@ -72,16 +72,22 @@ export default function UsersManagement({
     router.push(`?${params.toString()}`)
   }
 
-  const getUserRoleDisplay = (roles?: string[]) => {
-    if (!roles || roles.length === 0) return 'Public'
-    const primaryRole = roles.includes('admin')
-      ? 'Admin'
-      : roles.includes('moderator')
-        ? 'Modérateur'
-        : roles.includes('user')
-          ? 'Utilisateur'
-          : 'Public'
-    return primaryRole
+  const getUserRoleDisplay = (role?: string) => {
+    if (!role) return 'Public'
+    switch (role) {
+      case 'admin':
+        return 'Admin'
+      case 'moderator':
+        return 'Modérateur'
+      case 'user':
+        return 'Utilisateur'
+      case 'redactor':
+        return 'Rédacteur'
+      case 'super_admin':
+        return 'Super Admin'
+      default:
+        return 'Public'
+    }
   }
 
   const getUserStatusDisplay = (user: User) => {
@@ -137,7 +143,7 @@ export default function UsersManagement({
                 <TableCell>{user.email}</TableCell>
                 <TableCell className="hidden lg:table-cell">
                   <Badge variant="outline">
-                    {getUserRoleDisplay(user.roles)}
+                    {getUserRoleDisplay(user.role)}
                   </Badge>
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">

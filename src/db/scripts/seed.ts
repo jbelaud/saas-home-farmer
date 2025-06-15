@@ -24,86 +24,39 @@ const seed = async () => {
 
   const start = Date.now()
 
-  // 1. Insérer les rôles de base
+  // 1. Insérer les utilisateurs avec leurs rôles directement
   await client.query(`
-    INSERT INTO "role" (name, description)
-    VALUES
-      ('public', 'Utilisateur public avec accès minimal'),
-      ('user', 'Utilisateur standard avec accès limité'),
-      ('redactor', 'Rédacteur avec permissions d''édition'),
-      ('moderator', 'Modérateur avec permissions étendues'),
-      ('admin', 'Administrateur avec tous les privilèges'),
-      ('super_admin', 'Super administrateur avec accès total')
-    ON CONFLICT (name) DO NOTHING;
-  `)
-
-  // 2. Insérer les utilisateurs - Jeu de test complet
-  await client.query(`
-    INSERT INTO "user" (email, name, email_verified, image, visibility)
+    INSERT INTO "user" (email, name, email_verified, image, visibility, role)
     VALUES
       -- Cas spéciaux Mike Codeur
-      ('admin@mikecodeur.com', 'Mike Codeur', true, 'https://www.gravatar.com/avatar/ed8d664fa6324576c806b9ee59c302c6', 'private'),
-      ('ons@mikecodeur.com', 'Ons', true, 'https://randomuser.me/api/portraits/med/women/8.jpg', 'public'),
+      ('admin@mikecodeur.com', 'Mike Codeur', true, 'https://www.gravatar.com/avatar/ed8d664fa6324576c806b9ee59c302c6', 'private', 'admin'),
+      ('ons@mikecodeur.com', 'Ons', true, 'https://randomuser.me/api/portraits/med/women/8.jpg', 'public', 'admin'),
       
       -- Rôles globaux purs (sans organisations)
-      ('superadmin@gmail.com', 'Frank', true, 'https://randomuser.me/api/portraits/med/men/9.jpg', 'public'),
-      ('admin@gmail.com', 'Admin', false, 'https://randomuser.me/api/portraits/med/men/4.jpg', 'public'),
-      ('moderator@gmail.com', 'David', true, 'https://randomuser.me/api/portraits/med/men/7.jpg', 'public'),
-      ('redactor@gmail.com', 'Grace', true, 'https://randomuser.me/api/portraits/med/women/11.jpg', 'public'),
-      ('public@gmail.com', 'Charlie', true, 'https://randomuser.me/api/portraits/med/men/5.jpg', 'public'),
+      ('superadmin@gmail.com', 'Frank', true, 'https://randomuser.me/api/portraits/med/men/9.jpg', 'public', 'super_admin'),
+      ('admin@gmail.com', 'Admin', false, 'https://randomuser.me/api/portraits/med/men/4.jpg', 'public', 'admin'),
+      ('moderator@gmail.com', 'David', true, 'https://randomuser.me/api/portraits/med/men/7.jpg', 'public', 'moderator'),
+      ('redactor@gmail.com', 'Grace', true, 'https://randomuser.me/api/portraits/med/women/11.jpg', 'public', 'redactor'),
+      ('public@gmail.com', 'Charlie', true, 'https://randomuser.me/api/portraits/med/men/5.jpg', 'public', 'public'),
       
       -- Utilisateur multi-organisations (cas complexe)
-      ('user@gmail.com', 'Bob', true, 'https://randomuser.me/api/portraits/med/men/3.jpg', 'public'),
+      ('user@gmail.com', 'Bob', true, 'https://randomuser.me/api/portraits/med/men/3.jpg', 'public', 'user'),
       
       -- Utilisateurs spécialisés par rôle organisationnel
-      ('user-owner@gmail.com', 'Julien', true, 'https://randomuser.me/api/portraits/med/men/6.jpg', 'public'),
-      ('user-admin@gmail.com', 'Sophie', true, 'https://randomuser.me/api/portraits/med/women/12.jpg', 'public'),
-      ('user-member@gmail.com', 'Lucas', true, 'https://randomuser.me/api/portraits/med/men/13.jpg', 'public'),
+      ('user-owner@gmail.com', 'Julien', true, 'https://randomuser.me/api/portraits/med/men/6.jpg', 'public', 'user'),
+      ('user-admin@gmail.com', 'Sophie', true, 'https://randomuser.me/api/portraits/med/women/12.jpg', 'public', 'user'),
+      ('user-member@gmail.com', 'Lucas', true, 'https://randomuser.me/api/portraits/med/men/13.jpg', 'public', 'user'),
       
       -- Cas de chevauchement intéressants
-      ('admin-owner@gmail.com', 'Emma', true, 'https://randomuser.me/api/portraits/med/women/14.jpg', 'public'),
-      ('moderator-member@gmail.com', 'Julie', true, 'https://randomuser.me/api/portraits/med/women/10.jpg', 'public'),
+      ('admin-owner@gmail.com', 'Emma', true, 'https://randomuser.me/api/portraits/med/women/14.jpg', 'public', 'admin'),
+      ('moderator-member@gmail.com', 'Julie', true, 'https://randomuser.me/api/portraits/med/women/10.jpg', 'public', 'moderator'),
       
       -- Utilisateur isolé (sans organisations)
-      ('user-isolated@gmail.com', 'Thomas', true, 'https://randomuser.me/api/portraits/med/men/15.jpg', 'public')
+      ('user-isolated@gmail.com', 'Thomas', true, 'https://randomuser.me/api/portraits/med/men/15.jpg', 'public', 'user')
     ON CONFLICT (email) DO NOTHING;
   `)
 
-  // 3. Assigner les rôles aux utilisateurs via la table de liaison
-  await client.query(`
-    INSERT INTO "user_role" ("userId", "roleId")
-    SELECT 
-      u.id as "userId",
-      r.id as "roleId"
-    FROM "user" u, "role" r
-    WHERE 
-      -- Cas spéciaux Mike Codeur
-      (u.email = 'admin@mikecodeur.com' AND r.name = 'admin') OR
-      (u.email = 'ons@mikecodeur.com' AND r.name = 'admin') OR
-      
-      -- Rôles globaux purs
-      (u.email = 'superadmin@gmail.com' AND r.name = 'super_admin') OR
-      (u.email = 'admin@gmail.com' AND r.name = 'admin') OR
-      (u.email = 'moderator@gmail.com' AND r.name = 'moderator') OR
-      (u.email = 'redactor@gmail.com' AND r.name = 'redactor') OR
-      (u.email = 'public@gmail.com' AND r.name = 'public') OR
-      
-      -- Utilisateurs avec contexte organisationnel
-      (u.email = 'user@gmail.com' AND r.name = 'user') OR
-      (u.email = 'user-owner@gmail.com' AND r.name = 'user') OR
-      (u.email = 'user-admin@gmail.com' AND r.name = 'user') OR
-      (u.email = 'user-member@gmail.com' AND r.name = 'user') OR
-      
-      -- Cas de chevauchement
-      (u.email = 'admin-owner@gmail.com' AND r.name = 'admin') OR
-      (u.email = 'moderator-member@gmail.com' AND r.name = 'moderator') OR
-      
-      -- Utilisateur isolé
-      (u.email = 'user-isolated@gmail.com' AND r.name = 'user')
-    ON CONFLICT ("userId", "roleId") DO NOTHING;
-  `)
-
-  // 3.1 Insérer les comptes avec mots de passe
+  // 2. Insérer les comptes avec mots de passe
   await client.query(`
     INSERT INTO "account" (
       "account_id",
@@ -140,7 +93,7 @@ const seed = async () => {
     ON CONFLICT ("account_id", "provider_id") DO NOTHING;
   `)
 
-  // 4. Insérer les organisations
+  // 3. Insérer les organisations
   await client.query(`
     INSERT INTO "organization" (name, slug, description, logo, created_at, updated_at)
     VALUES
@@ -151,7 +104,7 @@ const seed = async () => {
     ON CONFLICT (slug) DO NOTHING;
   `)
 
-  // 5. Assigner les utilisateurs aux organisations avec des rôles
+  // 4. Assigner les utilisateurs aux organisations avec des rôles
   await client.query(`
     INSERT INTO "member" (organization_id, user_id, role, created_at)
     SELECT 
@@ -214,7 +167,7 @@ const seed = async () => {
     ON CONFLICT (organization_id, user_id) DO NOTHING;
   `)
 
-  // 6. Insérer des projets pour tester les permissions
+  // 5. Insérer des projets pour tester les permissions
   await client.query(`
     INSERT INTO "project" (name, description, "organization_id", "created_by")
     SELECT 
@@ -241,7 +194,7 @@ const seed = async () => {
     ON CONFLICT DO NOTHING;
   `)
 
-  // 7. Insérer des tâches pour tester différents états de projets
+  // 6. Insérer des tâches pour tester différents états de projets
   await client.query(`
     INSERT INTO "task" (title, description, status, "due_date", "project_id", "organization_id", "created_by")
     SELECT 

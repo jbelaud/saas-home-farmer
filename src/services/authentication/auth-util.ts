@@ -10,19 +10,17 @@ export function hasRequiredRole(userConnected?: User, requestedRole?: Roles) {
     return false
   }
 
-  // Vérifier que l'utilisateur a des rôles
-  const userRoles = userConnected?.roles ?? ['public']
+  // Vérifier que l'utilisateur a un rôle
+  const userRole = userConnected?.role ?? 'public'
   const requestedRoleIndex = roleHierarchy.indexOf(requestedRole)
 
   if (requestedRoleIndex === -1) {
     return false
   }
 
-  // Vérifier si au moins un des rôles de l'utilisateur est supérieur ou égal au rôle requis
-  return userRoles.some((role) => {
-    const userRoleIndex = roleHierarchy.indexOf(role as Roles)
-    return userRoleIndex !== -1 && userRoleIndex >= requestedRoleIndex
-  })
+  // Vérifier si le rôle de l'utilisateur est supérieur ou égal au rôle requis
+  const userRoleIndex = roleHierarchy.indexOf(userRole as Roles)
+  return userRoleIndex !== -1 && userRoleIndex >= requestedRoleIndex
 }
 
 export function hasRequiredRoles(
@@ -33,28 +31,24 @@ export function hasRequiredRoles(
     return false
   }
 
-  // Vérifier que l'utilisateur a des rôles
-  const userRoles = userConnected?.roles ?? ['public']
+  // Vérifier que l'utilisateur a un rôle
+  const userRole = userConnected?.role ?? 'public'
 
-  // Vérifier si l'utilisateur a au moins un des rôles requis
+  // Vérifier si l'utilisateur a un des rôles requis
   return requestedRoles.some((requestedRole) => {
     const requestedRoleIndex = roleHierarchy.indexOf(requestedRole)
     if (requestedRoleIndex === -1) return false
 
-    return userRoles.some((userRole) => {
-      const userRoleIndex = roleHierarchy.indexOf(userRole as Roles)
-      return userRoleIndex !== -1 && userRoleIndex >= requestedRoleIndex
-    })
+    const userRoleIndex = roleHierarchy.indexOf(userRole as Roles)
+    return userRoleIndex !== -1 && userRoleIndex >= requestedRoleIndex
   })
 }
 
 export const isAdmin = (user?: User | null) => {
   if (!user) return false
-  return (
-    user?.roles?.includes(RoleConst.ADMIN) ||
-    user?.roles?.includes(RoleConst.SUPER_ADMIN)
-  )
+  return user?.role === RoleConst.ADMIN || user?.role === RoleConst.SUPER_ADMIN
 }
+
 export const isOrganizationAdmin = async (
   user: User,
   organizationId: string
@@ -76,6 +70,7 @@ export const isOrganizationOwner = async (
       organization.role === UserOrganizationRoleConst.OWNER
   )
 }
+
 export const isOrganizationMember = async (
   user: User,
   organizationId: string

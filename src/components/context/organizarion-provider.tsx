@@ -175,13 +175,12 @@ export function useOrganizationRole() {
 export function useAuthUserRole() {
   const {user} = useOrganization()
 
-  const isAdmin = user?.roles?.includes(RoleConst.ADMIN)
-  const isUser = user?.roles?.includes(RoleConst.USER)
-
-  const isSuperAdmin = user?.roles?.includes(RoleConst.SUPER_ADMIN)
-  const isPublic = user?.roles?.includes(RoleConst.PUBLIC)
-  const isRedactor = user?.roles?.includes(RoleConst.REDACTOR)
-  const isModerator = user?.roles?.includes(RoleConst.MODERATOR)
+  const isAdmin = user?.role === RoleConst.ADMIN
+  const isUser = user?.role === RoleConst.USER
+  const isSuperAdmin = user?.role === RoleConst.SUPER_ADMIN
+  const isPublic = user?.role === RoleConst.PUBLIC
+  const isRedactor = user?.role === RoleConst.REDACTOR
+  const isModerator = user?.role === RoleConst.MODERATOR
 
   return {
     isAdmin,

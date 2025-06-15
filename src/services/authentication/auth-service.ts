@@ -21,7 +21,7 @@ export const getSessionAuth = async () => {
 
 export const isAuthAdmin = async () => {
   const authUser = await getAuthUser()
-  return authUser?.roles?.includes(RoleConst.ADMIN)
+  return authUser?.role === RoleConst.ADMIN
 }
 
 export const getAuthUserId = async () => {

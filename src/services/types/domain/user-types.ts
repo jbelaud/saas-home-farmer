@@ -3,10 +3,8 @@ import {Session} from 'better-auth'
 import {
   AddUserModel,
   RoleEnumModel,
-  RoleModel,
   UpdateUserModel,
   UserModel,
-  UserRoleModel,
 } from '@/db/models/user-model'
 
 import {MemberData} from './organization-types'
@@ -15,7 +13,6 @@ import {MemberData} from './organization-types'
 // Les fichier types DOMAINS sont la pour décorréler les types de drizzle des types de domaine (services)
 
 export type User = UserModel & {
-  roles?: Roles[]
   organizations?: MemberData[]
 }
 export type RequireAuthOptions = {
@@ -25,13 +22,14 @@ export type RequireAuthOptions = {
 export type UserVisibility = User['visibility']
 
 // Types pour les rôles
-export type Role = RoleModel
-export type UserRole = UserRoleModel
+// export type Role = RoleModel
+// export type UserRole = UserRoleModel
 export type Roles = RoleEnumModel
 
 // Utilisateur avec ses rôles
+//@deprecated
 export type UserWithRoles = User & {
-  roles: Role[]
+  role: Roles
 }
 
 export type CreateUser = Pick<AddUserModel, 'email' | 'name'>
@@ -44,7 +42,7 @@ export type UserDTO = {
   id: string
   email: string
   name?: string
-  roles?: string[]
+  role?: string
   image?: string
 }
 

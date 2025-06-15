@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {eq, or, sql} from 'drizzle-orm'
 
-import {
-  member,
-  organization,
-  roles,
-  user as users,
-  userRoles,
-} from '@/db/models/auth-model'
+import {member, organization, user as users} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {AddOrganizationModel} from '@/db/models/organization-model'
 import {AddUserModel, UpdateUserModel, UserModel} from '@/db/models/user-model'
@@ -32,15 +26,6 @@ export const getUserByIdDao = async (
   const row = await db.query.user.findFirst({
     where: (user, {eq}) => eq(user.id, uid),
     with: {
-      userRoles: {
-        with: {
-          role: {
-            columns: {
-              name: true,
-            },
-          },
-        },
-      },
       members: {
         with: {
           organization: true,
@@ -48,7 +33,7 @@ export const getUserByIdDao = async (
       },
     },
   })
-  const roles = row?.userRoles?.map((r) => r.role.name) ?? []
+
   const organizations = row?.members ?? []
 
   if (!row) {
@@ -56,10 +41,9 @@ export const getUserByIdDao = async (
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {userRoles, members, ...rest} = row
+  const {members, ...rest} = row
   return {
     ...rest,
-    roles,
     organizations,
   }
 }
@@ -85,15 +69,6 @@ export const getUserByEmailDao = async (
   const row = await db.query.user.findFirst({
     where: (user, {eq}) => eq(user.email, email.toLowerCase()),
     with: {
-      userRoles: {
-        with: {
-          role: {
-            columns: {
-              name: true,
-            },
-          },
-        },
-      },
       members: {
         with: {
           organization: true,
@@ -101,7 +76,7 @@ export const getUserByEmailDao = async (
       },
     },
   })
-  const roles = row?.userRoles?.map((r) => r.role.name) ?? []
+
   const organizations = row?.members ?? []
 
   if (!row) {
@@ -109,10 +84,9 @@ export const getUserByEmailDao = async (
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {userRoles, members, ...rest} = row
+  const {members, ...rest} = row
   return {
     ...rest,
-    roles,
     organizations,
   }
 }
@@ -211,28 +185,10 @@ export const createUserAndOrganizationTxnDao = async (
       .values({
         email: userData.email,
         name: userData.name,
-        //password: userData.password,
+        role: RoleConst.USER,
         visibility: userData.visibility,
       })
       .returning()
-
-    // 2. Récupérer le rôle 'user'
-    const [userRole] = await tx
-      .select()
-      .from(roles)
-      .where(eq(roles.name, RoleConst.USER))
-      .limit(1)
-
-    if (!userRole) {
-      throw new Error('Role "user" not found')
-    }
-
-    // 3. Assigner le rôle 'user' à l'utilisateur
-    await tx.insert(userRoles).values({
-      userId: newUser.id,
-      roleId: userRole.id,
-      assignedAt: new Date(),
-    })
 
     // 4. Créer l'organisation
     const [newOrganization] = await tx
@@ -279,24 +235,6 @@ export const createUserRoleAndOrganizationTxnDao = async (
       throw new Error('User not found')
     }
 
-    // 2. Récupérer le rôle 'user'
-    const [userRole] = await tx
-      .select()
-      .from(roles)
-      .where(eq(roles.name, RoleConst.USER))
-      .limit(1)
-
-    if (!userRole) {
-      throw new Error('Role "user" not found')
-    }
-
-    // 3. Assigner le rôle 'user' à l'utilisateur
-    await tx.insert(userRoles).values({
-      userId: existingUser.id,
-      roleId: userRole.id,
-      assignedAt: new Date(),
-    })
-
     // 4. Créer l'organisation
     const [newOrganization] = await tx
       .insert(organization)
@@ -316,27 +254,11 @@ export const createUserRoleAndOrganizationTxnDao = async (
       createdAt: new Date(),
     })
 
-    const existingUserWithRoles = await tx.query.user.findFirst({
-      where: eq(users.id, userId),
-      with: {
-        userRoles: {
-          with: {
-            role: {
-              columns: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    })
     // 4. Retourner les données créées
-    const roles_ =
-      existingUserWithRoles?.userRoles?.map((r) => r.role.name) ?? []
+
     return {
       user: {
         ...existingUser,
-        roles: roles_,
         organizations: [],
       },
       organizationId: newOrganization.id,
@@ -384,7 +306,10 @@ export const searchUsersDao = async (
       createdAt: true,
       updatedAt: true,
       image: true,
-      //password: true,
+      role: true,
+      banned: true,
+      banReason: true,
+      banExpires: true,
       visibility: true,
     },
   })

@@ -79,7 +79,7 @@ export function userDTO(user: User): UserDTO | undefined {
     id: user?.id ?? '',
     email: user?.email ?? '',
     name: user?.name ?? '',
-    roles: user?.roles,
+    role: user?.role,
     image: user?.image ?? '',
   }
 }
