@@ -37,6 +37,8 @@ vi.mock('@/db/repositories/organization-repository')
 // Mock des données de test pour les membres
 const mockMemberData = [
   {
+    id: faker.string.uuid(),
+    createdAt: new Date(),
     userId: 'user-1',
     organizationId: 'org-1',
     role: UserOrganizationRoleConst.MEMBER,
@@ -79,7 +81,8 @@ describe('[ADMIN] CRUD : OrganizationService', () => {
     name: 'Test Organization',
     slug: 'test-organization',
     description: 'Description de test',
-    image: null,
+    logo: null,
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -171,7 +174,8 @@ describe('[ORGANIZATION OWNER] CRUD : OrganizationService', () => {
     name: 'Test Organization',
     slug: 'test-organization',
     description: 'Description de test',
-    image: null,
+    logo: null,
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -232,7 +236,8 @@ describe('[ORGANIZATION ADMIN] CRUD : OrganizationService', () => {
     name: 'Test Organization',
     slug: 'test-organization',
     description: 'Description de test',
-    image: null,
+    logo: null,
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -294,7 +299,8 @@ describe('[ORGANIZATION MEMBER] CRUD : OrganizationService', () => {
     name: 'Test Organization',
     slug: 'test-organization',
     description: 'Description de test',
-    image: null,
+    logo: null,
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -365,7 +371,8 @@ describe('[USER NOT IN ORGANIZATION] CRUD : OrganizationService', () => {
     name: 'Test Organization',
     slug: 'test-organization',
     description: 'Description de test',
-    image: null,
+    logo: null,
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -450,7 +457,8 @@ describe('[PUBLIC] OrganizationService', () => {
     name: 'Test Organization',
     slug: 'test-organization',
     description: 'Description de test',
-    image: null,
+    logo: null,
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -490,7 +498,8 @@ describe('[ORGANIZATION MEMBER READ ACCESS] getOrganizationMembersService', () =
     name: 'Test Organization',
     slug: 'test-organization',
     description: 'Description de test',
-    image: null,
+    logo: null,
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -506,6 +515,8 @@ describe('[ORGANIZATION MEMBER READ ACCESS] getOrganizationMembersService', () =
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.OWNER,
@@ -526,6 +537,8 @@ describe('[ORGANIZATION MEMBER READ ACCESS] getOrganizationMembersService', () =
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.ADMIN,
@@ -546,6 +559,8 @@ describe('[ORGANIZATION MEMBER READ ACCESS] getOrganizationMembersService', () =
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.MEMBER,

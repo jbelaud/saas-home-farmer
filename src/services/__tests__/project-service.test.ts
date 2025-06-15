@@ -210,6 +210,8 @@ describe('[ORGANIZATION OWNER] CRUD : Project Service', () => {
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.OWNER,
@@ -217,6 +219,7 @@ describe('[ORGANIZATION OWNER] CRUD : Project Service', () => {
         },
       ],
     }
+
     setupAuthUserMocked(userOwner)
     vi.clearAllMocks()
 
@@ -330,6 +333,8 @@ describe('[ORGANIZATION ADMIN] CRUD : Project Service', () => {
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.ADMIN,
@@ -450,6 +455,8 @@ describe('[ORGANIZATION MEMBER] CRUD : Project Service', () => {
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.MEMBER,
@@ -567,6 +574,8 @@ describe('[USER NOT IN ORGANIZATION] CRUD : Project Service', () => {
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId: otherOrganizationId, // Différente de celle du projet
           role: UserOrganizationRoleConst.OWNER,
