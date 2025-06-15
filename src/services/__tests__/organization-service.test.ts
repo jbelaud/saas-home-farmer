@@ -22,7 +22,7 @@ import {
   updateOrganizationService,
 } from '../organization-service'
 import {Pagination} from '../types/common-type'
-import {UserOrganizationRoleConst} from '../types/domain/auth-types'
+import {RoleConst, UserOrganizationRoleConst} from '../types/domain/auth-types'
 import {
   CreateOrganization,
   Organization,
@@ -42,7 +42,6 @@ const mockMemberData = [
     userId: 'user-1',
     organizationId: 'org-1',
     role: UserOrganizationRoleConst.MEMBER,
-    joinedAt: new Date(),
     user: {
       id: 'user-1',
       name: 'John Doe',
@@ -50,16 +49,20 @@ const mockMemberData = [
       image: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-      emailVerified: null,
-      password: null,
+      emailVerified: true,
+      role: RoleConst.USER,
+      banned: null,
+      banReason: null,
+      banExpires: null,
       visibility: 'public' as const,
     },
   },
   {
+    id: faker.string.uuid(),
+    createdAt: new Date(),
     userId: 'user-2',
     organizationId: 'org-1',
     role: UserOrganizationRoleConst.ADMIN,
-    joinedAt: new Date(),
     user: {
       id: 'user-2',
       name: 'Jane Smith',
@@ -67,8 +70,11 @@ const mockMemberData = [
       image: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-      emailVerified: null,
-      password: null,
+      emailVerified: true,
+      role: RoleConst.USER,
+      banned: null,
+      banReason: null,
+      banExpires: null,
       visibility: 'public' as const,
     },
   },
@@ -193,6 +199,8 @@ describe('[ORGANIZATION OWNER] CRUD : OrganizationService', () => {
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.OWNER,
@@ -202,7 +210,8 @@ describe('[ORGANIZATION OWNER] CRUD : OrganizationService', () => {
             name: 'Test Organization',
             slug: 'test-organization',
             description: 'Description de test',
-            image: null,
+            logo: null,
+            metadata: null,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -255,6 +264,8 @@ describe('[ORGANIZATION ADMIN] CRUD : OrganizationService', () => {
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.ADMIN,
@@ -264,7 +275,8 @@ describe('[ORGANIZATION ADMIN] CRUD : OrganizationService', () => {
             name: 'Test Organization',
             slug: 'test-organization',
             description: 'Description de test',
-            image: null,
+            logo: null,
+            metadata: null,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -318,6 +330,8 @@ describe('[ORGANIZATION MEMBER] CRUD : OrganizationService', () => {
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId,
           role: UserOrganizationRoleConst.MEMBER,
@@ -327,7 +341,8 @@ describe('[ORGANIZATION MEMBER] CRUD : OrganizationService', () => {
             name: 'Test Organization',
             slug: 'test-organization',
             description: 'Description de test',
-            image: null,
+            logo: null,
+            metadata: null,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -396,6 +411,8 @@ describe('[USER NOT IN ORGANIZATION] CRUD : OrganizationService', () => {
       ...userTest,
       organizations: [
         {
+          id: faker.string.uuid(),
+          createdAt: new Date(),
           userId: userTest.id,
           organizationId: otherOrganizationId, // Différente organisation
           role: UserOrganizationRoleConst.OWNER,
@@ -405,7 +422,8 @@ describe('[USER NOT IN ORGANIZATION] CRUD : OrganizationService', () => {
             name: 'Other Organization',
             slug: 'other-organization',
             description: 'Description autre',
-            image: null,
+            logo: null,
+            metadata: null,
             createdAt: new Date(),
             updatedAt: new Date(),
           },

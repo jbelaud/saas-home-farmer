@@ -19,11 +19,13 @@ const userTest = {
   id: currentAuthUserId,
   name: 'Test User',
   email: 'test@example.com',
-  emailVerified: new Date(),
+  emailVerified: true,
   image: null,
-  roles: [RoleConst.USER],
+  role: RoleConst.USER,
   visibility: 'private',
-  password: 'password',
+  banned: null,
+  banReason: null,
+  banExpires: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 } satisfies User
@@ -55,7 +57,7 @@ describe("[getUserById] Lors de l'appel de la fonction", () => {
   it("[ADMIN] devrait appelé `getUserByIdDao` si l'utilisateur est un `admin`", async () => {
     const user = {
       ...userTest,
-      roles: [RoleConst.ADMIN],
+      role: RoleConst.ADMIN,
     } satisfies User
     setupAuthUserMocked(user)
     const result = await getUserByIdService(differentUserId)
