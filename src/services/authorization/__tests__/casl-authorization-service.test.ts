@@ -22,12 +22,14 @@ describe('CASL Abilities', () => {
     id: 'user-123',
     email: 'user@test.com',
     name: 'Regular User',
-    roles: [RoleConst.USER],
+    role: RoleConst.USER,
+    banned: null,
+    banReason: null,
+    banExpires: null,
     createdAt: new Date(),
     updatedAt: new Date(),
-    emailVerified: null,
+    emailVerified: true,
     image: null,
-    password: null,
     visibility: 'public',
   }
 
@@ -35,12 +37,14 @@ describe('CASL Abilities', () => {
     id: 'admin-123',
     email: 'admin@test.com',
     name: 'Admin User',
-    roles: [RoleConst.ADMIN],
+    role: RoleConst.ADMIN,
     createdAt: new Date(),
     updatedAt: new Date(),
-    emailVerified: null,
+    emailVerified: true,
+    banned: null,
+    banReason: null,
+    banExpires: null,
     image: null,
-    password: null,
     visibility: 'public',
   }
 
@@ -48,12 +52,14 @@ describe('CASL Abilities', () => {
     id: 'super-admin-123',
     email: 'super@test.com',
     name: 'Super Admin',
-    roles: [RoleConst.ADMIN], // On garde ADMIN puisque SUPER_ADMIN n'existe pas
+    role: RoleConst.SUPER_ADMIN,
     createdAt: new Date(),
     updatedAt: new Date(),
-    emailVerified: null,
+    emailVerified: true,
     image: null,
-    password: null,
+    banned: null,
+    banReason: null,
+    banExpires: null,
     visibility: 'public',
   }
 
@@ -86,7 +92,6 @@ describe('CASL Abilities', () => {
     it('devrait créer une ability pour un super admin', () => {
       const ability = defineAbilitiesFor(superAdminUser)
       expect(ability).toBeDefined()
-      // Puisque c'est un ADMIN, il peut gérer les utilisateurs mais pas forcément tout
       expect(ability.can(ActionsConst.MANAGE, SubjectsConst.USER)).toBe(true)
       expect(ability.can(ActionsConst.MANAGE, SubjectsConst.SUBSCRIPTION)).toBe(
         true
@@ -461,12 +466,14 @@ describe('CASL Abilities', () => {
       id: 'multi-user',
       email: 'multi@test.com',
       name: 'Multi Role User',
-      roles: [RoleConst.USER],
+      role: RoleConst.USER,
       createdAt: new Date(),
       updatedAt: new Date(),
-      emailVerified: null,
+      emailVerified: true,
+      banned: null,
+      banReason: null,
+      banExpires: null,
       image: null,
-      password: null,
       visibility: 'public',
     }
 

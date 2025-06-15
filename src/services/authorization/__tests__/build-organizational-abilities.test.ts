@@ -24,21 +24,24 @@ const createUserWithOrgRole = (
   id,
   email: `user${id}@test.com`,
   name: `User ${id}`,
-  emailVerified: null,
+  emailVerified: false,
   image: null,
-  password: null,
-  roles: [RoleConst.USER],
+  role: RoleConst.USER,
   organizations: [
     {
-      userId: id,
+      id: `member-${id}`,
       organizationId: orgId,
+      userId: id,
       role: orgRole as OrganizationRole,
-      joinedAt: new Date(),
+      createdAt: new Date(),
     },
   ],
   visibility: 'public' as const,
   createdAt: new Date(),
   updatedAt: new Date(),
+  banned: false,
+  banReason: null,
+  banExpires: null,
 })
 
 describe('buildOrganizationalAbilities', () => {
@@ -220,27 +223,31 @@ describe('buildOrganizationalAbilities', () => {
         id: userId,
         email: `user${userId}@test.com`,
         name: `User ${userId}`,
-        emailVerified: null,
+        emailVerified: false,
         image: null,
-        password: null,
-        roles: [RoleConst.USER],
+        role: RoleConst.USER,
         organizations: [
           {
-            userId,
+            id: `member-${userId}-1`,
             organizationId,
+            userId,
             role: UserOrganizationRoleConst.OWNER,
-            joinedAt: new Date(),
+            createdAt: new Date(),
           },
           {
-            userId,
+            id: `member-${userId}-2`,
             organizationId: otherOrganizationId,
+            userId,
             role: UserOrganizationRoleConst.MEMBER,
-            joinedAt: new Date(),
+            createdAt: new Date(),
           },
         ],
         visibility: 'public' as const,
         createdAt: new Date(),
         updatedAt: new Date(),
+        banned: false,
+        banReason: null,
+        banExpires: null,
       }
 
       // Contexte pour la première organisation (OWNER)

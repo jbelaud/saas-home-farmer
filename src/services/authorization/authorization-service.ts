@@ -17,6 +17,7 @@ import {
   Actions,
   buildAdminAbilities,
   buildGuestAbilities,
+  buildSuperAdminAbilities,
   buildUserAbilities,
   Subjects,
 } from './casl-abilities'
@@ -160,7 +161,7 @@ export function filterFields<T extends Record<string, unknown>>(
  */
 export function isUserAdmin(user?: User): boolean {
   if (!user) return false
-  return user.role === RoleConst.ADMIN
+  return user.role === RoleConst.ADMIN || user.role === RoleConst.SUPER_ADMIN
 }
 
 /**
@@ -216,10 +217,4 @@ export function isOrganizationAdmin(
     organizationId,
     UserOrganizationRoleConst.ADMIN
   )
-}
-function buildSuperAdminAbilities(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  builder: AbilityBuilder<MongoAbility<AbilityTuple, MongoQuery>>
-) {
-  throw new Error('Function not implemented.')
 }
