@@ -1,10 +1,4 @@
-import {
-  AbilityBuilder,
-  AbilityTuple,
-  createMongoAbility,
-  MongoAbility,
-  MongoQuery,
-} from '@casl/ability'
+import {AbilityBuilder, createMongoAbility} from '@casl/ability'
 
 import {
   OrganizationContext,
