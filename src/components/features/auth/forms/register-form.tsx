@@ -1,6 +1,6 @@
 'use client'
 import {zodResolver} from '@hookform/resolvers/zod'
-import {AlertCircle} from 'lucide-react'
+import {AlertCircle, Mail} from 'lucide-react'
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import Link from 'next/link'
 import React, {useState} from 'react'
@@ -32,6 +32,8 @@ import {
 import {Input} from '@/components/ui/input'
 import {cn} from '@/lib/utils'
 
+import {RegisterMagicLinkForm} from './register-magic-link-form'
+
 type FormValues = {
   name: string
   email: string
@@ -55,6 +57,7 @@ export function RegisterForm({
   ...props
 }: React.ComponentProps<'div'>) {
   const [showForm, setShowForm] = useState(false)
+  const [isMagicLink, setIsMagicLink] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -172,13 +175,35 @@ export function RegisterForm({
               S&apos;inscrire avec Google
             </Button>
 
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setIsMagicLink(true)}
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              S&apos;inscrire avec Magic Link
+            </Button>
+
             <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
               <span className="bg-background text-muted-foreground relative z-10 px-2">
                 Ou
               </span>
             </div>
 
-            {!showForm ? (
+            {isMagicLink ? (
+              <div>
+                <RegisterMagicLinkForm />
+                <div className="mt-4 text-center">
+                  <Button
+                    variant="link"
+                    className="text-sm"
+                    onClick={() => setIsMagicLink(false)}
+                  >
+                    Retour aux options d&apos;inscription
+                  </Button>
+                </div>
+              </div>
+            ) : !showForm ? (
               <Button
                 variant="outline"
                 className="w-full"
