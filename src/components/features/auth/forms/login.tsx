@@ -84,10 +84,18 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
           )}
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our{' '}
-        <Link href="/terms">Terms of Service</Link> and{' '}
-        <Link href="/privacy">Privacy Policy</Link>.
+      <div className="flex flex-col items-center gap-2 text-center">
+        <div className="text-muted-foreground *:[a]:hover:text-primary text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+          En cliquant sur continuer, vous acceptez nos{' '}
+          <Link href="/terms">Conditions d&apos;utilisation</Link> et notre{' '}
+          <Link href="/privacy">Politique de confidentialité</Link>.
+        </div>
+        <Link
+          href="/reset-password"
+          className="text-muted-foreground hover:text-primary text-sm"
+        >
+          Mot de passe oublié ?
+        </Link>
       </div>
     </div>
   )

@@ -14,3 +14,5 @@ export const isEmailAvailableService =
   userServiceInterceptor.isEmailAvailableService
 export const createOrganizationForUserService =
   userServiceInterceptor.createOrganizationForUserService
+export const initializeRegisterUserDataService =
+  userServiceInterceptor.initializeRegisterUserDataService

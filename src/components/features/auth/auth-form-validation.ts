@@ -11,11 +11,6 @@ export const authMagicLinkFormSchema = z.object({
   email: z.string().email('Adresse email invalide'),
 })
 
-export const authRegisterMagicLinkFormSchema = z.object({
-  email: z.string().email('Adresse email invalide'),
-  name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-})
-
 export const authRegisterFormSchema = authLoginFormSchema
   .extend({
     name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),

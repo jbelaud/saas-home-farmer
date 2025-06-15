@@ -6,8 +6,27 @@ import {
 
 import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization-link-email'
 import MagicLinkMail from '@/lib/emails/magic-link-email'
+import ResetPasswordEmail from '@/lib/emails/reset-password-email'
+import VerificationEmail from '@/lib/emails/verification-email'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+export const sendSimpleEmailService = async ({
+  to,
+  subject,
+  text,
+}: {
+  to: string
+  subject: string
+  text: string
+}) => {
+  await sendEmailService({
+    to,
+    subject,
+    text,
+    from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
+  })
+}
 
 export const sendEmailService = async (
   payload: CreateEmailOptions,
@@ -29,10 +48,6 @@ export const sendEmailService = async (
     console.error(error)
     throw error
   }
-}
-
-export const EmailService = {
-  sendEmail: sendEmailService,
 }
 
 interface SendOrganizationInvitationParams {
@@ -74,11 +89,47 @@ export const sendMagicLinkEmailService = async ({
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
   // const linkUrl = `${url}?token=${token}`
   // console.log('linkUrl', linkUrl)
-  await EmailService.sendEmail({
+  await sendEmailService({
     to: email,
     subject: 'Connexion au SaaS Mike Codeur Stripe',
     from: fromEmail,
     text: 'Connexion au SaaS Mike Codeur Stripe',
     react: MagicLinkMail({url}),
+  })
+}
+
+export const sendVerificationEmailService = async ({
+  email,
+  url,
+}: {
+  email: string
+  url: string
+}) => {
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  await sendEmailService({
+    to: email,
+    subject: 'Vérification de votre adresse email',
+    from: fromEmail,
+    text: 'Vérification de votre adresse email',
+    react: VerificationEmail({url}),
+  })
+}
+
+export const sendResetPasswordLinkEmailService = async ({
+  email,
+  url,
+}: {
+  email: string
+  url: string
+}) => {
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  await sendEmailService({
+    to: email,
+    subject: 'Réinitialisation de votre mot de passe',
+    from: fromEmail,
+    text: 'Réinitialisation de votre mot de passe',
+    react: ResetPasswordEmail({url}),
   })
 }

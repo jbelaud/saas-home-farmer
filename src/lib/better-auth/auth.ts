@@ -9,7 +9,10 @@ import db from '@/db/models/db'
 import {
   sendMagicLinkEmailService,
   sendOrganizationInvitationService,
+  sendResetPasswordLinkEmailService,
+  sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
+import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
 
 export const auth = betterAuth({
   appName: 'Next Stripe SaaS boilerplate',
@@ -18,6 +21,25 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({user, url}) => {
+      await sendResetPasswordLinkEmailService({
+        email: user.email,
+        url,
+      })
+    },
+  },
+  account: {
+    accountLinking: {
+      enabled: true,
+    },
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({user, url}) => {
+      await sendVerificationEmailService({
+        email: user.email,
+        url,
+      })
+    },
   },
   advanced: {
     database: {
@@ -59,6 +81,15 @@ export const auth = betterAuth({
  */
 function createAuthRedirectMiddleware() {
   return createAuthMiddleware(async (ctx) => {
+    //console.log('ctx.path', ctx.path)
+
+    if (ctx.path === '/magic-link/verify') {
+      console.log('/magic-link/verify')
+      await initializeRegisterUserDataService(
+        ctx.context?.newSession?.user.email ?? ''
+      )
+    }
+
     // Redirection après connexion réussie
     if (ctx.path === '/sign-in/email' && ctx.context.newSession) {
       console.log('Redirection après connexion réussie')

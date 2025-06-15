@@ -6,3 +6,9 @@ export const sendOrganizationInvitationService =
   emailServiceInterceptor.sendOrganizationInvitation
 export const sendMagicLinkEmailService =
   emailServiceInterceptor.sendMagicLinkEmailService
+export const sendVerificationEmailService =
+  emailServiceInterceptor.sendVerificationEmailService
+export const sendSimpleEmailService =
+  emailServiceInterceptor.sendSimpleEmailService
+export const sendResetPasswordLinkEmailService =
+  emailServiceInterceptor.sendResetPasswordLinkEmailService

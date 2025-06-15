@@ -186,3 +186,25 @@ export const isEmailAvailableService = async (
   const exists = await isEmailExistsDao(email)
   return !exists
 }
+
+/**
+ * Initialise les données utilisateur en vérifiant et créant une organisation si nécessaire
+ */
+export const initializeRegisterUserDataService = async (email: string) => {
+  if (!email) {
+    throw new ValidationError('Email is required')
+  }
+
+  const user = await getUserByEmailDao(email)
+  if (!user) {
+    throw new ValidationError('User not found')
+  }
+
+  // Vérifier si l'utilisateur a déjà une organisation
+  if (!user.organizations || user.organizations.length === 0) {
+    // Créer une organisation pour l'utilisateur
+    return await createOrganizationForUserService(email)
+  }
+
+  return user
+}

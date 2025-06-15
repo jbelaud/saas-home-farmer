@@ -8,11 +8,8 @@ import {
   authLoginFormSchema,
   authMagicLinkFormSchema,
   authRegisterFormSchema,
-  authRegisterMagicLinkFormSchema,
 } from '@/components/features/auth/auth-form-validation'
 import {auth} from '@/lib/better-auth/auth' // path to your Better Auth server instance
-//import {authClient} from '@/lib/better-auth/auth-client' //import the auth client
-//import {signIn, signOut} from '@/lib/next-auth/next-auth'
 import {isValidationParsedZodError} from '@/services/errors/validation-error'
 import {
   createOrganizationForUserService,
@@ -50,17 +47,6 @@ type RegisterFormState = {
 type MagicLinkFormState = {
   success: boolean
   errors?: MagicLinkValidationError[]
-  message?: string
-}
-
-type RegisterMagicLinkValidationError = {
-  field: keyof typeof authRegisterMagicLinkFormSchema._type
-  message: string
-}
-
-type RegisterMagicLinkFormState = {
-  success: boolean
-  errors?: RegisterMagicLinkValidationError[]
   message?: string
 }
 
@@ -327,20 +313,18 @@ export async function registerCredentialAction(
  * Action d'inscription d'un nouvel utilisateur
  */
 export async function registerMagicLinkAction(
-  prevState: RegisterMagicLinkFormState,
+  prevState: MagicLinkFormState,
   formData: FormData
-): Promise<RegisterMagicLinkFormState> {
+): Promise<MagicLinkFormState> {
   // 1. Validation server  Zod des données du formulaire
-  const validationResult = authRegisterMagicLinkFormSchema.safeParse({
-    name: formData.get('name'),
+  const validationResult = authMagicLinkFormSchema.safeParse({
     email: formData.get('email'),
   })
 
   if (!validationResult.success) {
-    const validationErrors: RegisterMagicLinkValidationError[] =
+    const validationErrors: MagicLinkValidationError[] =
       validationResult.error.errors.map((err) => ({
-        field: err
-          .path[0] as keyof typeof authRegisterMagicLinkFormSchema._type,
+        field: err.path[0] as keyof typeof authMagicLinkFormSchema._type,
         message: err.message,
       }))
     return {
@@ -350,8 +334,7 @@ export async function registerMagicLinkAction(
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {name, email} = validationResult.data
+  const {email} = validationResult.data
 
   // 2. Vérifier si l'email est disponible
   const isEmailAvailable = await isEmailAvailableService(email)
@@ -374,17 +357,6 @@ export async function registerMagicLinkAction(
       callbackURL: '/dashboard',
     },
   })
-  console.log('response', response)
-  //redirect('/verify-request')
-  // // 3. creation de l'utilisateur avec better auth
-  // const response = await auth.api.signUpEmail({
-  //   body: {
-  //     name,
-  //     email,
-  //     password: password ?? '',
-  //   },
-  //   asResponse: true,
-  // })
 
   if (!response.status) {
     return {
@@ -395,62 +367,17 @@ export async function registerMagicLinkAction(
 
   // 4. Créer son organisation dans la base de données
   try {
-    // const userOrganization = await createOrganizationForUserService(email)
-    // console.log('userOrganization', userOrganization)
-    // const response = await auth.api.signInEmail({
-    //   headers: await headers(),
-    //   body: {
-    //     email,
-    //     password,
-    //     rememberMe: true,
-    //   },
-    //   asResponse: true,
-    // })
-    // await auth.api.setActiveOrganization({
-    //   headers: response2.headers,
-    //   body: {
-    //     organizationId: userOrganization.organizationId,
-    //   },
-    // })
-    // if (!response.ok && response.status !== 302) {
-    //   return {
-    //     success: false,
-    //     message: 'Identifiants invalides',
-    //   }
-    // }
-    // //4. redirection definie dans la configuration
-    // redirect(response.headers.get('Location') ?? '/404')
     redirect('/verify-request')
   } catch (error) {
     console.log('error', error)
     if (isRedirectError(error)) {
       throw error
     }
-    // Si l'erreur est une erreur de validation Zod au niveau Service
-    const validationError = isValidationParsedZodError(error)
-
-    if (validationError) {
-      return {
-        success: false,
-        message: `Erreur de validation : ${error.message}`,
-        errors: error.zodErrorFields?.errors.map((err) => ({
-          field: err
-            .path[0] as keyof typeof authRegisterMagicLinkFormSchema._type,
-          message: err.message,
-        })),
-      }
-    }
-    // Si l'erreur est une erreur technique generique
     return {
       success: false,
-      message:
-        error instanceof Error
-          ? `Error technique : ${error.message}`
-          : 'Une erreur est survenue lors de la création du compte',
-      errors: [],
+      message: "Une erreur est survenue lors de l'envoi du magic link",
     }
   }
-
   return {
     success: true,
     message: 'Un lien de connexion a été envoyé à votre adresse email',

@@ -9,7 +9,7 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 
 type MagicLinkValidationError = {
-  field: 'email' | 'name'
+  field: 'email'
   message: string
 }
 
@@ -37,10 +37,6 @@ export function RegisterMagicLinkForm() {
       {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
       {success && <div className="mb-4 text-sm text-green-500">{success}</div>}
       <div className="grid gap-6">
-        <div className="grid gap-3">
-          <Label htmlFor="name">Nom complet</Label>
-          <Input id="name" name="name" placeholder="Jean Dupont" required />
-        </div>
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
           <Input
