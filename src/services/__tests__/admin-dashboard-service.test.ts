@@ -1,6 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {getAdminStatisticsDao} from '@/db/repositories/admin-statistics-repository'
+import {RoleConst} from '@/services/types/domain/auth-types'
 
 import {
   getDashboardStatsService,
@@ -40,6 +41,12 @@ describe('[ADMIN] Admin Dashboard Service', () => {
     beforeEach(() => {
       const user = {
         ...userTestAdmin,
+        role: RoleConst.ADMIN,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        emailVerified: true,
+        roles: undefined,
       }
       setupAuthUserMocked(user)
     })
@@ -68,6 +75,12 @@ describe('[ADMIN] Admin Dashboard Service', () => {
     beforeEach(() => {
       const user = {
         ...userTestAdmin,
+        role: RoleConst.ADMIN,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        emailVerified: true,
+        roles: undefined,
       }
       setupAuthUserMocked(user)
     })
@@ -100,7 +113,13 @@ describe('[ADMIN] Admin Dashboard Service', () => {
   describe('[USER] Authorization Tests', () => {
     beforeEach(() => {
       const user = {
-        ...userTest, // Utilisateur normal (non admin)
+        ...userTest,
+        role: RoleConst.USER,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        emailVerified: true,
+        roles: undefined,
       }
       setupAuthUserMocked(user)
     })
