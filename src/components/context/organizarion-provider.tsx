@@ -21,6 +21,8 @@ import {
 } from '@/services/types/domain/organization-types'
 import {User} from '@/services/types/domain/user-types'
 
+import {useAuth} from './auth-provider'
+
 interface OrganizationContextType {
   // États
   user: User | null
@@ -29,7 +31,6 @@ interface OrganizationContextType {
   currentUserOrganization: MemberData | null
 
   // Actions
-  setUser: (user: User | null) => void
   setCurrentOrganization: (organizationId: string) => void
   setCurrentOrganizationWithoutRedirect: (organizationId: string) => void
 }
@@ -40,17 +41,15 @@ const OrganizationContext = createContext<OrganizationContextType | undefined>(
 
 interface OrganizationProviderProps {
   children: React.ReactNode
-  initialUser?: User | null
   initialOrganization?: Organization | null
 }
 
 export function OrganizationProvider({
   children,
-  initialUser = null,
   initialOrganization = null,
 }: OrganizationProviderProps) {
   //const router = useRouter()
-  const [user, setUser] = useState<User | null>(initialUser)
+  const {user} = useAuth()
   const [currentOrganization, setCurrentOrganization] =
     useState<Organization | null>(initialOrganization)
   const {data: activeOrganization} = authClient.useActiveOrganization()
@@ -147,8 +146,6 @@ export function OrganizationProvider({
     currentOrganization,
     currentUserOrganization,
 
-    // Actions
-    setUser,
     setCurrentOrganization: handleSetCurrentOrganization,
     setCurrentOrganizationWithoutRedirect:
       handleSetCurrentOrganizationWithoutRedirect,

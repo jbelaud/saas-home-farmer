@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import * as React from 'react'
 
+import {useAuth} from '@/components/context/auth-provider'
 import {useOrganization} from '@/components/context/organizarion-provider'
 import {NavMain} from '@/components/features/layouts/sidebar/nav-main'
 import {NavProjects} from '@/components/features/layouts/sidebar/nav-projects'
@@ -190,8 +191,8 @@ function buildMenu(isAdminUser: boolean, orgSlug: string) {
 }
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const {user, organizations, currentOrganization} = useOrganization()
-
+  const {organizations, currentOrganization} = useOrganization()
+  const {user} = useAuth()
   // États dérivés avec mémorisation
   const isAdminUser = React.useMemo(() => isAdmin(user) ?? false, [user])
   const currentOrgSlug = React.useMemo(
