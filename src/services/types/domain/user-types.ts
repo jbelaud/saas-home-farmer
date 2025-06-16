@@ -2,9 +2,15 @@ import {Session} from 'better-auth'
 
 import {
   AddUserModel,
+  AddUserSettingsModel,
+  LanguageEnumModel,
+  NotificationChannelEnumModel,
   RoleEnumModel,
+  ThemeEnumModel,
   UpdateUserModel,
+  UpdateUserSettingsModel,
   UserModel,
+  UserSettingsModel,
 } from '@/db/models/user-model'
 
 import {MemberData} from './organization-types'
@@ -14,7 +20,17 @@ import {MemberData} from './organization-types'
 
 export type User = UserModel & {
   organizations?: MemberData[]
+  settings?: UserSettings
 }
+
+// Types pour les paramètres utilisateur
+export type UserSettings = UserSettingsModel
+export type CreateUserSettings = Omit<AddUserSettingsModel, 'userId'>
+export type UpdateUserSettings = Omit<UpdateUserSettingsModel, 'userId'>
+export type Theme = ThemeEnumModel
+export type Language = LanguageEnumModel
+export type NotificationChannel = NotificationChannelEnumModel
+
 export type RequireAuthOptions = {
   roles?: Roles[]
   active?: boolean

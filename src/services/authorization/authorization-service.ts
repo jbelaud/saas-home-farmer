@@ -16,6 +16,18 @@ import {
   Subjects,
 } from './casl-abilities'
 
+export const SubjectsConst = {
+  USER: 'user' as Subjects,
+  SUBSCRIPTION: 'subscription' as Subjects,
+  ORGANIZATION: 'organization' as Subjects,
+  PROJECT: 'project' as Subjects,
+  TASK: 'task' as Subjects,
+  FILE: 'file' as Subjects,
+  TECHNICAL: 'technical' as Subjects,
+  LOG: 'log' as Subjects,
+  ALL: 'all' as Subjects,
+} as const
+
 /**
  * Utilitaire pour créer une ability pour un utilisateur donné
  * Équivalent simplifié de la fonction defineAbilitiesFor

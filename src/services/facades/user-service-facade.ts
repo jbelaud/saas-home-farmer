@@ -16,3 +16,15 @@ export const createOrganizationForUserService =
   userServiceInterceptor.createOrganizationForUserService
 export const initializeRegisterUserDataService =
   userServiceInterceptor.initializeRegisterUserDataService
+
+// Facade pour les paramètres utilisateur
+export const createUserSettingsService =
+  userServiceInterceptor.createUserSettingsService
+export const getUserSettingsService =
+  userServiceInterceptor.getUserSettingsService
+export const updateUserSettingsService =
+  userServiceInterceptor.updateUserSettingsService
+export const deleteUserSettingsService =
+  userServiceInterceptor.deleteUserSettingsService
+export const upsertUserSettingsService =
+  userServiceInterceptor.upsertUserSettingsService

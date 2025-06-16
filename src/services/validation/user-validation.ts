@@ -2,7 +2,9 @@ import {z} from 'zod'
 
 import {
   CreateUser,
+  CreateUserSettings,
   UpdateUser,
+  UpdateUserSettings,
   User,
   UserVisibility,
 } from '../types/domain/user-types'
@@ -40,3 +42,23 @@ export const updateUserServiceSchema = createUserServiceSchema.extend({
 export const userUuidSchema = z.string().uuid({
   message: "L'identifiant n'est pas valide.",
 })
+
+// Schémas pour les paramètres utilisateur
+export const createUserSettingsServiceSchema = z.object({
+  theme: z.enum(['light', 'dark', 'system']).default('system'),
+  language: z.enum(['fr', 'en', 'es', 'de']).default('fr'),
+  timezone: z.string().default('Europe/Paris'),
+  enableTwoFactor: z.boolean().default(false),
+  enableEmailNotifications: z.boolean().default(true),
+  enablePushNotifications: z.boolean().default(true),
+  notificationChannel: z
+    .enum(['email', 'push', 'both', 'none'])
+    .default('both'),
+  emailDigest: z.boolean().default(true),
+  marketingEmails: z.boolean().default(false),
+}) satisfies z.Schema<CreateUserSettings>
+
+export const updateUserSettingsServiceSchema =
+  createUserSettingsServiceSchema.partial()
+
+export const userSettingsUuidSchema = z.string().uuid()

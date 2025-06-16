@@ -3,12 +3,17 @@ import {
   createUserAndOrganizationTxnDao,
   createUserDao,
   createUserRoleAndOrganizationTxnDao,
+  createUserSettingsDao,
+  deleteUserSettingsByUserIdDao,
   getAllUsersWithPaginationDao,
   getUserByEmailDao,
   getUserByIdDao,
+  getUserSettingsByUserIdDao,
   isEmailExistsDao,
   searchUsersDao,
   updateUserSafeByUidDao,
+  updateUserSettingsByUserIdDao,
+  upsertUserSettingsDao,
 } from '@/db/repositories/user-repository'
 import {hashPassword} from '@/lib/crypto'
 
@@ -24,11 +29,19 @@ import {
 } from './errors/validation-error'
 import {Pagination} from './types/common-type'
 import {CreateOrganization} from './types/domain/organization-types'
-import {CreateUser, UpdateUser} from './types/domain/user-types'
+import {
+  CreateUser,
+  CreateUserSettings,
+  UpdateUser,
+  UpdateUserSettings,
+} from './types/domain/user-types'
 import {
   baseUserServiceSchema,
   createUserServiceSchema,
+  createUserSettingsServiceSchema,
   updateUserServiceSchema,
+  updateUserSettingsServiceSchema,
+  userSettingsUuidSchema,
   userUuidSchema,
 } from './validation/user-validation'
 
@@ -207,4 +220,84 @@ export const initializeRegisterUserDataService = async (email: string) => {
   }
 
   return user
+}
+
+// Services pour les paramètres utilisateur
+export const createUserSettingsService = async (
+  userId: string,
+  settings: CreateUserSettings
+) => {
+  const parsed = createUserSettingsServiceSchema.safeParse(settings)
+  if (!parsed.success) {
+    throw new ValidationParsedZodError(parsed.error)
+  }
+
+  const granted = await canUpdateUser(userId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  return await createUserSettingsDao({...parsed.data, userId})
+}
+
+export const getUserSettingsService = async (userId: string) => {
+  const parsed = userSettingsUuidSchema.safeParse(userId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  const granted = await canReadUser(userId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  return await getUserSettingsByUserIdDao(userId)
+}
+
+export const updateUserSettingsService = async (
+  userId: string,
+  settings: UpdateUserSettings
+) => {
+  const parsed = updateUserSettingsServiceSchema.safeParse(settings)
+  if (!parsed.success) {
+    throw new ValidationParsedZodError(parsed.error)
+  }
+
+  const granted = await canUpdateUser(userId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  await updateUserSettingsByUserIdDao(userId, {...parsed.data, userId})
+}
+
+export const deleteUserSettingsService = async (userId: string) => {
+  const parsed = userSettingsUuidSchema.safeParse(userId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  const granted = await canUpdateUser(userId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  await deleteUserSettingsByUserIdDao(userId)
+}
+
+export const upsertUserSettingsService = async (
+  userId: string,
+  settings: CreateUserSettings
+) => {
+  const parsed = createUserSettingsServiceSchema.safeParse(settings)
+  if (!parsed.success) {
+    throw new ValidationParsedZodError(parsed.error)
+  }
+
+  const granted = await canUpdateUser(userId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  return await upsertUserSettingsDao(userId, {...parsed.data, userId})
 }

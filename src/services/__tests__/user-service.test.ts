@@ -3,13 +3,27 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 vi.mock('@/db/repositories/user-repository', () => ({
   getUserByIdDao: vi.fn(),
   searchUsersDao: vi.fn(),
+  createUserSettingsDao: vi.fn(),
+  getUserSettingsByUserIdDao: vi.fn(),
+  updateUserSettingsByUserIdDao: vi.fn(),
+  deleteUserSettingsByUserIdDao: vi.fn(),
+  upsertUserSettingsDao: vi.fn(),
 }))
 
 import * as userRepository from '@/db/repositories/user-repository'
 
+import {AuthorizationError} from '../errors/authorization-error'
 import {RoleConst} from '../types/domain/auth-types'
 import {User} from '../types/domain/user-types'
-import {getUserByIdService, searchUsersService} from '../user-service'
+import {
+  createUserSettingsService,
+  deleteUserSettingsService,
+  getUserByIdService,
+  getUserSettingsService,
+  searchUsersService,
+  updateUserSettingsService,
+  upsertUserSettingsService,
+} from '../user-service'
 import {setupAuthUserMocked} from './helper-service-test'
 
 const currentAuthUserId = 'ae760f8e-4aa6-4d71-a4c8-344429b7ae21' //faker.string.uuid()
@@ -143,5 +157,159 @@ describe('[searchUsersService]', () => {
     vi.mocked(userRepository.searchUsersDao).mockResolvedValue([])
     const result = await searchUsersService('zzzz')
     expect(result).toEqual([])
+  })
+})
+
+describe('[UserSettings] CRUD', () => {
+  const userId = currentAuthUserId
+  const userSettings = {
+    userId,
+    theme: 'dark' as const,
+    language: 'fr' as const,
+    timezone: 'Europe/Paris',
+    enableTwoFactor: true,
+    enableEmailNotifications: true,
+    enablePushNotifications: true,
+    notificationChannel: 'both' as const,
+    emailDigest: true,
+    marketingEmails: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  describe('[createUserSettingsService]', () => {
+    it('[USER] devrait créer les paramètres pour son propre compte', async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+      vi.mocked(userRepository.createUserSettingsDao).mockResolvedValue(
+        userSettings
+      )
+
+      const result = await createUserSettingsService(userId, userSettings)
+      expect(result).toEqual(userSettings)
+      expect(userRepository.createUserSettingsDao).toHaveBeenCalledTimes(1)
+    })
+
+    it('[USER] devrait lever une erreur si tentative de création pour un autre utilisateur', async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue({
+        ...userTest,
+        id: differentUserId,
+      })
+
+      await expect(
+        createUserSettingsService(differentUserId, userSettings)
+      ).rejects.toThrow(AuthorizationError)
+    })
+  })
+
+  describe('[getUserSettingsService]', () => {
+    it('[USER] devrait récupérer ses propres paramètres', async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+      vi.mocked(userRepository.getUserSettingsByUserIdDao).mockResolvedValue(
+        userSettings
+      )
+
+      const result = await getUserSettingsService(userId)
+      expect(result).toEqual(userSettings)
+      expect(userRepository.getUserSettingsByUserIdDao).toHaveBeenCalledWith(
+        userId
+      )
+    })
+
+    it("[USER] devrait lever une erreur si tentative de lecture des paramètres d'un autre utilisateur", async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue({
+        ...userTest,
+        id: differentUserId,
+      })
+
+      await expect(getUserSettingsService(differentUserId)).rejects.toThrow(
+        AuthorizationError
+      )
+    })
+  })
+
+  describe('[updateUserSettingsService]', () => {
+    it('[USER] devrait mettre à jour ses propres paramètres', async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+      const updatedSettings = {
+        theme: 'light' as const,
+        language: 'en' as const,
+      }
+
+      await updateUserSettingsService(userId, updatedSettings)
+      expect(userRepository.updateUserSettingsByUserIdDao).toHaveBeenCalledWith(
+        userId,
+        {...updatedSettings, userId}
+      )
+    })
+
+    it("[USER] devrait lever une erreur si tentative de mise à jour des paramètres d'un autre utilisateur", async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue({
+        ...userTest,
+        id: differentUserId,
+      })
+
+      await expect(
+        updateUserSettingsService(differentUserId, {theme: 'light'})
+      ).rejects.toThrow(AuthorizationError)
+    })
+  })
+
+  describe('[deleteUserSettingsService]', () => {
+    it('[USER] devrait supprimer ses propres paramètres', async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+      await deleteUserSettingsService(userId)
+      expect(userRepository.deleteUserSettingsByUserIdDao).toHaveBeenCalledWith(
+        userId
+      )
+    })
+
+    it("[USER] devrait lever une erreur si tentative de suppression des paramètres d'un autre utilisateur", async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue({
+        ...userTest,
+        id: differentUserId,
+      })
+
+      await expect(deleteUserSettingsService(differentUserId)).rejects.toThrow(
+        AuthorizationError
+      )
+    })
+  })
+
+  describe('[upsertUserSettingsService]', () => {
+    it('[USER] devrait créer ou mettre à jour ses propres paramètres', async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+      vi.mocked(userRepository.upsertUserSettingsDao).mockResolvedValue(
+        userSettings
+      )
+
+      const result = await upsertUserSettingsService(userId, userSettings)
+      expect(result).toEqual(userSettings)
+      expect(userRepository.upsertUserSettingsDao).toHaveBeenCalledTimes(1)
+    })
+
+    it("[USER] devrait lever une erreur si tentative d'upsert des paramètres d'un autre utilisateur", async () => {
+      setupAuthUserMocked(userTest)
+      vi.mocked(userRepository.getUserByIdDao).mockResolvedValue({
+        ...userTest,
+        id: differentUserId,
+      })
+
+      await expect(
+        upsertUserSettingsService(differentUserId, userSettings)
+      ).rejects.toThrow(AuthorizationError)
+    })
   })
 })

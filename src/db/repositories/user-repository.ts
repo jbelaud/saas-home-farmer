@@ -4,7 +4,15 @@ import {eq, or, sql} from 'drizzle-orm'
 import {member, organization, user as users} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {AddOrganizationModel} from '@/db/models/organization-model'
-import {AddUserModel, UpdateUserModel, UserModel} from '@/db/models/user-model'
+import {
+  AddUserModel,
+  AddUserSettingsModel,
+  UpdateUserModel,
+  UpdateUserSettingsModel,
+  UserModel,
+  userSettings,
+  UserSettingsModel,
+} from '@/db/models/user-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {
   RoleConst,
@@ -324,4 +332,52 @@ export const isEmailExistsDao = async (email: string): Promise<boolean> => {
     where: eq(users.email, email),
   })
   return !!user
+}
+
+// CRUD pour les paramètres utilisateur
+export const createUserSettingsDao = async (
+  settings: AddUserSettingsModel
+): Promise<UserSettingsModel> => {
+  const [row] = await db.insert(userSettings).values(settings).returning()
+  return row
+}
+
+export const getUserSettingsByUserIdDao = async (
+  userId: string
+): Promise<UserSettingsModel | undefined> => {
+  const row = await db.query.userSettings.findFirst({
+    where: (settings, {eq}) => eq(settings.userId, userId),
+  })
+  return row
+}
+
+export const updateUserSettingsByUserIdDao = async (
+  userId: string,
+  settings: UpdateUserSettingsModel
+): Promise<void> => {
+  await db
+    .update(userSettings)
+    .set({...settings, updatedAt: new Date()})
+    .where(eq(userSettings.userId, userId))
+}
+
+export const deleteUserSettingsByUserIdDao = async (
+  userId: string
+): Promise<void> => {
+  await db.delete(userSettings).where(eq(userSettings.userId, userId))
+}
+
+// Fonction utilitaire pour créer ou mettre à jour les paramètres
+export const upsertUserSettingsDao = async (
+  userId: string,
+  settings: AddUserSettingsModel
+): Promise<UserSettingsModel> => {
+  const existingSettings = await getUserSettingsByUserIdDao(userId)
+
+  if (existingSettings) {
+    await updateUserSettingsByUserIdDao(userId, settings)
+    return {...existingSettings, ...settings, updatedAt: new Date()}
+  } else {
+    return await createUserSettingsDao({...settings, userId})
+  }
 }
