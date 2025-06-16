@@ -130,5 +130,10 @@
         ]
       }
     ]
+  },
+  "NotFoundPage": {
+    "title": "Página no encontrada",
+    "description": "Lo sentimos, no pudimos encontrar la página que estás buscando.",
+    "goBackHome": "Volver al inicio"
   }
 }

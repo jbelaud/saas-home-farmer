@@ -12,7 +12,10 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import {APP_NAME} from '@/lib/constants'
-import {getAuthUser} from '@/services/authentication/auth-service'
+import {
+  getAuthUser,
+  getSessionAuth,
+} from '@/services/authentication/auth-service'
 
 export const metadata: Metadata = {
   title: `Espace utilisateur ${APP_NAME}`,
@@ -21,9 +24,18 @@ export const metadata: Metadata = {
 
 async function AppLayout({children}: {children: React.ReactNode}) {
   const user = await getAuthUser()
+  const session = await getSessionAuth()
+
+  const organizationId = session?.session?.activeOrganizationId
+  const activeOrganization = user?.organizations?.find(
+    (org) => org.organization?.id === organizationId
+  )?.organization
 
   return (
-    <OrganizationProvider initialUser={user}>
+    <OrganizationProvider
+      initialUser={user}
+      initialOrganization={activeOrganization}
+    >
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>

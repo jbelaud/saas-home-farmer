@@ -1,6 +1,7 @@
 'use client'
 
-import {useRouter} from 'next/navigation'
+//import {useRouter} from 'next/navigation'
+
 import React, {
   createContext,
   useContext,
@@ -9,6 +10,7 @@ import React, {
   useState,
 } from 'react'
 
+import {authClient} from '@/lib/better-auth/auth-client'
 import {
   RoleConst,
   UserOrganizationRoleConst,
@@ -39,27 +41,27 @@ const OrganizationContext = createContext<OrganizationContextType | undefined>(
 interface OrganizationProviderProps {
   children: React.ReactNode
   initialUser?: User | null
+  initialOrganization?: Organization | null
 }
 
 export function OrganizationProvider({
   children,
   initialUser = null,
+  initialOrganization = null,
 }: OrganizationProviderProps) {
-  const router = useRouter()
+  //const router = useRouter()
   const [user, setUser] = useState<User | null>(initialUser)
   const [currentOrganization, setCurrentOrganization] =
-    useState<Organization | null>(null)
+    useState<Organization | null>(initialOrganization)
+  const {data: activeOrganization} = authClient.useActiveOrganization()
+  console.log('activeOrganization', activeOrganization)
 
   // Fonction utilitaire pour définir l'organisation active
-  const setActiveOrganization = (organization: Organization) => {
+  const setActiveOrganization = async (organization: Organization) => {
     console.log('setActiveOrganization', organization)
-
-    //TODO: Uncomment this when the organization is set in the database
-    // authClient.organization.setActive({
-    //   organizationId: organization.id,
-    // })
-    setCurrentOrganization(organization)
-    localStorage.setItem('selectedOrganizationId', organization.id)
+    await authClient.organization.setActive({
+      organizationId: organization.id,
+    })
   }
 
   // Dérivation des organisations depuis l'utilisateur
@@ -72,51 +74,71 @@ export function OrganizationProvider({
     ) || null
 
   // Fonction pour changer d'organisation avec redirection
-  const handleSetCurrentOrganization = (organizationId: string) => {
+  const handleSetCurrentOrganization = async (organizationId: string) => {
     const member = organizations.find(
       (org) => org.organization?.id === organizationId
     )
-    if (member && member.organization) {
-      setActiveOrganization(member.organization)
+    if (
+      member &&
+      member.organization &&
+      member.organization.id !== currentOrganization?.id
+    ) {
+      await setActiveOrganization(member.organization)
+      setCurrentOrganization(member.organization)
       // Rediriger vers la page de l'équipe
-      router.push(`/team/${member.organization.slug}`)
+      // router.push(`/team/${member.organization.slug}`)
     }
   }
 
   // Fonction pour changer d'organisation sans redirection
-  const handleSetCurrentOrganizationWithoutRedirect = (
+  const handleSetCurrentOrganizationWithoutRedirect = async (
     organizationId: string
   ) => {
+    console.log('handleSetCurrentOrganizationWithoutRedirect', organizationId)
     const member = organizations.find(
       (org) => org.organization?.id === organizationId
     )
-    if (member && member.organization) {
-      setActiveOrganization(member.organization)
+    if (
+      member &&
+      member.organization &&
+      member.organization.id !== currentOrganization?.id
+    ) {
+      await setActiveOrganization(member.organization)
+      setCurrentOrganization(member.organization)
     }
   }
 
   // Initialiser l'organisation courante lors du chargement
   useEffect(() => {
-    if (organizations.length > 0) {
-      // Essayer de récupérer la dernière organisation sélectionnée
-      const savedOrganizationId = localStorage.getItem('selectedOrganizationId')
+    const initializeOrganization = async () => {
+      if (organizations.length === 0) return
 
-      if (savedOrganizationId) {
+      // Si l'organisation active est déjà définie et correspond à l'organisation courante, ne rien faire
+      if (currentOrganization?.id === activeOrganization?.id) {
+        return
+      }
+
+      if (activeOrganization) {
         const member = organizations.find(
-          (org) => org.organization?.id === savedOrganizationId
+          (org) => org.organization?.id === activeOrganization.id
         )
         if (member && member.organization) {
-          setActiveOrganization(member.organization)
+          await setActiveOrganization(member.organization)
+          setCurrentOrganization(member.organization)
           return
         }
       }
 
       // Par défaut, sélectionner la première organisation
-      if (organizations[0].organization) {
-        setActiveOrganization(organizations[0].organization)
-      }
+      // if (organizations[0].organization) {
+      //   await setActiveOrganization(organizations[0].organization)
+      //   setCurrentOrganization(organizations[0].organization)
+      // }
     }
-  }, [organizations])
+
+    initializeOrganization()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organizations, activeOrganization])
 
   const value: OrganizationContextType = {
     // États

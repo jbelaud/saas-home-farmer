@@ -83,6 +83,7 @@ export const auth = betterAuth({
   hooks: {
     after: createAuthRedirectMiddleware(),
   },
+  databaseHooks: {},
 })
 /**
  * Middleware pour gérer les redirections après les actions d'authentification
@@ -93,9 +94,17 @@ function createAuthRedirectMiddleware() {
 
     if (ctx.path === '/magic-link/verify') {
       console.log('/magic-link/verify')
-      await initializeRegisterUserDataService(
+      const result = await initializeRegisterUserDataService(
         ctx.context?.newSession?.user.email ?? ''
       )
+      if (result.organizationId) {
+        await auth.api.setActiveOrganization({
+          headers: ctx.headers,
+          body: {
+            organizationId: result.organizationId,
+          },
+        })
+      }
     }
 
     // Redirection après connexion réussie

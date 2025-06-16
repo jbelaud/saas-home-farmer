@@ -35,7 +35,7 @@ export function TeamSwitcher({
 
   // Trouver l'équipe active basée sur l'organisation courante du contexte
   const activeTeam =
-    teams.find((team) => team.id === currentOrganization?.id) || teams[0]
+    teams.find((team) => team.id === currentOrganization?.id) || undefined
 
   return (
     <SidebarMenu>
@@ -59,7 +59,10 @@ export function TeamSwitcher({
                   </div>
                 </>
               )}
-              {!activeTeam && <span>Aucune organisation</span>}
+              {!activeTeam && teams.length > 0 && <span>Chargement...</span>}
+              {!activeTeam && teams.length === 0 && (
+                <span>Aucune organisation</span>
+              )}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

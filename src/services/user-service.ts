@@ -218,7 +218,11 @@ export const initializeRegisterUserDataService = async (email: string) => {
     return await createOrganizationForUserService(email)
   }
 
-  return user
+  return {
+    user,
+    organizationId: undefined,
+    organizationSlug: undefined,
+  }
 }
 
 // Services pour les paramètres utilisateur
