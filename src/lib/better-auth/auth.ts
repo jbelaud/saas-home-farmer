@@ -2,7 +2,7 @@ import {betterAuth} from 'better-auth'
 import {drizzleAdapter} from 'better-auth/adapters/drizzle'
 import {createAuthMiddleware} from 'better-auth/api'
 import {nextCookies} from 'better-auth/next-js'
-import {admin, magicLink, organization} from 'better-auth/plugins'
+import {admin, magicLink, organization, twoFactor} from 'better-auth/plugins'
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
@@ -54,6 +54,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    twoFactor(),
     admin(),
     magicLink({
       sendMagicLink: async ({email, url}) => {

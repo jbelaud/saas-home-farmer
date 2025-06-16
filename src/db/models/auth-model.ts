@@ -35,40 +35,12 @@ export const user = pgTable('user', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   visibility: userVisibilityEnum('visibility').default('private').notNull(),
+  twoFactorEnabled: boolean('two_factor_enabled'),
   role: roleEnum('role').notNull().default('user'),
   banned: boolean('banned').default(false),
   banReason: text('ban_reason'),
   banExpires: timestamp('ban_expires'),
 })
-
-// export const roles = pgTable('role', {
-//   id: uuid('id')
-//     .default(sql`uuid_generate_v4()`)
-//     .primaryKey(),
-//   name: roleEnum('name').notNull().unique(),
-//   description: text('description'),
-//   createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
-//   updatedAt: timestamp('updatedat', {mode: 'date'}).defaultNow(),
-// })
-
-// export const userRoles = pgTable(
-//   'user_role',
-//   {
-//     userId: uuid('userId')
-//       .notNull()
-//       .references(() => user.id, {onDelete: 'cascade'}),
-//     roleId: uuid('roleId')
-//       .notNull()
-//       .references(() => roles.id, {onDelete: 'cascade'}),
-//     assignedAt: timestamp('assignedAt', {mode: 'date'}).defaultNow(),
-//     assignedBy: uuid('assignedBy').references(() => user.id),
-//   },
-//   (userRole) => ({
-//     compoundKey: primaryKey({
-//       columns: [userRole.userId, userRole.roleId],
-//     }),
-//   })
-// )
 
 export const session = pgTable('session', {
   id: uuid('id')
@@ -83,6 +55,8 @@ export const session = pgTable('session', {
   userId: uuid('user_id')
     .notNull()
     .references(() => user.id, {onDelete: 'cascade'}),
+  impersonatedBy: text('impersonated_by'),
+  activeOrganizationId: text('active_organization_id'),
 })
 
 export const account = pgTable(
@@ -122,14 +96,16 @@ export const verification = pgTable('verification', {
   updatedAt: timestamp('updated_at').defaultNow(),
 })
 
-// export const organization = pgTable('organization', {
-//   id: text('id').primaryKey(),
-//   name: text('name').notNull(),
-//   slug: text('slug').unique(),
-//   logo: text('logo'),
-//   createdAt: timestamp('created_at').notNull(),
-//   metadata: text('metadata'),
-// })
+export const twoFactor = pgTable('two_factor', {
+  id: uuid('id')
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey(),
+  secret: text('secret').notNull(),
+  backupCodes: text('backup_codes').notNull(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => user.id, {onDelete: 'cascade'}),
+})
 
 // Table des organisations
 export const organization = pgTable('organization', {

@@ -17,6 +17,7 @@ export const userTest = {
   banned: null,
   banReason: null,
   banExpires: null,
+  twoFactorEnabled: false,
 } satisfies User
 
 export const userTestAdmin = {
@@ -32,4 +33,5 @@ export const userTestAdmin = {
   banExpires: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  twoFactorEnabled: false,
 } satisfies User

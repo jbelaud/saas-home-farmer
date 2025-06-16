@@ -55,6 +55,7 @@ const mockMemberData = [
       banReason: null,
       banExpires: null,
       visibility: 'public' as const,
+      twoFactorEnabled: false,
     },
   },
   {
@@ -76,6 +77,7 @@ const mockMemberData = [
       banReason: null,
       banExpires: null,
       visibility: 'public' as const,
+      twoFactorEnabled: false,
     },
   },
 ]

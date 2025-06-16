@@ -31,6 +31,7 @@ describe('CASL Abilities', () => {
     emailVerified: true,
     image: null,
     visibility: 'public',
+    twoFactorEnabled: false,
   }
 
   const adminUser: User = {
@@ -46,6 +47,7 @@ describe('CASL Abilities', () => {
     banExpires: null,
     image: null,
     visibility: 'public',
+    twoFactorEnabled: false,
   }
 
   const superAdminUser: User = {
@@ -61,6 +63,7 @@ describe('CASL Abilities', () => {
     banReason: null,
     banExpires: null,
     visibility: 'public',
+    twoFactorEnabled: false,
   }
 
   describe('defineAbilitiesFor', () => {
@@ -475,6 +478,7 @@ describe('CASL Abilities', () => {
       banExpires: null,
       image: null,
       visibility: 'public',
+      twoFactorEnabled: false,
     }
 
     it('un utilisateur USER a des permissions limitées', () => {
