@@ -3,6 +3,9 @@ import {z} from 'zod'
 import {
   CreateUser,
   CreateUserSettings,
+  Language,
+  NotificationChannel,
+  Theme,
   UpdateUser,
   UpdateUserSettings,
   User,
@@ -43,22 +46,48 @@ export const userUuidSchema = z.string().uuid({
   message: "L'identifiant n'est pas valide.",
 })
 
+export const themeSchema = z.enum([
+  'light',
+  'dark',
+  'system',
+]) satisfies z.Schema<Theme>
+
+export const languageSchema = z.enum([
+  'fr',
+  'en',
+  'es',
+]) satisfies z.Schema<Language>
+
+export const notificationChannelSchema = z.enum([
+  'email',
+  'push',
+  'both',
+  'none',
+]) satisfies z.Schema<NotificationChannel>
+
 // Schémas pour les paramètres utilisateur
 export const createUserSettingsServiceSchema = z.object({
-  theme: z.enum(['light', 'dark', 'system']).default('system'),
-  language: z.enum(['fr', 'en', 'es', 'de']).default('fr'),
+  userId: z.string().uuid({
+    message: "L'identifiant de l'utilisateur n'est pas valide.",
+  }),
+
+  theme: themeSchema,
+  language: languageSchema,
   timezone: z.string().default('Europe/Paris'),
   enableTwoFactor: z.boolean().default(false),
   enableEmailNotifications: z.boolean().default(true),
   enablePushNotifications: z.boolean().default(true),
-  notificationChannel: z
-    .enum(['email', 'push', 'both', 'none'])
-    .default('both'),
+  notificationChannel: notificationChannelSchema.default('both'),
   emailDigest: z.boolean().default(true),
   marketingEmails: z.boolean().default(false),
 }) satisfies z.Schema<CreateUserSettings>
 
-export const updateUserSettingsServiceSchema =
-  createUserSettingsServiceSchema.partial()
+export const updateUserSettingsServiceSchema = createUserSettingsServiceSchema
+  .partial()
+  .extend({
+    userId: z.string().uuid({
+      message: "L'identifiant de l'utilisateur n'est pas valide.",
+    }),
+  }) satisfies z.Schema<UpdateUserSettings>
 
 export const userSettingsUuidSchema = z.string().uuid()

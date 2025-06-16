@@ -39,6 +39,7 @@ export const getUserByIdDao = async (
           organization: true,
         },
       },
+      settings: true,
     },
   })
 
@@ -355,9 +356,11 @@ export const updateUserSettingsByUserIdDao = async (
   userId: string,
   settings: UpdateUserSettingsModel
 ): Promise<void> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {userId: _, ...rest} = settings
   await db
     .update(userSettings)
-    .set({...settings, updatedAt: new Date()})
+    .set({...rest, updatedAt: new Date()})
     .where(eq(userSettings.userId, userId))
 }
 

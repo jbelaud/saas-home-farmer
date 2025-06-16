@@ -25,8 +25,8 @@ export type User = UserModel & {
 
 // Types pour les paramètres utilisateur
 export type UserSettings = UserSettingsModel
-export type CreateUserSettings = Omit<AddUserSettingsModel, 'userId'>
-export type UpdateUserSettings = Omit<UpdateUserSettingsModel, 'userId'>
+export type CreateUserSettings = AddUserSettingsModel
+export type UpdateUserSettings = UpdateUserSettingsModel
 export type Theme = ThemeEnumModel
 export type Language = LanguageEnumModel
 export type NotificationChannel = NotificationChannelEnumModel

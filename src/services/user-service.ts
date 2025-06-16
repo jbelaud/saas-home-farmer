@@ -255,7 +255,6 @@ export const getUserSettingsService = async (userId: string) => {
 }
 
 export const updateUserSettingsService = async (
-  userId: string,
   settings: UpdateUserSettings
 ) => {
   const parsed = updateUserSettingsServiceSchema.safeParse(settings)
@@ -263,12 +262,12 @@ export const updateUserSettingsService = async (
     throw new ValidationParsedZodError(parsed.error)
   }
 
-  const granted = await canUpdateUser(userId)
+  const granted = await canUpdateUser(settings.userId)
   if (!granted) {
     throw new AuthorizationError()
   }
 
-  await updateUserSettingsByUserIdDao(userId, {...parsed.data, userId})
+  await upsertUserSettingsDao(settings.userId, parsed.data)
 }
 
 export const deleteUserSettingsService = async (userId: string) => {
@@ -286,7 +285,6 @@ export const deleteUserSettingsService = async (userId: string) => {
 }
 
 export const upsertUserSettingsService = async (
-  userId: string,
   settings: CreateUserSettings
 ) => {
   const parsed = createUserSettingsServiceSchema.safeParse(settings)
@@ -294,10 +292,10 @@ export const upsertUserSettingsService = async (
     throw new ValidationParsedZodError(parsed.error)
   }
 
-  const granted = await canUpdateUser(userId)
+  const granted = await canUpdateUser(settings.userId)
   if (!granted) {
     throw new AuthorizationError()
   }
 
-  return await upsertUserSettingsDao(userId, {...parsed.data, userId})
+  return await upsertUserSettingsDao(settings.userId, parsed.data)
 }

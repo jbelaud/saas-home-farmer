@@ -14,7 +14,7 @@ import {account, member, roleEnum, user} from './auth-model'
 
 // Enums pour les paramètres utilisateur
 export const themeEnum = pgEnum('theme_type', ['light', 'dark', 'system'])
-export const languageEnum = pgEnum('language_type', ['fr', 'en', 'es', 'de'])
+export const languageEnum = pgEnum('language_type', ['fr', 'en', 'es'])
 export const notificationChannelEnum = pgEnum('notification_channel', [
   'email',
   'push',

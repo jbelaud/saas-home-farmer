@@ -5,24 +5,33 @@ import {revalidatePath} from 'next/cache'
 import {requireActionAuth} from '@/app/dal/user-dal'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
+import {updateUserSettingsService} from '@/services/facades/user-service-facade'
 import {
   EntityTypeConst,
   FileCategoryConst,
 } from '@/services/types/domain/file-types'
-import {UpdateUser} from '@/services/types/domain/user-types'
+import {
+  Language,
+  NotificationChannel,
+  Theme,
+  UpdateUser,
+} from '@/services/types/domain/user-types'
 
 import {
+  settingsFormSchema,
+  SettingsFormSchemaType,
   userFormSchema,
   UserFormSchemaType,
 } from '../admin/users/user-form-validation'
 
-type ValidationError = {
-  field: keyof UserFormSchemaType
+type ValidationError<T = UserFormSchemaType> = {
+  field: keyof T
   message: string
 }
-export type FormState = {
+
+export type FormState<T = UserFormSchemaType> = {
   success: boolean
-  errors?: ValidationError[]
+  errors?: ValidationError<T>[]
   message?: string
 }
 
@@ -32,9 +41,9 @@ export type UploadImageState = {
   imageUrl?: string
 }
 export async function updateUserAction(
-  prevState?: FormState,
+  prevState?: FormState<UserFormSchemaType>,
   formData?: FormData
-): Promise<FormState> {
+): Promise<FormState<UserFormSchemaType>> {
   const user = await requireActionAuth()
   if (!user) {
     return {success: false, message: 'User not found'}
@@ -133,5 +142,58 @@ export async function uploadProfileImageAction(
       success: false,
       message: "Impossible d'uploader l'image. Veuillez réessayer.",
     }
+  }
+}
+
+export async function updateUserSettingsAction(
+  prevState?: FormState<SettingsFormSchemaType>,
+  formData?: FormData
+): Promise<FormState<SettingsFormSchemaType>> {
+  const user = await requireActionAuth()
+  if (!user) {
+    return {success: false, message: 'Utilisateur non trouvé'}
+  }
+
+  if (!formData) {
+    return {success: false, message: 'Données invalides'}
+  }
+
+  const settingsData = {
+    userId: user.id,
+    theme: formData.get('theme') as Theme,
+    language: formData.get('language') as Language,
+    timezone: formData.get('timezone') as string,
+    enableTwoFactor: formData.get('enableTwoFactor') === 'true',
+    enableEmailNotifications:
+      formData.get('enableEmailNotifications') === 'true',
+    enablePushNotifications: formData.get('enablePushNotifications') === 'true',
+    notificationChannel: formData.get(
+      'notificationChannel'
+    ) as NotificationChannel,
+    emailDigest: formData.get('emailDigest') === 'true',
+    marketingEmails: formData.get('marketingEmails') === 'true',
+  }
+
+  const validationResult = settingsFormSchema.safeParse(settingsData)
+
+  if (!validationResult.success) {
+    const validationErrors = validationResult.error.errors.map((err) => ({
+      field: err.path[0] as keyof SettingsFormSchemaType,
+      message: err.message,
+    }))
+    return {
+      success: false,
+      message: 'Erreur de validation',
+      errors: validationErrors,
+    }
+  }
+
+  try {
+    await updateUserSettingsService(validationResult.data)
+    revalidatePath('/account')
+    return {success: true, message: 'Paramètres mis à jour avec succès'}
+  } catch (error) {
+    console.error(error)
+    return {success: false, message: 'Échec de la mise à jour des paramètres'}
   }
 }
