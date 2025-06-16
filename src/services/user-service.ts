@@ -12,7 +12,6 @@ import {
   isEmailExistsDao,
   searchUsersDao,
   updateUserSafeByUidDao,
-  updateUserSettingsByUserIdDao,
   upsertUserSettingsDao,
 } from '@/db/repositories/user-repository'
 import {hashPassword} from '@/lib/crypto'

@@ -240,14 +240,15 @@ describe('[UserSettings] CRUD', () => {
       setupAuthUserMocked(userTest)
       vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
       const updatedSettings = {
+        userId,
         theme: 'light' as const,
         language: 'en' as const,
       }
 
-      await updateUserSettingsService(userId, updatedSettings)
-      expect(userRepository.updateUserSettingsByUserIdDao).toHaveBeenCalledWith(
+      await updateUserSettingsService(updatedSettings)
+      expect(userRepository.upsertUserSettingsDao).toHaveBeenCalledWith(
         userId,
-        {...updatedSettings, userId}
+        updatedSettings
       )
     })
 
@@ -259,7 +260,7 @@ describe('[UserSettings] CRUD', () => {
       })
 
       await expect(
-        updateUserSettingsService(differentUserId, {theme: 'light'})
+        updateUserSettingsService({userId: differentUserId, theme: 'light'})
       ).rejects.toThrow(AuthorizationError)
     })
   })
@@ -295,7 +296,7 @@ describe('[UserSettings] CRUD', () => {
         userSettings
       )
 
-      const result = await upsertUserSettingsService(userId, userSettings)
+      const result = await upsertUserSettingsService(userSettings)
       expect(result).toEqual(userSettings)
       expect(userRepository.upsertUserSettingsDao).toHaveBeenCalledTimes(1)
     })
@@ -308,7 +309,7 @@ describe('[UserSettings] CRUD', () => {
       })
 
       await expect(
-        upsertUserSettingsService(differentUserId, userSettings)
+        upsertUserSettingsService({...userSettings, userId: differentUserId})
       ).rejects.toThrow(AuthorizationError)
     })
   })
