@@ -93,6 +93,70 @@ const seed = async () => {
     ON CONFLICT ("account_id", "provider_id") DO NOTHING;
   `)
 
+  // 2.5 Insérer les paramètres utilisateur pour les 4 premiers utilisateurs
+  await client.query(`
+    INSERT INTO "user_settings" (
+      "user_id",
+      "theme",
+      "language",
+      "timezone",
+      "enable_two_factor",
+      "enable_email_notifications",
+      "enable_push_notifications",
+      "notification_channel",
+      "email_digest",
+      "marketing_emails",
+      "created_at",
+      "updated_at"
+    )
+    SELECT 
+      u.id as "user_id",
+      CASE 
+        WHEN u.email = 'admin@mikecodeur.com' THEN 'dark'
+        WHEN u.email = 'ons@mikecodeur.com' THEN 'light'
+        WHEN u.email = 'superadmin@gmail.com' THEN 'system'
+        WHEN u.email = 'admin@gmail.com' THEN 'dark'
+      END::theme_type as "theme",
+      CASE 
+        WHEN u.email = 'admin@mikecodeur.com' THEN 'fr'
+        WHEN u.email = 'ons@mikecodeur.com' THEN 'fr'
+        WHEN u.email = 'superadmin@gmail.com' THEN 'en'
+        WHEN u.email = 'admin@gmail.com' THEN 'fr'
+      END::language_type as "language",
+      'Europe/Paris' as "timezone",
+      CASE 
+        WHEN u.email = 'admin@mikecodeur.com' THEN true
+        WHEN u.email = 'ons@mikecodeur.com' THEN false
+        WHEN u.email = 'superadmin@gmail.com' THEN true
+        WHEN u.email = 'admin@gmail.com' THEN false
+      END as "enable_two_factor",
+      true as "enable_email_notifications",
+      true as "enable_push_notifications",
+      CASE 
+        WHEN u.email = 'admin@mikecodeur.com' THEN 'both'
+        WHEN u.email = 'ons@mikecodeur.com' THEN 'email'
+        WHEN u.email = 'superadmin@gmail.com' THEN 'both'
+        WHEN u.email = 'admin@gmail.com' THEN 'push'
+      END::notification_channel as "notification_channel",
+      true as "email_digest",
+      CASE 
+        WHEN u.email = 'admin@mikecodeur.com' THEN true
+        WHEN u.email = 'ons@mikecodeur.com' THEN false
+        WHEN u.email = 'superadmin@gmail.com' THEN true
+        WHEN u.email = 'admin@gmail.com' THEN false
+      END as "marketing_emails",
+      NOW() as "created_at",
+      NOW() as "updated_at"
+    FROM "user" u
+    WHERE u.email IN (
+      'admin@mikecodeur.com',
+      'ons@mikecodeur.com',
+      'superadmin@gmail.com',
+      'admin@gmail.com'
+    )
+    ON CONFLICT (user_id) DO NOTHING;
+  `)
+
   // 3. Insérer les organisations
   await client.query(`
     INSERT INTO "organization" (name, slug, description, logo, created_at, updated_at)
