@@ -5,6 +5,7 @@ import {headers} from 'next/headers'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
 import {auth} from '@/lib/better-auth/auth'
+import {APP_NAME} from '@/lib/constants'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {updateUserSettingsService} from '@/services/facades/user-service-facade'
@@ -53,6 +54,12 @@ export type TwoFactorState = {
   totpURI?: string
   backupCodes?: string[]
   errors?: ValidationError<TwoFactorFormSchemaType>[]
+}
+
+export type VerifyTotpState = {
+  success: boolean
+  message?: string
+  errors?: ValidationError<{code: string}>[]
 }
 
 export async function updateUserAction(
@@ -260,6 +267,7 @@ export async function update2FAAction(
         headers: await headers(),
         body: {
           password,
+          issuer: APP_NAME,
         },
       })
       console.log('enableTwoFactor result', result)
@@ -310,6 +318,84 @@ export async function update2FAAction(
         error instanceof Error
           ? error.message
           : 'Erreur inattendue lors de la configuration 2FA',
+    }
+  }
+}
+
+export async function verifyTotpAction(
+  prevState?: VerifyTotpState,
+  formData?: FormData
+): Promise<VerifyTotpState> {
+  const user = await requireActionAuth()
+  if (!user) {
+    return {success: false, message: 'Utilisateur non trouvé'}
+  }
+
+  if (!formData) {
+    return {success: false, message: 'Données invalides'}
+  }
+
+  const code = formData.get('code') as string
+
+  // Validation simple du code
+  if (!code || code.trim().length === 0) {
+    return {
+      success: false,
+      message: 'Le code ne peut pas être vide',
+      errors: [
+        {
+          field: 'code',
+          message: 'Le code ne peut pas être vide',
+        },
+      ],
+    }
+  }
+
+  try {
+    // Pour l'instant, on valide en comparant avec le code de sauvegarde
+    // En production, vous devriez utiliser l'API better-auth appropriée
+    console.log('verifyTwoFactorOTP code', code)
+    const result = await auth.api.verifyTOTP({
+      headers: await headers(),
+      body: {
+        code,
+        trustDevice: true,
+      },
+    })
+    console.log('verifyTwoFactorOTP result', result)
+    if (result.token) {
+      revalidatePath('/account')
+      return {
+        success: true,
+        message:
+          'Code validé avec succès ! Votre 2FA est maintenant configuré.',
+      }
+    } else {
+      return {
+        success: false,
+        message: 'Code incorrect. Veuillez réessayer.',
+        errors: [
+          {
+            field: 'code',
+            message: 'Code incorrect. Veuillez réessayer.',
+          },
+        ],
+      }
+    }
+  } catch (error) {
+    console.error('Erreur lors de la vérification TOTP:', error)
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Erreur inattendue lors de la vérification',
+      errors: [
+        {
+          field: 'code',
+          message: 'Erreur lors de la vérification du code',
+        },
+      ],
     }
   }
 }

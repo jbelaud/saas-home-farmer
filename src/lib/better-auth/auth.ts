@@ -14,13 +14,13 @@ import {
 } from '@/services/facades/email-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
 
-import {APP_NAME} from '../constants'
+import {APP_ISSUER} from '../constants'
 
 export const requireEmailVerification =
   process.env.BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION === 'true'
 
 export const auth = betterAuth({
-  appName: APP_NAME,
+  appName: APP_ISSUER,
   database: drizzleAdapter(db, {
     provider: 'pg',
   }),
@@ -57,7 +57,7 @@ export const auth = betterAuth({
   },
   plugins: [
     twoFactor({
-      issuer: APP_NAME,
+      issuer: APP_ISSUER,
       //skipVerificationOnEnable: true,
     }),
     admin(),

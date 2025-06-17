@@ -1,7 +1,9 @@
 'use client'
 
 import {zodResolver} from '@hookform/resolvers/zod'
-import {useState} from 'react'
+import Image from 'next/image'
+import QRCode from 'qrcode'
+import {useEffect, useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
 import {z} from 'zod'
@@ -27,7 +29,7 @@ import {Input} from '@/components/ui/input'
 import {Switch} from '@/components/ui/switch'
 import {User} from '@/services/types/domain/user-types'
 
-import {update2FAAction} from './action'
+import {update2FAAction, verifyTotpAction} from './action'
 import {twoFactorFormSchema} from './two-factor-form-validation'
 
 type FormValues = z.infer<typeof twoFactorFormSchema>
@@ -36,8 +38,12 @@ export function TwoFactorForm({user}: {user: User}) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [showBackupCodes, setShowBackupCodes] = useState(false)
+  const [showValidationModal, setShowValidationModal] = useState(false)
   const [backupCodes, setBackupCodes] = useState<string[]>([])
   const [totpURI, setTotpURI] = useState<string>('')
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('')
+  const [validationCode, setValidationCode] = useState('')
+  const [isValidating, setIsValidating] = useState(false)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(twoFactorFormSchema),
@@ -48,6 +54,27 @@ export function TwoFactorForm({user}: {user: User}) {
   })
 
   const selectedAction = form.watch('action')
+
+  // Générer le QR code quand l'URI TOTP est disponible
+  useEffect(() => {
+    if (totpURI) {
+      QRCode.toDataURL(totpURI, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+      })
+        .then((dataUrl) => {
+          setQrCodeDataUrl(dataUrl)
+          return dataUrl
+        })
+        .catch((err) => {
+          console.error('Erreur lors de la génération du QR code:', err)
+        })
+    }
+  }, [totpURI])
 
   async function onSubmit(data: FormValues) {
     setIsSubmitting(true)
@@ -108,6 +135,46 @@ export function TwoFactorForm({user}: {user: User}) {
     setShowBackupCodes(false)
     setBackupCodes([])
     setTotpURI('')
+    setQrCodeDataUrl('')
+  }
+
+  const handleValidateCode = async () => {
+    if (!validationCode.trim()) {
+      toast('Erreur', {
+        description: 'Veuillez saisir un code de validation',
+      })
+      return
+    }
+
+    setIsValidating(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('code', validationCode)
+      formData.append('backupCode', backupCodes[0] || '')
+
+      const result = await verifyTotpAction(undefined, formData)
+
+      if (result.success) {
+        toast('Succès', {
+          description: result.message,
+        })
+        setShowValidationModal(false)
+        setValidationCode('')
+        // Optionnel : fermer aussi la modal des codes de sauvegarde
+        handleBackupCodesClose()
+      } else {
+        toast('Erreur', {
+          description: result.message,
+        })
+      }
+    } catch {
+      toast('Erreur', {
+        description: 'Erreur lors de la validation du code.',
+      })
+    } finally {
+      setIsValidating(false)
+    }
   }
 
   return (
@@ -193,12 +260,33 @@ export function TwoFactorForm({user}: {user: User}) {
           <DialogHeader>
             <DialogTitle>Configuration 2FA réussie</DialogTitle>
             <DialogDescription>
-              Votre authentification à deux facteurs a été activée. Voici vos
-              codes de sauvegarde :
+              Votre authentification à deux facteurs a été activée. Scannez le
+              QR code et notez vos codes de sauvegarde.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
+            {/* QR Code */}
+            {qrCodeDataUrl && (
+              <div className="text-center">
+                <h4 className="mb-3 text-sm font-medium">QR Code</h4>
+                <p className="text-muted-foreground mb-3 text-sm">
+                  Scannez ce QR code avec votre application
+                  d&apos;authentification (Google Authenticator, Authy, etc.)
+                </p>
+                <div className="flex justify-center">
+                  <Image
+                    src={qrCodeDataUrl}
+                    alt="QR Code pour configuration 2FA"
+                    width={200}
+                    height={200}
+                    className="rounded-lg border"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Codes de sauvegarde */}
             <div>
               <h4 className="mb-2 text-sm font-medium">Codes de sauvegarde</h4>
               <p className="text-muted-foreground mb-3 text-sm">
@@ -217,12 +305,15 @@ export function TwoFactorForm({user}: {user: User}) {
               </div>
             </div>
 
+            {/* URI TOTP (optionnel) */}
             {totpURI && (
               <div>
-                <h4 className="mb-2 text-sm font-medium">URI TOTP</h4>
+                <h4 className="mb-2 text-sm font-medium">
+                  URI TOTP (optionnel)
+                </h4>
                 <p className="text-muted-foreground mb-2 text-sm">
-                  Utilisez cette URI pour configurer votre application
-                  d&apos;authentification :
+                  Si le QR code ne fonctionne pas, vous pouvez utiliser cette
+                  URI manuellement :
                 </p>
                 <div className="bg-muted rounded p-2 font-mono text-xs break-all">
                   {totpURI}
@@ -231,9 +322,70 @@ export function TwoFactorForm({user}: {user: User}) {
             )}
           </div>
 
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={() => setShowValidationModal(true)}
+              className="w-full sm:w-auto"
+            >
+              Valider la configuration
+            </Button>
+            <Button
+              onClick={handleBackupCodesClose}
+              className="w-full sm:w-auto"
+            >
+              J&apos;ai configuré mon application
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal pour valider le code */}
+      <Dialog open={showValidationModal} onOpenChange={setShowValidationModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Valider la configuration 2FA</DialogTitle>
+            <DialogDescription>
+              Saisissez le premier code de sauvegarde pour valider que votre
+              application d&apos;authentification fonctionne correctement.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Code de validation
+              </label>
+              <Input
+                type="text"
+                placeholder="Saisissez le premier code de sauvegarde"
+                value={validationCode}
+                onChange={(e) => setValidationCode(e.target.value)}
+                className="mt-2 text-center font-mono text-lg tracking-wider"
+              />
+              <p className="text-muted-foreground mt-2 text-sm">
+                Utilisez le premier code de la liste :{' '}
+                <span className="font-mono">{backupCodes[0]}</span>
+              </p>
+            </div>
+          </div>
+
           <DialogFooter>
-            <Button onClick={handleBackupCodesClose}>
-              J&apos;ai noté mes codes
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowValidationModal(false)
+                setValidationCode('')
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleValidateCode}
+              disabled={isValidating || !validationCode.trim()}
+            >
+              {isValidating ? 'Validation...' : 'Valider'}
             </Button>
           </DialogFooter>
         </DialogContent>
