@@ -9,6 +9,7 @@ import db from '@/db/models/db'
 import {
   sendMagicLinkEmailService,
   sendOrganizationInvitationService,
+  sendOTPEmailService,
   sendResetPasswordLinkEmailService,
   sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
@@ -58,7 +59,15 @@ export const auth = betterAuth({
   plugins: [
     twoFactor({
       issuer: APP_ISSUER,
-      //skipVerificationOnEnable: true,
+      totpOptions: {},
+      otpOptions: {
+        sendOTP: async ({user, otp}) => {
+          await sendOTPEmailService({
+            email: user.email,
+            otp,
+          })
+        },
+      },
     }),
     admin(),
     magicLink({

@@ -12,3 +12,4 @@ export const sendSimpleEmailService =
   emailServiceInterceptor.sendSimpleEmailService
 export const sendResetPasswordLinkEmailService =
   emailServiceInterceptor.sendResetPasswordLinkEmailService
+export const sendOTPEmailService = emailServiceInterceptor.sendOTPEmailService

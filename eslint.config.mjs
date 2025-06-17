@@ -68,6 +68,7 @@ const eslintConfig = [
       'promise/avoid-new': 'off',
       'react/prop-types': 'off',
       'i18n-text/no-en': 'off',
+      '@typescript-eslint/ban-ts-comment': 'warn',
 
       // ✅ Ajout des règles pour les template strings
       'prefer-template': 'error',

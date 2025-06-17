@@ -6,6 +6,7 @@ import {
 
 import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization-link-email'
 import MagicLinkMail from '@/lib/emails/magic-link-email'
+import OtpEmail from '@/lib/emails/otp-email'
 import ResetPasswordEmail from '@/lib/emails/reset-password-email'
 import VerificationEmail from '@/lib/emails/verification-email'
 
@@ -131,5 +132,23 @@ export const sendResetPasswordLinkEmailService = async ({
     from: fromEmail,
     text: 'Réinitialisation de votre mot de passe',
     react: ResetPasswordEmail({url}),
+  })
+}
+
+export const sendOTPEmailService = async ({
+  email,
+  otp,
+}: {
+  email: string
+  otp: string
+}) => {
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  await sendEmailService({
+    to: email,
+    subject: 'Code de vérification à deux facteurs',
+    from: fromEmail,
+    text: `Votre code de vérification est : ${otp}`,
+    react: OtpEmail({otp}),
   })
 }

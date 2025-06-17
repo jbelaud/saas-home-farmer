@@ -352,9 +352,7 @@ export async function verifyTotpAction(
   }
 
   try {
-    // Pour l'instant, on valide en comparant avec le code de sauvegarde
-    // En production, vous devriez utiliser l'API better-auth appropriée
-    console.log('verifyTwoFactorOTP code', code)
+    console.log('verifyTOTP code', code)
     const result = await auth.api.verifyTOTP({
       headers: await headers(),
       body: {
@@ -362,7 +360,7 @@ export async function verifyTotpAction(
         trustDevice: true,
       },
     })
-    console.log('verifyTwoFactorOTP result', result)
+    console.log('verifyTOTP result', result)
     if (result.token) {
       revalidatePath('/account')
       return {

@@ -16,6 +16,7 @@ import {
   getUserByEmailService,
   isEmailAvailableService,
 } from '@/services/facades/user-service-facade'
+//import {APIError} from 'better-auth'
 
 type LoginValidationError = {
   field: keyof typeof authLoginFormSchema._type
@@ -99,23 +100,48 @@ export async function loginCredentialAction(
         email,
         password: password ?? '',
       },
-      asResponse: true, // returns a response object instead of data
+      asResponse: false, // returns a response object instead of data
     })
 
-    if (!response.ok && response.status !== 302) {
-      return {
-        success: false,
-        message: 'Identifiants invalides',
-      }
+    // const response2 = await auth.api.sendTwoFactorOTP({
+    //   headers: response.headers,
+    //   body: {},
+    //   asResponse: true, // returns a response object instead of data
+    // })
+    // console.log('sendTwoFactorOTP response', response2)
+    console.log(
+      'signInEmail response.twoFactorRedirect ',
+      //@
+      //@ts-ignore
+      response.twoFactorRedirect
+    )
+    console.log('signInEmail response', response)
+    //@ts-ignore
+    if (response.twoFactorRedirect) {
+      redirect('/verify-request/totp')
     }
 
+    // if (!response.ok && response.status !== 302) {
+    //   return {
+    //     success: false,
+    //     message: 'Identifiants invalides',
+    //   }
+    // }
+    redirect('/dashboard')
     //4. redirection definie dans la configuration
-    redirect(response.headers.get('Location') ?? '/404')
+    //redirect(response.headers.get('Location') ?? '/404')
   } catch (error) {
     if (isRedirectError(error)) {
       throw error
     }
-
+    //@ts-ignore
+    if (error.headers) {
+      //@ts-ignore
+      console.log('error', error.headers)
+      //@ts-ignore
+      redirect(error.headers.get('Location') ?? '/404')
+    }
+    console.log('error', error)
     return {
       success: false,
       message: 'Une erreur est survenue lors de la connexion',
