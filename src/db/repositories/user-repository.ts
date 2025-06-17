@@ -320,6 +320,7 @@ export const searchUsersDao = async (
       banReason: true,
       banExpires: true,
       visibility: true,
+      twoFactorEnabled: true,
     },
   })
   return rows
