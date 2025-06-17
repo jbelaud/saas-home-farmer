@@ -2,6 +2,7 @@ import {notFound} from 'next/navigation'
 
 import {EditUserProfileForm} from '@/components/features/user/edit-user-profile'
 import {EditUserSettingsForm} from '@/components/features/user/edit-user-settings'
+import {TwoFactorSection} from '@/components/features/user/two-factor-section'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
 export default async function Page() {
@@ -10,7 +11,7 @@ export default async function Page() {
   if (!user) {
     notFound()
   }
-  console.log(user)
+
   return (
     <div className="flex-1 space-y-8 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -21,6 +22,10 @@ export default async function Page() {
         <div className="rounded-lg border p-6">
           <h3 className="mb-4 text-lg font-medium">Profil</h3>
           <EditUserProfileForm user={user} />
+        </div>
+
+        <div className="rounded-lg border p-6">
+          <TwoFactorSection user={user} />
         </div>
 
         <div className="rounded-lg border p-6">

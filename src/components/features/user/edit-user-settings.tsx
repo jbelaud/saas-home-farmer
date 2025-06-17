@@ -32,7 +32,7 @@ const settingsFormSchema = z.object({
   theme: z.enum(['light', 'dark', 'system']),
   language: z.enum(['fr', 'en', 'es', 'de']),
   timezone: z.string(),
-  enableTwoFactor: z.boolean(),
+  //enableTwoFactor: z.boolean(),
   enableEmailNotifications: z.boolean(),
   enablePushNotifications: z.boolean(),
   notificationChannel: z.enum(['email', 'push', 'both', 'none']),
@@ -51,7 +51,6 @@ export function EditUserSettingsForm({user}: {user: User}) {
       theme: user?.settings?.theme ?? 'system',
       language: user?.settings?.language ?? 'fr',
       timezone: user?.settings?.timezone ?? 'Europe/Paris',
-      enableTwoFactor: user?.settings?.enableTwoFactor ?? false,
       enableEmailNotifications:
         user?.settings?.enableEmailNotifications ?? true,
       enablePushNotifications: user?.settings?.enablePushNotifications ?? true,
@@ -151,7 +150,7 @@ export function EditUserSettingsForm({user}: {user: User}) {
         </div>
 
         {/* Sécurité */}
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <h4 className="text-sm font-medium">Sécurité</h4>
           <FormField
             control={form.control}
@@ -175,7 +174,7 @@ export function EditUserSettingsForm({user}: {user: User}) {
               </FormItem>
             )}
           />
-        </div>
+        </div> */}
 
         {/* Notifications */}
         <div className="space-y-4">

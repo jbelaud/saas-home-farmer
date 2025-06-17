@@ -14,11 +14,13 @@ import {
 } from '@/services/facades/email-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
 
+import {APP_NAME} from '../constants'
+
 export const requireEmailVerification =
   process.env.BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION === 'true'
 
 export const auth = betterAuth({
-  appName: 'Next Stripe SaaS boilerplate',
+  appName: APP_NAME,
   database: drizzleAdapter(db, {
     provider: 'pg',
   }),
@@ -54,7 +56,10 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    twoFactor(),
+    twoFactor({
+      issuer: APP_NAME,
+      //skipVerificationOnEnable: true,
+    }),
     admin(),
     magicLink({
       sendMagicLink: async ({email, url}) => {

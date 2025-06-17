@@ -31,7 +31,7 @@ export const userSettings = pgTable('user_settings', {
   theme: themeEnum('theme').default('system').notNull(),
   language: languageEnum('language').default('fr').notNull(),
   timezone: text('timezone').default('Europe/Paris').notNull(),
-  enableTwoFactor: boolean('enable_two_factor').default(false).notNull(),
+
   enableEmailNotifications: boolean('enable_email_notifications')
     .default(true)
     .notNull(),

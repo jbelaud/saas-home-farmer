@@ -53,7 +53,6 @@ export function OrganizationProvider({
   const [currentOrganization, setCurrentOrganization] =
     useState<Organization | null>(initialOrganization)
   const {data: activeOrganization} = authClient.useActiveOrganization()
-  console.log('activeOrganization', activeOrganization)
 
   // Fonction utilitaire pour définir l'organisation active
   const setActiveOrganization = async (organization: Organization) => {

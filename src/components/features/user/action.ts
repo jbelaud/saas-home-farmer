@@ -1,8 +1,10 @@
 'use server'
 
 import {revalidatePath} from 'next/cache'
+import {headers} from 'next/headers'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
+import {auth} from '@/lib/better-auth/auth'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {updateUserSettingsService} from '@/services/facades/user-service-facade'
@@ -23,6 +25,10 @@ import {
   userFormSchema,
   UserFormSchemaType,
 } from '../admin/users/user-form-validation'
+import {
+  twoFactorFormSchema,
+  TwoFactorFormSchemaType,
+} from './two-factor-form-validation'
 
 type ValidationError<T = UserFormSchemaType> = {
   field: keyof T
@@ -40,6 +46,15 @@ export type UploadImageState = {
   message?: string
   imageUrl?: string
 }
+
+export type TwoFactorState = {
+  success: boolean
+  message?: string
+  totpURI?: string
+  backupCodes?: string[]
+  errors?: ValidationError<TwoFactorFormSchemaType>[]
+}
+
 export async function updateUserAction(
   prevState?: FormState<UserFormSchemaType>,
   formData?: FormData
@@ -190,10 +205,111 @@ export async function updateUserSettingsAction(
 
   try {
     await updateUserSettingsService(validationResult.data)
+    auth.api.enableTwoFactor({
+      body: {
+        password: '123456',
+      },
+    })
     revalidatePath('/account')
     return {success: true, message: 'Paramètres mis à jour avec succès'}
   } catch (error) {
     console.error(error)
     return {success: false, message: 'Échec de la mise à jour des paramètres'}
+  }
+}
+
+export async function update2FAAction(
+  prevState?: TwoFactorState,
+  formData?: FormData
+): Promise<TwoFactorState> {
+  const user = await requireActionAuth()
+  if (!user) {
+    return {success: false, message: 'Utilisateur non trouvé'}
+  }
+
+  if (!formData) {
+    return {success: false, message: 'Données invalides'}
+  }
+
+  const twoFactorData = {
+    action: formData.get('action') as 'enable' | 'disable',
+    password: formData.get('password') as string,
+  }
+
+  // Validation avec Zod
+  const validationResult = twoFactorFormSchema.safeParse(twoFactorData)
+
+  if (!validationResult.success) {
+    const validationErrors = validationResult.error.errors.map((err) => ({
+      field: err.path[0] as keyof TwoFactorFormSchemaType,
+      message: err.message,
+    }))
+    return {
+      success: false,
+      message: 'Erreur de validation',
+      errors: validationErrors,
+    }
+  }
+
+  const {action, password} = validationResult.data
+
+  try {
+    if (action === 'enable') {
+      // Activer le 2FA
+      const result = await auth.api.enableTwoFactor({
+        headers: await headers(),
+        body: {
+          password,
+        },
+      })
+      console.log('enableTwoFactor result', result)
+      // better-auth retourne { totpURI: string; backupCodes: string[] } en cas de succès
+      if (result.totpURI && result.backupCodes) {
+        revalidatePath('/account')
+        return {
+          success: true,
+          message:
+            "Authentification à deux facteurs activée avec succès. Veuillez configurer votre application d'authentification.",
+          totpURI: result.totpURI,
+          backupCodes: result.backupCodes,
+        }
+      } else {
+        return {
+          success: false,
+          message: "Échec de l'activation du 2FA",
+        }
+      }
+    } else {
+      // Désactiver le 2FA
+      const result = await auth.api.disableTwoFactor({
+        headers: await headers(),
+        body: {
+          password,
+        },
+      })
+
+      // better-auth retourne { status: boolean } pour disable
+      if (result.status) {
+        revalidatePath('/account')
+        return {
+          success: true,
+          message: 'Authentification à deux facteurs désactivée avec succès',
+        }
+      } else {
+        return {
+          success: false,
+          message: 'Échec de la désactivation du 2FA',
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Erreur 2FA:', error)
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Erreur inattendue lors de la configuration 2FA',
+    }
   }
 }
