@@ -102,51 +102,36 @@ export async function loginCredentialAction(
     const twoFactorType = user.settings?.twoFactorType
     console.log('twoFactorType', twoFactorType)
 
-    if (twoFactorType === 'otp') {
-      // 3. connexion avec better auth
-      const response = await auth.api.signInEmail({
-        body: {
-          email,
-          password: password ?? '',
-        },
-        asResponse: true, // returns a response object instead of data
-      })
-      const response2 = await auth.api.sendTwoFactorOTP({
-        headers: response.headers,
-        body: {trustDevice: true},
-        asResponse: true, // returns a response object instead of data
-      })
-      console.log('sendTwoFactorOTP response', response2)
+    // Login Credential
+    const response = await auth.api.signInEmail({
+      body: {
+        email,
+        password: password ?? '',
+        callbackURL: '/dashboard',
+      },
+      asResponse: true, // returns a response object instead of data
+    })
+    const responseData = await response.json()
+    const twoFactorRedirect = responseData.twoFactorRedirect
+    if (!twoFactorRedirect) {
+      //CAS Sans 2FA
+      redirect(response.headers.get('Location') ?? '/404') //callbackURL
     } else {
-      const response = await auth.api.signInEmail({
-        body: {
-          email,
-          password: password ?? '',
-        },
-        asResponse: false, // returns a response object instead of data
-      })
-      console.log(
-        'signInEmail response.twoFactorRedirect ',
-        //@
-        //@ts-expect-error twoFactorRedirect
-        response.twoFactorRedirect
-      )
-      console.log('signInEmail response', response)
-      //@ts-expect-error twoFactorRedirect
-      if (response.twoFactorRedirect) {
+      //CAS Avec 2FA OTP
+      if (twoFactorType === 'otp') {
+        const response2 = await auth.api.sendTwoFactorOTP({
+          headers: await headers(),
+          body: {},
+          asResponse: true, // returns a response object instead of data
+        })
+        console.log('sendTwoFactorOTP response', response2)
+        redirect('/verify-request/otp')
+      } else {
+        //CAS 2FA TOTP
         redirect('/verify-request/totp')
       }
-
-      // if (!response.ok && response.status !== 302) {
-      //   return {
-      //     success: false,
-      //     message: 'Identifiants invalides',
-      //   }
-      // }
-      redirect('/dashboard')
-      //4. redirection definie dans la configuration
-      //redirect(response.headers.get('Location') ?? '/404')
     }
+
     return {
       success: true,
       message: 'Connexion réussie',
