@@ -17,8 +17,13 @@ import {initializeRegisterUserDataService} from '@/services/facades/user-service
 
 import {APP_ISSUER} from '../constants'
 
-export const requireEmailVerification =
-  process.env.BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION === 'true'
+export const AuthAppConfig = {
+  requireEmailVerification:
+    process.env.NEXT_PUBLIC_BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION === 'true',
+  skipVerificationOnEnable:
+    process.env.NEXT_PUBLIC_BETTER_AUTH_2FA_SKIP_VERIFICATION_ON_ENABLE ===
+    'true',
+} as const
 
 export const auth = betterAuth({
   appName: APP_ISSUER,
@@ -27,7 +32,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: requireEmailVerification,
+    requireEmailVerification: AuthAppConfig.requireEmailVerification,
     sendResetPassword: async ({user, url}) => {
       await sendResetPasswordLinkEmailService({
         email: user.email,
@@ -59,6 +64,7 @@ export const auth = betterAuth({
   plugins: [
     twoFactor({
       issuer: APP_ISSUER,
+      skipVerificationOnEnable: AuthAppConfig.skipVerificationOnEnable,
       totpOptions: {},
       otpOptions: {
         sendOTP: async ({user, otp}) => {

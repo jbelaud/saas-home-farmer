@@ -55,14 +55,16 @@ export function CredentialForm() {
             />
           </div>
           <div className="grid gap-3">
-            <div className="flex items-center">
+            <div className="flex items-center justify-between">
               <Label htmlFor="password">Mot de passe</Label>
-              <a
-                href="#"
-                className="ml-auto text-sm underline-offset-4 hover:underline"
-              >
-                Mot de passe oublié?
-              </a>
+              <div className="flex flex-col items-end space-y-1">
+                <Link
+                  href="/reset-password"
+                  className="text-sm underline-offset-4 hover:underline"
+                >
+                  Mot de passe oublié?
+                </Link>
+              </div>
             </div>
             <Input
               id="password"

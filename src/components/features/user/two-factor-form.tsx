@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
 import {Switch} from '@/components/ui/switch'
+import {AuthClientAppConfig} from '@/lib/better-auth/auth-client'
 import {User} from '@/services/types/domain/user-types'
 
 import {
@@ -410,13 +411,15 @@ export function TwoFactorForm({user}: {user: User}) {
           </div>
 
           <DialogFooter className="flex-col gap-2 sm:flex-row">
-            <Button
-              variant="outline"
-              onClick={() => setShowValidationModal(true)}
-              className="w-full sm:w-auto"
-            >
-              Valider la configuration
-            </Button>
+            {!AuthClientAppConfig.skipVerificationOnEnable && (
+              <Button
+                variant="outline"
+                onClick={() => setShowValidationModal(true)}
+                className="w-full sm:w-auto"
+              >
+                Valider la configuration
+              </Button>
+            )}
             <Button
               onClick={handleBackupCodesClose}
               className="w-full sm:w-auto"

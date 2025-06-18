@@ -9,7 +9,7 @@ import {
   authMagicLinkFormSchema,
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
-import {auth, requireEmailVerification} from '@/lib/better-auth/auth' // path to your Better Auth server instance
+import {auth, AuthAppConfig} from '@/lib/better-auth/auth' // path to your Better Auth server instance
 import {isValidationParsedZodError} from '@/services/errors/validation-error'
 import {
   createOrganizationForUserService,
@@ -48,6 +48,11 @@ type RegisterFormState = {
 type MagicLinkFormState = {
   success: boolean
   errors?: MagicLinkValidationError[]
+  message?: string
+}
+
+type RecoveryFormState = {
+  success: boolean
   message?: string
 }
 
@@ -284,8 +289,11 @@ export async function registerCredentialAction(
     //     organizationId: userOrganization.organizationId,
     //   },
     // })
-
-    if (!requireEmailVerification) {
+    console.log(
+      'AuthAppConfig.requireEmailVerification',
+      AuthAppConfig.requireEmailVerification
+    )
+    if (!AuthAppConfig.requireEmailVerification) {
       const response = await auth.api.signInEmail({
         headers: await headers(),
         body: {
@@ -461,4 +469,58 @@ export async function registerProviderAction(
 
 export async function logoutAction() {
   //await auth.api.signOut()
+}
+
+/**
+ * Action pour vérifier un code de sauvegarde 2FA
+ */
+export async function verifyBackupCodeAction(
+  prevState: RecoveryFormState,
+  formData: FormData
+): Promise<RecoveryFormState> {
+  try {
+    const code = formData.get('code') as string
+
+    // Validation basique du code
+    if (!code || code.trim().length === 0) {
+      return {
+        success: false,
+        message: 'Le code de sauvegarde ne peut pas être vide',
+      }
+    }
+
+    // Vérification du code de sauvegarde avec Better Auth
+    const response = await auth.api.verifyBackupCode({
+      headers: await headers(),
+      body: {
+        code: code.trim(),
+      },
+    })
+
+    console.log('verifyBackupCode response', response)
+
+    // Si la vérification réussit, rediriger vers le dashboard
+    if (response.token) {
+      redirect('/dashboard')
+    }
+
+    return {
+      success: false,
+      message: 'Code de sauvegarde invalide',
+    }
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error
+    }
+
+    console.error(
+      'Erreur lors de la vérification du code de sauvegarde:',
+      error
+    )
+
+    return {
+      success: false,
+      message: 'Une erreur est survenue lors de la vérification du code',
+    }
+  }
 }

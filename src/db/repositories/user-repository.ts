@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {eq, or, sql} from 'drizzle-orm'
 
-import {member, organization, user as users} from '@/db/models/auth-model'
+import {
+  member,
+  organization,
+  session,
+  user as users,
+} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {AddOrganizationModel} from '@/db/models/organization-model'
 import {
@@ -19,6 +24,11 @@ import {
   UserOrganizationRoleConst,
 } from '@/services/types/domain/auth-types'
 import {User} from '@/services/types/domain/user-types'
+
+export type SessionModel = typeof session.$inferSelect
+export type AddSessionModel = typeof session.$inferInsert
+export type UpdateSessionModel = typeof session.$inferInsert
+
 // CRUD
 export const createUserDao = async (user: AddUserModel) => {
   const row = await db
@@ -386,4 +396,50 @@ export const upsertUserSettingsDao = async (
   } else {
     return await createUserSettingsDao({...settings, userId})
   }
+}
+
+// CRUD Session by userId
+export const getSessionsByUserIdDao = async (
+  userId: string
+): Promise<SessionModel[]> => {
+  return await db.query.session.findMany({
+    where: (sess, {eq}) => eq(sess.userId, userId),
+  })
+}
+
+export const getSessionByIdDao = async (
+  sessionId: string
+): Promise<SessionModel | undefined> => {
+  return await db.query.session.findFirst({
+    where: (sess, {eq}) => eq(sess.id, sessionId),
+  })
+}
+
+export const createSessionDao = async (
+  sessionData: AddSessionModel
+): Promise<SessionModel> => {
+  const [row] = await db.insert(session).values(sessionData).returning()
+  return row
+}
+
+export const updateSessionByIdDao = async (
+  sessionId: string,
+  sessionData: UpdateSessionModel
+): Promise<void> => {
+  await db
+    .update(session)
+    .set({...sessionData, updatedAt: new Date()})
+    .where(eq(session.id, sessionId))
+}
+
+export const deleteSessionByIdDao = async (
+  sessionId: string
+): Promise<void> => {
+  await db.delete(session).where(eq(session.id, sessionId))
+}
+
+export const deleteSessionsByUserIdDao = async (
+  userId: string
+): Promise<void> => {
+  await db.delete(session).where(eq(session.userId, userId))
 }

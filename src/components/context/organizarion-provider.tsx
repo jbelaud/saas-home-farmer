@@ -53,7 +53,7 @@ export function OrganizationProvider({
   const [currentOrganization, setCurrentOrganization] =
     useState<Organization | null>(initialOrganization)
   const {data: activeOrganization} = authClient.useActiveOrganization()
-
+  console.log('setActiveOrganization', activeOrganization)
   // Fonction utilitaire pour définir l'organisation active
   const setActiveOrganization = async (organization: Organization) => {
     console.log('setActiveOrganization', organization)
@@ -109,10 +109,26 @@ export function OrganizationProvider({
   // Initialiser l'organisation courante lors du chargement
   useEffect(() => {
     const initializeOrganization = async () => {
+      console.log(
+        'initializeOrganization organizations.length',
+        organizations.length
+      )
+      console.log(
+        'initializeOrganization activeOrganization',
+        activeOrganization
+      )
+      console.log(
+        'initializeOrganization currentOrganization',
+        currentOrganization
+      )
       if (organizations.length === 0) return
 
       // Si l'organisation active est déjà définie et correspond à l'organisation courante, ne rien faire
-      if (currentOrganization?.id === activeOrganization?.id) {
+      if (
+        currentOrganization &&
+        currentOrganization?.id === activeOrganization?.id
+      ) {
+        console.log('initializeOrganization return 1', currentOrganization?.id)
         return
       }
 
@@ -120,18 +136,19 @@ export function OrganizationProvider({
         const member = organizations.find(
           (org) => org.organization?.id === activeOrganization.id
         )
+        console.log('initializeOrganization return 2 member', member)
         if (member && member.organization) {
           await setActiveOrganization(member.organization)
           setCurrentOrganization(member.organization)
           return
         }
       }
-
+      console.log('initializeOrganization return 3')
       // Par défaut, sélectionner la première organisation
-      // if (organizations[0].organization) {
-      //   await setActiveOrganization(organizations[0].organization)
-      //   setCurrentOrganization(organizations[0].organization)
-      // }
+      if (organizations[0].organization) {
+        await setActiveOrganization(organizations[0].organization)
+        setCurrentOrganization(organizations[0].organization)
+      }
     }
 
     initializeOrganization()

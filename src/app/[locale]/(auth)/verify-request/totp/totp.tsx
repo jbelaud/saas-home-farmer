@@ -117,13 +117,23 @@ export default function TotpVerificationPage() {
                 </Button>
               </form>
             </Form>
-            <div className="mt-4 text-center">
-              <Link
-                href="/login"
-                className="text-muted-foreground hover:text-primary text-sm"
-              >
-                Retour à la connexion
-              </Link>
+            <div className="mt-4 space-y-2 text-center">
+              <div>
+                <Link
+                  href="/login"
+                  className="text-muted-foreground hover:text-primary text-sm"
+                >
+                  Retour à la connexion
+                </Link>
+              </div>
+              <div>
+                <Link
+                  href="/verify-request/recovery"
+                  className="text-muted-foreground hover:text-primary text-sm underline underline-offset-4"
+                >
+                  Utiliser un code de sauvegarde
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>

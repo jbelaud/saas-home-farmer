@@ -11,6 +11,7 @@ Un boilerplate moderne pour les applications SaaS utilisant Next.js 15, React 19
 - homepage
 - Stripe
 - Cursor Rules
+- https://www.npmjs.com/package/@t3-oss/env-nextjs
 
 ## Technologies
 

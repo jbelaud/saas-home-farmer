@@ -129,7 +129,12 @@ export const createUserOrganizationService = async (userParams: CreateUser) => {
 
   return result
 }
-
+/**
+ * Warn : No Auth
+ * Crée une organisation pour un utilisateur
+ * @param email
+ * @returns
+ */
 export const createOrganizationForUserService = async (email: string) => {
   if (!email) {
     throw new ValidationError('Email is required')

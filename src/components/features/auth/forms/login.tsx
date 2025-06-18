@@ -90,12 +90,6 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
           <Link href="/terms">Conditions d&apos;utilisation</Link> et notre{' '}
           <Link href="/privacy">Politique de confidentialité</Link>.
         </div>
-        <Link
-          href="/reset-password"
-          className="text-muted-foreground hover:text-primary text-sm"
-        >
-          Mot de passe oublié ?
-        </Link>
       </div>
     </div>
   )
