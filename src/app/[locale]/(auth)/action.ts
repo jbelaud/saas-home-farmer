@@ -112,11 +112,11 @@ export async function loginCredentialAction(
     console.log(
       'signInEmail response.twoFactorRedirect ',
       //@
-      //@ts-ignore
+      //@ts-expect-error twoFactorRedirect
       response.twoFactorRedirect
     )
     console.log('signInEmail response', response)
-    //@ts-ignore
+    //@ts-expect-error twoFactorRedirect
     if (response.twoFactorRedirect) {
       redirect('/verify-request/totp')
     }
@@ -134,11 +134,11 @@ export async function loginCredentialAction(
     if (isRedirectError(error)) {
       throw error
     }
-    //@ts-ignore
+    //@ts-expect-error headers
     if (error.headers) {
-      //@ts-ignore
+      //@ts-expect-error headers
       console.log('error', error.headers)
-      //@ts-ignore
+      //@ts-expect-error headers
       redirect(error.headers.get('Location') ?? '/404')
     }
     console.log('error', error)
