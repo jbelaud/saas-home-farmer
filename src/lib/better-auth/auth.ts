@@ -67,10 +67,13 @@ export const auth = betterAuth({
       skipVerificationOnEnable: AuthAppConfig.skipVerificationOnEnable,
       totpOptions: {},
       otpOptions: {
+        period: 300, // 5 minutes d'expiration
         sendOTP: async ({user, otp}) => {
+          const otpLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-request/otp?code=${otp}`
           await sendOTPEmailService({
             email: user.email,
             otp,
+            otpLink,
           })
         },
       },

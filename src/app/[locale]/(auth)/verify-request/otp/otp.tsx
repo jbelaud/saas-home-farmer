@@ -3,8 +3,8 @@
 import {zodResolver} from '@hookform/resolvers/zod'
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import Link from 'next/link'
-import {useRouter} from 'next/navigation'
-import React, {useEffect, useRef, useState} from 'react'
+import {useRouter, useSearchParams} from 'next/navigation'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
 import {z} from 'zod'
@@ -41,79 +41,96 @@ type OtpFormValues = z.infer<typeof otpSchema>
 
 export default function OtpVerificationPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [isSendingOtp, setIsSendingOtp] = useState(true)
+  const [isSendingOtp, setIsSendingOtp] = useState(false)
   const hasSentOtp = useRef(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const codeFromUrl = searchParams.get('code') ?? ''
 
   const form = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
     defaultValues: {
-      code: '',
+      code: codeFromUrl,
     },
   })
 
-  // Envoyer l'OTP automatiquement quand la page se charge (une seule fois)
-  useEffect(() => {
-    const sendOtp = async () => {
-      // Éviter le double envoi en mode DEV
-      if (hasSentOtp.current) {
-        setIsSendingOtp(false)
-        return
-      }
-
+  const handleVerifyCode = useCallback(
+    async (code: string) => {
+      setIsLoading(true)
       try {
-        setIsSendingOtp(true)
-        hasSentOtp.current = true // Marquer comme envoyé immédiatement
+        const formData = new FormData()
+        formData.append('code', code)
 
-        const {error} = await authClient.twoFactor.sendOtp()
+        const result = await verifyOTPAction(
+          {success: false, message: ''},
+          formData
+        )
+        console.log('result', result)
 
-        if (error) {
-          toast.error("Erreur lors de l'envoi du code OTP")
-          console.error('sendOtp error:', error)
+        if (result.success) {
+          toast.success('Vérification OTP réussie')
+          // Rediriger vers le dashboard après 2 secondes
+          setTimeout(() => {
+            router.push('/dashboard')
+          }, 2000)
         } else {
-          toast.success('Code OTP envoyé par email')
+          toast.error(result.message || 'Code OTP invalide')
         }
       } catch (error) {
+        if (isRedirectError(error)) {
+          toast.success('Redirection vers le dashboard ...')
+        } else {
+          toast.error('Une erreur est survenue lors de la vérification OTP')
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [router]
+  )
+
+  // Si on a un code dans l'URL, on le vérifie automatiquement
+  useEffect(() => {
+    if (codeFromUrl && codeFromUrl.length === 6) {
+      handleVerifyCode(codeFromUrl)
+    }
+  }, [codeFromUrl, handleVerifyCode])
+
+  // Envoyer l'OTP seulement si pas de code dans l'URL
+  useEffect(() => {
+    if (!codeFromUrl && !hasSentOtp.current) {
+      sendOtp()
+    }
+  }, [codeFromUrl])
+
+  const sendOtp = async () => {
+    // Éviter le double envoi en mode DEV
+    if (hasSentOtp.current) {
+      return
+    }
+
+    try {
+      setIsSendingOtp(true)
+      hasSentOtp.current = true // Marquer comme envoyé immédiatement
+
+      const {error} = await authClient.twoFactor.sendOtp()
+
+      if (error) {
         toast.error("Erreur lors de l'envoi du code OTP")
         console.error('sendOtp error:', error)
-      } finally {
-        setIsSendingOtp(false)
-      }
-    }
-
-    sendOtp()
-  }, []) // Pas de dépendances pour éviter les re-exécutions
-
-  const onSubmit = async (data: OtpFormValues) => {
-    setIsLoading(true)
-    try {
-      const formData = new FormData()
-      formData.append('code', data.code)
-
-      const result = await verifyOTPAction(
-        {success: false, message: ''},
-        formData
-      )
-      console.log('result', result)
-
-      if (result.success) {
-        toast.success('Vérification OTP réussie')
-        // Rediriger vers le dashboard après 2 secondes
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 2000)
       } else {
-        toast.error(result.message || 'Code OTP invalide')
+        toast.success('Code OTP envoyé par email')
       }
     } catch (error) {
-      if (isRedirectError(error)) {
-        toast.success('Redirection vers le dashboard ...')
-      } else {
-        toast.error('Une erreur est survenue lors de la vérification OTP')
-      }
+      toast.error("Erreur lors de l'envoi du code OTP")
+      console.error('sendOtp error:', error)
     } finally {
-      setIsLoading(false)
+      setIsSendingOtp(false)
     }
+  }
+
+  const onSubmit = async (data: OtpFormValues) => {
+    await handleVerifyCode(data.code)
   }
 
   return (
@@ -123,9 +140,11 @@ export default function OtpVerificationPage() {
           <CardHeader className="text-center">
             <CardTitle className="text-xl">Vérification OTP</CardTitle>
             <CardDescription>
-              {isSendingOtp
-                ? 'Envoi du code OTP...'
-                : 'Entrez le code OTP à 6 chiffres envoyé par email'}
+              {codeFromUrl
+                ? 'Vérification automatique du code...'
+                : isSendingOtp
+                  ? 'Envoi du code OTP...'
+                  : 'Entrez le code OTP à 6 chiffres envoyé par email'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -146,7 +165,7 @@ export default function OtpVerificationPage() {
                           placeholder="123456"
                           maxLength={6}
                           className="text-center text-lg tracking-widest"
-                          disabled={isSendingOtp}
+                          disabled={isLoading || isSendingOtp || !!codeFromUrl}
                           {...field}
                         />
                       </FormControl>
@@ -157,7 +176,7 @@ export default function OtpVerificationPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isLoading || isSendingOtp}
+                  disabled={isLoading || isSendingOtp || !!codeFromUrl}
                 >
                   {isLoading ? 'Vérification...' : 'Vérifier le code OTP'}
                 </Button>

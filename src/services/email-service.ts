@@ -138,9 +138,11 @@ export const sendResetPasswordLinkEmailService = async ({
 export const sendOTPEmailService = async ({
   email,
   otp,
+  otpLink,
 }: {
   email: string
   otp: string
+  otpLink?: string
 }) => {
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
@@ -148,7 +150,7 @@ export const sendOTPEmailService = async ({
     to: email,
     subject: 'Code de vérification à deux facteurs',
     from: fromEmail,
-    text: `Votre code de vérification est : ${otp}`,
-    react: OtpEmail({otp}),
+    text: `Votre code de vérification est : ${otp}${otpLink ? `\n\nOu cliquez sur ce lien pour une vérification automatique : ${otpLink}` : ''}`,
+    react: OtpEmail({otp, otpLink}),
   })
 }
