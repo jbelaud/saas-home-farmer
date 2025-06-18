@@ -25,12 +25,13 @@ import {
 } from '@/components/ui/select'
 import {Switch} from '@/components/ui/switch'
 import {User} from '@/services/types/domain/user-types'
+import {languageSchema} from '@/services/validation/user-validation'
 
 import {updateUserSettingsAction} from './action'
 
 const settingsFormSchema = z.object({
   theme: z.enum(['light', 'dark', 'system']),
-  language: z.enum(['fr', 'en', 'es', 'de']),
+  language: languageSchema,
   timezone: z.string(),
   //enableTwoFactor: z.boolean(),
   enableEmailNotifications: z.boolean(),

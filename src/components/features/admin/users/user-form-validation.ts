@@ -17,15 +17,15 @@ export type UserFormSchemaType = z.infer<typeof userFormSchema>
 
 export const settingsFormSchema = z.object({
   userId: z.string().uuid(),
-  theme: themeSchema,
-  language: languageSchema,
-  timezone: z.string(),
-  enableTwoFactor: z.boolean(),
-  enableEmailNotifications: z.boolean(),
-  enablePushNotifications: z.boolean(),
-  notificationChannel: notificationChannelSchema,
-  emailDigest: z.boolean(),
-  marketingEmails: z.boolean(),
+  theme: themeSchema.optional(),
+  language: languageSchema.optional(),
+  timezone: z.string().optional(),
+  twoFactorType: z.enum(['otp', 'totp']).optional(),
+  enableEmailNotifications: z.boolean().optional(),
+  enablePushNotifications: z.boolean().optional(),
+  notificationChannel: notificationChannelSchema.optional(),
+  emailDigest: z.boolean().optional(),
+  marketingEmails: z.boolean().optional(),
 })
 
 export type SettingsFormSchemaType = z.infer<typeof settingsFormSchema>

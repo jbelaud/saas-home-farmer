@@ -29,7 +29,11 @@ import {Input} from '@/components/ui/input'
 import {Switch} from '@/components/ui/switch'
 import {User} from '@/services/types/domain/user-types'
 
-import {update2FAAction, verifyTotpAction} from './action'
+import {
+  update2FAAction,
+  updateUserSettingsAction,
+  verifyTotpAction,
+} from './action'
 import {twoFactorFormSchema} from './two-factor-form-validation'
 
 type FormValues = z.infer<typeof twoFactorFormSchema>
@@ -44,6 +48,7 @@ export function TwoFactorForm({user}: {user: User}) {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('')
   const [validationCode, setValidationCode] = useState('')
   const [isValidating, setIsValidating] = useState(false)
+  const [isUpdatingType, setIsUpdatingType] = useState(false)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(twoFactorFormSchema),
@@ -112,6 +117,34 @@ export function TwoFactorForm({user}: {user: User}) {
           message: error.message,
         })
       }
+      toast('Erreur', {
+        description: result.message,
+      })
+    }
+  }
+
+  // Nouvelle fonction pour changer le type de 2FA
+  const handleChangeTwoFactorType = async (type: 'otp' | 'totp') => {
+    if (!user.twoFactorEnabled) {
+      toast('Erreur', {
+        description:
+          "Vous devez d'abord activer l'authentification à deux facteurs",
+      })
+      return
+    }
+
+    setIsUpdatingType(true)
+    const formData = new FormData()
+    formData.append('twoFactorType', type)
+
+    const result = await updateUserSettingsAction(undefined, formData)
+    setIsUpdatingType(false)
+
+    if (result.success) {
+      toast('Succès', {
+        description: `Type de 2FA changé vers ${type.toUpperCase()}`,
+      })
+    } else {
       toast('Erreur', {
         description: result.message,
       })
@@ -200,6 +233,60 @@ export function TwoFactorForm({user}: {user: User}) {
             disabled={isSubmitting}
           />
         </div>
+
+        {/* Sélection du type de 2FA - visible seulement si 2FA est activé */}
+        {user.twoFactorEnabled && (
+          <div className="rounded-lg border p-4">
+            <div className="space-y-3">
+              <div>
+                <h5 className="text-sm font-medium">
+                  Type d&apos;authentification
+                </h5>
+                <p className="text-muted-foreground text-sm">
+                  Choisissez votre méthode préférée pour l&apos;authentification
+                  à deux facteurs
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant={
+                    user.settings?.twoFactorType === 'totp'
+                      ? 'default'
+                      : 'outline'
+                  }
+                  size="sm"
+                  onClick={() => handleChangeTwoFactorType('totp')}
+                  disabled={isUpdatingType}
+                >
+                  {isUpdatingType && user.settings?.twoFactorType === 'totp'
+                    ? 'Mise à jour...'
+                    : 'TOTP'}
+                </Button>
+
+                <Button
+                  variant={
+                    user.settings?.twoFactorType === 'otp'
+                      ? 'default'
+                      : 'outline'
+                  }
+                  size="sm"
+                  onClick={() => handleChangeTwoFactorType('otp')}
+                  disabled={isUpdatingType}
+                >
+                  {isUpdatingType && user.settings?.twoFactorType === 'otp'
+                    ? 'Mise à jour...'
+                    : 'OTP'}
+                </Button>
+              </div>
+
+              <p className="text-muted-foreground text-xs">
+                TOTP : Application d&apos;authentification (Google Auth, Authy)
+                | OTP : Codes envoyés par email
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal pour le mot de passe */}

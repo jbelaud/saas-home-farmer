@@ -21,6 +21,7 @@ export const notificationChannelEnum = pgEnum('notification_channel', [
   'both',
   'none',
 ])
+export const twoFactorTypeEnum = pgEnum('two_factor_type', ['otp', 'totp'])
 
 // Table des paramètres utilisateur
 export const userSettings = pgTable('user_settings', {
@@ -43,6 +44,7 @@ export const userSettings = pgTable('user_settings', {
     .notNull(),
   emailDigest: boolean('email_digest').default(true).notNull(),
   marketingEmails: boolean('marketing_emails').default(false).notNull(),
+  twoFactorType: twoFactorTypeEnum('two_factor_type').default('totp').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
@@ -94,3 +96,5 @@ export type ThemeEnumModel = (typeof themeEnum.enumValues)[number]
 export type LanguageEnumModel = (typeof languageEnum.enumValues)[number]
 export type NotificationChannelEnumModel =
   (typeof notificationChannelEnum.enumValues)[number]
+export type TwoFactorTypeEnumModel =
+  (typeof twoFactorTypeEnum.enumValues)[number]

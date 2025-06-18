@@ -18,6 +18,7 @@ import {
   NotificationChannel,
   Theme,
   UpdateUser,
+  UpdateUserSettings,
 } from '@/services/types/domain/user-types'
 
 import {
@@ -180,20 +181,49 @@ export async function updateUserSettingsAction(
     return {success: false, message: 'Données invalides'}
   }
 
-  const settingsData = {
+  // Construire l'objet settings en ne prenant que les champs présents
+  const settingsData: UpdateUserSettings = {
     userId: user.id,
-    theme: formData.get('theme') as Theme,
-    language: formData.get('language') as Language,
-    timezone: formData.get('timezone') as string,
-    enableTwoFactor: formData.get('enableTwoFactor') === 'true',
-    enableEmailNotifications:
-      formData.get('enableEmailNotifications') === 'true',
-    enablePushNotifications: formData.get('enablePushNotifications') === 'true',
-    notificationChannel: formData.get(
-      'notificationChannel'
-    ) as NotificationChannel,
-    emailDigest: formData.get('emailDigest') === 'true',
-    marketingEmails: formData.get('marketingEmails') === 'true',
+  }
+
+  // Ajouter seulement les champs qui sont présents dans le FormData
+  const theme = formData.get('theme')
+  if (theme) settingsData.theme = theme as Theme
+
+  const language = formData.get('language')
+  if (language) settingsData.language = language as Language
+
+  const timezone = formData.get('timezone')
+  if (timezone) settingsData.timezone = timezone as string
+
+  const twoFactorType = formData.get('twoFactorType')
+  if (twoFactorType)
+    settingsData.twoFactorType = twoFactorType as 'otp' | 'totp'
+
+  const enableEmailNotifications = formData.get('enableEmailNotifications')
+  if (enableEmailNotifications !== null) {
+    settingsData.enableEmailNotifications = enableEmailNotifications === 'true'
+  }
+
+  const enablePushNotifications = formData.get('enablePushNotifications')
+  if (enablePushNotifications !== null) {
+    settingsData.enablePushNotifications = enablePushNotifications === 'true'
+  }
+
+  const notificationChannel = formData.get('notificationChannel')
+  if (notificationChannel) {
+    settingsData.notificationChannel =
+      notificationChannel as NotificationChannel
+  }
+
+  const emailDigest = formData.get('emailDigest')
+  if (emailDigest !== null) {
+    settingsData.emailDigest = emailDigest === 'true'
+  }
+
+  const marketingEmails = formData.get('marketingEmails')
+  if (marketingEmails !== null) {
+    settingsData.marketingEmails = marketingEmails === 'true'
   }
 
   const validationResult = settingsFormSchema.safeParse(settingsData)
@@ -212,11 +242,6 @@ export async function updateUserSettingsAction(
 
   try {
     await updateUserSettingsService(validationResult.data)
-    auth.api.enableTwoFactor({
-      body: {
-        password: '123456',
-      },
-    })
     revalidatePath('/account')
     return {success: true, message: 'Paramètres mis à jour avec succès'}
   } catch (error) {

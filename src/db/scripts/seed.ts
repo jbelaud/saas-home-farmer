@@ -100,7 +100,7 @@ const seed = async () => {
       "theme",
       "language",
       "timezone",
-      "enable_two_factor",
+      "two_factor_type",
       "enable_email_notifications",
       "enable_push_notifications",
       "notification_channel",
@@ -125,11 +125,11 @@ const seed = async () => {
       END::language_type as "language",
       'Europe/Paris' as "timezone",
       CASE 
-        WHEN u.email = 'admin@mikecodeur.com' THEN true
-        WHEN u.email = 'ons@mikecodeur.com' THEN false
-        WHEN u.email = 'superadmin@gmail.com' THEN true
-        WHEN u.email = 'admin@gmail.com' THEN false
-      END as "enable_two_factor",
+        WHEN u.email = 'admin@mikecodeur.com' THEN 'totp'
+        WHEN u.email = 'ons@mikecodeur.com' THEN 'otp'
+        WHEN u.email = 'superadmin@gmail.com' THEN 'totp'
+        WHEN u.email = 'admin@gmail.com' THEN 'otp'
+      END::two_factor_type as "two_factor_type",
       true as "enable_email_notifications",
       true as "enable_push_notifications",
       CASE 

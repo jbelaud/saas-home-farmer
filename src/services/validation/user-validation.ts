@@ -80,6 +80,7 @@ export const createUserSettingsServiceSchema = z.object({
   notificationChannel: notificationChannelSchema.default('both'),
   emailDigest: z.boolean().default(true),
   marketingEmails: z.boolean().default(false),
+  twoFactorType: z.enum(['otp', 'totp']).default('totp'),
 }) satisfies z.Schema<CreateUserSettings>
 
 export const updateUserSettingsServiceSchema = createUserSettingsServiceSchema
