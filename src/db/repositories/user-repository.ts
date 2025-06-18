@@ -93,6 +93,7 @@ export const getUserByEmailDao = async (
           organization: true,
         },
       },
+      settings: true,
     },
   })
 

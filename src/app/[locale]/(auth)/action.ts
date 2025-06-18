@@ -99,42 +99,58 @@ export async function loginCredentialAction(
       }
     }
 
-    // 3. connexion avec better auth
-    const response = await auth.api.signInEmail({
-      body: {
-        email,
-        password: password ?? '',
-      },
-      asResponse: false, // returns a response object instead of data
-    })
+    const twoFactorType = user.settings?.twoFactorType
+    console.log('twoFactorType', twoFactorType)
 
-    // const response2 = await auth.api.sendTwoFactorOTP({
-    //   headers: response.headers,
-    //   body: {},
-    //   asResponse: true, // returns a response object instead of data
-    // })
-    // console.log('sendTwoFactorOTP response', response2)
-    console.log(
-      'signInEmail response.twoFactorRedirect ',
-      //@
+    if (twoFactorType === 'otp') {
+      // 3. connexion avec better auth
+      const response = await auth.api.signInEmail({
+        body: {
+          email,
+          password: password ?? '',
+        },
+        asResponse: true, // returns a response object instead of data
+      })
+      const response2 = await auth.api.sendTwoFactorOTP({
+        headers: response.headers,
+        body: {trustDevice: true},
+        asResponse: true, // returns a response object instead of data
+      })
+      console.log('sendTwoFactorOTP response', response2)
+    } else {
+      const response = await auth.api.signInEmail({
+        body: {
+          email,
+          password: password ?? '',
+        },
+        asResponse: false, // returns a response object instead of data
+      })
+      console.log(
+        'signInEmail response.twoFactorRedirect ',
+        //@
+        //@ts-expect-error twoFactorRedirect
+        response.twoFactorRedirect
+      )
+      console.log('signInEmail response', response)
       //@ts-expect-error twoFactorRedirect
-      response.twoFactorRedirect
-    )
-    console.log('signInEmail response', response)
-    //@ts-expect-error twoFactorRedirect
-    if (response.twoFactorRedirect) {
-      redirect('/verify-request/totp')
-    }
+      if (response.twoFactorRedirect) {
+        redirect('/verify-request/totp')
+      }
 
-    // if (!response.ok && response.status !== 302) {
-    //   return {
-    //     success: false,
-    //     message: 'Identifiants invalides',
-    //   }
-    // }
-    redirect('/dashboard')
-    //4. redirection definie dans la configuration
-    //redirect(response.headers.get('Location') ?? '/404')
+      // if (!response.ok && response.status !== 302) {
+      //   return {
+      //     success: false,
+      //     message: 'Identifiants invalides',
+      //   }
+      // }
+      redirect('/dashboard')
+      //4. redirection definie dans la configuration
+      //redirect(response.headers.get('Location') ?? '/404')
+    }
+    return {
+      success: true,
+      message: 'Connexion réussie',
+    }
   } catch (error) {
     if (isRedirectError(error)) {
       throw error
