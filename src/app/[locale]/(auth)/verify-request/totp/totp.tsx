@@ -84,7 +84,8 @@ export default function TotpVerificationPage() {
               Vérification à deux facteurs
             </CardTitle>
             <CardDescription>
-              Entrez le code de vérification envoyé par email
+              Entrez le code de vérification de votre application
+              d&apos;authentification
             </CardDescription>
           </CardHeader>
           <CardContent>

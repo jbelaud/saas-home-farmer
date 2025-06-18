@@ -14,11 +14,6 @@ export const AuthClientAppConfig = {
     'true',
 } as const
 
-console.log(
-  'AuthClientAppConfig',
-  process.env.BETTER_AUTH_2FA_SKIP_VERIFICATION_ON_ENABLE
-)
-
 export const authClient = createAuthClient({
   baseURL: 'http://localhost:3000',
   plugins: [

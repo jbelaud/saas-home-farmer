@@ -274,8 +274,7 @@ export const updateUserSettingsService = async (
   if (!granted) {
     throw new AuthorizationError()
   }
-  console.log('settings', settings)
-  console.log('parsed', parsed.data)
+
   await upsertUserSettingsDao(settings.userId, parsed.data)
 }
 

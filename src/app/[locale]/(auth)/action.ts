@@ -56,6 +56,11 @@ type RecoveryFormState = {
   message?: string
 }
 
+type OtpFormState = {
+  success: boolean
+  message?: string
+}
+
 /**
  * Action de connexion avec les credentials email/password
  *
@@ -111,43 +116,36 @@ export async function loginCredentialAction(
       },
       asResponse: true, // returns a response object instead of data
     })
-    const responseData = await response.json()
-    const twoFactorRedirect = responseData.twoFactorRedirect
+
+    let twoFactorRedirect
+    try {
+      const responseData = await response.json()
+      twoFactorRedirect = responseData.twoFactorRedirect
+    } catch {
+      twoFactorRedirect = false
+    }
+
     if (!twoFactorRedirect) {
       //CAS Sans 2FA
+      console.log('Login Sans 2FA')
       redirect(response.headers.get('Location') ?? '/404') //callbackURL
     } else {
-      //CAS Avec 2FA OTP
+      //CAS Avec 2FA - Rediriger vers la page appropriée
       if (twoFactorType === 'otp') {
-        const response2 = await auth.api.sendTwoFactorOTP({
-          headers: await headers(),
-          body: {},
-          asResponse: true, // returns a response object instead of data
-        })
-        console.log('sendTwoFactorOTP response', response2)
+        console.log('Login Avec 2FA OTP')
+        // Rediriger vers la page OTP - l'OTP sera envoyé depuis cette page
         redirect('/verify-request/otp')
       } else {
+        console.log('Login Avec 2FA TOTP')
         //CAS 2FA TOTP
         redirect('/verify-request/totp')
       }
-    }
-
-    return {
-      success: true,
-      message: 'Connexion réussie',
     }
   } catch (error) {
     if (isRedirectError(error)) {
       throw error
     }
-    //@ts-expect-error headers
-    if (error.headers) {
-      //@ts-expect-error headers
-      console.log('error', error.headers)
-      //@ts-expect-error headers
-      redirect(error.headers.get('Location') ?? '/404')
-    }
-    console.log('error', error)
+    console.log('loginCredentialAction error', error)
     return {
       success: false,
       message: 'Une erreur est survenue lors de la connexion',
@@ -522,6 +520,77 @@ export async function verifyBackupCodeAction(
     return {
       success: false,
       message: 'Une erreur est survenue lors de la vérification du code',
+    }
+  }
+}
+
+/**
+ * Action pour vérifier un code OTP
+ */
+export async function verifyOTPAction(
+  prevState: OtpFormState,
+  formData: FormData
+): Promise<OtpFormState> {
+  try {
+    const code = formData.get('code') as string
+    console.log('verifyOTPAction - code reçu:', code)
+
+    // Validation basique du code
+    if (!code || code.trim().length === 0) {
+      return {
+        success: false,
+        message: 'Le code OTP ne peut pas être vide',
+      }
+    }
+
+    // DEBUG: Vérifier les headers de session
+    const currentHeaders = await headers()
+    const cookies = currentHeaders.get('cookie')
+    console.log('verifyOTPAction - cookies:', cookies)
+
+    // Vérifier si le cookie two_factor est présent
+    const hasTwoFactorCookie = cookies?.includes('better-auth.two_factor')
+    console.log('verifyOTPAction - hasTwoFactorCookie:', hasTwoFactorCookie)
+
+    // Vérification du code OTP avec Better Auth
+    const response = await auth.api.verifyTwoFactorOTP({
+      headers: currentHeaders,
+      body: {
+        code: code.trim(),
+        trustDevice: true,
+        // callbackURL: '/dashboard',
+      },
+      asResponse: true,
+    })
+
+    console.log('verifyTwoFactorOTP response status:', response.status)
+    console.log('verifyTwoFactorOTP response ok:', response.ok)
+
+    // Si la vérification réussit, rediriger vers le dashboard
+    if (response.ok) {
+      console.log('verifyTwoFactorOTP - succès, redirection vers dashboard')
+
+      redirect('/dashboard')
+    }
+
+    // Si la vérification échoue
+    const errorData = await response.json()
+    console.log('verifyTwoFactorOTP - erreur data:', errorData)
+
+    return {
+      success: false,
+      message: errorData.message || 'Code OTP invalide',
+    }
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error
+    }
+
+    console.error('Erreur lors de la vérification OTP:', error)
+
+    return {
+      success: false,
+      message: 'Une erreur est survenue lors de la vérification OTP',
     }
   }
 }
