@@ -28,20 +28,16 @@ export const getProjectsByOrganizationWithPaginationDal = cache(
     {limit, offset}: {limit: number; offset: number},
     search?: string
   ): Promise<PaginatedResponse<Project>> => {
-    console.log('search', search)
-    console.log('organizationId', organizationId)
-    console.log('limit', limit)
-    console.log('offset', offset)
     const filters: ProjectFilters = {
       organizationId,
       ...(search ? {name: search} : {}),
     }
-    console.log('filters', filters)
+
     const result = await getProjectsWithPaginationService(
       {limit, offset},
       filters
     )
-    console.log('result', result)
+
     return result
   }
 )

@@ -43,8 +43,7 @@ export function AcceptInvitationForm({invitation}: AcceptInvitationFormProps) {
       await authClient.organization.acceptInvitation({
         invitationId: invitation.id,
       })
-      const session = await authClient.getSession()
-      console.log('session', session)
+
       toast.success('Invitation acceptée avec succès')
 
       router.push('/dashboard')

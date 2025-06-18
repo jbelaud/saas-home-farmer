@@ -32,7 +32,7 @@ export function TeamSwitcher({
 }) {
   const {isMobile} = useSidebar()
   const {currentOrganization, setCurrentOrganization} = useOrganization()
-  console.log('TeamSwitcher currentOrganization', currentOrganization)
+  //console.log('TeamSwitcher currentOrganization', currentOrganization)
 
   // Trouver l'équipe active basée sur l'organisation courante du contexte
   const activeTeam =
