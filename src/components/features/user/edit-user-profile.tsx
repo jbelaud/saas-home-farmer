@@ -162,7 +162,7 @@ export function EditUserProfileForm({user}: {user: User}) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Your email" {...field} />
+                <Input placeholder="Your email" {...field} disabled={true} />
               </FormControl>
               <FormMessage />
             </FormItem>

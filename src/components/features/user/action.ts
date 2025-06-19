@@ -28,6 +28,10 @@ import {
   UserFormSchemaType,
 } from '../admin/users/user-form-validation'
 import {
+  changeEmailFormSchema,
+  ChangeEmailFormSchemaType,
+} from './change-email-form-validation'
+import {
   changePasswordFormSchema,
   ChangePasswordFormSchemaType,
 } from './change-password-form-validation'
@@ -71,6 +75,12 @@ export type ChangePasswordState = {
   success: boolean
   message?: string
   errors?: ValidationError<ChangePasswordFormSchemaType>[]
+}
+
+export type ChangeEmailState = {
+  success: boolean
+  message?: string
+  errors?: ValidationError<ChangeEmailFormSchemaType>[]
 }
 
 export async function updateUserAction(
@@ -498,6 +508,74 @@ export async function changePasswordAction(
         error instanceof Error
           ? error.message
           : 'Erreur inattendue lors du changement de mot de passe',
+    }
+  }
+}
+
+export async function changeEmailAction(
+  prevState?: ChangeEmailState,
+  formData?: FormData
+): Promise<ChangeEmailState> {
+  const user = await requireActionAuth()
+  if (!user) {
+    return {success: false, message: 'Utilisateur non trouvé'}
+  }
+
+  if (!formData) {
+    return {success: false, message: 'Données invalides'}
+  }
+
+  const emailData = {
+    newEmail: formData.get('newEmail') as string,
+  }
+
+  // Validation avec Zod
+  const validationResult = changeEmailFormSchema.safeParse(emailData)
+
+  if (!validationResult.success) {
+    const validationErrors = validationResult.error.errors.map((err) => ({
+      field: err.path[0] as keyof ChangeEmailFormSchemaType,
+      message: err.message,
+    }))
+    return {
+      success: false,
+      message: 'Erreur de validation',
+      errors: validationErrors,
+    }
+  }
+
+  const {newEmail} = validationResult.data
+
+  try {
+    const result = await auth.api.changeEmail({
+      headers: await headers(),
+      body: {
+        newEmail,
+        callbackURL: '/account', // Redirection vers la page compte après vérification
+      },
+    })
+
+    if (result) {
+      revalidatePath('/account')
+      return {
+        success: true,
+        message:
+          'Un email de vérification a été envoyé à votre adresse actuelle pour confirmer le changement.',
+      }
+    } else {
+      return {
+        success: false,
+        message: "Échec de la demande de changement d'email",
+      }
+    }
+  } catch (error) {
+    console.error('Erreur changement email:', error)
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Erreur inattendue lors du changement d'email",
     }
   }
 }
