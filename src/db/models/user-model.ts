@@ -10,8 +10,6 @@ import {
 
 import {account, member, roleEnum, user} from './auth-model'
 
-//import type {AdapterAccount} from 'next-auth/adapters'
-
 // Enums pour les paramètres utilisateur
 export const themeEnum = pgEnum('theme_type', ['light', 'dark', 'system'])
 export const languageEnum = pgEnum('language_type', ['fr', 'en', 'es'])

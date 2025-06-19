@@ -103,7 +103,7 @@ export const createUserServiceSchema = baseUserServiceSchema.extend({
 ```
 
 # Authentication 
-- Check auth via getAuthUser (next-auth)
+- Check auth via getAuthUser (better-auth)
 ```ts
 import {getAuthUser} from '@/services/authentication/auth-utils'
 const authUser = await getAuthUser()

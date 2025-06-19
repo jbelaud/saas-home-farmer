@@ -64,7 +64,6 @@ import Stripe from 'stripe'
 
 // Auth providers
 import { signIn, signOut } from '@/lib/auth'
-import { AuthError } from 'next-auth'
 
 // Utilitaires spécifiques
 import { isRedirectError } from 'next/dist/client/components/redirect-error'

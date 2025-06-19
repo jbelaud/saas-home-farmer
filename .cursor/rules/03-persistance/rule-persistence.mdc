@@ -220,7 +220,7 @@ export default db
 Exemple de Types de Domaine:
 [user-types.ts](mdc:src/services/types/domain/user-types.ts)
 ```ts
-import { Session } from 'next-auth'
+import { Session } from 'better-auth'
 import { AddUserModel, UpdateUserModel, UserModel } from '@/db/models/user-model'
 
 // Types de domaine découplés des types Drizzle
