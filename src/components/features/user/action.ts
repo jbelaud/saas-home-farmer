@@ -28,6 +28,10 @@ import {
   UserFormSchemaType,
 } from '../admin/users/user-form-validation'
 import {
+  changePasswordFormSchema,
+  ChangePasswordFormSchemaType,
+} from './change-password-form-validation'
+import {
   twoFactorFormSchema,
   TwoFactorFormSchemaType,
 } from './two-factor-form-validation'
@@ -61,6 +65,12 @@ export type VerifyTotpState = {
   success: boolean
   message?: string
   errors?: ValidationError<{code: string}>[]
+}
+
+export type ChangePasswordState = {
+  success: boolean
+  message?: string
+  errors?: ValidationError<ChangePasswordFormSchemaType>[]
 }
 
 export async function updateUserAction(
@@ -419,6 +429,75 @@ export async function verifyTotpAction(
           message: 'Erreur lors de la vérification du code',
         },
       ],
+    }
+  }
+}
+
+export async function changePasswordAction(
+  prevState?: ChangePasswordState,
+  formData?: FormData
+): Promise<ChangePasswordState> {
+  const user = await requireActionAuth()
+  if (!user) {
+    return {success: false, message: 'Utilisateur non trouvé'}
+  }
+
+  if (!formData) {
+    return {success: false, message: 'Données invalides'}
+  }
+
+  const passwordData = {
+    currentPassword: formData.get('currentPassword') as string,
+    newPassword: formData.get('newPassword') as string,
+    confirmPassword: formData.get('confirmPassword') as string,
+  }
+
+  // Validation avec Zod
+  const validationResult = changePasswordFormSchema.safeParse(passwordData)
+
+  if (!validationResult.success) {
+    const validationErrors = validationResult.error.errors.map((err) => ({
+      field: err.path[0] as keyof ChangePasswordFormSchemaType,
+      message: err.message,
+    }))
+    return {
+      success: false,
+      message: 'Erreur de validation',
+      errors: validationErrors,
+    }
+  }
+
+  const {currentPassword, newPassword} = validationResult.data
+
+  try {
+    const result = await auth.api.changePassword({
+      headers: await headers(),
+      body: {
+        currentPassword,
+        newPassword,
+      },
+    })
+
+    if (result) {
+      revalidatePath('/account')
+      return {
+        success: true,
+        message: 'Mot de passe changé avec succès',
+      }
+    } else {
+      return {
+        success: false,
+        message: 'Échec du changement de mot de passe',
+      }
+    }
+  } catch (error) {
+    console.error('Erreur changement mot de passe:', error)
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Erreur inattendue lors du changement de mot de passe',
     }
   }
 }
