@@ -27,7 +27,7 @@ import {Input} from '@/components/ui/input'
 import {User} from '@/services/types/domain/user-types'
 
 import {changeEmailAction} from './action'
-import {changeEmailFormSchema} from './change-email-form-validation'
+import {changeEmailFormSchema} from './user-form-validation'
 
 type FormValues = z.infer<typeof changeEmailFormSchema>
 

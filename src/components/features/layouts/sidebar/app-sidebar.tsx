@@ -58,7 +58,7 @@ const menuData = {
       isActive: false,
       items: [
         {
-          title: 'Account',
+          title: 'Account et Sécurité',
           url: '/account',
         },
         {

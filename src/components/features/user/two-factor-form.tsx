@@ -35,7 +35,7 @@ import {
   updateUserSettingsAction,
   verifyTotpAction,
 } from './action'
-import {twoFactorFormSchema} from './two-factor-form-validation'
+import {twoFactorFormSchema} from './user-form-validation'
 
 type FormValues = z.infer<typeof twoFactorFormSchema>
 

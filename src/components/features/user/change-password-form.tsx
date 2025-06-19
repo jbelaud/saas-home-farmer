@@ -26,7 +26,7 @@ import {
 import {Input} from '@/components/ui/input'
 
 import {changePasswordAction} from './action'
-import {changePasswordFormSchema} from './change-password-form-validation'
+import {changePasswordFormSchema} from './user-form-validation'
 
 type FormValues = z.infer<typeof changePasswordFormSchema>
 

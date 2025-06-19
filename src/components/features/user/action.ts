@@ -30,15 +30,11 @@ import {
 import {
   changeEmailFormSchema,
   ChangeEmailFormSchemaType,
-} from './change-email-form-validation'
-import {
   changePasswordFormSchema,
   ChangePasswordFormSchemaType,
-} from './change-password-form-validation'
-import {
   twoFactorFormSchema,
   TwoFactorFormSchemaType,
-} from './two-factor-form-validation'
+} from './user-form-validation'
 
 type ValidationError<T = UserFormSchemaType> = {
   field: keyof T

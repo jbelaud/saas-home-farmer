@@ -2,7 +2,7 @@ import {notFound} from 'next/navigation'
 
 import {EditUserProfileForm} from '@/components/features/user/edit-user-profile'
 import {EditUserSettingsForm} from '@/components/features/user/edit-user-settings'
-import {TwoFactorSection} from '@/components/features/user/two-factor-section'
+import {UserSecurityFactorSection} from '@/components/features/user/security-section'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
 export default async function Page() {
@@ -25,7 +25,7 @@ export default async function Page() {
         </div>
 
         <div className="rounded-lg border p-6">
-          <TwoFactorSection user={user} />
+          <UserSecurityFactorSection user={user} />
         </div>
 
         <div className="rounded-lg border p-6">

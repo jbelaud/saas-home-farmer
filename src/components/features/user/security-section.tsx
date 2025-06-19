@@ -5,7 +5,7 @@ import {ChangeEmailForm} from './change-email-form'
 import {ChangePasswordForm} from './change-password-form'
 import {TwoFactorForm} from './two-factor-form'
 
-export function TwoFactorSection({user}: {user: User}) {
+export function UserSecurityFactorSection({user}: {user: User}) {
   return (
     <div className="space-y-6">
       <div>
