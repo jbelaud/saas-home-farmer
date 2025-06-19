@@ -64,6 +64,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
             {!isMagicLink && (
               <>
                 <Button
+                  type="button"
                   variant="outline"
                   className="w-full"
                   onClick={() => handleProviderLogin('apple')}
@@ -81,6 +82,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                 </Button>
 
                 <Button
+                  type="button"
                   variant="outline"
                   className="w-full"
                   onClick={() => handleProviderLogin('google')}
@@ -98,6 +100,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                 </Button>
 
                 <Button
+                  type="button"
                   variant="outline"
                   className="w-full"
                   onClick={() => setIsMagicLink(true)}
@@ -114,6 +117,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
               <MagicLinkForm />
               <div className="mt-4 text-center">
                 <Button
+                  type="button"
                   variant="link"
                   className="text-sm"
                   onClick={() => setIsMagicLink(false)}
