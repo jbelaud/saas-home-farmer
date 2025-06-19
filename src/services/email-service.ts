@@ -4,6 +4,7 @@ import {
   Resend,
 } from 'resend'
 
+import EmailChangeEmailVerification from '@/lib/emails/email-change-email-verification'
 import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization-link-email'
 import MagicLinkMail from '@/lib/emails/magic-link-email'
 import OtpEmail from '@/lib/emails/otp-email'
@@ -152,5 +153,23 @@ export const sendOTPEmailService = async ({
     from: fromEmail,
     text: `Votre code de vérification est : ${otp}${otpLink ? `\n\nOu cliquez sur ce lien pour une vérification automatique : ${otpLink}` : ''}`,
     react: OtpEmail({otp, otpLink}),
+  })
+}
+
+export const sendEmailChangeEmailVerificationService = async ({
+  email,
+  url,
+}: {
+  email: string
+  url: string
+}) => {
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  await sendEmailService({
+    to: email,
+    subject: "Vérification du changement d'email",
+    from: fromEmail,
+    text: "Vérification du changement d'email",
+    react: EmailChangeEmailVerification({url}),
   })
 }

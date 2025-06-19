@@ -150,33 +150,6 @@ export function EditUserSettingsForm({user}: {user: User}) {
           />
         </div>
 
-        {/* Sécurité */}
-        {/* <div className="space-y-4">
-          <h4 className="text-sm font-medium">Sécurité</h4>
-          <FormField
-            control={form.control}
-            name="enableTwoFactor"
-            render={({field}) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    Authentification à deux facteurs
-                  </FormLabel>
-                  <FormDescription>
-                    Ajoutez une couche de sécurité supplémentaire à votre compte
-                  </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div> */}
-
         {/* Notifications */}
         <div className="space-y-4">
           <h4 className="text-sm font-medium">Notifications</h4>

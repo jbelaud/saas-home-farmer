@@ -12,6 +12,10 @@ export const AuthClientAppConfig = {
   skipVerificationOnEnable:
     process.env.NEXT_PUBLIC_BETTER_AUTH_2FA_SKIP_VERIFICATION_ON_ENABLE ===
     'true',
+  enable2FA: process.env.NEXT_PUBLIC_BETTER_AUTH_2FA_ENABLE === 'true',
+  changePassword:
+    process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_PASSWORD === 'true',
+  changeEmail: process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL === 'true',
 } as const
 
 export const authClient = createAuthClient({

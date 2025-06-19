@@ -7,6 +7,7 @@ import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
 import {
+  sendEmailChangeEmailVerificationService,
   sendMagicLinkEmailService,
   sendOrganizationInvitationService,
   sendOTPEmailService,
@@ -23,6 +24,10 @@ export const AuthAppConfig = {
   skipVerificationOnEnable:
     process.env.NEXT_PUBLIC_BETTER_AUTH_2FA_SKIP_VERIFICATION_ON_ENABLE ===
     'true',
+  enable2FA: process.env.NEXT_PUBLIC_BETTER_AUTH_2FA_ENABLE === 'true',
+  changePassword:
+    process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_PASSWORD === 'true',
+  changeEmail: process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL === 'true',
 } as const
 
 export const auth = betterAuth({
@@ -59,6 +64,17 @@ export const auth = betterAuth({
   advanced: {
     database: {
       generateId: () => uuidv4(),
+    },
+  },
+  user: {
+    changeEmail: {
+      enabled: AuthAppConfig.changeEmail,
+      sendChangeEmailVerification: async ({user, url}) => {
+        await sendEmailChangeEmailVerificationService({
+          email: user.email,
+          url,
+        })
+      },
     },
   },
   plugins: [

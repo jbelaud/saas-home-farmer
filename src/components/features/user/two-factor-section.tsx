@@ -1,3 +1,4 @@
+import {AuthClientAppConfig} from '@/lib/better-auth/auth-client'
 import {User} from '@/services/types/domain/user-types'
 
 import {TwoFactorForm} from './two-factor-form'
@@ -12,12 +13,13 @@ export function TwoFactorSection({user}: {user: User}) {
           l&apos;authentification à deux facteurs.
         </p>
       </div>
-
-      <div className="rounded-lg border">
-        <div className="p-6">
-          <TwoFactorForm user={user} />
+      {AuthClientAppConfig.enable2FA && (
+        <div className="rounded-lg border">
+          <div className="p-6">
+            <TwoFactorForm user={user} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
