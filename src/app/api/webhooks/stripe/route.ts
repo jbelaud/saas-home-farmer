@@ -62,19 +62,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
 
 // webhook secret
 const endpointSecret = process.env.STRIPE_CODEMAIL_WEBHOOK_SECRET ?? ''
-//const timestamp = Math.floor(Date.now() / 1000) // Current Unix timestamp
 
 export async function POST(request: Request) {
   const body = await request.text()
 
   const headersList = await headers()
   const sig = headersList.get('stripe-signature')
-  // console.log('Raw body:', body)
-  // console.log('Webhook Secret:', `${endpointSecret}...`)
-
-  // generate stripe signature for testing
-  // const sig = generateStripeSignature(body, timestamp, endpointSecret)
-  // console.log('stripe-signature:', sig)
 
   if (!sig) {
     return NextResponse.json({error: 'No signature found'}, {status: 400})
@@ -84,7 +77,6 @@ export async function POST(request: Request) {
 
   try {
     event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
-    //console.log('event:', event)
   } catch (error) {
     console.error('Webhook signature verification failed:', error)
     return NextResponse.json(
@@ -413,14 +405,6 @@ async function handlePaymentIntentSucceeded(
       })
       return
     }
-
-    // try {
-    //   await createSubscriptionFromStripe(customerEmail, plan, yearly)
-    //   console.log('Subscription created successfully for:', customerEmail)
-    // } catch (error) {
-    //   console.error('Error creating subscription:', error)
-    //   throw error
-    // }
   }
 }
 
@@ -486,102 +470,3 @@ async function handleInvoiceCreated(invoice: Stripe.Invoice) {
     // Ajouter ici la logique de traitement de la nouvelle facture
   }
 }
-
-// function generateStripeSignature(
-//   payload:
-//     | {
-//         id: string
-//         object: string
-//         type: string
-//         data: {object: {id: string; status: string}}
-//       }
-//     | string,
-//   timestamp: number,
-//   secret: crypto.BinaryLike | crypto.KeyObject
-// ) {
-//   // Convert payload to string if it's an object
-//   const payloadString =
-//     typeof payload === 'string' ? payload : JSON.stringify(payload)
-
-//   // Create the signed_payload string
-//   const signed_payload = `${timestamp}.${payloadString}`
-
-//   // Generate the signature using HMAC with SHA256
-//   const signature = crypto
-//     .createHmac('sha256', secret)
-//     .update(signed_payload)
-//     .digest('hex')
-
-//   // Return the complete stripe-signature header value
-//   return `t=${timestamp},v1=${signature}`
-// }
-
-// Example usage:
-
-// const payload = {
-//   id: 'evt_test_123',
-//   object: 'event',
-//   type: 'customer.subscription.created',
-//   data: {
-//     object: {
-//       id: 'sub_123',
-//       status: 'active',
-//     },
-//   },
-// }
-
-// const signature = generateStripeSignature(payload, timestamp, webhookSecret)
-// console.log('stripe-signature:', signature)
-
-//Set up Stripe webhook in your Stripe dashboard:
-// Go to Stripe Dashboard > Developers > Webhooks
-// Add endpoint URL (your webhook endpoint)
-// Select events to listen to (at minimum checkout.session.completed)
-// Get the webhook signing secret and add it to your environment variables
-// Add the necessary environment variables:
-// Key security points:
-// Always verify webhook signatures to prevent unauthorized requests
-// Use webhook events rather than client-side confirmation
-
-// # Événements de paiement
-// stripe trigger payment_intent.succeeded
-// stripe trigger payment_intent.payment_failed
-
-// # Événements de session Checkout
-// stripe trigger checkout.session.completed
-// stripe trigger checkout.session.expired
-
-// # Événements d'abonnement
-// stripe trigger customer.subscription.created
-// stripe trigger customer.subscription.updated
-// stripe trigger customer.subscription.deleted
-
-// # Événements de facturation
-// stripe trigger invoice.paid
-// stripe trigger invoice.payment_failed
-
-// # Événements client
-// stripe trigger customer.created
-// stripe trigger customer.updated
-
-// # Événements de remboursement
-// stripe trigger charge.refunded
-// # Pour tester un paiement unique
-// stripe trigger checkout.session.completed \
-//   --add checkout_session:mode=payment \
-//   --add checkout_session:customer_details:email=test@example.com \
-//   --add checkout_session:metadata:plan=PRO
-
-// # Pour tester un abonnement mensuel
-// stripe trigger checkout.session.completed \
-//   --add checkout_session:mode=subscription \
-//   --add checkout_session:customer_details:email=test@example.com \
-//   --add checkout_session:metadata:plan=PRO \
-//   --add checkout_session:metadata:interval=month
-
-// # Pour tester un abonnement annuel
-// stripe trigger checkout.session.completed \
-//   --add checkout_session:mode=subscription \
-//   --add checkout_session:customer_details:email=test@example.com \
-//   --add checkout_session:metadata:plan=PRO \
-//   --add checkout_session:metadata:interval=year
