@@ -421,6 +421,51 @@ export async function registerMagicLinkAction(
 /**
  * Action pour l'inscription avec un provider OAuth (Google, Apple)
  */
+export async function loginProviderAction(
+  provider:
+    | 'google'
+    | 'apple'
+    | 'github'
+    | 'discord'
+    | 'facebook'
+    | 'twitter'
+    | 'linkedin'
+): Promise<LoginFormState> {
+  console.log('registerProviderAction appelé', provider)
+  try {
+    const response = await auth.api.signInSocial({
+      headers: await headers(),
+      body: {
+        provider,
+        callbackURL: '/dashboard',
+      },
+    })
+    if (response.url) {
+      redirect(response.url)
+    }
+    return {
+      success: true,
+      message: 'Redirection vers le provider...',
+    }
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error
+    }
+    console.log('error', error)
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? `Error technique : ${error.message}`
+          : 'Une erreur est survenue lors de la connexion au compte',
+      errors: [],
+    }
+  }
+}
+
+/**
+ * Action pour l'inscription avec un provider OAuth (Google, Apple)
+ */
 export async function registerProviderAction(
   provider: 'google' | 'apple'
 ): Promise<LoginFormState> {

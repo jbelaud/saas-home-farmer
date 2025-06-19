@@ -77,6 +77,13 @@ export const auth = betterAuth({
       },
     },
   },
+  socialProviders: {
+    google: {
+      prompt: 'select_account',
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+  },
   plugins: [
     twoFactor({
       issuer: APP_ISSUER,
@@ -129,7 +136,7 @@ export const auth = betterAuth({
  */
 function createAuthRedirectMiddleware() {
   return createAuthMiddleware(async (ctx) => {
-    //console.log('ctx.path', ctx.path)
+    console.log('ctx.path', ctx.path)
 
     if (ctx.path === '/magic-link/verify') {
       console.log('/magic-link/verify')
