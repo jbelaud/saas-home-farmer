@@ -3,6 +3,7 @@ import {User} from '@/services/types/domain/user-types'
 
 import {ChangeEmailForm} from './change-email-form'
 import {ChangePasswordForm} from './change-password-form'
+import {ListTokensSection} from './list-tokens-section'
 import {TwoFactorForm} from './two-factor-form'
 
 export function UserSecurityFactorSection({user}: {user: User}) {
@@ -39,6 +40,8 @@ export function UserSecurityFactorSection({user}: {user: User}) {
           </div>
         </div>
       )}
+      {/* Section gestion des sessions/tokens */}
+      {AuthClientAppConfig.enableTokenManagement && <ListTokensSection />}
     </div>
   )
 }
