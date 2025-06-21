@@ -22,10 +22,10 @@ export type SubscriptionDetail = Subscription & {
 export type PaginatedSubscriptions = {
   data: SubscriptionDetail[]
   pagination: {
-    rowCount: number
-    pageSize: number
+    total: number
     page: number
-    pageCount: number
+    limit: number
+    totalPages: number
   }
 }
 export type SubscriptionPlan = Subscription['plan']

@@ -1,8 +1,10 @@
 export const emptyPaginationReturn = {
   data: [],
   pagination: {
-    rowCount: 0,
-    pageSize: 0,
+    total: 0,
+    page: 1,
+    limit: 0,
+    totalPages: 0,
   },
 }
 

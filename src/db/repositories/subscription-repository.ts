@@ -96,13 +96,16 @@ export const getSubscriptionsWithPaginationDao = async (pagination: {
     db.select({count: sql<number>`count(*)`}).from(subscriptions),
   ])
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: rows,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
-      page: Math.floor(pagination.offset / pagination.limit) + 1,
-      pageCount: Math.ceil(count / pagination.limit),
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }
@@ -124,13 +127,16 @@ export const getSubscriptionsByPlanDao = async (
       .where(eq(subscriptions.plan, plan)),
   ])
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: rows,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
-      page: Math.floor(pagination.offset / pagination.limit) + 1,
-      pageCount: Math.ceil(count / pagination.limit),
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }

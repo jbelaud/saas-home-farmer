@@ -31,7 +31,7 @@ export default async function UsersContent({
       initialUsers={users.data}
       currentPage={page}
       pageSize={limit}
-      totalUsers={users.pagination.rowCount}
+      totalUsers={users.pagination.total}
       permissions={permissions}
       searchQuery={search}
     />

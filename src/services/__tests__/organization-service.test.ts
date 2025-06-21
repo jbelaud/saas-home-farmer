@@ -124,7 +124,7 @@ describe('[ADMIN] CRUD : OrganizationService', () => {
     vi.mocked(getOrganizationByIdDao).mockResolvedValue(organizationData)
     vi.mocked(getOrganizationsDao).mockResolvedValue({
       data: [organizationData],
-      pagination: {rowCount: 1, pageSize: 10},
+      pagination: {total: 1, page: 1, limit: 10, totalPages: 1},
     })
     vi.mocked(getOrganizationsByUserIdDao).mockResolvedValue([organizationData])
     vi.mocked(updateOrganizationDao).mockResolvedValue()
@@ -162,7 +162,7 @@ describe('[ADMIN] CRUD : OrganizationService', () => {
 
     expect(result).toEqual({
       data: [organizationData],
-      pagination: {rowCount: 1, pageSize: 10},
+      pagination: {total: 1, page: 1, limit: 10, totalPages: 1},
     })
     expect(getOrganizationsDao).toHaveBeenCalledWith(pagination)
   })

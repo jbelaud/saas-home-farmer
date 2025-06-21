@@ -127,11 +127,16 @@ export const getPublicUsersWithPaginationDao = async (
       .where(eq(users.visibility, 'public')),
   ])
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: rows.length === 0 ? [] : rows,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }
@@ -172,11 +177,16 @@ export const getAllUsersWithPaginationDao = async (
     organizations: [], // Les organisations seront chargées à la demande si nécessaire
   }))
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: transformedUsers,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }

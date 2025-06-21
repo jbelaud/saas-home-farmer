@@ -31,7 +31,7 @@ export default async function OrganizationsContent({
       initialOrganizations={organizations.data}
       currentPage={page}
       pageSize={limit}
-      totalOrganizations={organizations.pagination.rowCount}
+      totalOrganizations={organizations.pagination.total}
       permissions={permissions}
       searchQuery={search}
     />

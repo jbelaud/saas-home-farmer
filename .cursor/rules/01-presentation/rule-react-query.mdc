@@ -131,11 +131,10 @@ export interface PaginatedResponse<T> {
   success: boolean
   data: T[]
   pagination: {
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-    rowCount: number
+    total: number // ← Nombre total d'éléments
+    page: number // ← Page actuelle
+    limit: number // ← Éléments par page
+    totalPages: number // ← Nombre total de pages
   }
 }
 
@@ -400,6 +399,66 @@ export function DeleteEntityDialog({ entityId, entityName, onDelete, isLoading }
       </DialogContent>
     </Dialog>
   )
+}
+```
+
+## Pagination Unifiée React Query
+
+### Structure de réponse standardisée
+Toutes les APIs retournent une structure de pagination uniforme :
+
+```typescript
+// Réponse API standardisée
+{
+  "success": true,
+  "data": [...],
+  "pagination": {
+    "total": 25,        // ← Nombre total d'éléments
+    "page": 1,          // ← Page actuelle
+    "limit": 10,        // ← Éléments par page  
+    "totalPages": 3     // ← Nombre total de pages
+  }
+}
+```
+
+### Utilisation dans les composants
+```typescript
+export function EntityManagementReactQuery({ organization, searchParams }: Props) {
+  const { data: entitiesResponse } = useEntities({
+    page, limit, search, organizationId,
+  })
+
+  // Extraction des données et pagination
+  const entities = entitiesResponse?.data || []
+  const pagination = entitiesResponse?.pagination || {
+    total: 0,
+    page: 1,
+    limit: 20,
+    totalPages: 0,
+  }
+
+  return (
+    <>
+      <TableComponent entities={entities} />
+      <ProjectsPagination
+        currentPage={pagination.page}
+        totalPages={pagination.totalPages}
+        onPageChange={handlePageChange}
+      />
+    </>
+  )
+}
+```
+
+### Gestion des états par défaut
+Toujours prévoir des valeurs par défaut pour éviter les erreurs :
+
+```typescript
+const pagination = entitiesResponse?.pagination || {
+  total: 0,
+  page: 1, 
+  limit: 20,
+  totalPages: 0,
 }
 ```
 

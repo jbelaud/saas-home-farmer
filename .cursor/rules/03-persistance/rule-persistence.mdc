@@ -164,11 +164,16 @@ export const getPublicUsersWithPaginationDao = async (
       .where(eq(users.visibility, 'public')),
   ])
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: rows.length === 0 ? [] : rows,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }
@@ -266,6 +271,34 @@ export type UserOrganizationData = UserOrganizationModel & {
   organization?: OrganizationModel
 }
 ```
+
+# Pagination Unifiée
+
+La structure de pagination suit un format standardisé pour tous les repositories :
+
+```typescript
+// Structure de pagination uniforme
+return {
+  data: rows.length === 0 ? [] : rows,
+  pagination: {
+    total: count,        // ← Nombre total d'éléments
+    page: page,          // ← Page actuelle
+    limit: pagination.limit,  // ← Éléments par page
+    totalPages: totalPages,   // ← Nombre total de pages
+  },
+}
+```
+
+**Calculs automatiques dans chaque fonction de pagination :**
+```typescript
+const page = Math.floor(pagination.offset / pagination.limit) + 1
+const totalPages = Math.ceil(count / pagination.limit)
+```
+
+Cette structure garantit :
+- **Cohérence** entre tous les repositories
+- **Compatibilité** avec React Query et Server Components
+- **Performance** avec calculs centralisés
 
 # Bonnes Pratiques
 

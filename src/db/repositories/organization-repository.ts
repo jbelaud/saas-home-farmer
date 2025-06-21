@@ -104,11 +104,16 @@ export const getOrganizationsDao = async (
     db.select({count: sql<number>`count(*)`}).from(organizations),
   ])
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: rows.length === 0 ? [] : rows,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }
@@ -143,11 +148,16 @@ export const getAllOrganizationsWithPaginationDao = async (
       .where(searchCondition),
   ])
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: rows.length === 0 ? [] : rows,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }
