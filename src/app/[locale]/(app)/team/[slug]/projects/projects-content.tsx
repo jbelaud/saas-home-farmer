@@ -61,7 +61,7 @@ export default async function ProjectsContent({
       initialProjects={projects.data}
       currentPage={page}
       pageSize={limit}
-      totalProjects={projects.pagination.rowCount}
+      totalProjects={projects.pagination.total}
       permissions={permissions}
       searchQuery={search}
     />

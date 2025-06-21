@@ -5,7 +5,9 @@ export type Pagination = {
 export type PaginatedResponse<T> = {
   data: T[]
   pagination: {
-    rowCount: number
-    pageSize: number
+    total: number // ← Nombre total d'éléments
+    page: number // ← Page actuelle
+    limit: number // ← Éléments par page
+    totalPages: number // ← Nombre total de pages
   }
 }

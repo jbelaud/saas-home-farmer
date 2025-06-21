@@ -121,11 +121,16 @@ export const getProjectsWithPaginationDao = async (
       .where(whereClause),
   ])
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: rows.length === 0 ? [] : rows,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }
@@ -192,11 +197,16 @@ export const getTasksWithPaginationDao = async (
       .where(whereClause),
   ])
 
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
   return {
     data: rows.length === 0 ? [] : rows,
     pagination: {
-      rowCount: count,
-      pageSize: pagination.limit,
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
     },
   }
 }
