@@ -18,6 +18,7 @@ export const userTest = {
   banReason: null,
   banExpires: null,
   twoFactorEnabled: false,
+  stripeCustomerId: 'cus_1234567890',
 } satisfies User
 
 export const userTestAdmin = {
@@ -34,4 +35,5 @@ export const userTestAdmin = {
   createdAt: new Date(),
   updatedAt: new Date(),
   twoFactorEnabled: false,
+  stripeCustomerId: 'cus_1234567890',
 } satisfies User
