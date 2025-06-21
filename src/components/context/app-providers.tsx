@@ -6,6 +6,7 @@ import {Toaster} from '@/components/ui/sonner'
 import {User} from '@/services/types/domain/user-types'
 
 import AuthProvider from './auth-provider'
+import {QueryProvider} from './query-provider'
 import {ThemeProvider} from './theme-provider'
 
 interface AppProvidersProps extends PropsWithChildren {
@@ -14,17 +15,19 @@ interface AppProvidersProps extends PropsWithChildren {
 
 export function AppProviders({children}: AppProvidersProps) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      storageKey="theme"
-      disableTransitionOnChange
-    >
-      <AuthProvider>
-        {children}
-        <Toaster />
-      </AuthProvider>
-    </ThemeProvider>
+    <QueryProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        storageKey="theme"
+        disableTransitionOnChange
+      >
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryProvider>
   )
 }
