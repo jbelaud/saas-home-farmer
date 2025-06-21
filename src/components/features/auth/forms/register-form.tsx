@@ -30,6 +30,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
+import {authClient} from '@/lib/better-auth/auth-client'
 import {cn} from '@/lib/utils'
 
 import {RegisterMagicLinkForm} from './register-magic-link-form'
@@ -60,6 +61,11 @@ export function RegisterForm({
   const [isMagicLink, setIsMagicLink] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+
+  // eslint-disable-next-line promise/catch-or-return, promise/always-return
+  authClient.listSessions().then((res) => {
+    console.log('listSessions', res)
+  })
 
   const form = useForm<FormValues>({
     resolver: zodResolver(authRegisterFormSchema),
