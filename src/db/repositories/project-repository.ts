@@ -106,7 +106,6 @@ export const getProjectsWithPaginationDao = async (
 
   const whereClause =
     whereConditions.length > 0 ? and(...whereConditions) : undefined
-  console.log('whereClause', whereClause)
 
   const [rows, [{count}]] = await Promise.all([
     db
