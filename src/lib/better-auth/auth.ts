@@ -1,3 +1,4 @@
+import {stripe} from '@better-auth/stripe'
 import {betterAuth} from 'better-auth'
 import {drizzleAdapter} from 'better-auth/adapters/drizzle'
 import {createAuthMiddleware} from 'better-auth/api'
@@ -9,6 +10,7 @@ import {
   organization,
   twoFactor,
 } from 'better-auth/plugins'
+import Stripe from 'stripe'
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
@@ -24,6 +26,10 @@ import {
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
 
 import {APP_ISSUER} from '../constants'
+
+const stripeClient = new Stripe(env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-05-28.basil',
+})
 
 export const AuthAppConfig = {
   requireEmailVerification:
@@ -127,6 +133,11 @@ export const auth = betterAuth({
           inviteLink,
         })
       },
+    }),
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: env.STRIPE_CODEMAIL_WEBHOOK_SECRET,
+      createCustomerOnSignUp: true,
     }),
     nextCookies(),
   ], //garder nextCookies() en dernier

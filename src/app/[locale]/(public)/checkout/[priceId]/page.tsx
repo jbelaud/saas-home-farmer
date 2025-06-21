@@ -1,8 +1,5 @@
 import CheckoutPage from '@/components/features/checkout-stripe/checkout-page'
-console.log('ENV check:', {
-  hasStripeKey: !!process.env.STRIPE_SECRET_KEY,
-  keyLength: process.env.STRIPE_SECRET_KEY?.length,
-})
+
 type PropsParams = {
   params: Promise<{priceId: string}>
   searchParams: Promise<{couponCode: string}>
