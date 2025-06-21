@@ -30,7 +30,7 @@ export const canReadSubscription = async (
     SubjectsConst.SUBSCRIPTION,
     {
       id: subscription.id,
-      userId: subscription.userId,
+      userId: subscription.stripeCustomerId,
     }
   )
 }
@@ -56,7 +56,7 @@ export const canUpdateSubscription = async (
     SubjectsConst.SUBSCRIPTION,
     {
       id: subscription.id,
-      userId: subscription.userId,
+      userId: subscription.stripeCustomerId,
     }
   )
 }

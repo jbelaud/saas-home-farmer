@@ -1,5 +1,6 @@
 import {relations, sql} from 'drizzle-orm'
 import {
+  boolean,
   integer,
   jsonb,
   pgEnum,
@@ -35,43 +36,36 @@ export const subscriptionTypeEnum = pgEnum('subscription_types', [
 export const subscriptions = pgTable(
   'subscription',
   {
+    // Champs better-auth
     id: uuid('id')
       .default(sql`uuid_generate_v4()`)
       .primaryKey(),
-    userId: uuid('user_id').notNull(),
-
-    // Plan and Status
-    plan: subscriptionPlanEnum('plan').default('CODEMAIL_FREE').notNull(),
-    status: subscriptionStatusEnum('status').default('active').notNull(),
-    subscriptionType: subscriptionTypeEnum('subscription_type').notNull(),
-    // Main dates
-    startDate: timestamp('start_date', {mode: 'date'}).defaultNow().notNull(),
-    endDate: timestamp('end_date', {mode: 'date'}),
-    createdAt: timestamp('created_at', {mode: 'date'}).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', {mode: 'date'}).defaultNow().notNull(),
-    canceledAt: timestamp('canceled_at', {mode: 'date'}),
-    trialEndsAt: timestamp('trial_ends_at', {mode: 'date'}),
-
-    // Billing period
-    currentPeriodStart: timestamp('current_period_start', {
-      mode: 'date',
-    }).notNull(),
-    currentPeriodEnd: timestamp('current_period_end', {mode: 'date'}).notNull(),
-    lastBillingDate: timestamp('last_billing_date', {mode: 'date'}),
-    nextBillingDate: timestamp('next_billing_date', {mode: 'date'}),
-
-    // Stripe information
+    plan: text('plan').notNull(),
+    referenceId: text('reference_id').notNull(), // userId
+    stripeCustomerId: text('stripe_customer_id'),
     stripeSubscriptionId: text('stripe_subscription_id'),
+    status: text('status').notNull(),
+    periodStart: timestamp('period_start'),
+    periodEnd: timestamp('period_end'),
+    cancelAtPeriodEnd: boolean('cancel_at_period_end'),
+    seats: integer('seats'),
+    trialStart: timestamp('trial_start'),
+    trialEnd: timestamp('trial_end'),
+
+    // Vos champs métier conservés
+    subscriptionType: subscriptionTypeEnum('subscription_type').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+    canceledAt: timestamp('canceled_at'),
+    lastBillingDate: timestamp('last_billing_date'),
+    nextBillingDate: timestamp('next_billing_date'),
     priceId: text('price_id'),
     paymentMethodId: text('payment_method_id'),
-
-    // Others
-    quantity: integer('quantity').default(1),
     metadata: jsonb('metadata'),
   },
   (table) => ({
     userPlanUnique: uniqueIndex('user_plan_unique_idx').on(
-      table.userId,
+      table.stripeCustomerId,
       table.plan
     ),
   })
@@ -80,8 +74,8 @@ export const subscriptions = pgTable(
 // Define relations if needed
 export const subscriptionsRelations = relations(subscriptions, ({one}) => ({
   user: one(user, {
-    fields: [subscriptions.userId],
-    references: [user.id],
+    fields: [subscriptions.stripeCustomerId],
+    references: [user.stripeCustomerId],
   }),
 }))
 

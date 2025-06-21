@@ -57,7 +57,7 @@ stripe trigger customer.subscription.created \
 */
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
-  apiVersion: '2025-02-24.acacia',
+  apiVersion: '2025-05-28.basil',
 })
 
 // webhook secret
@@ -457,12 +457,12 @@ async function handleInvoiceCreated(invoice: Stripe.Invoice) {
     amount: invoice.amount_due,
     currency: invoice.currency,
     status: invoice.status,
-    subscription: invoice.subscription,
+    //subscription: invoice.subscription,
   })
 
   if (invoice.status === 'draft' || invoice.status === 'open') {
     console.log('New invoice details:', {
-      paymentIntent: invoice.payment_intent,
+      //paymentIntent: invoice.payment_intent,
       dueDate: invoice.due_date,
       periodStart: invoice.period_start,
       periodEnd: invoice.period_end,

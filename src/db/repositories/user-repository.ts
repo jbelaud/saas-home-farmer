@@ -342,6 +342,7 @@ export const searchUsersDao = async (
       banExpires: true,
       visibility: true,
       twoFactorEnabled: true,
+      stripeCustomerId: true,
     },
   })
   return rows

@@ -26,7 +26,7 @@ export const getSubscriptionByUserIdDao = async (userId: string) => {
   const [row] = await db
     .select()
     .from(subscriptions)
-    .where(eq(subscriptions.userId, userId))
+    .where(eq(subscriptions.stripeCustomerId, userId))
   return row
 }
 
@@ -35,7 +35,10 @@ export const getActiveSubscriptionByUserIdDao = async (userId: string) => {
     .select()
     .from(subscriptions)
     .where(
-      and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active'))
+      and(
+        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.status, 'active')
+      )
     )
   return row
 }
@@ -78,7 +81,7 @@ export const getExpiringSubscriptionsDao = async (daysThreshold: number) => {
     .where(
       and(
         eq(subscriptions.status, 'active'),
-        lte(subscriptions.endDate, thresholdDate)
+        lte(subscriptions.periodEnd, thresholdDate)
       )
     )
 }
@@ -148,7 +151,12 @@ export const getSubscriptionByUserIdAndPlanDao = async (
   const [row] = await db
     .select()
     .from(subscriptions)
-    .where(and(eq(subscriptions.userId, userId), eq(subscriptions.plan, plan)))
+    .where(
+      and(
+        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.plan, plan)
+      )
+    )
   return row
 }
 
@@ -161,7 +169,7 @@ export const getActiveSubscriptionByUserIdAndPlanDao = async (
     .from(subscriptions)
     .where(
       and(
-        eq(subscriptions.userId, userId),
+        eq(subscriptions.stripeCustomerId, userId),
         eq(subscriptions.plan, plan),
         eq(subscriptions.status, 'active')
       )
@@ -176,7 +184,12 @@ export const isPlanExistDao = async (
   const [row] = await db
     .select({id: subscriptions.id})
     .from(subscriptions)
-    .where(and(eq(subscriptions.userId, userId), eq(subscriptions.plan, plan)))
+    .where(
+      and(
+        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.plan, plan)
+      )
+    )
     .limit(1)
 
   return Boolean(row)
@@ -191,7 +204,7 @@ export const isActivePlanExistDao = async (
     .from(subscriptions)
     .where(
       and(
-        eq(subscriptions.userId, userId),
+        eq(subscriptions.stripeCustomerId, userId),
         eq(subscriptions.plan, plan),
         eq(subscriptions.status, 'active')
       )
@@ -206,7 +219,10 @@ export const getActiveSubscriptionsByUserIdDao = async (userId: string) => {
     .select()
     .from(subscriptions)
     .where(
-      and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active'))
+      and(
+        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.status, 'active')
+      )
     )
     .orderBy(desc(subscriptions.createdAt))
 

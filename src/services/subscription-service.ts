@@ -124,29 +124,12 @@ export const createSubscriptionFromStripeService = async (
   }
 
   const subscription = await createSubscriptionDao({
-    userId: user.id,
+    referenceId: user.id,
     plan,
     status: 'active',
     subscriptionType: mode,
-    // Dates principales
-    startDate: currentDate,
-    endDate, // null pour paiement unique, date pour abonnement
-
-    // Période de facturation
-    currentPeriodStart: currentDate,
-    currentPeriodEnd: endDate || currentDate,
-
-    // Pour les abonnements Stripe
-    // stripeSubscriptionId: 'sub_xxx',
-    // priceId: 'price_xxx',
-    // paymentMethodId: 'pm_xxx',
-
-    // ...(mode === 'subscription' && {
-    //   stripeSubscriptionId: 'sub_xxx',
-    //   priceId: 'price_xxx',
-    // }),
-
-    quantity: 1,
+    periodStart: currentDate,
+    periodEnd: endDate,
     metadata: {
       mode,
       yearly,

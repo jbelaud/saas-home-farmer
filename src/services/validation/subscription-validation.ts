@@ -1,17 +1,17 @@
 import {z} from 'zod'
 
 export const baseSubscriptionServiceSchema = z.object({
-  userId: z.string().uuid({
-    message: "L'ID de l'utilisateur n'est pas valide.",
+  referenceId: z.string().uuid({
+    message: "L'ID de référence n'est pas valide.",
   }),
 })
 
 export const createSubscriptionServiceSchema =
   baseSubscriptionServiceSchema.extend({
-    plan: z.enum(['CODEMAIL_FREE', 'CODEMAIL_PRO', 'CODEMAIL_LIFETIME'], {
-      message:
-        'Le plan doit être CODEMAIL_FREE, CODEMAIL_PRO ou CODEMAIL_LIFETIME.',
+    plan: z.string({
+      message: 'Le plan est requis.',
     }),
+    status: z.string().default('active'),
     subscriptionType: z.enum(['subscription', 'payment'], {
       message: 'Le type doit être subscription ou payment.',
     }),
@@ -20,22 +20,40 @@ export const createSubscriptionServiceSchema =
       .min(1, {
         message: 'La quantité doit être supérieure à 0.',
       })
-      .default(1),
-    currentPeriodStart: z.date().default(() => new Date()),
-    currentPeriodEnd: z.date().default(() => {
-      const date = new Date()
-      date.setMonth(date.getMonth() + 1)
-      return date
-    }),
+      .default(1)
+      .optional(),
+    periodStart: z
+      .date()
+      .default(() => new Date())
+      .optional(),
+    periodEnd: z.date().optional(),
+    stripeCustomerId: z.string().optional(),
+    stripeSubscriptionId: z.string().optional(),
+    priceId: z.string().optional(),
+    paymentMethodId: z.string().optional(),
+    cancelAtPeriodEnd: z.boolean().optional(),
+    seats: z.number().optional(),
+    trialStart: z.date().optional(),
+    trialEnd: z.date().optional(),
+    metadata: z.unknown().optional(),
   })
 
 export const updateSubscriptionServiceSchema =
   baseSubscriptionServiceSchema.extend({
     id: z.string().uuid(),
-    plan: z
-      .enum(['CODEMAIL_FREE', 'CODEMAIL_PRO', 'CODEMAIL_LIFETIME'])
-      .optional(),
-    status: z
-      .enum(['active', 'grace_period', 'canceled', 'expired'])
-      .optional(),
+    plan: z.string().optional(),
+    status: z.string().optional(),
+    subscriptionType: z.enum(['subscription', 'payment']).optional(),
+    quantity: z.number().min(1).optional(),
+    periodStart: z.date().optional(),
+    periodEnd: z.date().optional(),
+    stripeCustomerId: z.string().optional(),
+    stripeSubscriptionId: z.string().optional(),
+    priceId: z.string().optional(),
+    paymentMethodId: z.string().optional(),
+    cancelAtPeriodEnd: z.boolean().optional(),
+    seats: z.number().optional(),
+    trialStart: z.date().optional(),
+    trialEnd: z.date().optional(),
+    metadata: z.unknown().optional(),
   })

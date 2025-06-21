@@ -8,7 +8,7 @@ const stripeSecretKey =
     : process.env.STRIPE_SECRET_KEY
 
 const stripe = new Stripe(stripeSecretKey || '', {
-  apiVersion: '2025-02-24.acacia',
+  apiVersion: '2025-05-28.basil',
 })
 
 export async function createCheckoutSession(priceId: string) {
