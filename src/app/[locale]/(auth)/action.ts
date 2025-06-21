@@ -126,8 +126,9 @@ export async function loginCredentialAction(
     }
 
     let twoFactorRedirect
+    let responseData
     try {
-      const responseData = await response.json()
+      responseData = await response.json()
       twoFactorRedirect = responseData.twoFactorRedirect
       console.log('responseData', responseData)
     } catch {
@@ -137,7 +138,7 @@ export async function loginCredentialAction(
     if (!twoFactorRedirect) {
       //CAS Sans 2FA
       console.log('Login Sans 2FA')
-      redirect(response.headers.get('Location') ?? '/404') //callbackURL
+      redirect(response.headers.get('Location') ?? responseData?.url ?? '/404') //callbackURL
     } else {
       //CAS Avec 2FA - Rediriger vers la page appropriée
       if (twoFactorType === 'otp') {

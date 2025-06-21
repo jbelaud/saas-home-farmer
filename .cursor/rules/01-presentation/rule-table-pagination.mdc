@@ -7,6 +7,34 @@ alwaysApply: false
 
 Ce guide décrit la structure recommandée pour implémenter un tableau avec pagination, limite et recherche dans le monorepo.
 
+## Structure de Pagination Unifiée
+
+### Structure de données (Repository/API)
+```typescript
+// Format retourné par les repositories et APIs
+pagination: {
+  total: number,        // ← Nombre total d'éléments
+  page: number,         // ← Page actuelle
+  limit: number,        // ← Éléments par page
+  totalPages: number    // ← Nombre total de pages
+}
+```
+
+### Props de composants React
+```typescript
+// Props des composants de gestion (plus explicites)
+interface Props {
+  totalItems: number,   // ← Mappé depuis pagination.total
+  currentPage: number,  // ← Mappé depuis pagination.page
+  pageSize: number,     // ← Mappé depuis pagination.limit
+}
+```
+
+**Mapping entre structure de données et props :**
+- `pagination.total` → `totalItems` (prop composant)
+- `pagination.page` → `currentPage` (prop composant) 
+- `pagination.limit` → `pageSize` (prop composant)
+
 ## Architecture des fichiers
 
 ```
@@ -103,7 +131,7 @@ export default async function MyFeatureContent({
       initialItems={items.data}
       currentPage={page}
       pageSize={limit}
-      totalItems={items.pagination.rowCount}
+      totalItems={items.pagination.total}
       permissions={permissions}
     />
   )

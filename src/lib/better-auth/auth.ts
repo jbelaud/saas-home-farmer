@@ -161,7 +161,7 @@ function createAuthRedirectMiddleware() {
     // Redirection après connexion réussie
     if (ctx.path === '/sign-in/email' && ctx.context.newSession) {
       console.log('Redirection après connexion réussie')
-      throw ctx.redirect('/dashboard')
+      //throw ctx.redirect('/dashboard')
     }
 
     // Redirection après inscription réussie
