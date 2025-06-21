@@ -12,6 +12,7 @@ import {
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
+import {env} from '@/env'
 import {
   sendEmailChangeEmailVerificationService,
   sendMagicLinkEmailService,
@@ -26,14 +27,12 @@ import {APP_ISSUER} from '../constants'
 
 export const AuthAppConfig = {
   requireEmailVerification:
-    process.env.NEXT_PUBLIC_BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION === 'true',
+    env.NEXT_PUBLIC_BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION,
   skipVerificationOnEnable:
-    process.env.NEXT_PUBLIC_BETTER_AUTH_2FA_SKIP_VERIFICATION_ON_ENABLE ===
-    'true',
-  enable2FA: process.env.NEXT_PUBLIC_BETTER_AUTH_2FA_ENABLE === 'true',
-  changePassword:
-    process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_PASSWORD === 'true',
-  changeEmail: process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL === 'true',
+    env.NEXT_PUBLIC_BETTER_AUTH_2FA_SKIP_VERIFICATION_ON_ENABLE,
+  enable2FA: env.NEXT_PUBLIC_BETTER_AUTH_2FA_ENABLE,
+  changePassword: env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_PASSWORD,
+  changeEmail: env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL,
 } as const
 
 export const auth = betterAuth({
