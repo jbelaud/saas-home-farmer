@@ -27,12 +27,9 @@ export default async function ProjectsPage({
   params,
   searchParams,
 }: ProjectsPageProps) {
-  const searchStore = await searchParams
-  const suspenseKey = `page=${searchStore.page || '1'}-limit=${searchStore.limit || '20'}-search=${searchStore.search || ''}`
-
   return (
     <div className="bg-background">
-      <Suspense key={suspenseKey} fallback={<ProjectsManagementSkeleton />}>
+      <Suspense fallback={<ProjectsManagementSkeleton />}>
         <ProjectsContent params={params} searchParams={searchParams} />
       </Suspense>
     </div>
