@@ -16,10 +16,11 @@ import {
   canReadSubscription,
   canUpdateSubscription,
 } from '@/services/authorization/subscription-authorization'
-import type {
-  CreateSubscription,
-  SubscriptionPlan,
-  UpdateSubscription,
+import {
+  type CreateSubscription,
+  PlanConst,
+  type SubscriptionPlan,
+  type UpdateSubscription,
 } from '@/services/types/domain/subscription-types'
 import {
   createSubscriptionServiceSchema,
@@ -108,7 +109,7 @@ export const createSubscriptionFromStripeService = async (
 
   // Better Auth approach: calculate end date based on plan type
   // Lifetime plans don't have end dates, recurring plans do
-  if (plan !== 'CODEMAIL_LIFETIME') {
+  if (plan !== PlanConst.LIFETIME) {
     endDate = new Date()
     if (yearly) {
       endDate.setFullYear(endDate.getFullYear() + 1)
