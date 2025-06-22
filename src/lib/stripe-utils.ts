@@ -1,32 +1,57 @@
-import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
-
-export const STRIPE_CODEMAIL_PRICE_ID_MONTHLY =
-  process.env.STRIPE_CODEMAIL_PRICE_ID_MONTHLY ?? ''
-export const STRIPE_CODEMAIL_PRICE_ID_YEARLY =
-  process.env.STRIPE_CODEMAIL_PRICE_ID_YEARLY ?? ''
-export const STRIPE_CODEMAIL_PRICE_ID_LIFETIME =
-  process.env.STRIPE_CODEMAIL_PRICE_ID_LIFETIME ?? ''
+import {env} from '@/env'
+import {
+  PlanConst,
+  SubscriptionPlan,
+} from '@/services/types/domain/subscription-types'
 
 type Plan = {
   priceId: string
   planCode: SubscriptionPlan
   planName: string
 }
+
+/**
+ * Les plans Stripe sont définie ici pour Better auth et le reste de l'app
+ */
+export const betterAuthPlans = [
+  {
+    name: PlanConst.PRO, // the name of the plan, it'll be automatically lower cased when stored in the database
+    priceId: env.STRIPE_PRICE_ID_PRO_MONTHLY, // the price ID from stripe
+    annualDiscountPriceId: env.STRIPE_PRICE_ID_PRO_YEARLY, // (optional) the price ID for annual billing with a discount
+    limits: {
+      projects: 1,
+      storage: 10,
+    },
+  },
+  {
+    name: PlanConst.LIFETIME,
+    priceId: env.STRIPE_PRICE_ID_LIFETIME,
+    limits: {
+      projects: 20,
+      storage: 50,
+    },
+    freeTrial: {
+      days: 14,
+    },
+  },
+]
+
+// Plans for App
 export const planProMontly: Plan = {
-  priceId: STRIPE_CODEMAIL_PRICE_ID_MONTHLY,
-  planCode: 'CODEMAIL_PRO',
+  priceId: betterAuthPlans[0].priceId,
+  planCode: betterAuthPlans[0].name as SubscriptionPlan,
   planName: 'Pro',
 }
 
 export const planProYearly: Plan = {
-  priceId: STRIPE_CODEMAIL_PRICE_ID_YEARLY,
-  planCode: 'CODEMAIL_PRO',
-  planName: 'Pro',
+  priceId: betterAuthPlans[0].annualDiscountPriceId ?? '',
+  planCode: betterAuthPlans[0].name as SubscriptionPlan,
+  planName: 'Pro Yearly',
 }
 
 export const planLifetime: Plan = {
-  priceId: STRIPE_CODEMAIL_PRICE_ID_LIFETIME,
-  planCode: 'CODEMAIL_LIFETIME',
+  priceId: betterAuthPlans[1].priceId,
+  planCode: betterAuthPlans[1].name as SubscriptionPlan,
   planName: 'Lifetime',
 }
 

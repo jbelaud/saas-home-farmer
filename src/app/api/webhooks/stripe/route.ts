@@ -73,7 +73,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
 })
 
 // webhook secret
-const endpointSecret = process.env.STRIPE_CODEMAIL_WEBHOOK_SECRET ?? ''
+const endpointSecret = process.env.STRIPE_APP_WEBHOOK_SECRET ?? ''
 
 export async function POST(request: Request) {
   const body = await request.text()

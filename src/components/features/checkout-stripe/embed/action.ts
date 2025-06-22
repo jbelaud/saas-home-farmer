@@ -39,7 +39,7 @@ export async function createCheckoutSession(
         },
       ],
       mode: isRecurring ? 'subscription' : 'payment',
-      return_url: `${origin}/success?redirect_status=succeeded`,
+      return_url: `${origin}/checkout/success?redirect_status=succeeded`,
       payment_method_types: ['card'],
       ui_mode: 'embedded',
       customer_email: customerEmail,

@@ -27,7 +27,7 @@ export async function createPaymentLink(priceId: string) {
       after_completion: {
         type: 'redirect',
         redirect: {
-          url: `${origin}/success?redirect_status=succeeded`,
+          url: `${origin}/checkout/success?redirect_status=succeeded`,
         },
       },
     })

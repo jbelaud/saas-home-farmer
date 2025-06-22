@@ -135,7 +135,7 @@ export async function createCheckoutSession(priceId: string) {
         },
       ],
       mode: 'payment',
-      return_url: `${origin}/success`,
+      return_url: `${origin}/checkout/success`,
       payment_method_types: ['card'],
       ui_mode: 'embedded',
     })

@@ -5,10 +5,13 @@ import {
 
 // Types de domaine découplés des types Drizzle - Aligned with Better Auth
 export type Subscription = SubscriptionModel
-export type SubscriptionPlan =
-  | 'CODEMAIL_FREE'
-  | 'CODEMAIL_PRO'
-  | 'CODEMAIL_LIFETIME'
+export type SubscriptionPlan = 'pro' | 'lifetime'
+
+// Constantes pour les rôles globaux
+export const PlanConst = {
+  PRO: 'pro' as SubscriptionPlan,
+  LIFETIME: 'lifetime' as SubscriptionPlan,
+} as const
 
 // Types pour les opérations
 export type CreateSubscription = Pick<
