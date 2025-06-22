@@ -57,7 +57,7 @@ stripe trigger checkout.session.completed \
 // payment unique
 stripe trigger payment_intent.succeeded \
   --add "payment_intent:receipt_email=admin@mikecodeur.com" \
-  --add "payment_intent:metadata[plan]=CODEMAIL_LIFETIME" \
+  --add "payment_intent:metadata[plan]=lifetime" \
   --add "payment_intent:metadata[customerEmail]=admin@mikecodeur.com" 
 
   // payment recurent

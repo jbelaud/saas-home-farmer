@@ -94,7 +94,7 @@ describe('[ADMIN] CRUD : Subscription Service', () => {
     const updateData = {
       id: subscriptionId,
       referenceId: userTestAdmin.id,
-      plan: 'CODEMAIL_LIFETIME',
+      plan: 'lifetime',
       status: 'active',
     }
     const result = await updateSubscriptionService(updateData)
@@ -163,7 +163,7 @@ describe('[USER] CRUD : Subscription Service', () => {
     const updateData = {
       id: subscriptionId,
       referenceId: authUserId,
-      plan: 'CODEMAIL_LIFETIME',
+      plan: 'lifetime',
     }
     await expect(updateSubscriptionService(updateData)).rejects.toThrow(
       AuthorizationError
@@ -188,7 +188,7 @@ describe('[USER] CRUD : Subscription Service', () => {
     const updateData = {
       id: subscriptionId,
       referenceId: authUserId,
-      plan: 'CODEMAIL_LIFETIME',
+      plan: 'lifetime',
     }
     const result = await updateSubscriptionService(updateData)
     expect(result).toEqual(subscriptionData)
@@ -276,7 +276,7 @@ describe('[STRIPE] Webhook Subscription Service', () => {
   it('should create LIFETIME subscription', async () => {
     const result = await createSubscriptionFromStripeService(
       testEmail,
-      'CODEMAIL_LIFETIME',
+      'lifetime',
       true
     )
 
@@ -284,12 +284,12 @@ describe('[STRIPE] Webhook Subscription Service', () => {
     expect(getUserByEmailDao).toHaveBeenCalledWith(testEmail)
     expect(isActivePlanExistDao).toHaveBeenCalledWith(
       testUser.stripeCustomerId,
-      'CODEMAIL_LIFETIME'
+      'lifetime'
     )
     expect(createSubscriptionDao).toHaveBeenCalledWith(
       expect.objectContaining({
         referenceId: testUser.id,
-        plan: 'CODEMAIL_LIFETIME',
+        plan: 'lifetime',
         status: 'active',
         periodStart: expect.any(Date),
         periodEnd: null, // Lifetime = pas de fin
@@ -346,7 +346,7 @@ describe('[USER] Active Subscriptions Service', () => {
     {
       ...subscriptionData,
       id: faker.string.uuid(),
-      plan: 'CODEMAIL_LIFETIME',
+      plan: 'lifetime',
     },
   ]
 

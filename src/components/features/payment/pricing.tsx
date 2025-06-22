@@ -67,7 +67,7 @@ export default function PricingPlans({
         return currentPlan === 'CODEMAIL_PRO'
       }
       case 'LIFETIME': {
-        return currentPlan === 'CODEMAIL_LIFETIME'
+        return currentPlan === 'lifetime'
       }
       default: {
         return false

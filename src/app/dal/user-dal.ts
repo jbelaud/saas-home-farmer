@@ -101,7 +101,7 @@ export const isPaidUser = cache(async (): Promise<boolean> => {
 
     const subscriptions = await getActiveSubscriptionsByEmailDal(user.email)
     return subscriptions?.some(
-      (sub) => sub.plan === 'CODEMAIL_LIFETIME' || sub.plan === 'CODEMAIL_PRO'
+      (sub) => sub.plan === 'lifetime' || sub.plan === 'CODEMAIL_PRO'
     )
   } catch (error) {
     console.error('Error checking paid user status:', error)
