@@ -24,13 +24,14 @@ export const canReadSubscription = async (
   if (!subscription) return false
 
   // Utiliser CASL pour vérifier les permissions avec condition de propriété
+  // Utilise referenceId (userId Better Auth) au lieu de stripeCustomerId
   return userCanOnResource(
     authUser,
     ActionsConst.READ,
     SubjectsConst.SUBSCRIPTION,
     {
       id: subscription.id,
-      userId: subscription.stripeCustomerId,
+      userId: subscription.referenceId,
     }
   )
 }
@@ -50,13 +51,14 @@ export const canUpdateSubscription = async (
   if (!subscription) return false
 
   // Utiliser CASL pour vérifier les permissions avec condition de propriété
+  // Utilise referenceId (userId Better Auth) au lieu de stripeCustomerId
   return userCanOnResource(
     authUser,
     ActionsConst.UPDATE,
     SubjectsConst.SUBSCRIPTION,
     {
       id: subscription.id,
-      userId: subscription.stripeCustomerId,
+      userId: subscription.referenceId,
     }
   )
 }

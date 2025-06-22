@@ -3,36 +3,45 @@ import {
   SubscriptionModel,
 } from '@/db/models/subscription-model'
 
-import {User} from './user-types'
-
-// Base types from models
+// Types de domaine découplés des types Drizzle - Aligned with Better Auth
 export type Subscription = SubscriptionModel
-export type AddSubscription = SubscriptionAddModel
-export type CreateSubscription = AddSubscription
+export type SubscriptionPlan =
+  | 'CODEMAIL_FREE'
+  | 'CODEMAIL_PRO'
+  | 'CODEMAIL_LIFETIME'
+
+// Types pour les opérations
+export type CreateSubscription = Pick<
+  SubscriptionAddModel,
+  'referenceId' | 'plan' | 'status'
+> & {
+  periodStart?: Date
+  periodEnd?: Date
+  stripeCustomerId?: string
+  stripeSubscriptionId?: string
+  cancelAtPeriodEnd?: boolean
+  seats?: number
+  trialStart?: Date
+  trialEnd?: Date
+}
+
 export type UpdateSubscription = {
   id: string
-} & Partial<Omit<Subscription, 'id'>>
+} & Partial<Omit<SubscriptionAddModel, 'id'>>
 
-// Extended types with relations
-export type SubscriptionDetail = Subscription & {
-  user?: User | null // Relation avec `users`
+// DTO = Data Transfer Object pour la présentation
+export type SubscriptionDTO = {
+  id: string
+  plan: string
+  referenceId: string
+  status: string
+  periodStart?: Date
+  periodEnd?: Date
+  seats?: number
+  trialStart?: Date
+  trialEnd?: Date
 }
 
-// Pagination response type
-export type PaginatedSubscriptions = {
-  data: SubscriptionDetail[]
-  pagination: {
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-  }
-}
-export type SubscriptionPlan = Subscription['plan']
-export type CodeMailSubscriptionPlan = SubscriptionPlan
-export type SubscriptionStatus = Subscription['status']
-
-export type SubscriptionType = 'payment' | 'subscription' // Aligné avec Stripe.Checkout.Session.Mode
 export enum StripeWebhooks {
   Completed = 'checkout.session.completed',
   PaymentSuccess = 'payment_intent.succeeded',

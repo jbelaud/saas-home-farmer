@@ -34,6 +34,7 @@ vi.mock('@/db/repositories/subscription-repository', () => ({
   isPlanExistDao: vi.fn(),
   isActivePlanExistDao: vi.fn(),
   getActiveSubscriptionsByUserIdDao: vi.fn(),
+  getSubscriptionByUserIdDao: vi.fn(),
 }))
 
 vi.mock('@/db/repositories/user-repository', () => ({
@@ -47,24 +48,17 @@ describe('[ADMIN] CRUD : Subscription Service', () => {
     id: subscriptionId,
     referenceId: userTestAdmin.id,
     plan: 'CODEMAIL_PRO',
-    subscriptionType: 'subscription',
     status: 'active',
     periodStart: new Date(),
     periodEnd: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
-    canceledAt: new Date(),
     trialStart: new Date(),
     trialEnd: new Date(),
-    lastBillingDate: new Date(),
-    nextBillingDate: new Date(),
     stripeCustomerId: null,
     stripeSubscriptionId: 'sub_123',
-    priceId: 'price_123',
-    paymentMethodId: 'pm_123',
     cancelAtPeriodEnd: false,
     seats: 1,
-    metadata: {},
   }
 
   beforeEach(() => {
@@ -79,7 +73,6 @@ describe('[ADMIN] CRUD : Subscription Service', () => {
     const createData = {
       referenceId: userTestAdmin.id,
       plan: 'CODEMAIL_PRO',
-      subscriptionType: 'subscription' as const,
       status: 'active',
       periodStart: new Date(),
       periodEnd: new Date(),
@@ -121,24 +114,17 @@ describe('[USER] CRUD : Subscription Service', () => {
     id: subscriptionId,
     referenceId: authUserId,
     plan: 'CODEMAIL_PRO',
-    subscriptionType: 'subscription',
     status: 'active',
     periodStart: new Date(),
     periodEnd: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
-    canceledAt: new Date(),
     trialStart: new Date(),
     trialEnd: new Date(),
-    lastBillingDate: new Date(),
-    nextBillingDate: new Date(),
     stripeCustomerId: null,
     stripeSubscriptionId: 'sub_123',
-    priceId: 'price_123',
-    paymentMethodId: 'pm_123',
     cancelAtPeriodEnd: false,
     seats: 1,
-    metadata: {},
   }
 
   beforeEach(() => {
@@ -156,7 +142,6 @@ describe('[USER] CRUD : Subscription Service', () => {
     const createData = {
       referenceId: authUserId,
       plan: 'CODEMAIL_PRO',
-      subscriptionType: 'subscription' as const,
       status: 'active',
       periodStart: new Date(),
       periodEnd: new Date(),
@@ -186,7 +171,7 @@ describe('[USER] CRUD : Subscription Service', () => {
     expect(updateSubscriptionDao).not.toHaveBeenCalled()
   })
 
-  it.skip('should read own subscription', async () => {
+  it('should read own subscription', async () => {
     vi.mocked(getSubscriptionByIdDao).mockResolvedValue({
       ...subscriptionData,
       referenceId: authUserId,
@@ -195,7 +180,7 @@ describe('[USER] CRUD : Subscription Service', () => {
     expect(result).toEqual({...subscriptionData, referenceId: authUserId})
   })
 
-  it.skip('should update own subscription', async () => {
+  it('should update own subscription', async () => {
     vi.mocked(getSubscriptionByIdDao).mockResolvedValue({
       ...subscriptionData,
       referenceId: authUserId,
@@ -233,42 +218,37 @@ describe('[PUBLIC] CRUD : Subscription Service', () => {
 describe('[STRIPE] Webhook Subscription Service', () => {
   const subscriptionId = faker.string.uuid()
   const testEmail = 'test@example.com'
+  const testUser = {
+    ...userTest,
+    email: testEmail,
+    stripeCustomerId: 'cus_stripe123',
+  }
   const subscriptionData: Subscription = {
     id: subscriptionId,
-    referenceId: userTest.id,
+    referenceId: testUser.id,
     plan: 'CODEMAIL_PRO',
-    subscriptionType: 'subscription',
     status: 'active',
     periodStart: new Date(),
     periodEnd: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
-    canceledAt: new Date(),
     trialStart: new Date(),
     trialEnd: new Date(),
-    lastBillingDate: new Date(),
-    nextBillingDate: new Date(),
-    stripeCustomerId: null,
+    stripeCustomerId: testUser.stripeCustomerId,
     stripeSubscriptionId: 'sub_123',
-    priceId: 'price_123',
-    paymentMethodId: 'pm_123',
     cancelAtPeriodEnd: false,
     seats: 1,
-    metadata: {},
   }
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(getUserByEmailDao).mockResolvedValue({
-      ...userTest,
-      email: testEmail,
-    })
+    vi.mocked(getUserByEmailDao).mockResolvedValue(testUser)
     vi.mocked(createSubscriptionDao).mockResolvedValue(subscriptionData)
     vi.mocked(isPlanExistDao).mockResolvedValue(false)
     vi.mocked(isActivePlanExistDao).mockResolvedValue(false)
   })
 
-  it.skip('should create PRO subscription when productType is pro', async () => {
+  it('should create PRO subscription', async () => {
     const result = await createSubscriptionFromStripeService(
       testEmail,
       'CODEMAIL_PRO',
@@ -278,26 +258,22 @@ describe('[STRIPE] Webhook Subscription Service', () => {
     expect(result).toEqual(subscriptionData)
     expect(getUserByEmailDao).toHaveBeenCalledWith(testEmail)
     expect(isActivePlanExistDao).toHaveBeenCalledWith(
-      userTest.id,
+      testUser.stripeCustomerId,
       'CODEMAIL_PRO'
     )
     expect(createSubscriptionDao).toHaveBeenCalledWith(
       expect.objectContaining({
-        referenceId: userTest.id,
+        referenceId: testUser.id,
         plan: 'CODEMAIL_PRO',
         status: 'active',
-        subscriptionType: 'payment',
         periodStart: expect.any(Date),
         periodEnd: expect.any(Date),
-        metadata: expect.objectContaining({
-          mode: 'payment',
-          yearly: false,
-        }),
+        stripeCustomerId: testUser.stripeCustomerId,
       })
     )
   })
 
-  it.skip('should create ENTERPRISE subscription when productType is enterprise', async () => {
+  it('should create LIFETIME subscription', async () => {
     const result = await createSubscriptionFromStripeService(
       testEmail,
       'CODEMAIL_LIFETIME',
@@ -307,21 +283,17 @@ describe('[STRIPE] Webhook Subscription Service', () => {
     expect(result).toEqual(subscriptionData)
     expect(getUserByEmailDao).toHaveBeenCalledWith(testEmail)
     expect(isActivePlanExistDao).toHaveBeenCalledWith(
-      userTest.id,
+      testUser.stripeCustomerId,
       'CODEMAIL_LIFETIME'
     )
     expect(createSubscriptionDao).toHaveBeenCalledWith(
       expect.objectContaining({
-        referenceId: userTest.id,
+        referenceId: testUser.id,
         plan: 'CODEMAIL_LIFETIME',
         status: 'active',
-        subscriptionType: 'payment',
         periodStart: expect.any(Date),
-        periodEnd: expect.any(Date),
-        metadata: expect.objectContaining({
-          mode: 'payment',
-          yearly: true,
-        }),
+        periodEnd: null, // Lifetime = pas de fin
+        stripeCustomerId: testUser.stripeCustomerId,
       })
     )
   })
@@ -352,24 +324,17 @@ describe('[USER] Active Subscriptions Service', () => {
     id: faker.string.uuid(),
     referenceId: userTest.id,
     plan: 'CODEMAIL_PRO',
-    subscriptionType: 'subscription',
     status: 'active',
     periodStart: new Date(),
     periodEnd: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
-    canceledAt: new Date(),
     trialStart: new Date(),
     trialEnd: new Date(),
-    lastBillingDate: new Date(),
-    nextBillingDate: new Date(),
     stripeCustomerId: null,
     stripeSubscriptionId: 'sub_123',
-    priceId: 'price_123',
-    paymentMethodId: 'pm_123',
     cancelAtPeriodEnd: false,
     seats: 1,
-    metadata: {},
   }
 
   const activeSubscriptions = [
@@ -395,7 +360,7 @@ describe('[USER] Active Subscriptions Service', () => {
     )
   })
 
-  it.skip('should get active subscriptions for user', async () => {
+  it('should get active subscriptions for user', async () => {
     const result = await getActiveSubscriptionsByUserIdService(userTest.id)
 
     expect(result).toEqual(activeSubscriptions)

@@ -1,5 +1,6 @@
 import {
   createSubscriptionDao,
+  getActiveSubscriptionsByStripeCustomerIdDao,
   getActiveSubscriptionsByUserIdDao,
   getSubscriptionByIdDao,
   getSubscriptionByUserIdDao,
@@ -18,7 +19,6 @@ import {
 import type {
   CreateSubscription,
   SubscriptionPlan,
-  SubscriptionType,
   UpdateSubscription,
 } from '@/services/types/domain/subscription-types'
 import {
@@ -46,10 +46,6 @@ export const getSubscriptionByIdService = async (id: string) => {
   }
 
   const subscription = await getSubscriptionByIdDao(id)
-  // if (!subscription) {
-  //   throw new Error('Subscription not found')
-  // }
-
   return subscription
 }
 
@@ -77,21 +73,24 @@ export const isPlanExistService = async (
     return false
   }
   try {
+    // Utilise stripeCustomerId si disponible, sinon userId
+    const customerId = user.stripeCustomerId || user.id
+
     if (checkActiveOnly) {
-      return isActivePlanExistDao(user.id, plan)
+      return isActivePlanExistDao(customerId, plan)
     }
-    return isPlanExistDao(user.id, plan)
+    return isPlanExistDao(customerId, plan)
   } catch (error) {
     console.error('Error checking plan existence:', error)
     throw new Error('Failed to check plan existence')
   }
 }
 
+// Simplified for Better Auth - no more dual workflow
 export const createSubscriptionFromStripeService = async (
   email: string,
   plan: SubscriptionPlan,
-  yearly: boolean,
-  mode: SubscriptionType = 'payment'
+  yearly: boolean = false
 ) => {
   const user = await getUserByEmailDao(email)
   if (!user) {
@@ -105,16 +104,11 @@ export const createSubscriptionFromStripeService = async (
   }
 
   const currentDate = new Date()
-
   let endDate: Date | null = null
 
-  // Déterminer la date de fin en fonction du mode de paiement
-  if (mode === 'payment') {
-    // C'est un paiement unique, donc pas de date de fin
-
-    endDate = null
-  } else if (mode === 'subscription') {
-    // C'est un abonnement, on calcule la date de fin
+  // Better Auth approach: calculate end date based on plan type
+  // Lifetime plans don't have end dates, recurring plans do
+  if (plan !== 'CODEMAIL_LIFETIME') {
     endDate = new Date()
     if (yearly) {
       endDate.setFullYear(endDate.getFullYear() + 1)
@@ -127,13 +121,9 @@ export const createSubscriptionFromStripeService = async (
     referenceId: user.id,
     plan,
     status: 'active',
-    subscriptionType: mode,
     periodStart: currentDate,
     periodEnd: endDate,
-    metadata: {
-      mode,
-      yearly,
-    },
+    stripeCustomerId: user.stripeCustomerId,
   })
 
   return subscription
@@ -145,57 +135,51 @@ export const getSubscriptionByUserIdService = async (userId: string) => {
     throw new Error('User not found')
   }
 
+  // Utilise referenceId (userId) pour la recherche car c'est l'identifiant Better Auth
   const subscription = await getSubscriptionByUserIdDao(userId)
-  // if (!subscription) {
-  //   throw new Error('Subscription not found')
-  // }
-
   return subscription
 }
 
 export const getActiveSubscriptionsByUserIdService = async (userId: string) => {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    // Vérifier si l'utilisateur existe
-    const user = await getUserByIdDao(userId)
-    if (!user) {
-      throw new Error('User not found')
-    }
-
-    // Récupérer les abonnements actifs
-    const subscriptions = await getActiveSubscriptionsByUserIdDao(userId)
-
-    if (subscriptions.length === 0) {
-      return subscriptions
-    }
-    // Vérifier les permissions
-    const canRead = await canReadSubscription(subscriptions[0].id)
-
-    if (!canRead) {
-      throw new AuthorizationError('Accès non autorisé')
-    }
-    return subscriptions
-  } catch (error) {
-    //console.error('Error getting active subscriptions:', error)
-    throw error
+  // Vérifier si l'utilisateur existe
+  const user = await getUserByIdDao(userId)
+  if (!user) {
+    throw new Error('User not found')
   }
+
+  // Utilise referenceId (userId) pour la recherche car c'est l'identifiant Better Auth
+  const subscriptions = await getActiveSubscriptionsByUserIdDao(userId)
+
+  if (subscriptions.length === 0) {
+    return subscriptions
+  }
+  // Vérifier les permissions
+  const canRead = await canReadSubscription(subscriptions[0].id)
+
+  if (!canRead) {
+    throw new AuthorizationError('Accès non autorisé')
+  }
+  return subscriptions
 }
 
 export const getActiveSubscriptionsByUserEmailService = async (
   email: string
 ) => {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    // Récupérer l'utilisateur par email
-    const user = await getUserByEmailDao(email)
-    if (!user) {
-      throw new Error('User not found')
-    }
-
-    // Utiliser le service existant avec l'ID
-    return getActiveSubscriptionsByUserIdService(user.id)
-  } catch (error) {
-    //console.error('Error getting active subscriptions by email:', error)
-    throw error
+  // Récupérer l'utilisateur par email
+  const user = await getUserByEmailDao(email)
+  if (!user) {
+    throw new Error('User not found')
   }
+
+  // Utiliser le service existant avec l'ID
+  return getActiveSubscriptionsByUserIdService(user.id)
+}
+
+// Nouvelles fonctions pour les cas où on a besoin d'utiliser stripeCustomerId
+export const getActiveSubscriptionsByStripeCustomerIdService = async (
+  stripeCustomerId: string
+) => {
+  const subscriptions =
+    await getActiveSubscriptionsByStripeCustomerIdDao(stripeCustomerId)
+  return subscriptions
 }

@@ -22,21 +22,25 @@ export const getSubscriptionByIdDao = async (id: string) => {
   return row
 }
 
-export const getSubscriptionByUserIdDao = async (userId: string) => {
+export const getSubscriptionByStripeCustomerIdDao = async (
+  stripeCustomerId: string
+) => {
   const [row] = await db
     .select()
     .from(subscriptions)
-    .where(eq(subscriptions.stripeCustomerId, userId))
+    .where(eq(subscriptions.stripeCustomerId, stripeCustomerId))
   return row
 }
 
-export const getActiveSubscriptionByUserIdDao = async (userId: string) => {
+export const getActiveSubscriptionByStripeCustomerIdDao = async (
+  stripeCustomerId: string
+) => {
   const [row] = await db
     .select()
     .from(subscriptions)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.stripeCustomerId, stripeCustomerId),
         eq(subscriptions.status, 'active')
       )
     )
@@ -63,7 +67,6 @@ export const cancelSubscriptionDao = async (id: string) => {
     .update(subscriptions)
     .set({
       status: 'canceled',
-      canceledAt: new Date(),
       updatedAt: new Date(),
     })
     .where(eq(subscriptions.id, id))
@@ -144,8 +147,8 @@ export const getSubscriptionsByPlanDao = async (
   }
 }
 
-export const getSubscriptionByUserIdAndPlanDao = async (
-  userId: string,
+export const getSubscriptionByStripeCustomerIdAndPlanDao = async (
+  stripeCustomerId: string,
   plan: SubscriptionModel['plan']
 ) => {
   const [row] = await db
@@ -153,15 +156,15 @@ export const getSubscriptionByUserIdAndPlanDao = async (
     .from(subscriptions)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.stripeCustomerId, stripeCustomerId),
         eq(subscriptions.plan, plan)
       )
     )
   return row
 }
 
-export const getActiveSubscriptionByUserIdAndPlanDao = async (
-  userId: string,
+export const getActiveSubscriptionByStripeCustomerIdAndPlanDao = async (
+  stripeCustomerId: string,
   plan: SubscriptionModel['plan']
 ) => {
   const [row] = await db
@@ -169,7 +172,7 @@ export const getActiveSubscriptionByUserIdAndPlanDao = async (
     .from(subscriptions)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.stripeCustomerId, stripeCustomerId),
         eq(subscriptions.plan, plan),
         eq(subscriptions.status, 'active')
       )
@@ -178,7 +181,7 @@ export const getActiveSubscriptionByUserIdAndPlanDao = async (
 }
 
 export const isPlanExistDao = async (
-  userId: string,
+  stripeCustomerId: string,
   plan: SubscriptionModel['plan']
 ): Promise<boolean> => {
   const [row] = await db
@@ -186,7 +189,7 @@ export const isPlanExistDao = async (
     .from(subscriptions)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.stripeCustomerId, stripeCustomerId),
         eq(subscriptions.plan, plan)
       )
     )
@@ -196,7 +199,7 @@ export const isPlanExistDao = async (
 }
 
 export const isActivePlanExistDao = async (
-  userId: string,
+  stripeCustomerId: string,
   plan: SubscriptionModel['plan']
 ): Promise<boolean> => {
   const [row] = await db
@@ -204,7 +207,7 @@ export const isActivePlanExistDao = async (
     .from(subscriptions)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.stripeCustomerId, stripeCustomerId),
         eq(subscriptions.plan, plan),
         eq(subscriptions.status, 'active')
       )
@@ -214,13 +217,39 @@ export const isActivePlanExistDao = async (
   return Boolean(row)
 }
 
+export const getActiveSubscriptionsByStripeCustomerIdDao = async (
+  stripeCustomerId: string
+) => {
+  const rows = await db
+    .select()
+    .from(subscriptions)
+    .where(
+      and(
+        eq(subscriptions.stripeCustomerId, stripeCustomerId),
+        eq(subscriptions.status, 'active')
+      )
+    )
+    .orderBy(desc(subscriptions.createdAt))
+
+  return rows
+}
+
+// Fonctions de commodité qui utilisent userId (referenceId) au lieu de stripeCustomerId
+export const getSubscriptionByUserIdDao = async (userId: string) => {
+  const [row] = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.referenceId, userId))
+  return row
+}
+
 export const getActiveSubscriptionsByUserIdDao = async (userId: string) => {
   const rows = await db
     .select()
     .from(subscriptions)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, userId),
+        eq(subscriptions.referenceId, userId),
         eq(subscriptions.status, 'active')
       )
     )
