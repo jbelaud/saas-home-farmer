@@ -31,6 +31,12 @@ const stripeClient = new Stripe(env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
 })
 
+console.log('env.STRIPE_SECRET_KEY', env.STRIPE_SECRET_KEY)
+console.log('env.STRIPE_WEBHOOK_SECRET', env.STRIPE_WEBHOOK_SECRET)
+console.log(
+  'env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
+  env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+)
 export const AuthAppConfig = {
   requireEmailVerification:
     env.NEXT_PUBLIC_BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION,
@@ -136,8 +142,95 @@ export const auth = betterAuth({
     }),
     stripe({
       stripeClient,
-      stripeWebhookSecret: env.STRIPE_CODEMAIL_WEBHOOK_SECRET,
+      stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
       createCustomerOnSignUp: true,
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            name: 'pro', // the name of the plan, it'll be automatically lower cased when stored in the database
+            priceId: env.STRIPE_CODEMAIL_PRICE_ID_MONTHLY, // the price ID from stripe
+            annualDiscountPriceId: env.STRIPE_CODEMAIL_PRICE_ID_YEARLY, // (optional) the price ID for annual billing with a discount
+            limits: {
+              projects: 5,
+              storage: 10,
+            },
+          },
+          {
+            name: 'lifetime',
+            priceId: env.STRIPE_CODEMAIL_PRICE_ID_LIFETIME,
+            limits: {
+              projects: 20,
+              storage: 50,
+            },
+            freeTrial: {
+              days: 14,
+            },
+          },
+        ],
+        // ... other options
+        onSubscriptionComplete: async ({
+          event,
+          subscription,
+          stripeSubscription,
+          plan,
+        }) => {
+          // Called when a subscription is successfully created
+          console.log(
+            'onSubscriptionComplete',
+            event,
+            subscription,
+            stripeSubscription,
+            plan
+          )
+          //await sendWelcomeEmail(subscription.referenceId, plan.name)
+        },
+        onSubscriptionUpdate: async ({event, subscription}) => {
+          // Called when a subscription is updated
+          console.log(`Subscription ${subscription.id} updated`, event)
+        },
+        onSubscriptionCancel: async ({
+          event,
+          subscription,
+          stripeSubscription,
+          cancellationDetails,
+        }) => {
+          // Called when a subscription is canceled
+          console.log(
+            'onSubscriptionCancel',
+            event,
+            subscription,
+            stripeSubscription,
+            cancellationDetails
+          )
+          //await sendCancellationEmail(subscription.referenceId)
+        },
+        onSubscriptionDeleted: async ({
+          event,
+          subscription,
+          stripeSubscription,
+        }) => {
+          // Called when a subscription is deleted
+          console.log(
+            `Subscription ${subscription.id} deleted`,
+            event,
+            subscription,
+            stripeSubscription
+          )
+        },
+      },
+      onEvent: async (event) => {
+        // Handle any Stripe event
+        console.log('Better Auth Stripe event', event)
+        switch (event.type) {
+          case 'invoice.paid':
+            // Handle paid invoice
+            break
+          case 'payment_intent.succeeded':
+            // Handle successful payment
+            break
+        }
+      },
     }),
     nextCookies(),
   ], //garder nextCookies() en dernier

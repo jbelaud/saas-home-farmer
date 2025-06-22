@@ -42,6 +42,7 @@ export const env = createEnv({
     STRIPE_CODEMAIL_PRICE_ID_YEARLY: z.string().min(1),
     STRIPE_CODEMAIL_PRICE_ID_LIFETIME: z.string().min(1),
     STRIPE_CODEMAIL_WEBHOOK_SECRET: z.string().min(1),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1),
 
     // OAuth (optionnel)
     GOOGLE_CLIENT_ID: z.string().optional(),
@@ -122,6 +123,7 @@ export const env = createEnv({
     STRIPE_CODEMAIL_PRICE_ID_LIFETIME:
       process.env.STRIPE_CODEMAIL_PRICE_ID_LIFETIME,
     STRIPE_CODEMAIL_WEBHOOK_SECRET: process.env.STRIPE_CODEMAIL_WEBHOOK_SECRET,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     NODE_ENV: process.env.NODE_ENV,

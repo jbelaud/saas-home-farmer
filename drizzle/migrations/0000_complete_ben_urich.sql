@@ -2,9 +2,10 @@ CREATE TYPE "public"."organization_role" AS ENUM('admin', 'member', 'owner');-->
 CREATE TYPE "public"."role_type" AS ENUM('public', 'user', 'redactor', 'moderator', 'admin', 'super_admin');--> statement-breakpoint
 CREATE TYPE "public"."user_visibility" AS ENUM('public', 'private');--> statement-breakpoint
 CREATE TYPE "public"."task_status" AS ENUM('todo', 'in_progress', 'done');--> statement-breakpoint
-CREATE TYPE "public"."subscription_plan" AS ENUM('CODEMAIL_FREE', 'CODEMAIL_PRO', 'CODEMAIL_LIFETIME');--> statement-breakpoint
-CREATE TYPE "public"."subscription_status" AS ENUM('active', 'grace_period', 'canceled', 'expired');--> statement-breakpoint
-CREATE TYPE "public"."subscription_types" AS ENUM('subscription', 'payment');--> statement-breakpoint
+CREATE TYPE "public"."language_type" AS ENUM('fr', 'en', 'es');--> statement-breakpoint
+CREATE TYPE "public"."notification_channel" AS ENUM('email', 'push', 'both', 'none');--> statement-breakpoint
+CREATE TYPE "public"."theme_type" AS ENUM('light', 'dark', 'system');--> statement-breakpoint
+CREATE TYPE "public"."two_factor_type" AS ENUM('otp', 'totp');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
 	"account_id" text NOT NULL,
@@ -62,7 +63,16 @@ CREATE TABLE "session" (
 	"ip_address" text,
 	"user_agent" text,
 	"user_id" uuid NOT NULL,
+	"impersonated_by" text,
+	"active_organization_id" text,
 	CONSTRAINT "session_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
+CREATE TABLE "two_factor" (
+	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"secret" text NOT NULL,
+	"backup_codes" text NOT NULL,
+	"user_id" uuid NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "user" (
@@ -74,10 +84,12 @@ CREATE TABLE "user" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"visibility" "user_visibility" DEFAULT 'private' NOT NULL,
+	"two_factor_enabled" boolean,
 	"role" "role_type" DEFAULT 'user' NOT NULL,
 	"banned" boolean DEFAULT false,
 	"ban_reason" text,
 	"ban_expires" timestamp,
+	"stripe_customer_id" text,
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
@@ -115,25 +127,34 @@ CREATE TABLE "task" (
 --> statement-breakpoint
 CREATE TABLE "subscription" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"plan" "subscription_plan" DEFAULT 'CODEMAIL_FREE' NOT NULL,
-	"status" "subscription_status" DEFAULT 'active' NOT NULL,
-	"subscription_type" "subscription_types" NOT NULL,
-	"start_date" timestamp DEFAULT now() NOT NULL,
-	"end_date" timestamp,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"canceled_at" timestamp,
-	"trial_ends_at" timestamp,
-	"current_period_start" timestamp NOT NULL,
-	"current_period_end" timestamp NOT NULL,
-	"last_billing_date" timestamp,
-	"next_billing_date" timestamp,
+	"plan" text NOT NULL,
+	"reference_id" text NOT NULL,
+	"stripe_customer_id" text,
 	"stripe_subscription_id" text,
-	"price_id" text,
-	"payment_method_id" text,
-	"quantity" integer DEFAULT 1,
-	"metadata" jsonb
+	"status" text NOT NULL,
+	"period_start" timestamp,
+	"period_end" timestamp,
+	"cancel_at_period_end" boolean,
+	"seats" integer,
+	"trial_start" timestamp,
+	"trial_end" timestamp,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE "user_settings" (
+	"user_id" uuid PRIMARY KEY NOT NULL,
+	"theme" "theme_type" DEFAULT 'system' NOT NULL,
+	"language" "language_type" DEFAULT 'fr' NOT NULL,
+	"timezone" text DEFAULT 'Europe/Paris' NOT NULL,
+	"enable_email_notifications" boolean DEFAULT true NOT NULL,
+	"enable_push_notifications" boolean DEFAULT true NOT NULL,
+	"notification_channel" "notification_channel" DEFAULT 'both' NOT NULL,
+	"email_digest" boolean DEFAULT true NOT NULL,
+	"marketing_emails" boolean DEFAULT false NOT NULL,
+	"two_factor_type" "two_factor_type" DEFAULT 'totp' NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -142,9 +163,11 @@ ALTER TABLE "invitation" ADD CONSTRAINT "invitation_inviter_id_user_id_fk" FOREI
 ALTER TABLE "member" ADD CONSTRAINT "member_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "member" ADD CONSTRAINT "member_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "two_factor" ADD CONSTRAINT "two_factor_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "project" ADD CONSTRAINT "project_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "project" ADD CONSTRAINT "project_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "task" ADD CONSTRAINT "task_project_id_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "public"."project"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "task" ADD CONSTRAINT "task_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "task" ADD CONSTRAINT "task_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "user_plan_unique_idx" ON "subscription" USING btree ("user_id","plan");
+ALTER TABLE "user_settings" ADD CONSTRAINT "user_settings_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "user_plan_unique_idx" ON "subscription" USING btree ("stripe_customer_id","plan");

@@ -5,20 +5,18 @@ import type {
   SubscriptionAddModel,
   SubscriptionModel,
 } from '../models/subscription-model'
-import {subscriptions} from '../models/subscription-model'
+import {subscription} from '../models/subscription-model'
 
-export const createSubscriptionDao = async (
-  subscription: SubscriptionAddModel
-) => {
-  const [row] = await db.insert(subscriptions).values(subscription).returning()
+export const createSubscriptionDao = async (values: SubscriptionAddModel) => {
+  const [row] = await db.insert(subscription).values(values).returning()
   return row
 }
 
 export const getSubscriptionByIdDao = async (id: string) => {
   const [row] = await db
     .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.id, id))
+    .from(subscription)
+    .where(eq(subscription.id, id))
   return row
 }
 
@@ -27,8 +25,8 @@ export const getSubscriptionByStripeCustomerIdDao = async (
 ) => {
   const [row] = await db
     .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.stripeCustomerId, stripeCustomerId))
+    .from(subscription)
+    .where(eq(subscription.stripeCustomerId, stripeCustomerId))
   return row
 }
 
@@ -37,11 +35,11 @@ export const getActiveSubscriptionByStripeCustomerIdDao = async (
 ) => {
   const [row] = await db
     .select()
-    .from(subscriptions)
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, stripeCustomerId),
-        eq(subscriptions.status, 'active')
+        eq(subscription.stripeCustomerId, stripeCustomerId),
+        eq(subscription.status, 'active')
       )
     )
   return row
@@ -49,27 +47,27 @@ export const getActiveSubscriptionByStripeCustomerIdDao = async (
 
 export const updateSubscriptionDao = async (
   id: string,
-  subscription: Partial<SubscriptionAddModel>
+  values: Partial<SubscriptionAddModel>
 ) => {
   const [row] = await db
-    .update(subscriptions)
+    .update(subscription)
     .set({
-      ...subscription,
+      ...values,
       updatedAt: new Date(),
     })
-    .where(eq(subscriptions.id, id))
+    .where(eq(subscription.id, id))
     .returning()
   return row
 }
 
 export const cancelSubscriptionDao = async (id: string) => {
   const [row] = await db
-    .update(subscriptions)
+    .update(subscription)
     .set({
       status: 'canceled',
       updatedAt: new Date(),
     })
-    .where(eq(subscriptions.id, id))
+    .where(eq(subscription.id, id))
     .returning()
   return row
 }
@@ -80,11 +78,11 @@ export const getExpiringSubscriptionsDao = async (daysThreshold: number) => {
 
   return db
     .select()
-    .from(subscriptions)
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.status, 'active'),
-        lte(subscriptions.periodEnd, thresholdDate)
+        eq(subscription.status, 'active'),
+        lte(subscription.periodEnd, thresholdDate)
       )
     )
 }
@@ -96,10 +94,10 @@ export const getSubscriptionsWithPaginationDao = async (pagination: {
   const [rows, [{count}]] = await Promise.all([
     db
       .select()
-      .from(subscriptions)
+      .from(subscription)
       .limit(pagination.limit)
       .offset(pagination.offset),
-    db.select({count: sql<number>`count(*)`}).from(subscriptions),
+    db.select({count: sql<number>`count(*)`}).from(subscription),
   ])
 
   const page = Math.floor(pagination.offset / pagination.limit) + 1
@@ -123,14 +121,14 @@ export const getSubscriptionsByPlanDao = async (
   const [rows, [{count}]] = await Promise.all([
     db
       .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.plan, plan))
+      .from(subscription)
+      .where(eq(subscription.plan, plan))
       .limit(pagination.limit)
       .offset(pagination.offset),
     db
       .select({count: sql<number>`count(*)`})
-      .from(subscriptions)
-      .where(eq(subscriptions.plan, plan)),
+      .from(subscription)
+      .where(eq(subscription.plan, plan)),
   ])
 
   const page = Math.floor(pagination.offset / pagination.limit) + 1
@@ -153,11 +151,11 @@ export const getSubscriptionByStripeCustomerIdAndPlanDao = async (
 ) => {
   const [row] = await db
     .select()
-    .from(subscriptions)
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, stripeCustomerId),
-        eq(subscriptions.plan, plan)
+        eq(subscription.stripeCustomerId, stripeCustomerId),
+        eq(subscription.plan, plan)
       )
     )
   return row
@@ -169,12 +167,12 @@ export const getActiveSubscriptionByStripeCustomerIdAndPlanDao = async (
 ) => {
   const [row] = await db
     .select()
-    .from(subscriptions)
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, stripeCustomerId),
-        eq(subscriptions.plan, plan),
-        eq(subscriptions.status, 'active')
+        eq(subscription.stripeCustomerId, stripeCustomerId),
+        eq(subscription.plan, plan),
+        eq(subscription.status, 'active')
       )
     )
   return row
@@ -185,12 +183,12 @@ export const isPlanExistDao = async (
   plan: SubscriptionModel['plan']
 ): Promise<boolean> => {
   const [row] = await db
-    .select({id: subscriptions.id})
-    .from(subscriptions)
+    .select({id: subscription.id})
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, stripeCustomerId),
-        eq(subscriptions.plan, plan)
+        eq(subscription.stripeCustomerId, stripeCustomerId),
+        eq(subscription.plan, plan)
       )
     )
     .limit(1)
@@ -203,13 +201,13 @@ export const isActivePlanExistDao = async (
   plan: SubscriptionModel['plan']
 ): Promise<boolean> => {
   const [row] = await db
-    .select({id: subscriptions.id})
-    .from(subscriptions)
+    .select({id: subscription.id})
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, stripeCustomerId),
-        eq(subscriptions.plan, plan),
-        eq(subscriptions.status, 'active')
+        eq(subscription.stripeCustomerId, stripeCustomerId),
+        eq(subscription.plan, plan),
+        eq(subscription.status, 'active')
       )
     )
     .limit(1)
@@ -222,14 +220,14 @@ export const getActiveSubscriptionsByStripeCustomerIdDao = async (
 ) => {
   const rows = await db
     .select()
-    .from(subscriptions)
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.stripeCustomerId, stripeCustomerId),
-        eq(subscriptions.status, 'active')
+        eq(subscription.stripeCustomerId, stripeCustomerId),
+        eq(subscription.status, 'active')
       )
     )
-    .orderBy(desc(subscriptions.createdAt))
+    .orderBy(desc(subscription.createdAt))
 
   return rows
 }
@@ -238,22 +236,22 @@ export const getActiveSubscriptionsByStripeCustomerIdDao = async (
 export const getSubscriptionByUserIdDao = async (userId: string) => {
   const [row] = await db
     .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.referenceId, userId))
+    .from(subscription)
+    .where(eq(subscription.referenceId, userId))
   return row
 }
 
 export const getActiveSubscriptionsByUserIdDao = async (userId: string) => {
   const rows = await db
     .select()
-    .from(subscriptions)
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.referenceId, userId),
-        eq(subscriptions.status, 'active')
+        eq(subscription.referenceId, userId),
+        eq(subscription.status, 'active')
       )
     )
-    .orderBy(desc(subscriptions.createdAt))
+    .orderBy(desc(subscription.createdAt))
 
   return rows
 }
