@@ -1,3 +1,15 @@
+/**
+ * @deprecated Cette route webhook Stripe est dépréciée.
+ *
+ * Utilisez plutôt le webhook intégré de Better Auth avec le plugin Stripe :
+ * - Configuration automatique des webhooks
+ * - Gestion unifiée des subscriptions
+ * - Pas de logique métier manuelle à maintenir
+ *
+ * @see https://www.better-auth.com/docs/plugins/stripe
+ * @see src/lib/better-auth/auth.ts pour la configuration Better Auth + Stripe
+ */
+
 import {headers} from 'next/headers'
 import {NextResponse} from 'next/server'
 import Stripe from 'stripe'
@@ -222,12 +234,7 @@ async function handleOneTimePayment(session: Stripe.Checkout.Session) {
       return
     }
     try {
-      await createSubscriptionFromStripeService(
-        customerEmail,
-        plan,
-        yearly,
-        'payment'
-      )
+      await createSubscriptionFromStripeService(customerEmail, plan, yearly)
       console.log('Subscription created successfully for:', customerEmail)
     } catch (error) {
       console.error('Error creating subscription:', error)
@@ -279,12 +286,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
       })
       return
     }
-    await createSubscriptionFromStripeService(
-      customerEmail,
-      plan,
-      yearly,
-      'subscription'
-    )
+    await createSubscriptionFromStripeService(customerEmail, plan, yearly)
 
     console.log('Subscription created successfully for:', customerEmail)
   } catch (error) {
