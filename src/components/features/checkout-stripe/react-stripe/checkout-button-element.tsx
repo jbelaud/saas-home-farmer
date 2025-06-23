@@ -19,7 +19,7 @@ type CheckoutButtonProps = {
   variant?: 'default' | 'secondary' | 'outline'
 }
 //Numéro : 4242 4242 4242 4242
-// Composant pour le formulaire de paiement
+// Composant pour le formulaire de configuration du mode de paiement
 function CheckoutForm() {
   const stripe = useStripe()
   const elements = useElements()
@@ -34,7 +34,7 @@ function CheckoutForm() {
 
     setIsProcessing(true)
 
-    const {error} = await stripe.confirmPayment({
+    const {error} = await stripe.confirmSetup({
       elements,
       confirmParams: {
         return_url: `${window.location.origin}/checkout/success`,
@@ -43,7 +43,7 @@ function CheckoutForm() {
 
     if (error) {
       toast({
-        title: 'Payment failed',
+        title: 'Échec de la configuration',
         description: error.message,
         variant: 'destructive',
       })
@@ -60,7 +60,7 @@ function CheckoutForm() {
         disabled={!stripe || isProcessing}
         className="mt-4 w-full"
       >
-        {isProcessing ? 'Processing...' : 'Pay now'}
+        {isProcessing ? 'Configuration en cours...' : "Configurer l'abonnement"}
       </Button>
     </form>
   )
@@ -74,6 +74,7 @@ export default function CheckoutButtonReactStripe({
 
   const [stripe, setStripe] = useState<Stripe | null>(null)
   const [clientSecret, setClientSecret] = useState('')
+  const [setupIntentId, setSetupIntentId] = useState('')
 
   useEffect(() => {
     // eslint-disable-next-line promise/catch-or-return
@@ -88,12 +89,13 @@ export default function CheckoutButtonReactStripe({
       const result = await createCheckoutSession(priceId)
       if (!result.success) throw new Error(result.error)
       setClientSecret(result.clientSecret || '')
+      setSetupIntentId(result.setupIntentId || '')
     } catch (error) {
-      console.error('Error:', error)
+      console.error("Erreur lors de la création de l'abonnement:", error)
       toast({
-        title: 'Error',
+        title: 'Erreur',
         description:
-          error instanceof Error ? error.message : 'Something went wrong',
+          error instanceof Error ? error.message : 'Une erreur est survenue',
         variant: 'destructive',
       })
     } finally {
@@ -109,7 +111,7 @@ export default function CheckoutButtonReactStripe({
         variant={variant}
         className='disabled:opacity-50" w-full rounded-lg bg-yellow-400 px-4 py-2.5 font-medium text-black transition-colors hover:bg-yellow-500'
       >
-        {isLoading ? 'Processing...' : 'Checkout React Stripe'}
+        {isLoading ? "Création de l'abonnement..." : "S'abonner avec Stripe"}
       </Button>
 
       {clientSecret && stripe && (

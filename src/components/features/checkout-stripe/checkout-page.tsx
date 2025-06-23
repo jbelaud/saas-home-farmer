@@ -1,9 +1,14 @@
-import {getUserDal} from '@/app/dal/user-dal'
 import {getSubscriptionRecapInfo} from '@/components/features/checkout-stripe/actions'
 import CheckoutButtonEmbed from '@/components/features/checkout-stripe/embed/checkout-button-embed'
 import {Card} from '@/components/ui/card'
 
+import CheckoutButtonLink from './payment-link/checkout-button-link'
+import CheckoutButtonReactStripe from './react-stripe/checkout-button-element'
 import SubscriptionRecap from './subscription-recap'
+
+const enableCheckoutButtonEmbed = false
+const enableCheckoutButtonLink = false
+const enableCheckoutButtonReactStripe = true
 
 export default async function CheckoutPage({
   priceId,
@@ -13,7 +18,7 @@ export default async function CheckoutPage({
   couponId: string
 }) {
   const recapInfo = await getSubscriptionRecapInfo(priceId, couponId)
-  const user = await getUserDal()
+
   return (
     <div className="bg-background min-h-screen p-4">
       <div className="mx-auto grid max-w-6xl items-start gap-8 lg:grid-cols-2">
@@ -46,12 +51,13 @@ export default async function CheckoutPage({
               Click the button below to proceed to secure checkout
             </p>
           </div>
-          <CheckoutButtonEmbed
-            priceId={priceId}
-            customerEmail={user?.email || ''}
-          />
-          {/* <CheckoutButtonReactStripe priceId={priceId} />
-          <CheckoutButtonLink priceId={priceId} /> */}
+          {enableCheckoutButtonEmbed && (
+            <CheckoutButtonEmbed priceId={priceId} />
+          )}
+          {enableCheckoutButtonLink && <CheckoutButtonLink priceId={priceId} />}
+          {enableCheckoutButtonReactStripe && (
+            <CheckoutButtonReactStripe priceId={priceId} />
+          )}
 
           <div className="text-muted-foreground text-center text-sm">
             Your payment is secure and encrypted

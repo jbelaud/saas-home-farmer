@@ -107,6 +107,7 @@ export async function createCheckoutSessionWithUser(priceId: string) {
       return_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
       //cancel_url: `${origin}/pricing`,
       metadata: {
+        email: user.email,
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
         userId: user.id, // Ajout de l'userId pour le webhook

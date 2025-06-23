@@ -10,7 +10,6 @@ import {createCheckoutSessionWithUser} from './action'
 
 type CheckoutButtonProps = {
   priceId: string
-  customerEmail: string
   variant?: 'default' | 'secondary' | 'outline'
 }
 
@@ -27,7 +26,6 @@ if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
 
 export default function ButtonStripeEmbed({
   priceId,
-  customerEmail,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   variant = 'default',
 }: CheckoutButtonProps) {
@@ -55,7 +53,7 @@ export default function ButtonStripeEmbed({
     }
 
     initializeStripe()
-  }, [priceId, customerEmail])
+  }, [priceId])
 
   const options = {
     clientSecret,

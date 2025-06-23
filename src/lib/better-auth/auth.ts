@@ -317,9 +317,61 @@ async function onStripeEvent(event: Stripe.Event) {
         console.log('💰 Invoice paid:', event.data.object.id)
         break
 
-      case 'payment_intent.succeeded':
+      case 'payment_intent.succeeded': {
         console.log('✅ Payment succeeded:', event.data.object.id)
+        console.log('metadata:', event.data.object.metadata)
+        console.log('customer:', event.data.object.customer)
+        const paiement = event.data.object as Stripe.PaymentIntent
+        const metadata = event.data.object.metadata || {}
+        // Vérifier si c'est un checkout custom
+        if (
+          metadata.source === 'custom_checkout' &&
+          metadata.managed_by === 'better_auth'
+        ) {
+          console.log('🔧 Traitement checkout custom via Better Auth')
+
+          // Récupérer les infos nécessaires
+          const customer = paiement.customer
+          const customerEmail = paiement.metadata?.email
+          const plan = metadata.plan as SubscriptionPlan
+          const isYearly = metadata.interval === 'year'
+
+          console.log('🔧 paiement', paiement)
+          console.log('🔧 customer', customer)
+          console.log('🔧 customer email', paiement.metadata?.email)
+          console.log('🔧 plan', plan)
+          console.log('🔧 isYearly', isYearly)
+
+          if (customer && plan) {
+            // Utiliser votre service existant pour créer la subscription
+
+            try {
+              await createSubscriptionFromStripeService(
+                customerEmail,
+                plan,
+                isYearly,
+                ''
+              )
+              console.log(
+                '✅ Custom subscription créée avec succès:',
+                customerEmail,
+                plan
+              )
+            } catch (error) {
+              console.error('❌ Erreur création custom subscription:', error)
+            }
+          } else {
+            console.warn('⚠️ Données manquantes pour checkout custom:', {
+              customerEmail,
+              plan,
+            })
+          }
+        } else {
+          console.log('📋 Checkout Better Auth natif - traité automatiquement')
+        }
+
         break
+      }
 
       default:
         console.log('📝 Autre événement Stripe:', event.type)

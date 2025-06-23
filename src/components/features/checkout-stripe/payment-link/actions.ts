@@ -3,6 +3,9 @@
 import {headers} from 'next/headers'
 import Stripe from 'stripe'
 
+import {getPlanByPriceId} from '@/lib/stripe-utils'
+import {getAuthUser} from '@/services/authentication/auth-service'
+
 const stripeSecretKey =
   process.env.NODE_ENV === 'production'
     ? process.env.STRIPE_SECRET_KEY
@@ -13,6 +16,15 @@ const stripe = new Stripe(stripeSecretKey || '', {
 })
 
 export async function createPaymentLink(priceId: string) {
+  const user = await getAuthUser()
+  if (!user) {
+    throw new Error('User not found')
+  }
+  const plan = getPlanByPriceId(priceId)
+  if (!plan) {
+    throw new Error('Plan not found')
+  }
+  //const customer = user.stripeCustomerId || undefined
   const headersList = await headers()
   const origin = headersList.get('origin') || ''
 
@@ -29,6 +41,14 @@ export async function createPaymentLink(priceId: string) {
         redirect: {
           url: `${origin}/checkout/success?redirect_status=succeeded`,
         },
+      },
+      metadata: {
+        customer_id: user.stripeCustomerId,
+        plan: plan.planCode,
+        interval: plan.isYearly ? 'year' : 'month',
+        userId: user.id, // Ajout de l'userId pour le webhook
+        source: 'custom_checkout', // IMPORTANT : Marquer comme checkout custom
+        managed_by: 'better_auth', // Indiquer que Better Auth doit gérer
       },
     })
 
