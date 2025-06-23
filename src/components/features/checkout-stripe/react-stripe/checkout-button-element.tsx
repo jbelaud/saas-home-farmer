@@ -74,7 +74,6 @@ export default function CheckoutButtonReactStripe({
 
   const [stripe, setStripe] = useState<Stripe | null>(null)
   const [clientSecret, setClientSecret] = useState('')
-  const [setupIntentId, setSetupIntentId] = useState('')
 
   useEffect(() => {
     // eslint-disable-next-line promise/catch-or-return
@@ -89,7 +88,6 @@ export default function CheckoutButtonReactStripe({
       const result = await createCheckoutSession(priceId)
       if (!result.success) throw new Error(result.error)
       setClientSecret(result.clientSecret || '')
-      setSetupIntentId(result.setupIntentId || '')
     } catch (error) {
       console.error("Erreur lors de la création de l'abonnement:", error)
       toast({

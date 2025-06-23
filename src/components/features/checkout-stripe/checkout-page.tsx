@@ -6,9 +6,9 @@ import CheckoutButtonLink from './payment-link/checkout-button-link'
 import CheckoutButtonReactStripe from './react-stripe/checkout-button-element'
 import SubscriptionRecap from './subscription-recap'
 
-const enableCheckoutButtonEmbed = true
+const enableCheckoutButtonEmbed = false
 const enableCheckoutButtonLink = false
-const enableCheckoutButtonReactStripe = false
+const enableCheckoutButtonReactStripe = true
 
 export default async function CheckoutPage({
   priceId,
