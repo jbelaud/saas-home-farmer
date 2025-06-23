@@ -75,7 +75,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
 // webhook secret
 const endpointSecret = process.env.STRIPE_APP_WEBHOOK_SECRET ?? ''
 
+const disableWebhook = true // Réactivé temporairement
+
 export async function POST(request: Request) {
+  if (disableWebhook) {
+    return NextResponse.json(
+      {
+        received: true,
+        disableWebhook: true,
+        error: 'Webhook disabled, use better-auth webhook instead',
+      },
+      {status: 410}
+    )
+  }
+
   const body = await request.text()
 
   const headersList = await headers()
@@ -247,6 +260,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
     sessionId: session.id,
     customerEmail: session.customer_details?.email,
     subscriptionId: session.subscription,
+    customerId: session.customer,
   })
 
   if (!session.subscription) {
@@ -278,6 +292,8 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
       })
       return
     }
+
+    // Compatible Better Auth : créer la subscription avec stripeCustomerId
     const exist = await isPlanExistService(customerEmail, plan)
     if (exist) {
       console.error('Plan already exists:', {

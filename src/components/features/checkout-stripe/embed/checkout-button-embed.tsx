@@ -6,7 +6,7 @@ import {
 import {loadStripe, Stripe} from '@stripe/stripe-js'
 import React, {useEffect, useState} from 'react'
 
-import {createCheckoutSession} from './action'
+import {createCheckoutSessionWithUser} from './action'
 
 type CheckoutButtonProps = {
   priceId: string
@@ -44,7 +44,7 @@ export default function ButtonStripeEmbed({
         )
         setStripe(stripeInstance)
 
-        const result = await createCheckoutSession(priceId, customerEmail)
+        const result = await createCheckoutSessionWithUser(priceId, 'pro')
         if (!result.success) throw new Error(result.error)
         setClientSecret(result.clientSecret || '')
       } catch (error) {

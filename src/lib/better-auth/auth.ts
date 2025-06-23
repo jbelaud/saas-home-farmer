@@ -23,7 +23,9 @@ import {
   sendResetPasswordLinkEmailService,
   sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
+import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
+import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
 import {APP_ISSUER} from '../constants'
 import {betterAuthPlans} from '../stripe-utils'
@@ -194,15 +196,81 @@ export const auth = betterAuth({
         },
       },
       onEvent: async (event) => {
-        // Handle any Stripe event
-        console.log('Better Auth Stripe event', event)
-        switch (event.type) {
-          case 'invoice.paid':
-            // Handle paid invoice
-            break
-          case 'payment_intent.succeeded':
-            // Handle successful payment
-            break
+        // Handle any Stripe event - TOUS les événements Stripe passent ici
+        console.log('Better Auth Stripe event:', event.type, event.id)
+
+        try {
+          switch (event.type) {
+            case 'checkout.session.completed': {
+              const session = event.data.object as Stripe.Checkout.Session
+              const metadata = session.metadata || {}
+
+              console.log('Checkout session metadata:', metadata)
+
+              // Vérifier si c'est un checkout custom
+              if (
+                metadata.source === 'custom_checkout' &&
+                metadata.managed_by === 'better_auth'
+              ) {
+                console.log('🔧 Traitement checkout custom via Better Auth')
+
+                // Récupérer les infos nécessaires
+                const customerEmail = session.customer_details?.email
+                const plan = metadata.plan as SubscriptionPlan
+                const isYearly = metadata.interval === 'year'
+
+                console.log('🔧 session', session)
+                console.log('🔧 customerEmail', customerEmail)
+                console.log('🔧 plan', plan)
+                console.log('🔧 isYearly', isYearly)
+
+                if (customerEmail && plan) {
+                  // Utiliser votre service existant pour créer la subscription
+
+                  try {
+                    await createSubscriptionFromStripeService(
+                      customerEmail,
+                      plan,
+                      isYearly
+                    )
+                    console.log(
+                      '✅ Custom subscription créée avec succès:',
+                      customerEmail,
+                      plan
+                    )
+                  } catch (error) {
+                    console.error(
+                      '❌ Erreur création custom subscription:',
+                      error
+                    )
+                  }
+                } else {
+                  console.warn('⚠️ Données manquantes pour checkout custom:', {
+                    customerEmail,
+                    plan,
+                  })
+                }
+              } else {
+                console.log(
+                  '📋 Checkout Better Auth natif - traité automatiquement'
+                )
+              }
+              break
+            }
+
+            case 'invoice.paid':
+              console.log('💰 Invoice paid:', event.data.object.id)
+              break
+
+            case 'payment_intent.succeeded':
+              console.log('✅ Payment succeeded:', event.data.object.id)
+              break
+
+            default:
+              console.log('📝 Autre événement Stripe:', event.type)
+          }
+        } catch (error) {
+          console.error('❌ Erreur dans onEvent Stripe:', error)
         }
       },
     }),

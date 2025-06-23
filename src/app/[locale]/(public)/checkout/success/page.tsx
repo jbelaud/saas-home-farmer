@@ -73,7 +73,7 @@ export default function SuccessPage() {
 
         <div className="mt-6 space-y-3">
           <Button asChild className="w-full">
-            <Link href="/snippets">Go to Dashboard</Link>
+            <Link href="/dashboard">Go to Dashboard</Link>
           </Button>
           <Button asChild variant="outline" className="w-full">
             <Link href="/">Return Home</Link>
