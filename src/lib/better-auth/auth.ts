@@ -281,6 +281,7 @@ async function onStripeEvent(event: Stripe.Event) {
           console.log('🔧 customerEmail', customerEmail)
           console.log('🔧 plan', plan)
           console.log('🔧 isYearly', isYearly)
+          console.log('🔧 subscription', session.subscription)
 
           if (customerEmail && plan) {
             // Utiliser votre service existant pour créer la subscription
@@ -289,7 +290,8 @@ async function onStripeEvent(event: Stripe.Event) {
               await createSubscriptionFromStripeService(
                 customerEmail,
                 plan,
-                isYearly
+                isYearly,
+                session.subscription as string
               )
               console.log(
                 '✅ Custom subscription créée avec succès:',

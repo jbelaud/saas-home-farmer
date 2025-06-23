@@ -91,7 +91,8 @@ export const isPlanExistService = async (
 export const createSubscriptionFromStripeService = async (
   email: string,
   plan: SubscriptionPlan,
-  yearly: boolean = false
+  yearly: boolean = false,
+  stripeSubscriptionId?: string
 ) => {
   const user = await getUserByEmailDao(email)
   if (!user) {
@@ -99,10 +100,10 @@ export const createSubscriptionFromStripeService = async (
   }
 
   // Vérifier si l'abonnement existe déjà
-  const planExists = await isPlanExistService(email, plan, true)
-  if (planExists) {
-    throw new Error(`User already has an active ${plan} subscription`)
-  }
+  // const planExists = await isPlanExistService(email, plan, true)
+  // if (planExists) {
+  //   throw new Error(`User already has an active ${plan} subscription`)
+  // }
 
   const currentDate = new Date()
   let endDate: Date | null = null
@@ -125,6 +126,8 @@ export const createSubscriptionFromStripeService = async (
     periodStart: currentDate,
     periodEnd: endDate,
     stripeCustomerId: user.stripeCustomerId,
+    stripeSubscriptionId: stripeSubscriptionId || '',
+    seats: 1,
   })
 
   return subscription
