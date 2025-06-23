@@ -6,19 +6,16 @@ import {
 import {loadStripe, Stripe} from '@stripe/stripe-js'
 import React, {useEffect, useState} from 'react'
 
-import {createCheckoutSessionWithUser} from './action'
+import {env} from '@/env'
+
+import {createEmbededCheckoutSession} from './action'
 
 type CheckoutButtonProps = {
   priceId: string
   variant?: 'default' | 'secondary' | 'outline'
 }
 
-console.log(
-  'process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-)
-
-if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+if (!env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
   throw new Error(
     "La clé Stripe publishable est manquante. Vérifiez vos variables d'environnement."
   )
@@ -42,7 +39,7 @@ export default function ButtonStripeEmbed({
         )
         setStripe(stripeInstance)
 
-        const result = await createCheckoutSessionWithUser(priceId)
+        const result = await createEmbededCheckoutSession(priceId)
         if (!result.success) throw new Error(result.error)
         setClientSecret(result.clientSecret || '')
       } catch (error) {

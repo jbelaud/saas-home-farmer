@@ -3,8 +3,6 @@
 import {headers} from 'next/headers'
 import Stripe from 'stripe'
 
-import {getAuthUser} from '@/services/authentication/auth-service'
-
 const stripeSecretKey =
   process.env.NODE_ENV === 'production'
     ? process.env.STRIPE_SECRET_KEY
@@ -199,63 +197,6 @@ export async function getStripePrice(priceId: string) {
     }
   } catch (error) {
     console.error('Error retrieving Stripe price:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
-  }
-}
-
-export async function createCheckoutSessionWithUser(
-  priceId: string,
-  planName: string,
-  isYearly: boolean = false
-) {
-  try {
-    // Récupérer l'utilisateur connecté
-    const user = await getAuthUser()
-    if (!user) {
-      return {
-        success: false,
-        error: 'Utilisateur non connecté',
-      }
-    }
-
-    const headersList = await headers()
-    const origin = headersList.get('origin') || ''
-
-    // Utiliser le stripeCustomerId de l'utilisateur Better Auth
-    const customer = user.stripeCustomerId || undefined
-
-    // Créer la session avec le customer existant
-    const session = await stripe.checkout.sessions.create({
-      customer, // Utilise le customer Better Auth existant
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription', // Mode subscription pour les abonnements
-      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pricing`,
-      metadata: {
-        plan: planName,
-        interval: isYearly ? 'year' : 'month',
-        userId: user.id, // Ajout de l'userId pour le webhook
-        source: 'custom_checkout', // IMPORTANT : Marquer comme checkout custom
-        managed_by: 'better_auth', // Indiquer que Better Auth doit gérer
-      },
-      payment_method_types: ['card'],
-    })
-
-    return {
-      success: true,
-      sessionUrl: session.url,
-      sessionId: session.id,
-    }
-  } catch (error) {
-    console.error('Stripe error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',
