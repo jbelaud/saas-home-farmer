@@ -1,3 +1,5 @@
+import {StripePlan} from '@better-auth/stripe'
+
 import {env} from '@/env'
 import {
   PlanConst,
@@ -13,7 +15,7 @@ type Plan = {
 /**
  * Les plans Stripe sont définie ici pour Better auth et le reste de l'app
  */
-export const betterAuthPlans = [
+export const betterAuthPlans: StripePlan[] = [
   {
     name: PlanConst.PRO, // the name of the plan, it'll be automatically lower cased when stored in the database
     priceId: env.STRIPE_PRICE_ID_PRO_MONTHLY, // the price ID from stripe
@@ -38,7 +40,7 @@ export const betterAuthPlans = [
 
 // Plans for App
 export const planProMontly: Plan = {
-  priceId: betterAuthPlans[0].priceId,
+  priceId: betterAuthPlans[0].priceId ?? '',
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
   planName: 'Pro',
 }
@@ -50,7 +52,7 @@ export const planProYearly: Plan = {
 }
 
 export const planLifetime: Plan = {
-  priceId: betterAuthPlans[1].priceId,
+  priceId: betterAuthPlans[1].priceId ?? '',
   planCode: betterAuthPlans[1].name as SubscriptionPlan,
   planName: 'Lifetime',
 }
