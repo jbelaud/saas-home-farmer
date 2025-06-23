@@ -72,11 +72,7 @@ export async function createCheckoutSession(
   }
 }
 
-export async function createCheckoutSessionWithUser(
-  priceId: string,
-  planName: string,
-  isYearly: boolean = false
-) {
+export async function createCheckoutSessionWithUser(priceId: string) {
   try {
     // Récupérer l'utilisateur connecté
     const user = await getAuthUser()
@@ -85,6 +81,10 @@ export async function createCheckoutSessionWithUser(
         success: false,
         error: 'Utilisateur non connecté',
       }
+    }
+    const plan = getPlanByPriceId(priceId)
+    if (!plan) {
+      throw new Error('Plan not found')
     }
 
     const headersList = await headers()
@@ -107,8 +107,8 @@ export async function createCheckoutSessionWithUser(
       return_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
       //cancel_url: `${origin}/pricing`,
       metadata: {
-        plan: planName,
-        interval: isYearly ? 'year' : 'month',
+        plan: plan.planCode,
+        interval: plan.isYearly ? 'year' : 'month',
         userId: user.id, // Ajout de l'userId pour le webhook
         source: 'custom_checkout', // IMPORTANT : Marquer comme checkout custom
         managed_by: 'better_auth', // Indiquer que Better Auth doit gérer

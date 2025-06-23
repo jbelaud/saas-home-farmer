@@ -44,7 +44,7 @@ export default function ButtonStripeEmbed({
         )
         setStripe(stripeInstance)
 
-        const result = await createCheckoutSessionWithUser(priceId, 'pro')
+        const result = await createCheckoutSessionWithUser(priceId)
         if (!result.success) throw new Error(result.error)
         setClientSecret(result.clientSecret || '')
       } catch (error) {

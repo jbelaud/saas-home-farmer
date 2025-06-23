@@ -10,6 +10,7 @@ type Plan = {
   priceId: string
   planCode: SubscriptionPlan
   planName: string
+  isYearly: boolean
 }
 
 /**
@@ -43,18 +44,21 @@ export const planProMontly: Plan = {
   priceId: betterAuthPlans[0].priceId ?? '',
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
   planName: 'Pro',
+  isYearly: false,
 }
 
 export const planProYearly: Plan = {
   priceId: betterAuthPlans[0].annualDiscountPriceId ?? '',
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
   planName: 'Pro Yearly',
+  isYearly: true,
 }
 
 export const planLifetime: Plan = {
   priceId: betterAuthPlans[1].priceId ?? '',
   planCode: betterAuthPlans[1].name as SubscriptionPlan,
   planName: 'Lifetime',
+  isYearly: false,
 }
 
 export const plans = [planProMontly, planProYearly, planLifetime]
