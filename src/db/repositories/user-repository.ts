@@ -196,7 +196,7 @@ export const updateUserSafeByUidDao = async (
   uid: string
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {id, email, /* password,*/ emailVerified, createdAt, ...rest} = user
+  const {id, email, emailVerified, createdAt, ...rest} = user
   rest.updatedAt = new Date()
   await db
     .update(users)

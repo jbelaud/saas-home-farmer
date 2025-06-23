@@ -273,7 +273,9 @@ async function onStripeEvent(event: Stripe.Event) {
           console.log('🔧 Traitement checkout custom via Better Auth')
 
           // Récupérer les infos nécessaires
-          const customerEmail = session.customer_details?.email
+          const customerEmail =
+            metadata.customerEmail ?? session.customer_details?.email
+          const stripeCustomerId = session.customer as string
           const plan = metadata.plan as SubscriptionPlan
           const isYearly = metadata.interval === 'year'
 
@@ -291,12 +293,14 @@ async function onStripeEvent(event: Stripe.Event) {
                 customerEmail,
                 plan,
                 isYearly,
-                session.subscription as string
+                session.subscription as string,
+                stripeCustomerId
               )
               console.log(
                 '✅ Custom subscription créée avec succès:',
                 customerEmail,
-                plan
+                plan,
+                stripeCustomerId
               )
             } catch (error) {
               console.error('❌ Erreur création custom subscription:', error)

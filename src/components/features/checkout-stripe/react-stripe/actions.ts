@@ -96,6 +96,7 @@ export async function confirmSubscription(setupIntentId: string) {
   try {
     // Récupérer le Setup Intent pour obtenir le payment method ET les métadonnées
     const setupIntent = await stripe.setupIntents.retrieve(setupIntentId)
+    console.log('🔧 setupIntent', setupIntent)
 
     if (setupIntent.status !== 'succeeded') {
       throw new Error('Setup Intent non confirmé')
@@ -138,7 +139,8 @@ export async function confirmSubscription(setupIntentId: string) {
       user.email,
       plan.planCode,
       plan.isYearly,
-      stripeSubscription.id
+      stripeSubscription.id,
+      customerId
     )
 
     return {

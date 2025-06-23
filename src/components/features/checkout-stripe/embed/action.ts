@@ -35,7 +35,7 @@ export async function createEmbededCheckoutSession(priceId: string) {
     // Créer la session avec le customer existant
     const session = await stripe.checkout.sessions.create({
       customer: customer || undefined, // Utilise le customer Better Auth existant
-      //customer_email: customer ? undefined : customerEmail, //Error: Error: You may only specify one of these parameters: customer, customer_email.
+      customer_email: customer ? undefined : user.email, //Error: Error: You may only specify one of these parameters: customer, customer_email.
       line_items: [
         {
           price: priceId,

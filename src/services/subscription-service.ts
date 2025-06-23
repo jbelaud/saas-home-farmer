@@ -11,6 +11,7 @@ import {
 import {
   getUserByEmailDao,
   getUserByIdDao,
+  updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
 import {
   canReadSubscription,
@@ -92,7 +93,8 @@ export const createSubscriptionFromStripeService = async (
   email: string,
   plan: SubscriptionPlan,
   yearly: boolean = false,
-  stripeSubscriptionId?: string
+  stripeSubscriptionId?: string,
+  stripeCustomerId?: string
 ) => {
   const user = await getUserByEmailDao(email)
   if (!user) {
@@ -100,10 +102,12 @@ export const createSubscriptionFromStripeService = async (
   }
 
   // Vérifier si l'abonnement existe déjà
-  // const planExists = await isPlanExistService(email, plan, true)
-  // if (planExists) {
-  //   throw new Error(`User already has an active ${plan} subscription`)
-  // }
+  const planExists = await isPlanExistService(email, plan, true)
+  if (planExists) {
+    console.warn('User already has an active subscription')
+    return
+    //throw new Error(`User already has an active ${plan} subscription`)
+  }
 
   const currentDate = new Date()
   let endDate: Date | null = null
@@ -119,13 +123,26 @@ export const createSubscriptionFromStripeService = async (
     }
   }
 
+  if (!user.stripeCustomerId) {
+    const res = await updateUserSafeByUidDao(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        stripeCustomerId: stripeCustomerId || user.stripeCustomerId,
+      },
+      user.id
+    )
+    console.log('🔧 updateUser stripeCustomerId ', res)
+  }
+
   const subscription = await createSubscriptionDao({
     referenceId: user.id,
     plan,
     status: 'active',
     periodStart: currentDate,
     periodEnd: endDate,
-    stripeCustomerId: user.stripeCustomerId,
+    stripeCustomerId: stripeCustomerId || user.stripeCustomerId,
     stripeSubscriptionId: stripeSubscriptionId || '',
     seats: 1,
   })

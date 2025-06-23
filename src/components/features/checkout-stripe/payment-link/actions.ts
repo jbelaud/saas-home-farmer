@@ -44,9 +44,10 @@ export async function createPaymentLink(priceId: string) {
       },
       metadata: {
         customer_id: user.stripeCustomerId,
+        userId: user.id,
+        customerEmail: user.email,
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
-        userId: user.id, // Ajout de l'userId pour le webhook
         source: 'custom_checkout', // IMPORTANT : Marquer comme checkout custom
         managed_by: 'better_auth', // Indiquer que Better Auth doit gérer
       },
