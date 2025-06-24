@@ -49,6 +49,7 @@ export async function createEmbededCheckoutSession(priceId: string) {
       },
       payment_method_types: ['card'],
       ui_mode: 'embedded',
+      // 🌙 Configuration du dark mode ICI
     })
 
     return {

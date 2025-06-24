@@ -1,8 +1,8 @@
 'use client'
 
 import React, {useState} from 'react'
+import {toast} from 'sonner'
 
-import {toast} from '@/components/hooks/use-toast'
 import {Button} from '@/components/ui/button'
 
 import {createPaymentLink} from './actions'
@@ -31,11 +31,9 @@ export default function CheckoutButtonLink({
       window.location.href = result.url ?? '' // Redirect to the payment link
     } catch (error) {
       console.error('Error:', error)
-      toast({
-        title: 'Error',
+      toast.error('Error', {
         description:
           error instanceof Error ? error.message : 'Something went wrong',
-        variant: 'destructive',
       })
     } finally {
       setIsLoading(false)

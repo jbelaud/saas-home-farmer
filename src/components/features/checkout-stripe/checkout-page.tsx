@@ -1,14 +1,14 @@
 import {getSubscriptionRecapInfo} from '@/components/features/checkout-stripe/actions'
-import CheckoutButtonEmbed from '@/components/features/checkout-stripe/embed/checkout-button-embed'
+import CheckoutFormEmbedded from '@/components/features/checkout-stripe/embed/checkout-form-embedded'
 import {Card} from '@/components/ui/card'
 
 import CheckoutButtonLink from './payment-link/checkout-button-link'
-import CheckoutButtonReactStripe from './react-stripe/checkout-button-element'
+import CheckoutButtonReactStripe from './react-stripe/checkout-button-react-stripe'
 import SubscriptionRecap from './subscription-recap'
 
-const enableCheckoutButtonEmbed = false
-const enableCheckoutButtonLink = false
-const enableCheckoutButtonReactStripe = true
+const enableEmbededForm = true
+const enableCheckoutButtonExternalLink = false
+const enableCheckoutButtonReactStripe = false
 
 export default async function CheckoutPage({
   priceId,
@@ -56,17 +56,37 @@ export default async function CheckoutPage({
         <Card className="border-border bg-card text-foreground space-y-6 p-6">
           <div>
             <h2 className="mb-1 text-xl font-bold">Complete your purchase</h2>
-            <p className="text-muted-foreground">
-              Click the button below to proceed to secure checkout
-            </p>
+            {enableEmbededForm && (
+              <>
+                <p className="text-muted-foreground">
+                  Please fill the form below to complete your purchase
+                </p>
+                <div className="mt-4">
+                  <CheckoutFormEmbedded priceId={priceId} />
+                </div>
+              </>
+            )}
+            {enableCheckoutButtonExternalLink && (
+              <>
+                <p className="text-muted-foreground">
+                  Please click the button below to complete your purchase
+                </p>
+                <div className="mt-4">
+                  <CheckoutButtonLink priceId={priceId} />
+                </div>
+              </>
+            )}
+            {enableCheckoutButtonReactStripe && (
+              <>
+                <p className="text-muted-foreground">
+                  Please click the button below to complete your purchase
+                </p>
+                <div className="mt-4">
+                  <CheckoutButtonReactStripe priceId={priceId} />
+                </div>
+              </>
+            )}
           </div>
-          {enableCheckoutButtonEmbed && (
-            <CheckoutButtonEmbed priceId={priceId} />
-          )}
-          {enableCheckoutButtonLink && <CheckoutButtonLink priceId={priceId} />}
-          {enableCheckoutButtonReactStripe && (
-            <CheckoutButtonReactStripe priceId={priceId} />
-          )}
 
           <div className="text-muted-foreground text-center text-sm">
             Your payment is secure and encrypted

@@ -5,6 +5,7 @@ import {
 } from '@stripe/react-stripe-js'
 import {loadStripe, Stripe} from '@stripe/stripe-js'
 import React, {useEffect, useState} from 'react'
+import {toast} from 'sonner'
 
 import {env} from '@/env'
 
@@ -21,7 +22,7 @@ if (!env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
   )
 }
 
-export default function ButtonStripeEmbed({
+export default function StripeFormEmbedded({
   priceId,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   variant = 'default',
@@ -44,6 +45,10 @@ export default function ButtonStripeEmbed({
         setClientSecret(result.clientSecret || '')
       } catch (error) {
         console.error('Error:', error)
+        toast.error('Error', {
+          description:
+            error instanceof Error ? error.message : 'Something went wrong',
+        })
       } finally {
         setIsLoading(false)
       }
@@ -54,9 +59,11 @@ export default function ButtonStripeEmbed({
 
   const options = {
     clientSecret,
+    //  appearance,
     // Customize the appearance of the embedded checkout
     // Refer to the Stripe documentation for more details
   }
+
   return (
     <EmbeddedCheckoutProvider stripe={stripe} options={options}>
       <EmbeddedCheckout />

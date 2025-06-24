@@ -1,6 +1,5 @@
 'use server'
 
-import {headers} from 'next/headers'
 import Stripe from 'stripe'
 
 import {stripeClient} from '@/lib/stripe-utils'
@@ -112,50 +111,6 @@ export async function getSubscriptionRecapInfo(
   } catch (error) {
     console.error('Error getting stripe subscription recap:', error)
     throw error
-  }
-}
-export async function createCheckoutSession(priceId: string) {
-  try {
-    const headersList = await headers()
-    const origin = headersList.get('origin') || ''
-
-    // Récupérer le prix pour obtenir le montant
-    const price = await stripeClient.prices.retrieve(priceId)
-
-    // Créer un PaymentIntent
-    const paymentIntent = await stripeClient.paymentIntents.create({
-      amount: price.unit_amount || 0,
-      currency: price.currency,
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    })
-
-    const session = await stripeClient.checkout.sessions.create({
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      return_url: `${origin}/checkout/success`,
-      payment_method_types: ['card'],
-      ui_mode: 'embedded',
-    })
-
-    return {
-      success: true,
-      clientSecret: paymentIntent.client_secret,
-      paymentIntent,
-      session,
-    }
-  } catch (error) {
-    console.error('Stripe error:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
   }
 }
 
