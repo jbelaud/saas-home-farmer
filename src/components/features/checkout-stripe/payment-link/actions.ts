@@ -5,7 +5,7 @@ import {headers} from 'next/headers'
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
-export async function createPaymentLink(priceId: string) {
+export async function createPaymentLink(priceId: string, seats: number = 1) {
   const user = await getAuthUser()
   if (!user) {
     throw new Error('User not found')
@@ -23,7 +23,7 @@ export async function createPaymentLink(priceId: string) {
       line_items: [
         {
           price: priceId,
-          quantity: 1,
+          quantity: seats,
         },
       ],
       after_completion: {

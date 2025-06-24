@@ -13,13 +13,15 @@ const enableCheckoutButtonReactStripe = false
 export default async function CheckoutPage({
   priceId,
   couponId,
+  seats = 1,
 }: {
   priceId: string
   couponId: string
+  seats: number
 }) {
   let recapInfo
   try {
-    recapInfo = await getSubscriptionRecapInfo(priceId, couponId, 1)
+    recapInfo = await getSubscriptionRecapInfo(priceId, couponId, seats)
   } catch (error) {
     console.error('Error getting stripe subscription recap:', error)
     recapInfo = {
@@ -62,7 +64,7 @@ export default async function CheckoutPage({
                   Please fill the form below to complete your purchase
                 </p>
                 <div className="mt-4">
-                  <CheckoutFormEmbedded priceId={priceId} />
+                  <CheckoutFormEmbedded priceId={priceId} seats={seats} />
                 </div>
               </>
             )}
@@ -72,7 +74,7 @@ export default async function CheckoutPage({
                   Please click the button below to complete your purchase
                 </p>
                 <div className="mt-4">
-                  <CheckoutButtonLink priceId={priceId} />
+                  <CheckoutButtonLink priceId={priceId} seats={seats} />
                 </div>
               </>
             )}

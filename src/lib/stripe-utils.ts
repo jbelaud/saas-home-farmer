@@ -72,6 +72,5 @@ export function getPlanByPriceId(priceId?: string) {
   if (!priceId) {
     return
   }
-  console.log('getPlanByPriceId plans', plans)
   return plans.find((plan) => plan.priceId === priceId)
 }

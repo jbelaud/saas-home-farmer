@@ -4,7 +4,10 @@ import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
 
-export async function createCheckoutSession(priceId: string) {
+export async function createCheckoutSession(
+  priceId: string,
+  seats: number = 1
+) {
   const user = await getAuthUser()
   if (!user) {
     return {
@@ -33,6 +36,10 @@ export async function createCheckoutSession(priceId: string) {
 
     // Récupérer le prix pour connaître le montant
     const price = await stripeClient.prices.retrieve(priceId)
+    if (!price || !price.unit_amount) {
+      throw new Error('Price not found')
+    }
+    const amount = price.unit_amount * seats * 100
 
     // Créer un Setup Intent pour configurer le mode de paiement
     const setupIntent = await stripeClient.setupIntents.create({
@@ -47,7 +54,7 @@ export async function createCheckoutSession(priceId: string) {
         source: 'react_stripe_elements',
         managed_by: 'better_auth',
         priceId: priceId,
-        amount: price.unit_amount?.toString() || '0',
+        amount: amount,
         currency: price.currency,
       },
     })
@@ -63,6 +70,10 @@ export async function createCheckoutSession(priceId: string) {
       setupIntentId: setupIntent.id,
       customerId: customerId,
       priceId: priceId,
+      amount: amount,
+      unit_amount: price.unit_amount,
+      currency: price.currency,
+      seats: seats,
     }
   } catch (error) {
     console.error('Stripe error:', error)

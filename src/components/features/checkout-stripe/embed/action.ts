@@ -5,7 +5,10 @@ import {headers} from 'next/headers'
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
-export async function createEmbededCheckoutSession(priceId: string) {
+export async function createEmbededCheckoutSession(
+  priceId: string,
+  seats: number = 1
+) {
   try {
     // Récupérer l'utilisateur connecté
     const user = await getAuthUser()
@@ -33,7 +36,7 @@ export async function createEmbededCheckoutSession(priceId: string) {
       line_items: [
         {
           price: priceId,
-          quantity: 1,
+          quantity: seats,
         },
       ],
       mode: 'subscription', // Mode subscription pour les abonnements

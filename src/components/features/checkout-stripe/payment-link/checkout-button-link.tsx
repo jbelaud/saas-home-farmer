@@ -10,11 +10,13 @@ import {createPaymentLink} from './actions'
 type CheckoutButtonProps = {
   priceId: string
   variant?: 'default' | 'secondary' | 'outline'
+  seats: number
 }
 
 export default function CheckoutButtonLink({
   priceId,
   variant = 'default',
+  seats = 1,
 }: CheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -22,7 +24,7 @@ export default function CheckoutButtonLink({
     setIsLoading(true)
 
     try {
-      const result = await createPaymentLink(priceId)
+      const result = await createPaymentLink(priceId, seats)
 
       if (!result.success) {
         throw new Error(result.error)
