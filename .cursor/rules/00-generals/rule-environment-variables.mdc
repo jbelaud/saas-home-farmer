@@ -123,6 +123,35 @@ export const db = drizzle(env.DATABASE_URL)
 - Exposer des secrets côté client
 - Utiliser des variables non validées
 
+## Configuration pour les Tests
+
+### Fichier d'Environnement de Test
+Pour les tests, utiliser un fichier `.env.test` séparé contenant les variables d'environnement spécifiques aux tests :
+
+```bash
+# .env.test
+DATABASE_URL="postgresql://test:test@localhost:5432/test_db"
+AUTH_SECRET="test-secret-key"
+BETTER_AUTH_SECRET="test-better-auth-secret"
+# ... autres variables de test
+```
+
+### Configuration Vitest
+Le fichier `vitest.config.ts` charge automatiquement le fichier `.env.test` :
+
+```typescript
+import dotenv from 'dotenv'
+import path from 'path'
+
+dotenv.config({path: path.resolve(__dirname, '.env.test')})
+```
+
+### Bonnes Pratiques pour les Tests
+- ✅ Utiliser des bases de données de test dédiées
+- ✅ Utiliser des clés d'API de test ou des mocks
+- ✅ Définir des valeurs par défaut appropriées pour les tests
+- ❌ Ne jamais utiliser les variables de production dans les tests
+
 ## Configuration Avancée
 
 ### Skip Validation (Docker)

@@ -14,7 +14,7 @@ import * as userRepository from '@/db/repositories/user-repository'
 
 import {AuthorizationError} from '../errors/authorization-error'
 import {RoleConst} from '../types/domain/auth-types'
-import {User} from '../types/domain/user-types'
+import {User, UserSettings} from '../types/domain/user-types'
 import {
   createUserSettingsService,
   deleteUserSettingsService,
@@ -42,6 +42,8 @@ const userTest = {
   banExpires: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  stripeCustomerId: null,
+  twoFactorEnabled: null,
 } satisfies User
 
 describe("[getUserById] Lors de l'appel de la fonction", () => {
@@ -167,7 +169,7 @@ describe('[UserSettings] CRUD', () => {
     theme: 'dark' as const,
     language: 'fr' as const,
     timezone: 'Europe/Paris',
-    enableTwoFactor: true,
+    twoFactorType: 'otp',
     enableEmailNotifications: true,
     enablePushNotifications: true,
     notificationChannel: 'both' as const,
@@ -175,7 +177,7 @@ describe('[UserSettings] CRUD', () => {
     marketingEmails: false,
     createdAt: new Date(),
     updatedAt: new Date(),
-  }
+  } satisfies UserSettings
 
   beforeEach(() => {
     vi.clearAllMocks()

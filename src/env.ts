@@ -158,4 +158,6 @@ export const env = createEnv({
    * Rend le type des variables d'environnement vides comme chaîne au lieu de undefined.
    */
   emptyStringAsUndefined: true,
+
+  isServer: process.env.NODE_ENV === 'test' || typeof window === 'undefined',
 })
