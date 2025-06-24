@@ -7,22 +7,24 @@ import CheckoutPaymentLink from './payment-link/checkout-payment-link'
 import CheckoutButtonReactStripe from './react-stripe/checkout-button-react-stripe'
 import SubscriptionRecap from './subscription-recap'
 
-// pour les payment avec user
-const enableEmbededForm = false
+// pour les payment avec user (guest=false)
+const enableEmbededForm = true
 const enableExternalForm = false
 const enableCheckoutButtonReactStripe = false
 
-// pour les payment sans user
+// pour les payment sans user (guest=true)
 const enablePaymentLink = true
 
 export default async function CheckoutPage({
   priceId,
   couponId,
   seats = 1,
+  guest = false,
 }: {
   priceId: string
   couponId: string
   seats: number
+  guest: boolean
 }) {
   let recapInfo
   try {
@@ -63,17 +65,7 @@ export default async function CheckoutPage({
         <Card className="border-border bg-card text-foreground space-y-6 p-6">
           <div>
             <h2 className="mb-1 text-xl font-bold">Complete your purchase</h2>
-            {enableEmbededForm && (
-              <>
-                <p className="text-muted-foreground">
-                  Please fill the form below to complete your purchase
-                </p>
-                <div className="mt-4">
-                  <CheckoutFormEmbedded priceId={priceId} seats={seats} />
-                </div>
-              </>
-            )}
-            {enablePaymentLink && (
+            {guest && enablePaymentLink && (
               <>
                 <p className="text-muted-foreground">
                   Please click the button below to complete your purchase
@@ -83,7 +75,18 @@ export default async function CheckoutPage({
                 </div>
               </>
             )}
-            {enableCheckoutButtonReactStripe && (
+            {!guest && enableEmbededForm && (
+              <>
+                <p className="text-muted-foreground">
+                  Please fill the form below to complete your purchase
+                </p>
+                <div className="mt-4">
+                  <CheckoutFormEmbedded priceId={priceId} seats={seats} />
+                </div>
+              </>
+            )}
+
+            {!guest && enableCheckoutButtonReactStripe && (
               <>
                 <p className="text-muted-foreground">
                   Please click the button below to complete your purchase
@@ -93,7 +96,7 @@ export default async function CheckoutPage({
                 </div>
               </>
             )}
-            {enableExternalForm && (
+            {!guest && enableExternalForm && (
               <>
                 <p className="text-muted-foreground">
                   Please click the button below to complete your purchase

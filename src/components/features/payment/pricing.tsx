@@ -33,9 +33,8 @@ export default function PricingPlans({
 }) {
   const subscription = subscriptions?.[0]
   console.log('subscription', subscription)
-  const currentPlan = subscription?.plan || 'CODEMAIL_FREE'
+  const currentPlan = subscription?.plan || 'free'
   const {data: session} = authClient.useSession()
-  //console.log(session, status)
 
   const [isYearly, setIsYearly] = React.useState(false)
 
@@ -51,22 +50,24 @@ export default function PricingPlans({
       priceId: isYearly ? priceLifetime?.priceId : priceLifetime?.priceId,
     },
   }
-  const linkFree = session ? '/snippets' : '/login'
-  const linkPro = session ? `/checkout/${prices.pro?.priceId}` : '/login'
+  const linkFree = session ? '/dashboard' : '/login'
+  const linkPro = session
+    ? `/checkout/${prices.pro?.priceId}`
+    : `/checkout/${prices.pro?.priceId}?guest=true`
   const linkLifetime = session
     ? `/checkout/${prices.lifetime?.priceId}`
-    : '/login'
+    : `/checkout/${prices.lifetime?.priceId}?guest=true`
 
   // Fonction helper pour vérifier le plan actuel
-  const isCurrentPlan = (planType: 'FREE' | 'PRO' | 'LIFETIME') => {
+  const isCurrentPlan = (planType: 'free' | 'pro' | 'lifetime') => {
     switch (planType) {
-      case 'FREE': {
-        return currentPlan === 'CODEMAIL_FREE' && session
+      case 'free': {
+        return currentPlan === 'free' && session
       }
-      case 'PRO': {
-        return currentPlan === 'CODEMAIL_PRO'
+      case 'pro': {
+        return currentPlan === 'pro'
       }
-      case 'LIFETIME': {
+      case 'lifetime': {
         return currentPlan === 'lifetime'
       }
       default: {
@@ -120,7 +121,7 @@ export default function PricingPlans({
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
           {/* Free Plan */}
           <Card className="border-border bg-card text-foreground relative">
-            {isCurrentPlan('FREE') && (
+            {isCurrentPlan('free') && (
               <div className="absolute -top-4 right-0 left-0 flex justify-center">
                 <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-medium text-black">
                   Current Plan
@@ -162,7 +163,7 @@ export default function PricingPlans({
           {/* Pro Plan */}
           <Card className="bg-card text-foreground relative border-yellow-500">
             <div className="absolute -top-4 right-0 left-0 flex justify-center">
-              {isCurrentPlan('PRO') ? (
+              {isCurrentPlan('pro') ? (
                 <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-medium text-black">
                   Current Plan
                 </span>
@@ -218,7 +219,7 @@ export default function PricingPlans({
 
           {/* Lifetime Plan */}
           <Card className="border-border bg-card text-foreground relative">
-            {isCurrentPlan('LIFETIME') && (
+            {isCurrentPlan('lifetime') && (
               <div className="absolute -top-4 right-0 left-0 flex justify-center">
                 <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-medium text-black">
                   Current Plan
