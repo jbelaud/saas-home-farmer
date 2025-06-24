@@ -14,6 +14,7 @@ import {headers} from 'next/headers'
 import {NextResponse} from 'next/server'
 import Stripe from 'stripe'
 
+import {stripeClient} from '@/lib/stripe-utils'
 import {
   createSubscriptionFromStripeService,
   isPlanExistService,
@@ -68,10 +69,6 @@ stripe trigger customer.subscription.created \
   --add "payment_intent:metadata[interval]=year"
 */
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
-  apiVersion: '2025-05-28.basil',
-})
-
 // webhook secret
 const endpointSecret = process.env.STRIPE_APP_WEBHOOK_SECRET ?? ''
 
@@ -101,7 +98,7 @@ export async function POST(request: Request) {
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
+    event = stripeClient.webhooks.constructEvent(body, sig, endpointSecret)
   } catch (error) {
     console.error('Webhook signature verification failed:', error)
     return NextResponse.json(
@@ -270,12 +267,12 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
 
   try {
     // Récupérer les détails de l'abonnement
-    const subscription = await stripe.subscriptions.retrieve(
+    const subscription = await stripeClient.subscriptions.retrieve(
       session.subscription as string
     )
 
     // Récupérer le client pour avoir l'email
-    const customer = (await stripe.customers.retrieve(
+    const customer = (await stripeClient.customers.retrieve(
       subscription.customer as string
     )) as Stripe.Customer
 
@@ -324,7 +321,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
 // }
 
 async function handleSubscriptionChange(subscription: Stripe.Subscription) {
-  const customer = (await stripe.customers.retrieve(
+  const customer = (await stripeClient.customers.retrieve(
     subscription.customer as string
   )) as Stripe.Customer
   console.log('Processing subscription change:', {
@@ -365,7 +362,7 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
 async function handleSubscriptionCancellation(
   subscription: Stripe.Subscription
 ) {
-  const customer = (await stripe.customers.retrieve(
+  const customer = (await stripeClient.customers.retrieve(
     subscription.customer as string
   )) as Stripe.Customer
   console.log('Processing subscription cancellation:', {

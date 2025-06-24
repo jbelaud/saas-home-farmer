@@ -1,19 +1,8 @@
 'use server'
 
-import Stripe from 'stripe'
-
-import {getPlanByPriceId} from '@/lib/stripe-utils'
+import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
-
-const stripeSecretKey =
-  process.env.NODE_ENV === 'production'
-    ? process.env.STRIPE_SECRET_KEY
-    : process.env.STRIPE_SECRET_KEY
-
-const stripe = new Stripe(stripeSecretKey || '', {
-  apiVersion: '2025-05-28.basil',
-})
 
 export async function createCheckoutSession(priceId: string) {
   const user = await getAuthUser()
@@ -32,7 +21,7 @@ export async function createCheckoutSession(priceId: string) {
     let customerId = user.stripeCustomerId
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await stripeClient.customers.create({
         email: user.email,
         metadata: {
           userId: user.id,
@@ -43,10 +32,10 @@ export async function createCheckoutSession(priceId: string) {
     }
 
     // Récupérer le prix pour connaître le montant
-    const price = await stripe.prices.retrieve(priceId)
+    const price = await stripeClient.prices.retrieve(priceId)
 
     // Créer un Setup Intent pour configurer le mode de paiement
-    const setupIntent = await stripe.setupIntents.create({
+    const setupIntent = await stripeClient.setupIntents.create({
       customer: customerId,
       payment_method_types: ['card'],
       usage: 'off_session',
@@ -95,7 +84,7 @@ export async function confirmSubscription(setupIntentId: string) {
 
   try {
     // Récupérer le Setup Intent pour obtenir le payment method ET les métadonnées
-    const setupIntent = await stripe.setupIntents.retrieve(setupIntentId)
+    const setupIntent = await stripeClient.setupIntents.retrieve(setupIntentId)
     console.log('🔧 setupIntent', setupIntent)
 
     if (setupIntent.status !== 'succeeded') {
@@ -112,7 +101,7 @@ export async function confirmSubscription(setupIntentId: string) {
     const paymentMethodId = setupIntent.payment_method as string
 
     // Créer l'abonnement Stripe avec le payment method confirmé
-    const stripeSubscription = await stripe.subscriptions.create({
+    const stripeSubscription = await stripeClient.subscriptions.create({
       customer: customerId,
       items: [
         {

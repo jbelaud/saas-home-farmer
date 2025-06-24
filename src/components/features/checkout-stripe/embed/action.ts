@@ -1,15 +1,9 @@
 'use server'
 
 import {headers} from 'next/headers'
-import Stripe from 'stripe'
 
-import {env} from '@/env'
-import {getPlanByPriceId} from '@/lib/stripe-utils'
+import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
-
-const stripe = new Stripe(env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-05-28.basil',
-})
 
 export async function createEmbededCheckoutSession(priceId: string) {
   try {
@@ -33,7 +27,7 @@ export async function createEmbededCheckoutSession(priceId: string) {
     const customer = user.stripeCustomerId || undefined
 
     // Créer la session avec le customer existant
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripeClient.checkout.sessions.create({
       customer: customer || undefined, // Utilise le customer Better Auth existant
       customer_email: customer ? undefined : user.email, //Error: Error: You may only specify one of these parameters: customer, customer_email.
       line_items: [

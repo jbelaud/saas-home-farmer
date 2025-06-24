@@ -28,11 +28,7 @@ import {initializeRegisterUserDataService} from '@/services/facades/user-service
 import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
 import {APP_ISSUER} from '../constants'
-import {betterAuthPlans} from '../stripe-utils'
-
-const stripeClient = new Stripe(env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
-})
+import {betterAuthPlans, stripeClient} from '../stripe-utils'
 
 export const AuthAppConfig = {
   requireEmailVerification:

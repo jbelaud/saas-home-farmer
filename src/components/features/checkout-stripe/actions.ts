@@ -3,14 +3,8 @@
 import {headers} from 'next/headers'
 import Stripe from 'stripe'
 
-const stripeSecretKey =
-  process.env.NODE_ENV === 'production'
-    ? process.env.STRIPE_SECRET_KEY
-    : process.env.STRIPE_SECRET_KEY
+import {stripeClient} from '@/lib/stripe-utils'
 
-const stripe = new Stripe(stripeSecretKey || '', {
-  apiVersion: '2025-05-28.basil',
-})
 // Numéro : 4242 4242 4242 4242
 // Date d'expiration : N'importe quelle date future
 // CVC : N'importe quels 3 chiffres
@@ -46,7 +40,7 @@ export async function getSubscriptionRecapInfo(
 ) {
   try {
     // Récupérer les détails du prix
-    const price = await stripe.prices.retrieve(priceId, {
+    const price = await stripeClient.prices.retrieve(priceId, {
       expand: ['product'], // Inclure les détails du produit associé
     })
 
@@ -62,7 +56,7 @@ export async function getSubscriptionRecapInfo(
     // Si un code promo est fourni, récupérer et appliquer la réduction
     if (couponCode) {
       try {
-        const coupon = await stripe.coupons.retrieve(couponCode)
+        const coupon = await stripeClient.coupons.retrieve(couponCode)
 
         if (coupon.valid) {
           if (coupon.amount_off) {
@@ -116,10 +110,10 @@ export async function createCheckoutSession(priceId: string) {
     const origin = headersList.get('origin') || ''
 
     // Récupérer le prix pour obtenir le montant
-    const price = await stripe.prices.retrieve(priceId)
+    const price = await stripeClient.prices.retrieve(priceId)
 
     // Créer un PaymentIntent
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntent = await stripeClient.paymentIntents.create({
       amount: price.unit_amount || 0,
       currency: price.currency,
       automatic_payment_methods: {
@@ -127,7 +121,7 @@ export async function createCheckoutSession(priceId: string) {
       },
     })
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripeClient.checkout.sessions.create({
       line_items: [
         {
           price: priceId,
@@ -161,13 +155,13 @@ export async function createStripePrice(
 ) {
   try {
     // Créer d'abord un produit
-    const product = await stripe.products.create({
+    const product = await stripeClient.products.create({
       name: 'CodeMail Pro Bundle',
       description: 'Lifetime Access to CodeMail Pro Bundle',
     })
 
     // Créer ensuite un prix pour ce produit
-    const price = await stripe.prices.create({
+    const price = await stripeClient.prices.create({
       unit_amount: amount * 100, // Convertit le montant en centimes (ex: 197€ -> 19700)
       currency,
       product: product.id,
@@ -190,7 +184,7 @@ export async function createStripePrice(
 // Fonction utilitaire pour récupérer un price
 export async function getStripePrice(priceId: string) {
   try {
-    const price = await stripe.prices.retrieve(priceId)
+    const price = await stripeClient.prices.retrieve(priceId)
     return {
       success: true,
       price,

@@ -1,4 +1,5 @@
 import {StripePlan} from '@better-auth/stripe'
+import Stripe from 'stripe'
 
 import {env} from '@/env'
 import {
@@ -12,6 +13,10 @@ type Plan = {
   planName: string
   isYearly: boolean
 }
+
+const stripeClient = new Stripe(env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-05-28.basil',
+})
 
 /**
  * Les plans Stripe sont définie ici pour Better auth et le reste de l'app
