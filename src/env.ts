@@ -38,9 +38,7 @@ export const env = createEnv({
 
     // Stripe (serveur)
     STRIPE_SECRET_KEY: z.string().min(1),
-    STRIPE_PRICE_ID_PRO_MONTHLY: z.string().min(1),
-    STRIPE_PRICE_ID_PRO_YEARLY: z.string().min(1),
-    STRIPE_PRICE_ID_LIFETIME: z.string().min(1),
+
     STRIPE_APP_WEBHOOK_SECRET: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
 
@@ -93,6 +91,9 @@ export const env = createEnv({
 
     // API URL (optionnel)
     NEXT_PUBLIC_API_URL: z.string().url().optional(),
+    NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY: z.string().min(1),
+    NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY: z.string().min(1),
+    NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME: z.string().min(1),
   },
 
   /*
@@ -116,9 +117,12 @@ export const env = createEnv({
     ALLOWED_MIME_TYPES: process.env.ALLOWED_MIME_TYPES,
     STORAGE_TYPE: process.env.STORAGE_TYPE,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-    STRIPE_PRICE_ID_PRO_MONTHLY: process.env.STRIPE_PRICE_ID_PRO_MONTHLY,
-    STRIPE_PRICE_ID_PRO_YEARLY: process.env.STRIPE_PRICE_ID_PRO_YEARLY,
-    STRIPE_PRICE_ID_LIFETIME: process.env.STRIPE_PRICE_ID_LIFETIME,
+    NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY:
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY,
+    NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY:
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY,
+    NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME:
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME,
     STRIPE_APP_WEBHOOK_SECRET: process.env.STRIPE_APP_WEBHOOK_SECRET,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,

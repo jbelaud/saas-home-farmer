@@ -32,11 +32,16 @@ export type PriceRecap = {
   currency: string
   interval?: string
   intervalCount?: number
+  seats: number
+  unitPrice: number
+  unitOriginalPrice: number
+  unitDiscount: number
 }
 
 export async function getSubscriptionRecapInfo(
   priceId: string,
-  couponCode?: string
+  couponCode?: string,
+  seats: number = 1
 ) {
   try {
     // Récupérer les détails du prix
@@ -47,12 +52,13 @@ export async function getSubscriptionRecapInfo(
     // Extraire le produit depuis le prix
     const product = price.product as Stripe.Product
 
-    // Calculer le montant initial
+    // Calculer le montant initial par siège
     const unitAmount = price.unit_amount || 0
-    const originalPrice = unitAmount / 100 // Convertir les centimes en euros
-    let finalPrice = originalPrice
-    let discount = 0
+    const unitOriginalPrice = unitAmount / 100 // Convertir les centimes en euros
+    const unitFinalPrice = unitOriginalPrice
+    let unitDiscount = 0
     let warning
+
     // Si un code promo est fourni, récupérer et appliquer la réduction
     if (couponCode) {
       try {
@@ -60,13 +66,11 @@ export async function getSubscriptionRecapInfo(
 
         if (coupon.valid) {
           if (coupon.amount_off) {
-            // Réduction fixe en centimes
-            discount = coupon.amount_off / 100
-            finalPrice = originalPrice - discount
+            // Réduction fixe en centimes par siège
+            unitDiscount = coupon.amount_off / 100
           } else if (coupon.percent_off) {
-            // Réduction en pourcentage
-            discount = (originalPrice * coupon.percent_off) / 100
-            finalPrice = originalPrice - discount
+            // Réduction en pourcentage par siège
+            unitDiscount = (unitOriginalPrice * coupon.percent_off) / 100
           }
         }
       } catch (couponError) {
@@ -75,6 +79,11 @@ export async function getSubscriptionRecapInfo(
         warning = 'Invalid coupon code'
       }
     }
+
+    // Calculer les prix totaux avec le nombre de sièges
+    const originalPrice = unitOriginalPrice * seats
+    const discount = unitDiscount * seats
+    const finalPrice = (unitFinalPrice - unitDiscount) * seats
 
     // Construire l'objet de récapitulatif
 
@@ -93,15 +102,16 @@ export async function getSubscriptionRecapInfo(
         currency: price.currency,
         interval: price.recurring?.interval,
         intervalCount: price.recurring?.interval_count,
+        seats,
+        unitPrice: unitFinalPrice - unitDiscount,
+        unitOriginalPrice,
+        unitDiscount,
       } as PriceRecap,
       warning,
     }
   } catch (error) {
-    console.error('Error getting subscription recap:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    }
+    console.error('Error getting stripe subscription recap:', error)
+    throw error
   }
 }
 export async function createCheckoutSession(priceId: string) {

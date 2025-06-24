@@ -24,8 +24,8 @@ export const stripeClient = new Stripe(env.STRIPE_SECRET_KEY!, {
 export const betterAuthPlans: StripePlan[] = [
   {
     name: PlanConst.PRO, // the name of the plan, it'll be automatically lower cased when stored in the database
-    priceId: env.STRIPE_PRICE_ID_PRO_MONTHLY, // the price ID from stripe
-    annualDiscountPriceId: env.STRIPE_PRICE_ID_PRO_YEARLY, // (optional) the price ID for annual billing with a discount
+    priceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY, // the price ID from stripe
+    annualDiscountPriceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY, // (optional) the price ID for annual billing with a discount
     limits: {
       projects: 1,
       storage: 10,
@@ -33,7 +33,7 @@ export const betterAuthPlans: StripePlan[] = [
   },
   {
     name: PlanConst.LIFETIME,
-    priceId: env.STRIPE_PRICE_ID_LIFETIME,
+    priceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME,
     limits: {
       projects: 20,
       storage: 50,

@@ -17,7 +17,7 @@ export default async function CheckoutPage({
   priceId: string
   couponId: string
 }) {
-  const recapInfo = await getSubscriptionRecapInfo(priceId, couponId)
+  const recapInfo = await getSubscriptionRecapInfo(priceId, couponId, 1)
 
   return (
     <div className="bg-background min-h-screen p-4">
