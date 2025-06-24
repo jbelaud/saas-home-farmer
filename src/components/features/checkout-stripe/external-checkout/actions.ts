@@ -36,6 +36,8 @@ export async function createCheckoutSession(
       customerId = customer.id
     }
 
+    const isReccuring = plan.isReccuring
+
     // Créer la session checkout avec le customer
     const session = await stripeClient.checkout.sessions.create({
       customer: customerId, // ✅ Customer spécifié
@@ -45,7 +47,7 @@ export async function createCheckoutSession(
           quantity: seats,
         },
       ],
-      mode: 'subscription', // Mode subscription pour les abonnements
+      mode: isReccuring ? 'subscription' : 'payment', // Mode subscription pour les abonnements
       success_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
       metadata: {

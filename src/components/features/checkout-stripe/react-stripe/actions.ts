@@ -1,5 +1,7 @@
 'use server'
 
+import Stripe from 'stripe'
+
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
@@ -46,7 +48,9 @@ export async function createCheckoutSession(
       customer: customerId,
       payment_method_types: ['card'],
       usage: 'off_session',
+
       metadata: {
+        isReccuring: plan.isReccuring ? 'true' : 'false',
         seats,
         email: user.email,
         plan: plan.planCode,
@@ -101,6 +105,9 @@ export async function confirmSubscription(setupIntentId: string) {
     const metadata = setupIntent.metadata
     console.log('🔧 setupIntent.metadata', metadata)
     const seats = metadata?.seats ? parseInt(metadata.seats) : 1
+    const isReccuring = metadata?.isReccuring
+      ? metadata.isReccuring === 'true'
+      : false
 
     if (setupIntent.status !== 'succeeded') {
       throw new Error('Setup Intent non confirmé')
@@ -115,24 +122,26 @@ export async function confirmSubscription(setupIntentId: string) {
     const customerId = setupIntent.customer as string
     const paymentMethodId = setupIntent.payment_method as string
 
-    // Créer l'abonnement Stripe avec le payment method confirmé
-    const stripeSubscription = await stripeClient.subscriptions.create({
-      customer: customerId,
-      items: [
-        {
-          price: priceId,
-          quantity: seats,
+    let stripeSubscription: Stripe.Subscription | null = null
+    if (isReccuring) {
+      // Créer l'abonnement Stripe avec le payment method confirmé
+      stripeSubscription = await stripeClient.subscriptions.create({
+        customer: customerId,
+        items: [
+          {
+            price: priceId,
+            quantity: seats,
+          },
+        ],
+        default_payment_method: paymentMethodId,
+        metadata: {
+          email: user.email,
+          userId: user.id,
+          source: 'react_stripe_elements',
+          managed_by: 'better_auth',
         },
-      ],
-      default_payment_method: paymentMethodId,
-      metadata: {
-        email: user.email,
-        userId: user.id,
-        source: 'react_stripe_elements',
-        managed_by: 'better_auth',
-      },
-    })
-
+      })
+    }
     // Récupérer les informations du plan depuis le priceId
     const plan = getPlanByPriceId(priceId)
     if (!plan) {
@@ -144,15 +153,15 @@ export async function confirmSubscription(setupIntentId: string) {
       user.email,
       plan.planCode,
       plan.isYearly,
-      stripeSubscription.id,
+      stripeSubscription?.id ?? '',
       customerId,
       seats
     )
 
     return {
       success: true,
-      subscriptionId: stripeSubscription.id,
-      status: stripeSubscription.status,
+      subscriptionId: stripeSubscription?.id ?? '',
+      status: stripeSubscription?.status ?? '',
     }
   } catch (error) {
     console.error('Stripe subscription error:', error)

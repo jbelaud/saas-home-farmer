@@ -12,6 +12,7 @@ type Plan = {
   planCode: SubscriptionPlan
   planName: string
   isYearly: boolean
+  isReccuring: boolean
 }
 
 export const stripeClient = new Stripe(env.STRIPE_SECRET_KEY!, {
@@ -50,6 +51,7 @@ export const planProMontly: Plan = {
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
   planName: 'Pro',
   isYearly: false,
+  isReccuring: true,
 }
 
 export const planProYearly: Plan = {
@@ -57,6 +59,7 @@ export const planProYearly: Plan = {
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
   planName: 'Pro Yearly',
   isYearly: true,
+  isReccuring: true,
 }
 
 export const planLifetime: Plan = {
@@ -64,6 +67,7 @@ export const planLifetime: Plan = {
   planCode: betterAuthPlans[1].name as SubscriptionPlan,
   planName: 'Lifetime',
   isYearly: false,
+  isReccuring: false,
 }
 
 export const plans = [planProMontly, planProYearly, planLifetime]

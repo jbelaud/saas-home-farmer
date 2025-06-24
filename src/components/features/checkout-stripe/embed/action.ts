@@ -23,6 +23,8 @@ export async function createEmbededCheckoutSession(
       throw new Error('Plan not found')
     }
 
+    const isReccuring = plan.isReccuring
+
     const headersList = await headers()
     const origin = headersList.get('origin') || ''
 
@@ -39,10 +41,11 @@ export async function createEmbededCheckoutSession(
           quantity: seats,
         },
       ],
-      mode: 'subscription', // Mode subscription pour les abonnements
+      mode: isReccuring ? 'subscription' : 'payment', // Mode subscription pour les abonnements
       return_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
       //cancel_url: `${origin}/pricing`,
       metadata: {
+        isReccuring: isReccuring ? 'true' : 'false',
         seats,
         email: user.email,
         plan: plan.planCode,

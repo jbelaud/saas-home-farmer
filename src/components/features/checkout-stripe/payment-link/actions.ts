@@ -13,6 +13,7 @@ export async function createPaymentLink(priceId: string, seats: number = 1) {
   if (!plan) {
     throw new Error('Plan not found')
   }
+  const isReccuring = plan.isReccuring
   //const customer = user.stripeCustomerId || undefined
   const headersList = await headers()
   const origin = headersList.get('origin') || ''
@@ -32,6 +33,8 @@ export async function createPaymentLink(priceId: string, seats: number = 1) {
         },
       },
       metadata: {
+        priceId,
+        isReccuring: isReccuring ? 'true' : 'false',
         seats,
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',

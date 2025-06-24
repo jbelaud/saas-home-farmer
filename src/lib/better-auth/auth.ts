@@ -268,9 +268,12 @@ async function onStripeEvent(event: Stripe.Event) {
         // Récupérer les infos nécessaires
         const customerEmail =
           metadata.customerEmail ?? session.customer_details?.email
-        const stripeCustomerId = session.customer as string
+        const stripeCustomerId = session.customer ?? undefined
         const plan = metadata.plan as SubscriptionPlan
+        const isReccuring = metadata.isReccuring === 'true'
         const isYearly = metadata.interval === 'year'
+        const priceId = metadata.priceId as string
+        const payment_intent = session.payment_intent as string
 
         console.log('🔧 session', session)
         console.log('🔧 customerEmail', customerEmail)
@@ -294,7 +297,7 @@ async function onStripeEvent(event: Stripe.Event) {
                 plan,
                 isYearly,
                 session.subscription as string,
-                stripeCustomerId,
+                stripeCustomerId as string,
                 seats
               )
               console.log(
@@ -319,6 +322,16 @@ async function onStripeEvent(event: Stripe.Event) {
 
           console.log('🔧 session', session)
           console.log('🔧 customerEmail', email)
+          let customerId = stripeCustomerId
+          if (!stripeCustomerId) {
+            const customer = await stripeClient.customers.create({
+              email: email,
+              metadata: {
+                managed_by: 'webhook_guest_checkout',
+              },
+            })
+            customerId = customer.id
+          }
           const user = await getUserByEmailDao(email ?? '')
           if (user) {
             console.log('🔧 user found')
@@ -327,13 +340,54 @@ async function onStripeEvent(event: Stripe.Event) {
               //await updateStripeCustomerIdService(user.id, stripeCustomerId)
             }
           } else {
-            await createUserFromStripeService({
+            const newUser = await createUserFromStripeService({
               email,
-              stripeCustomerId,
+              stripeCustomerId: customerId as string,
               name: name ?? email?.split('@')[0] ?? '',
             })
-            console.log('🔧 user not found')
+            console.log('🔧 newUser', newUser)
           }
+          if (isReccuring) {
+            const paymentIntents =
+              await stripeClient.paymentIntents.retrieve(payment_intent)
+            const paymentMethodId = paymentIntents.payment_method as string
+            let stripeSubscription: Stripe.Subscription | null = null
+            if (isReccuring) {
+              // Créer l'abonnement Stripe avec le payment method confirmé
+              stripeSubscription = await stripeClient.subscriptions.create({
+                customer: stripeCustomerId as string,
+                items: [
+                  {
+                    price: priceId,
+                    quantity: seats,
+                  },
+                ],
+                default_payment_method: paymentMethodId,
+                metadata: {
+                  // email: user.email,
+                  // userId: user.id,
+                  source: 'webhook_checkout',
+                  managed_by: 'better_auth',
+                },
+              })
+            }
+            await createSubscriptionFromStripeService(
+              email,
+              plan,
+              isYearly,
+              stripeSubscription?.id as string,
+              customerId as string
+            )
+          } else {
+            await createSubscriptionFromStripeService(
+              email,
+              plan,
+              isYearly,
+              session.subscription as string,
+              customerId as string
+            )
+          }
+          //TODO gerer les soucruption (checkIsReccurung )
         } else {
           console.log('📋 Checkout Better Auth natif - traité automatiquement')
         }

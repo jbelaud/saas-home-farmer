@@ -8,12 +8,12 @@ import CheckoutButtonReactStripe from './react-stripe/checkout-button-react-stri
 import SubscriptionRecap from './subscription-recap'
 
 // pour les payment avec user
-const enableEmbededForm = true
+const enableEmbededForm = false
 const enableExternalForm = false
 const enableCheckoutButtonReactStripe = false
 
 // pour les payment sans user
-const enablePaymentLink = false
+const enablePaymentLink = true
 
 export default async function CheckoutPage({
   priceId,
