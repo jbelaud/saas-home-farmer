@@ -5,7 +5,7 @@ import {toast} from 'sonner'
 
 import {Button} from '@/components/ui/button'
 
-import {createPaymentLink} from './actions'
+import {createCheckoutSession} from './actions'
 
 type CheckoutButtonProps = {
   priceId: string
@@ -13,7 +13,7 @@ type CheckoutButtonProps = {
   seats: number
 }
 
-export default function CheckoutButtonLink({
+export default function CheckoutButtonExternal({
   priceId,
   variant = 'default',
   seats = 1,
@@ -24,13 +24,13 @@ export default function CheckoutButtonLink({
     setIsLoading(true)
 
     try {
-      const result = await createPaymentLink(priceId, seats)
+      const result = await createCheckoutSession(priceId, seats)
 
       if (!result.success) {
         throw new Error(result.error)
       }
 
-      window.location.href = result.url ?? '' // Redirect to the payment link
+      window.location.href = result.url ?? '' // Redirect to the checkout session
     } catch (error) {
       console.error('Error:', error)
       toast.error('Error', {
@@ -49,7 +49,7 @@ export default function CheckoutButtonLink({
       variant={variant}
       className="w-full rounded-lg bg-yellow-400 px-4 py-2.5 font-medium text-black transition-colors hover:bg-yellow-500 disabled:opacity-50"
     >
-      {isLoading ? 'Processing...' : 'Payment Link'}
+      {isLoading ? 'Processing...' : 'Checkout Session'}
     </Button>
   )
 }
