@@ -25,7 +25,10 @@ import {
 } from '@/services/facades/email-service-facade'
 import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
-import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
+import {
+  PlanConst,
+  SubscriptionPlan,
+} from '@/services/types/domain/subscription-types'
 
 import {APP_ISSUER} from '../constants'
 import {betterAuthPlans, stripeClient} from '../stripe-utils'
@@ -258,6 +261,8 @@ async function onStripeEvent(event: Stripe.Event) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const metadata = session.metadata || {}
+        const lineItems = session.line_items as Stripe.ApiList<Stripe.LineItem>
+        const seats = lineItems.data[0]?.quantity || 1
 
         console.log('Checkout session metadata:', metadata)
 
@@ -290,7 +295,8 @@ async function onStripeEvent(event: Stripe.Event) {
                 plan,
                 isYearly,
                 session.subscription as string,
-                stripeCustomerId
+                stripeCustomerId,
+                seats
               )
               console.log(
                 '✅ Custom subscription créée avec succès:',
@@ -318,6 +324,7 @@ async function onStripeEvent(event: Stripe.Event) {
         break
 
       case 'payment_intent.succeeded': {
+        //1 pour les paiements unique seulement // PlanConst.LIFETIME
         console.log('✅ Payment succeeded:', event.data.object.id)
         console.log('metadata:', event.data.object.metadata)
         console.log('customer:', event.data.object.customer)
@@ -326,15 +333,17 @@ async function onStripeEvent(event: Stripe.Event) {
         // Vérifier si c'est un checkout custom
         if (
           metadata.source === 'custom_checkout' &&
-          metadata.managed_by === 'better_auth'
+          metadata.managed_by === 'better_auth' &&
+          metadata.plan === PlanConst.LIFETIME
         ) {
           console.log('🔧 Traitement checkout custom via Better Auth')
 
           // Récupérer les infos nécessaires
-          const customer = paiement.customer
+          const customer = paiement.customer as string
           const customerEmail = paiement.metadata?.email
           const plan = metadata.plan as SubscriptionPlan
           const isYearly = metadata.interval === 'year'
+          const seats = metadata.seats ? parseInt(metadata.seats) : 1
 
           console.log('🔧 paiement', paiement)
           console.log('🔧 customer', customer)
@@ -350,7 +359,9 @@ async function onStripeEvent(event: Stripe.Event) {
                 customerEmail,
                 plan,
                 isYearly,
-                ''
+                'lifetime',
+                customer,
+                seats
               )
               console.log(
                 '✅ Custom subscription créée avec succès:',

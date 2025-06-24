@@ -33,6 +33,7 @@ export async function createPaymentLink(priceId: string, seats: number = 1) {
         },
       },
       metadata: {
+        seats,
         customer_id: user.stripeCustomerId,
         userId: user.id,
         customerEmail: user.email,

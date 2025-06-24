@@ -94,7 +94,8 @@ export const createSubscriptionFromStripeService = async (
   plan: SubscriptionPlan,
   yearly: boolean = false,
   stripeSubscriptionId?: string,
-  stripeCustomerId?: string
+  stripeCustomerId?: string,
+  seats: number = 1
 ) => {
   const user = await getUserByEmailDao(email)
   if (!user) {
@@ -144,7 +145,7 @@ export const createSubscriptionFromStripeService = async (
     periodEnd: endDate,
     stripeCustomerId: stripeCustomerId || user.stripeCustomerId,
     stripeSubscriptionId: stripeSubscriptionId || '',
-    seats: 1,
+    seats,
   })
 
   return subscription

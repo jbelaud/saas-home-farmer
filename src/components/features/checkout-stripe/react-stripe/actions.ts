@@ -47,6 +47,7 @@ export async function createCheckoutSession(
       payment_method_types: ['card'],
       usage: 'off_session',
       metadata: {
+        seats,
         email: user.email,
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
@@ -97,6 +98,9 @@ export async function confirmSubscription(setupIntentId: string) {
     // Récupérer le Setup Intent pour obtenir le payment method ET les métadonnées
     const setupIntent = await stripeClient.setupIntents.retrieve(setupIntentId)
     console.log('🔧 setupIntent', setupIntent)
+    const metadata = setupIntent.metadata
+    console.log('🔧 setupIntent.metadata', metadata)
+    const seats = metadata?.seats ? parseInt(metadata.seats) : 1
 
     if (setupIntent.status !== 'succeeded') {
       throw new Error('Setup Intent non confirmé')
@@ -117,6 +121,7 @@ export async function confirmSubscription(setupIntentId: string) {
       items: [
         {
           price: priceId,
+          quantity: seats,
         },
       ],
       default_payment_method: paymentMethodId,
@@ -140,7 +145,8 @@ export async function confirmSubscription(setupIntentId: string) {
       plan.planCode,
       plan.isYearly,
       stripeSubscription.id,
-      customerId
+      customerId,
+      seats
     )
 
     return {

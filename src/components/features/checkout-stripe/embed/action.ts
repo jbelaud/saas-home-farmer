@@ -43,6 +43,7 @@ export async function createEmbededCheckoutSession(
       return_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
       //cancel_url: `${origin}/pricing`,
       metadata: {
+        seats,
         email: user.email,
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
