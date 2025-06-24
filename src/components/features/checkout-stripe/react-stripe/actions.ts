@@ -2,7 +2,7 @@
 
 import Stripe from 'stripe'
 
-import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
+import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
 

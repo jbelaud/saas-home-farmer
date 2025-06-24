@@ -2,7 +2,7 @@
 
 import {headers} from 'next/headers'
 
-import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
+import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
 export async function createCheckoutSession(

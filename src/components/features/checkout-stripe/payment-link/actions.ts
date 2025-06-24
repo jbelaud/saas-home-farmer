@@ -2,7 +2,7 @@
 
 import {headers} from 'next/headers'
 
-import {getPlanByPriceId, stripeClient} from '@/lib/stripe-utils'
+import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 
 export async function createPaymentLink(priceId: string, seats: number = 1) {
   // const user = await getAuthUser()

@@ -105,8 +105,7 @@ export const createSubscriptionFromStripeService = async (
   // Vérifier si l'abonnement existe déjà
   const planExists = await isPlanExistService(email, plan, true)
   if (planExists) {
-    console.warn('User already has an active subscription')
-    return
+    console.warn('⚠️ User already has an active subscription')
     //throw new Error(`User already has an active ${plan} subscription`)
   }
 

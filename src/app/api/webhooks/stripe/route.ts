@@ -14,7 +14,7 @@ import {headers} from 'next/headers'
 import {NextResponse} from 'next/server'
 import Stripe from 'stripe'
 
-import {stripeClient} from '@/lib/stripe-utils'
+import {stripeClient} from '@/lib/stripe/stripe-utils'
 import {
   createSubscriptionFromStripeService,
   isPlanExistService,

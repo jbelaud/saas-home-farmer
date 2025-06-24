@@ -2,7 +2,7 @@
 
 import Stripe from 'stripe'
 
-import {stripeClient} from '@/lib/stripe-utils'
+import {stripeClient} from '@/lib/stripe/stripe-utils'
 
 // Numéro : 4242 4242 4242 4242
 // Date d'expiration : N'importe quelle date future
