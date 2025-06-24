@@ -6,9 +6,9 @@ import CheckoutButtonLink from './payment-link/checkout-button-link'
 import CheckoutButtonReactStripe from './react-stripe/checkout-button-react-stripe'
 import SubscriptionRecap from './subscription-recap'
 
-const enableEmbededForm = true
+const enableEmbededForm = false
 const enableCheckoutButtonExternalLink = false
-const enableCheckoutButtonReactStripe = false
+const enableCheckoutButtonReactStripe = true
 
 export default async function CheckoutPage({
   priceId,
@@ -84,7 +84,7 @@ export default async function CheckoutPage({
                   Please click the button below to complete your purchase
                 </p>
                 <div className="mt-4">
-                  <CheckoutButtonReactStripe priceId={priceId} />
+                  <CheckoutButtonReactStripe priceId={priceId} seats={seats} />
                 </div>
               </>
             )}

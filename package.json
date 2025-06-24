@@ -25,8 +25,7 @@
     "db:reset-seed": "pnpm db:clear && pnpm db:push && pnpm db:seed",
     "prepare": "husky",
     "lint-staged": "lint-staged",
-    "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe",
-    "stripe:listen-better-auth": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
     "stripe:logs": "stripe logs tail"
   },
   "dependencies": {

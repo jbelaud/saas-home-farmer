@@ -17,6 +17,7 @@ import {createCheckoutSession} from './actions'
 type CheckoutButtonProps = {
   priceId: string
   variant?: 'default' | 'secondary' | 'outline'
+  seats: number
 }
 //Numéro : 4242 4242 4242 4242
 // Composant pour le formulaire de configuration du mode de paiement
@@ -70,6 +71,7 @@ function CheckoutForm() {
 export default function CheckoutButtonReactStripe({
   priceId,
   variant = 'default',
+  seats = 1,
 }: CheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -86,7 +88,7 @@ export default function CheckoutButtonReactStripe({
   const handleCheckout = async () => {
     setIsLoading(true)
     try {
-      const result = await createCheckoutSession(priceId)
+      const result = await createCheckoutSession(priceId, seats)
       if (!result.success) throw new Error(result.error)
       setClientSecret(result.clientSecret || '')
     } catch (error) {

@@ -261,8 +261,7 @@ async function onStripeEvent(event: Stripe.Event) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const metadata = session.metadata || {}
-        const lineItems = session.line_items as Stripe.ApiList<Stripe.LineItem>
-        const seats = lineItems.data[0]?.quantity || 1
+        const seats = metadata.seats ? parseInt(metadata.seats) : 1
 
         console.log('Checkout session metadata:', metadata)
 
