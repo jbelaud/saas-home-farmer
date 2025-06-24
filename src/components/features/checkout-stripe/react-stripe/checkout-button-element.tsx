@@ -8,8 +8,8 @@ import {
 } from '@stripe/react-stripe-js'
 import {loadStripe, Stripe} from '@stripe/stripe-js'
 import React, {useEffect, useState} from 'react'
+import {toast} from 'sonner'
 
-import {toast} from '@/components/hooks/use-toast'
 import {Button} from '@/components/ui/button'
 
 import {createCheckoutSession} from './actions'
@@ -42,10 +42,11 @@ function CheckoutForm() {
     })
 
     if (error) {
-      toast({
-        title: 'Échec de la configuration',
-        description: error.message,
-        variant: 'destructive',
+      toast.error('Échec de la configuration', {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Une erreur est survenue lors de la configuration de l'abonnement",
       })
     }
 
@@ -90,12 +91,15 @@ export default function CheckoutButtonReactStripe({
       setClientSecret(result.clientSecret || '')
     } catch (error) {
       console.error("Erreur lors de la création de l'abonnement:", error)
-      toast({
-        title: 'Erreur',
-        description:
-          error instanceof Error ? error.message : 'Une erreur est survenue',
-        variant: 'destructive',
-      })
+      toast.error(
+        "Une erreur est survenue lors de la création de l'abonnement",
+        {
+          description:
+            error instanceof Error
+              ? error.message
+              : "Une erreur est survenue lors de la création de l'abonnement",
+        }
+      )
     } finally {
       setIsLoading(false)
     }

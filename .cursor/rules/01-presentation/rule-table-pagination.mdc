@@ -168,7 +168,7 @@ import {
 import {EditItemDialog} from './edit-item-dialog'
 import {DeleteItemDialog} from './delete-item-dialog'
 import {updateItem, deleteItem} from '@/app/admin/my-feature/actions'
-import {useToast} from '@mikecodeur/ui/hooks/use-toast'
+import {toast} from 'sonner'
 
 interface Props {
   initialItems: Item[]
@@ -192,7 +192,7 @@ export function MyFeatureManagement({
   const router = useRouter()
   const searchParams = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('search') || '')
-  const {toast} = useToast()
+ 
 
   const handleSearch = (value: string) => {
     setSearch(value)

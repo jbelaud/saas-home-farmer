@@ -17,7 +17,16 @@ export default async function CheckoutPage({
   priceId: string
   couponId: string
 }) {
-  const recapInfo = await getSubscriptionRecapInfo(priceId, couponId, 1)
+  let recapInfo
+  try {
+    recapInfo = await getSubscriptionRecapInfo(priceId, couponId, 1)
+  } catch (error) {
+    console.error('Error getting stripe subscription recap:', error)
+    recapInfo = {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
 
   return (
     <div className="bg-background min-h-screen p-4">
@@ -35,7 +44,7 @@ export default async function CheckoutPage({
             />
           ) : (
             <div className="text-red-500">
-              Error loading subscription details: {recapInfo.error}
+              Error loading subscription details:
             </div>
           )}
           {recapInfo.warning && (
