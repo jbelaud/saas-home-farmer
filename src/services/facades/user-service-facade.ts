@@ -6,6 +6,8 @@ export const getUserByIdService = userServiceInterceptor.getUserByIdService
 export const getUserByEmailService =
   userServiceInterceptor.getUserByEmailService
 export const createUserService = userServiceInterceptor.createUserService
+export const createUserFromStripeService =
+  userServiceInterceptor.createUserFromStripeService
 export const createUserOrganizationService =
   userServiceInterceptor.createUserOrganizationService
 export const getAllUsersWithPaginationService =

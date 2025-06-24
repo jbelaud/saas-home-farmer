@@ -60,7 +60,8 @@ export default function CheckoutBetterAuth({
 
       console.log(error)
       if (error) {
-        toast.error(error.message)
+        console.log('🔧 error', error)
+        toast.error('Error', {description: error.message || error.statusText})
         return
       }
 
@@ -88,7 +89,7 @@ export default function CheckoutBetterAuth({
 
       console.log(error)
       if (error) {
-        toast.error(error.message)
+        toast.error('Error', {description: error.message || error.statusText})
         return
       }
 

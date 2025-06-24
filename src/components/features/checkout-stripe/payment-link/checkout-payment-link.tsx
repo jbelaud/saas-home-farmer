@@ -13,7 +13,7 @@ type CheckoutButtonProps = {
   seats: number
 }
 
-export default function CheckoutButtonLink({
+export default function CheckoutPaymentLink({
   priceId,
   variant = 'default',
   seats = 1,

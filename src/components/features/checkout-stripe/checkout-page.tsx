@@ -3,12 +3,13 @@ import CheckoutFormEmbedded from '@/components/features/checkout-stripe/embed/ch
 import {Card} from '@/components/ui/card'
 
 import CheckoutButtonExternal from './external-checkout/checkout-button-external'
-import CheckoutButtonLink from './payment-link/checkout-button-link'
+import CheckoutPaymentLink from './payment-link/checkout-payment-link'
 import CheckoutButtonReactStripe from './react-stripe/checkout-button-react-stripe'
 import SubscriptionRecap from './subscription-recap'
 
-const enableEmbededForm = false
-const enableExternalForm = true
+// pour les payment avec user
+const enableEmbededForm = true
+const enableExternalForm = false
 const enableCheckoutButtonReactStripe = false
 
 // pour les payment sans user
@@ -78,7 +79,7 @@ export default async function CheckoutPage({
                   Please click the button below to complete your purchase
                 </p>
                 <div className="mt-4">
-                  <CheckoutButtonLink priceId={priceId} seats={seats} />
+                  <CheckoutPaymentLink priceId={priceId} seats={seats} />
                 </div>
               </>
             )}
