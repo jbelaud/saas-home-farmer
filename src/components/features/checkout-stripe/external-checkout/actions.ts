@@ -2,6 +2,7 @@
 
 import {headers} from 'next/headers'
 
+import {logger} from '@/lib/logger'
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
@@ -10,11 +11,22 @@ export async function createCheckoutSession(
   seats: number = 1,
   guest: boolean = false
 ) {
+  logger.info('[EXTERNAL-CHECKOUT] Création session checkout externe démarrée')
+  logger.debug('[EXTERNAL-CHECKOUT] Paramètres reçus:', {priceId, seats, guest})
+
   // Récupérer l'utilisateur connecté (optionnel si guest)
   const user = await getAuthUser()
+  logger.debug('[EXTERNAL-CHECKOUT] Utilisateur récupéré:', {
+    hasUser: !!user,
+    userId: user?.id,
+    userEmail: user?.email,
+  })
 
   // Vérifier si le checkout est possible selon le contexte
   if (!guest && !user) {
+    logger.error(
+      '[EXTERNAL-CHECKOUT] ❌ Échec: utilisateur non connecté en mode non-guest'
+    )
     throw new Error(
       'Utilisateur non connecté - utilisez le mode guest ou connectez-vous'
     )
@@ -22,8 +34,16 @@ export async function createCheckoutSession(
 
   const plan = getPlanByPriceId(priceId)
   if (!plan) {
+    logger.error(
+      '[EXTERNAL-CHECKOUT] ❌ Plan non trouvé pour priceId:',
+      priceId
+    )
     throw new Error('Plan not found')
   }
+  logger.debug('[EXTERNAL-CHECKOUT] Plan récupéré:', {
+    planCode: plan.planCode,
+    isReccuring: plan.isReccuring,
+  })
 
   const headersList = await headers()
   const origin = headersList.get('origin') || ''
@@ -35,6 +55,7 @@ export async function createCheckoutSession(
     let baseMetadata: Record<string, string>
 
     if (guest || !user) {
+      logger.info('[EXTERNAL-CHECKOUT] 📋 Mode guest détecté')
       // Mode Guest : pas de customer, utilise customer_email
       customerId = undefined
       customerEmail = undefined // L'utilisateur saisira son email dans le checkout
@@ -46,11 +67,14 @@ export async function createCheckoutSession(
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
       }
+      logger.debug('[EXTERNAL-CHECKOUT] Configuration guest:', baseMetadata)
     } else {
+      logger.info('[EXTERNAL-CHECKOUT] 👤 Mode utilisateur connecté détecté')
       // Mode User connecté : créer ou récupérer le customer
       customerId = user.stripeCustomerId || undefined
 
       if (!customerId) {
+        logger.info('[EXTERNAL-CHECKOUT] 🔧 Création customer Stripe')
         const customer = await stripeClient.customers.create({
           email: user.email,
           metadata: {
@@ -59,6 +83,7 @@ export async function createCheckoutSession(
           },
         })
         customerId = customer.id
+        logger.debug('[EXTERNAL-CHECKOUT] Customer Stripe créé:', {customerId})
       }
 
       baseMetadata = {
@@ -71,10 +96,16 @@ export async function createCheckoutSession(
         userId: user.id,
         customerEmail: user.email ?? '', // Ajout pour le webhook
       }
+      logger.debug('[EXTERNAL-CHECKOUT] Configuration utilisateur connecté:', {
+        customerId,
+        userId: user.id,
+        email: user.email,
+      })
     }
 
     const isReccuring = plan.isReccuring
 
+    logger.info('[EXTERNAL-CHECKOUT] 🔧 Création session Stripe')
     // Créer la session checkout avec la configuration appropriée
     const session = await stripeClient.checkout.sessions.create({
       customer: customerId,
@@ -92,11 +123,12 @@ export async function createCheckoutSession(
       payment_method_types: ['card'],
     })
 
-    console.log('🔧 External Checkout Session créée:', {
+    logger.info('✅ [EXTERNAL-CHECKOUT] Session externe créée avec succès')
+    logger.debug('[EXTERNAL-CHECKOUT] Détails session:', {
+      sessionId: session.id,
       mode: guest || !user ? 'guest' : 'user_connecté',
       customer: customerId,
       customerEmail: customerEmail,
-      metadata: baseMetadata,
       url: session.url,
     })
 
@@ -106,7 +138,10 @@ export async function createCheckoutSession(
       sessionId: session.id,
     }
   } catch (error) {
-    console.error('Stripe error:', error)
+    logger.error(
+      '[EXTERNAL-CHECKOUT] ❌ Erreur lors de la création session:',
+      error
+    )
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',

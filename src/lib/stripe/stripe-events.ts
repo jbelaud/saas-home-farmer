@@ -4,6 +4,7 @@ import {
   getUserByEmailDao,
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
+import {logger} from '@/lib/logger'
 import {
   createSubscriptionFromStripeService,
   getSubscriptionByUserIdService,
@@ -14,18 +15,24 @@ import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 import {stripeClient} from './stripe-utils'
 
 export async function onStripeEvent(event: Stripe.Event) {
+  logger.info('[STRIPE-EVENT] Réception événement Stripe:', event.type)
+  logger.debug('[STRIPE-EVENT] Détails événement:', {
+    eventId: event.id,
+    eventData: event.data,
+  })
+
   // Handle any Stripe event - TOUS les événements Stripe passent ici
-  console.log('Better Auth Stripe event:', event.type, event.id)
+  logger.info('Better Auth Stripe event:', event.type, event.id)
 
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
-        console.log('🔧 Traitement checkout session completed')
+        logger.info('🔧 Traitement checkout session completed')
         const session = event.data.object as Stripe.Checkout.Session
         const metadata = session.metadata || {}
         const seats = metadata.seats ? parseInt(metadata.seats) : 1
 
-        console.log('Checkout session metadata:', metadata)
+        logger.debug('Checkout session metadata:', metadata)
         // Récupérer les infos nécessaires
         const customerEmail =
           metadata.customerEmail ?? session.customer_details?.email
@@ -37,13 +44,13 @@ export async function onStripeEvent(event: Stripe.Event) {
         // const payment_intent = session.payment_intent as string
         const subscriptionId = session.subscription as string
 
-        console.log('🔧 session', session)
-        console.log('🔧 customerEmail', customerEmail)
-        console.log('🔧 stripeCustomerId', stripeCustomerId)
-        console.log('🔧 plan', plan)
-        console.log('🔧 isYearly', isYearly)
-        console.log('🔧 subscription', subscriptionId)
-        console.log('🔧 isReccuring', isReccuring)
+        logger.debug('🔧 session', session)
+        logger.debug('🔧 customerEmail', customerEmail)
+        logger.debug('🔧 stripeCustomerId', stripeCustomerId)
+        logger.debug('🔧 plan', plan)
+        logger.debug('🔧 isYearly', isYearly)
+        logger.debug('🔧 subscription', subscriptionId)
+        logger.debug('🔧 isReccuring', isReccuring)
 
         // Détecter le type de traitement nécessaire
         const isGuestCheckout =
@@ -51,7 +58,7 @@ export async function onStripeEvent(event: Stripe.Event) {
         const isInstallmentCheckout = metadata.source === 'installment_checkout'
         const isCustomCheckout = metadata.source === 'custom_checkout'
 
-        console.log('🔧 Type de checkout détecté:', {
+        logger.debug('🔧 Type de checkout détecté:', {
           isGuestCheckout,
           isInstallmentCheckout,
           isCustomCheckout,
@@ -63,7 +70,7 @@ export async function onStripeEvent(event: Stripe.Event) {
         let finalCustomerEmail = customerEmail
 
         if (isGuestCheckout) {
-          console.log('📋 Traitement utilisateur guest')
+          logger.debug('📋 Traitement utilisateur guest')
           const email = session.customer_details?.email ?? ''
           const name = session.customer_details?.name ?? ''
 
@@ -83,9 +90,9 @@ export async function onStripeEvent(event: Stripe.Event) {
           // Gestion de l'utilisateur en base
           const user = await getUserByEmailDao(email)
           if (user) {
-            console.log('🔧 Utilisateur existant trouvé')
+            logger.debug('🔧 Utilisateur existant trouvé')
             if (finalCustomerId && user.stripeCustomerId !== finalCustomerId) {
-              console.warn('⚠️ Mismatch stripeCustomerId détecté')
+              logger.warn('⚠️ Mismatch stripeCustomerId détecté')
               const subscription = await getSubscriptionByUserIdService(user.id)
               if (!subscription) {
                 await updateUserSafeByUidDao(
@@ -104,7 +111,7 @@ export async function onStripeEvent(event: Stripe.Event) {
               stripeCustomerId: finalCustomerId,
               name: name ?? email?.split('@')[0] ?? '',
             })
-            console.log('✅ Nouvel utilisateur créé pour guest checkout')
+            logger.info('✅ Nouvel utilisateur créé pour guest checkout', email)
           }
         }
 
@@ -115,7 +122,7 @@ export async function onStripeEvent(event: Stripe.Event) {
           plan &&
           metadata.schedule_id
         ) {
-          console.log('🗓️ Traitement subscription échéancier')
+          logger.debug('🗓️ Traitement subscription échéancier')
 
           try {
             const numberOfPayments = parseInt(
@@ -135,12 +142,15 @@ export async function onStripeEvent(event: Stripe.Event) {
               endDate
             )
 
-            console.log('✅ Subscription échéancier créée avec succès')
+            logger.info(
+              '✅ Subscription échéancier créée avec succès',
+              finalCustomerEmail
+            )
           } catch (error) {
-            console.error('❌ Erreur création subscription échéancier:', error)
+            logger.error('❌ Erreur création subscription échéancier:', error)
           }
         } else if (isCustomCheckout && finalCustomerEmail && plan) {
-          console.log('🔧 Traitement subscription custom')
+          logger.debug('🔧 Traitement subscription custom')
 
           try {
             await createSubscriptionFromStripeService(
@@ -151,9 +161,9 @@ export async function onStripeEvent(event: Stripe.Event) {
               finalCustomerId,
               seats
             )
-            console.log('✅ Custom subscription créée avec succès')
+            logger.info('✅ Custom subscription créée avec succès')
           } catch (error) {
-            console.error('❌ Erreur création custom subscription:', error)
+            logger.error('❌ Erreur création custom subscription:', error)
           }
         } else if (
           isGuestCheckout &&
@@ -162,7 +172,7 @@ export async function onStripeEvent(event: Stripe.Event) {
           finalCustomerEmail &&
           plan
         ) {
-          console.log('📋 Traitement subscription guest simple')
+          logger.info('📋 Traitement subscription guest simple')
 
           await createSubscriptionFromStripeService(
             finalCustomerEmail,
@@ -171,9 +181,9 @@ export async function onStripeEvent(event: Stripe.Event) {
             subscriptionId,
             finalCustomerId
           )
-          console.log('✅ Subscription guest simple créée avec succès')
+          logger.info('✅ Subscription guest simple créée avec succès')
         } else {
-          console.log(
+          logger.debug(
             "📋 Checkout Better Auth natif - traité automatiquement par l'API Better Auth"
           )
         }
@@ -181,12 +191,12 @@ export async function onStripeEvent(event: Stripe.Event) {
       }
 
       case 'invoice.paid':
-        console.log('💰 Invoice paid:', event.data.object.id)
+        logger.info('💰 Invoice paid:', event.data.object.id)
         break
 
       case 'payment_intent.succeeded': {
         //1 pour les paiements unique seulement // PlanConst.LIFETIME
-        console.log(
+        logger.info(
           '✅ Payment succeeded (payment_intent.succeeded):',
           event.data.object.id
         )
@@ -195,9 +205,9 @@ export async function onStripeEvent(event: Stripe.Event) {
       }
 
       default:
-        console.log('📝 Autre événement Stripe:', event.type)
+        logger.info('📝 Autre événement Stripe:', event.type)
     }
   } catch (error) {
-    console.error('❌ Erreur dans onEvent Stripe:', error)
+    logger.error('❌ Erreur dans onEvent Stripe:', error)
   }
 }

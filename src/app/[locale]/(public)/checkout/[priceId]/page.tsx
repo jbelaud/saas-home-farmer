@@ -1,4 +1,5 @@
 import CheckoutPage from '@/components/features/checkout-stripe/checkout-page'
+import {logger} from '@/lib/logger'
 
 type PropsParams = {
   params: Promise<{priceId: string}>
@@ -17,8 +18,11 @@ export default async function Page({params, searchParams}: PropsParams) {
   const guest = searchParamsStore.guest === 'true'
   const enableInstallments = searchParamsStore.split === 'true'
 
-  console.log('🔧 checkout as guest', guest)
-  console.log('🆕 installments mode', enableInstallments)
+  logger.info('🔧 [CHECKOUT] checkout as guest', guest)
+  logger.info('🔧 [CHECKOUT] installments mode', enableInstallments)
+  logger.info('🔧 [CHECKOUT] priceId', priceId)
+  logger.info('🔧 [CHECKOUT] couponCode', searchParamsStore.couponCode)
+  logger.info('🔧 [CHECKOUT] seats', searchParamsStore.seats)
 
   return (
     <CheckoutPage

@@ -2,6 +2,7 @@
 
 import {headers} from 'next/headers'
 
+import {logger} from '@/lib/logger'
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
@@ -10,12 +11,23 @@ export async function createEmbededCheckoutSession(
   seats: number = 1,
   guest: boolean = false
 ) {
+  logger.info('[EMBED-CHECKOUT] Création session checkout embedded démarrée')
+  logger.debug('[EMBED-CHECKOUT] Paramètres reçus:', {priceId, seats, guest})
+
   try {
     // Récupérer l'utilisateur connecté (optionnel si guest)
     const user = await getAuthUser()
+    logger.debug('[EMBED-CHECKOUT] Utilisateur récupéré:', {
+      hasUser: !!user,
+      userId: user?.id,
+      userEmail: user?.email,
+    })
 
     // Vérifier si le checkout est possible selon le contexte
     if (!guest && !user) {
+      logger.error(
+        '[EMBED-CHECKOUT] ❌ Échec: utilisateur non connecté en mode non-guest'
+      )
       return {
         success: false,
         error:
@@ -25,8 +37,13 @@ export async function createEmbededCheckoutSession(
 
     const plan = getPlanByPriceId(priceId)
     if (!plan) {
+      logger.error('[EMBED-CHECKOUT] ❌ Plan non trouvé pour priceId:', priceId)
       throw new Error('Plan not found')
     }
+    logger.debug('[EMBED-CHECKOUT] Plan récupéré:', {
+      planCode: plan.planCode,
+      isReccuring: plan.isReccuring,
+    })
 
     const isReccuring = plan.isReccuring
     const headersList = await headers()
@@ -38,6 +55,7 @@ export async function createEmbededCheckoutSession(
     let baseMetadata: Record<string, string>
 
     if (guest || !user) {
+      logger.info('[EMBED-CHECKOUT] 📋 Mode guest détecté')
       // Mode Guest : pas de customer, utilise customer_email
       customer = undefined
       customerEmail = undefined // L'utilisateur saisira son email dans le checkout
@@ -49,7 +67,9 @@ export async function createEmbededCheckoutSession(
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
       }
+      logger.debug('[EMBED-CHECKOUT] Configuration guest:', baseMetadata)
     } else {
+      logger.info('[EMBED-CHECKOUT] 👤 Mode utilisateur connecté détecté')
       // Mode User connecté : utilise le customer Better Auth
       customer = user.stripeCustomerId || undefined
       customerEmail = customer ? undefined : user.email // Si pas de customer Stripe, utilise l'email
@@ -63,8 +83,14 @@ export async function createEmbededCheckoutSession(
         userId: user.id,
         customerEmail: user.email, // Ajout pour le webhook
       }
+      logger.debug('[EMBED-CHECKOUT] Configuration utilisateur connecté:', {
+        hasStripeCustomerId: !!customer,
+        customerEmail,
+        userId: user.id,
+      })
     }
 
+    logger.info('[EMBED-CHECKOUT] 🔧 Création session Stripe')
     // Créer la session avec la configuration appropriée
     const session = await stripeClient.checkout.sessions.create({
       customer: customer,
@@ -84,7 +110,9 @@ export async function createEmbededCheckoutSession(
       // Pour les subscriptions, Stripe crée automatiquement un customer
     })
 
-    console.log('🔧 Session créée:', {
+    logger.info('✅ [EMBED-CHECKOUT] Session embedded créée avec succès')
+    logger.debug('[EMBED-CHECKOUT] Détails session:', {
+      sessionId: session.id,
       mode: guest || !user ? 'guest' : 'user_connecté',
       customer: customer,
       customerEmail: customerEmail,
@@ -98,7 +126,10 @@ export async function createEmbededCheckoutSession(
       clientSecret: session.client_secret,
     }
   } catch (error) {
-    console.error('Stripe error:', error)
+    logger.error(
+      '[EMBED-CHECKOUT] ❌ Erreur lors de la création session:',
+      error
+    )
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',
