@@ -111,7 +111,8 @@ export async function onStripeEvent(event: Stripe.Event) {
                 isYearly,
                 session.subscription as string,
                 stripeCustomerId as string,
-                seats
+                seats,
+                endDate
               )
 
               console.log(

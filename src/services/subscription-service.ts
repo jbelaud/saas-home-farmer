@@ -95,7 +95,8 @@ export const createSubscriptionFromStripeService = async (
   yearly: boolean = false,
   stripeSubscriptionId?: string,
   stripeCustomerId?: string,
-  seats: number = 1
+  seats: number = 1,
+  endDate?: Date | null
 ) => {
   const user = await getUserByEmailDao(email)
   if (!user) {
@@ -110,11 +111,11 @@ export const createSubscriptionFromStripeService = async (
   }
 
   const currentDate = new Date()
-  let endDate: Date | null = null
+  // let endDate: Date | null = null
 
   // Better Auth approach: calculate end date based on plan type
   // Lifetime plans don't have end dates, recurring plans do
-  if (plan !== PlanConst.LIFETIME) {
+  if (!endDate && plan !== PlanConst.LIFETIME) {
     endDate = new Date()
     if (yearly) {
       endDate.setFullYear(endDate.getFullYear() + 1)
