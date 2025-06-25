@@ -16,7 +16,7 @@ interface SubscriptionRecapProps {
 }
 
 export default function SubscriptionRecap({
-  planName = 'CodeMail Pro Bundle',
+  planName = 'Pro Bundle',
   price = 197,
   originalPrice = 400,
   discount = 203,

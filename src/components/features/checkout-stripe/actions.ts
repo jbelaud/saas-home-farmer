@@ -2,7 +2,7 @@
 
 import Stripe from 'stripe'
 
-import {stripeClient} from '@/lib/stripe/stripe-utils'
+import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 
 // Numéro : 4242 4242 4242 4242
 // Date d'expiration : N'importe quelle date future
@@ -43,6 +43,7 @@ export async function getSubscriptionRecapInfo(
   seats: number = 1
 ) {
   try {
+    const plan = getPlanByPriceId(priceId)
     // Récupérer les détails du prix
     const price = await stripeClient.prices.retrieve(priceId, {
       expand: ['product'], // Inclure les détails du produit associé
@@ -97,7 +98,7 @@ export async function getSubscriptionRecapInfo(
         description: product.description,
         features: product.metadata.features
           ? JSON.parse(product.metadata.features)
-          : undefined,
+          : plan?.features,
         currency: price.currency,
         interval: price.recurring?.interval,
         intervalCount: price.recurring?.interval_count,
@@ -121,8 +122,8 @@ export async function createStripePrice(
   try {
     // Créer d'abord un produit
     const product = await stripeClient.products.create({
-      name: 'CodeMail Pro Bundle',
-      description: 'Lifetime Access to CodeMail Pro Bundle',
+      name: 'Pro Bundle',
+      description: 'Lifetime Access to Pro Bundle',
     })
 
     // Créer ensuite un prix pour ce produit

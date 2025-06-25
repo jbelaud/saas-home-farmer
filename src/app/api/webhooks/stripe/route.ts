@@ -64,7 +64,7 @@ stripe trigger payment_intent.succeeded \
   // payment recurent
 stripe trigger customer.subscription.created \
   --add "payment_intent:receipt_email=admin@mikecodeur.com" \
-  --add "payment_intent:metadata[plan]=CODEMAIL_PRO" \
+  --add "payment_intent:metadata[plan]=pro" \
   --add "payment_intent:metadata[customerEmail]=admin@mikecodeur.com" \
   --add "payment_intent:metadata[interval]=year"
 */
@@ -334,7 +334,7 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     const customerEmail = customer.email
     //const priceId = subscription.items.data[0]?.price.id
     //const plan = getPlanByPriceId(priceId) as SubscriptionPlan
-    const plan = 'CODEMAIL_PRO'
+    const plan = 'pro'
     // const yearly =
     //   subscription.items.data[0]?.price.recurring?.interval === 'year'
 

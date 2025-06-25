@@ -46,6 +46,12 @@ export const planProMontly: Plan = {
   planName: 'Pro',
   isYearly: false,
   isReccuring: true,
+  features: [
+    'Introduction Course / Components',
+    'PRO: Complete Email Integration Guide',
+    'PRO: All  Features Access',
+    'PRO: Code Review Sessions',
+  ],
 }
 
 export const planProYearly: Plan = {
@@ -54,6 +60,14 @@ export const planProYearly: Plan = {
   planName: 'Pro Yearly',
   isYearly: true,
   isReccuring: true,
+  features: [
+    'Introduction Course / Components',
+    'PRO: Complete Email Integration Guide',
+    'PRO: All  Features Access',
+    'PRO: Code Review Sessions',
+    'PRO: 100% Money Back Guarantee',
+    'Save money with yearly billing',
+  ],
 }
 
 export const planLifetime: Plan = {
@@ -62,6 +76,20 @@ export const planLifetime: Plan = {
   planName: 'Lifetime',
   isYearly: false,
   isReccuring: false,
+  features: [
+    'Introduction Course / Components',
+    'PRO: Complete Email Integration Guide',
+    'PRO: All  Features Access',
+    'PRO: Code Review Sessions',
+    'PRO: 100% Money Back Guarantee',
+    'Unlimited Projects',
+    'Unlimited Storage',
+    'Unlimited Emails',
+    'Unlimited Users',
+    'Unlimited Features',
+    'Unlimited Code Reviews',
+    'Unlimited Support',
+  ],
 }
 
 export const plans = [planProMontly, planProYearly, planLifetime]
