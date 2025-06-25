@@ -22,15 +22,19 @@ export type InstallmentCheckoutResult = {
 export async function createInstallmentCheckoutSession(
   priceId: string,
   installmentType: InstallmentType,
-  seats: number = 1
+  seats: number = 1,
+  guest: boolean = false
 ): Promise<InstallmentCheckoutResult> {
   try {
-    // Récupérer l'utilisateur connecté
+    // Récupérer l'utilisateur connecté (optionnel si guest)
     const user = await getAuthUser()
-    if (!user) {
+
+    // Vérifier si le checkout est possible selon le contexte
+    if (!guest && !user) {
       return {
         success: false,
-        error: 'Utilisateur non connecté',
+        error:
+          'Utilisateur non connecté - utilisez le mode guest ou connectez-vous',
       }
     }
 
@@ -74,19 +78,49 @@ export async function createInstallmentCheckoutSession(
     const totalAmount = price.unit_amount * seats // en centimes
     const numberOfPayments = installmentPlan.numberOfPayments
 
-    // Utiliser le stripeCustomerId de l'utilisateur Better Auth
-    let customerId = user.stripeCustomerId
+    // Logique différente selon guest ou user connecté
+    let customerId: string
+    let baseMetadata: Record<string, string>
 
-    // Créer un customer Stripe si nécessaire
-    if (!customerId) {
+    if (guest || !user) {
+      // Mode Guest : créer un customer temporaire, Stripe collectera l'email
       const customer = await stripeClient.customers.create({
-        email: user.email,
         metadata: {
-          userId: user.id,
-          managed_by: 'better_auth',
+          managed_by: 'webhook_guest_checkout',
+          source: 'installment_checkout',
         },
       })
       customerId = customer.id
+
+      baseMetadata = {
+        source: 'installment_checkout',
+        guest_checkout: 'true', // Marquer comme guest checkout
+        plan: plan.planCode,
+        installment_type: installmentType,
+      }
+    } else {
+      // Mode User connecté : utiliser ou créer le customer
+      customerId = user.stripeCustomerId || ''
+
+      // Créer un customer Stripe si nécessaire
+      if (!customerId) {
+        const customer = await stripeClient.customers.create({
+          email: user.email ?? '',
+          metadata: {
+            userId: user.id,
+          },
+        })
+        customerId = customer.id
+      }
+
+      baseMetadata = {
+        source: 'installment_checkout',
+        email: user.email ?? '',
+        plan: plan.planCode,
+        userId: user.id,
+        customerEmail: user.email ?? '',
+        installment_type: installmentType,
+      }
     }
 
     // Créer le Subscription Schedule pour les échéanciers
@@ -96,14 +130,7 @@ export async function createInstallmentCheckoutSession(
       totalAmount,
       numberOfPayments,
       seats,
-      {
-        email: user.email,
-        plan: plan.planCode,
-        userId: user.id,
-        source: 'installment_checkout',
-        managed_by: 'better_auth',
-        installment_type: installmentType,
-      }
+      baseMetadata
     )
 
     // Créer une session checkout pour le premier paiement
@@ -119,19 +146,21 @@ export async function createInstallmentCheckoutSession(
       success_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}&installment_schedule=${scheduleResult.schedule.id}`,
       cancel_url: `${origin}/pricing`,
       metadata: {
+        ...baseMetadata,
         payment_type: 'installment',
-        installment_type: installmentType,
         number_of_payments: numberOfPayments.toString(),
         seats: seats.toString(),
-        email: user.email,
-        plan: plan.planCode,
-        userId: user.id,
-        source: 'installment_checkout',
-        managed_by: 'better_auth',
         schedule_id: scheduleResult.schedule.id,
         original_price_id: priceId,
       },
       payment_method_types: ['card'],
+    })
+
+    console.log('🔧 Installment Checkout Session créée:', {
+      mode: guest || !user ? 'guest' : 'user_connecté',
+      customer: customerId,
+      metadata: baseMetadata,
+      scheduleId: scheduleResult.schedule.id,
     })
 
     return {

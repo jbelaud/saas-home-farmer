@@ -1,6 +1,13 @@
 import {createEnv} from '@t3-oss/env-nextjs'
 import {z} from 'zod'
 
+import {
+  StripeCheckoutType,
+  StripeCheckoutTypeSchema,
+} from './lib/stripe/stripe-types'
+
+// Types de checkout Stripe disponibles
+
 export const env = createEnv({
   /*
    * Variables serveur. Celles-ci ne sont accessibles que du côté serveur.
@@ -62,6 +69,9 @@ export const env = createEnv({
 
     // Stripe (client)
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
+    NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE: StripeCheckoutTypeSchema.default(
+      'EmbededForm' as StripeCheckoutType
+    ),
 
     // Better Auth (client)
     NEXT_PUBLIC_BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION: z
@@ -133,6 +143,8 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE:
+      process.env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE,
     NEXT_PUBLIC_BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION:
       process.env.NEXT_PUBLIC_BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION,
     NEXT_PUBLIC_BETTER_AUTH_2FA_SKIP_VERIFICATION_ON_ENABLE:

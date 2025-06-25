@@ -6,7 +6,7 @@ type PropsParams = {
     couponCode: string
     seats: number
     guest: string
-    installments?: string
+    split?: string
   }>
 }
 
@@ -15,7 +15,7 @@ export default async function Page({params, searchParams}: PropsParams) {
   const searchParamsStore = await searchParams
   const priceId = paramStore.priceId ?? ''
   const guest = searchParamsStore.guest === 'true'
-  const enableInstallments = searchParamsStore.installments === 'true'
+  const enableInstallments = searchParamsStore.split === 'true'
 
   console.log('🔧 checkout as guest', guest)
   console.log('🆕 installments mode', enableInstallments)

@@ -1,6 +1,8 @@
 import {getSubscriptionRecapInfo} from '@/components/features/checkout-stripe/actions'
 import CheckoutFormEmbedded from '@/components/features/checkout-stripe/embed/checkout-form-embedded'
 import {Card} from '@/components/ui/card'
+import {env} from '@/env'
+import {StripeCheckoutConst} from '@/lib/stripe/stripe-types'
 
 import CheckoutButtonExternal from './external-checkout/checkout-button-external'
 import CheckoutInstallment from './installments/checkout-installment'
@@ -8,10 +10,12 @@ import CheckoutPaymentLink from './payment-link/checkout-payment-link'
 import CheckoutButtonReactStripe from './react-stripe/checkout-button-react-stripe'
 import SubscriptionRecap from './subscription-recap'
 
-// pour les payment avec user (guest=false)
-const enableEmbededForm = false
-const enableExternalForm = false
-const enableCheckoutButtonReactStripe = true
+const enableEmbededForm =
+  env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE === StripeCheckoutConst.EMBEDED_FORM
+const enableExternalForm =
+  env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE === StripeCheckoutConst.EXTERNAL_FORM
+const enableCheckoutButtonReactStripe =
+  env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE === StripeCheckoutConst.REACT_STRIPE_FORM
 
 // pour les payment sans user (guest=true)
 const enablePaymentLink = false
@@ -75,7 +79,7 @@ export default async function CheckoutPage({
             <div>
               <h2 className="mb-1 text-xl font-bold">Complete your purchase</h2>
 
-              {enableInstallments && !guest && recapInfo.success && (
+              {enableInstallments && recapInfo.success && (
                 <>
                   <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/20">
                     <p className="text-sm text-green-700 dark:text-green-300">
@@ -88,6 +92,7 @@ export default async function CheckoutPage({
                     seats={seats}
                     recap={recapInfo.recap!}
                     isRecurring={isRecurring}
+                    guest={guest}
                   />
                 </>
               )}

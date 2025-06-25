@@ -7,13 +7,7 @@ import {
   SubscriptionPlan,
 } from '@/services/types/domain/subscription-types'
 
-type Plan = {
-  priceId: string
-  planCode: SubscriptionPlan
-  planName: string
-  isYearly: boolean
-  isReccuring: boolean
-}
+import {Plan} from './stripe-types'
 
 export const stripeClient = new Stripe(env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',

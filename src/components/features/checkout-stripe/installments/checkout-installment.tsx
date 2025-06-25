@@ -1,7 +1,7 @@
 'use client'
 
 import {CreditCard} from 'lucide-react'
-import {useState} from 'react'
+import React, {useState} from 'react'
 import {toast} from 'sonner'
 
 import {Button} from '@/components/ui/button'
@@ -24,6 +24,7 @@ interface CheckoutInstallmentProps {
   seats: number
   recap: PriceRecap
   isRecurring: boolean
+  guest?: boolean
 }
 
 export default function CheckoutInstallment({
@@ -31,6 +32,7 @@ export default function CheckoutInstallment({
   seats,
   recap,
   isRecurring,
+  guest = false,
 }: CheckoutInstallmentProps) {
   const [selectedInstallmentType, setSelectedInstallmentType] =
     useState<InstallmentType>(InstallmentType.FULL_PAYMENT)
@@ -48,7 +50,8 @@ export default function CheckoutInstallment({
       const result = await createInstallmentCheckoutSession(
         priceId,
         selectedInstallmentType,
-        seats
+        seats,
+        guest
       )
 
       if (result.success && result.sessionUrl) {
@@ -67,7 +70,11 @@ export default function CheckoutInstallment({
       setIsProcessing(false)
     }
   }
-
+  if (isRecurring) {
+    console.warn(
+      'split payment is not supported for recurring plans, please use embed checkout page instead'
+    )
+  }
   return (
     <div className="space-y-6">
       {/* Sélecteur d'échéanciers - uniquement pour les paiements uniques */}
@@ -97,7 +104,11 @@ export default function CheckoutInstallment({
         <CardContent>
           {selectedInstallmentType === InstallmentType.FULL_PAYMENT ? (
             // Checkout classique pour paiement unique
-            <CheckoutFormEmbedded priceId={priceId} seats={seats} />
+            <CheckoutFormEmbedded
+              priceId={priceId}
+              seats={seats}
+              guest={guest}
+            />
           ) : (
             // Bouton pour démarrer le processus d'échéanciers
             <div className="space-y-4">
@@ -119,7 +130,9 @@ export default function CheckoutInstallment({
               >
                 {isProcessing
                   ? 'Préparation du paiement...'
-                  : `Commencer le paiement en ${selectedInstallmentType.split('_')[0]} fois`}
+                  : guest
+                    ? `Payer en ${selectedInstallmentType.split('_')[0]} fois (Invité)`
+                    : `Commencer le paiement en ${selectedInstallmentType.split('_')[0]} fois`}
               </Button>
 
               <p className="text-muted-foreground text-center text-xs">
