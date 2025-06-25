@@ -292,7 +292,7 @@ describe('[STRIPE] Webhook Subscription Service', () => {
         plan: 'lifetime',
         status: 'active',
         periodStart: expect.any(Date),
-        periodEnd: null, // Lifetime = pas de fin
+        periodEnd: undefined, // Lifetime = pas de fin
         stripeCustomerId: testUser.stripeCustomerId,
       })
     )
