@@ -10,7 +10,7 @@ import SubscriptionRecap from './subscription-recap'
 
 // pour les payment avec user (guest=false)
 const enableEmbededForm = false
-const enableExternalForm = true
+const enableExternalForm = false
 const enableCheckoutButtonReactStripe = true
 
 // pour les payment sans user (guest=true)
@@ -119,7 +119,7 @@ export default async function CheckoutPage({
                     </>
                   )}
 
-                  {!guest && enableCheckoutButtonReactStripe && (
+                  {enableCheckoutButtonReactStripe && (
                     <>
                       <p className="text-muted-foreground">
                         Please click the button below to complete your purchase
@@ -128,6 +128,7 @@ export default async function CheckoutPage({
                         <CheckoutButtonReactStripe
                           priceId={priceId}
                           seats={seats}
+                          guest={guest}
                         />
                       </div>
                     </>
