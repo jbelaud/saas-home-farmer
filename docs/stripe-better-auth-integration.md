@@ -6,27 +6,402 @@ Cette documentation explique notre architecture d'intégration Stripe qui combin
 
 - **Better Auth Stripe Plugin** (gestion native des abonnements)
 - **Intégration Custom** (fonctionnalités avancées et formulaires enrichis)
+- **Système d'Installments** (paiements en plusieurs fois pour plans non-récurrents)
 
-## 1. Gestion des Webhooks Stripe par Better Auth
+## 1. Configuration des Types de Checkout
 
-### Hooks Automatiques Better Auth
+### Types de Checkout Disponibles
 
-Better Auth gère automatiquement plusieurs événements Stripe via son plugin :
+Notre système supporte 5 types de checkout configurables via `NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE` :
 
-- Création/mise à jour des abonnements
-- Gestion des statuts (`active`, `trialing`, `canceled`)
-- Synchronisation des données utilisateur-customer
+```typescript
+export const StripeCheckoutConst = {
+  EMBEDED_FORM: 'EmbededForm', // Formulaire intégré dans la page
+  EXTERNAL_FORM: 'ExternalForm', // Redirection vers Stripe Checkout
+  REACT_STRIPE_FORM: 'ReactStripeForm', // React Stripe Elements personnalisés
+  PAYMENT_LINK: 'PaymentLink', // Liens de paiement (guest checkout)
+} as const
+```
 
-### Hooks Custom Complémentaires
+### Architecture de Sélection (Switch Case)
 
-Notre implémentation dans `src/lib/stripe/stripe-events.ts` enrichit le système Better Auth :
+La nouvelle architecture utilise un switch case centralisé dans `getCheckoutConfig()` :
+
+```typescript
+function getCheckoutConfig({
+  enableInstallments,
+  recapInfo,
+  priceId,
+  seats,
+  guest,
+  isRecurring,
+}): CheckoutConfig {
+
+  // 1. PRIORITÉ : Mode Installments (si activé et compatible)
+  if (enableInstallments && isRecurring) {
+    // ❌ Installments incompatibles avec les plans récurrents
+    return {
+      component: <></>,
+      message: 'Installments (split payment) are not supported for recurring plans, please change price id',
+    }
+  }
+
+  if (enableInstallments && recapInfo.success) {
+    // ✅ Installments activés pour plans non-récurrents
+    return {
+      component: <CheckoutInstallment />,
+      message: 'Choisissez votre mode de paiement ci-dessous',
+      showTestBanner: true,
+    }
+  }
+
+  // 2. Switch case pour les types de checkout standard
+  switch (env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE) {
+    case StripeCheckoutConst.PAYMENT_LINK:
+      // Restrictions spécifiques au Payment Link
+
+    case StripeCheckoutConst.EMBEDED_FORM:
+      // Checkout embeddé
+
+    case StripeCheckoutConst.REACT_STRIPE_FORM:
+      // React Stripe Elements
+
+    case StripeCheckoutConst.EXTERNAL_FORM:
+      // Checkout externe Stripe
+
+    default:
+      // Fallback avec message d'erreur détaillé
+  }
+}
+```
+
+## 2. Types de Checkout Détaillés
+
+### 2.1 Mode Installments (Prioritaire)
+
+**Activation :** `enableInstallments=true` dans l'URL  
+**Fichiers :** `installments/checkout-installment.tsx`
+
+```typescript
+// URL Example: /checkout/price_123?enableInstallments=true
+```
+
+**✅ Compatible avec :**
+
+- Plans one-time (Lifetime, produits)
+- Utilisateurs connectés ET guests
+- Tous les montants
+
+**❌ Incompatible avec :**
+
+- Plans récurrents (monthly/yearly)
+- Abonnements avec essais gratuits
+
+**Comportement :**
+
+- Affiche un sélecteur 2x/3x/4x installments
+- Chaque installment crée un payment intent séparé
+- Bannière de test visible en mode développement
+
+### 2.2 Payment Link (Guest Checkout)
+
+**Configuration :** `NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=PaymentLink`  
+**Fichiers :** `payment-link/checkout-payment-link.tsx`
+
+**✅ Cas d'utilisation :**
+
+- Utilisateurs non connectés (`guest=true`)
+- URLs partageables
+- Marketing et landing pages
+- Création de compte automatique post-paiement
+
+**❌ Restrictions :**
+
+- Si `guest=false`, affiche un message d'erreur
+- Réservé aux utilisateurs non connectés
+
+```typescript
+// Logique de restriction
+if (guest) {
+  return <CheckoutPaymentLink />
+} else {
+  return (
+    <div>
+      Le mode 'paiement Link' est reservé aux utilisateurs non connectés.
+    </div>
+  )
+}
+```
+
+### 2.3 Embedded Form
+
+**Configuration :** `NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=EmbededForm`  
+**Fichiers :** `embed/checkout-form-embedded.tsx`
+
+**✅ Avantages :**
+
+- Interface intégrée dans votre page
+- UX fluide sans redirection
+- Personnalisation complète du design
+- Support mobile optimisé
+
+**✅ Compatible avec :**
+
+- Utilisateurs connectés et guests
+- Plans récurrents et one-time
+- Tous les montants et devises
+
+**Utilisation recommandée :** Expérience utilisateur premium
+
+### 2.4 React Stripe Elements
+
+**Configuration :** `NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=ReactStripeForm`  
+**Fichiers :** `react-stripe/checkout-button-react-stripe.tsx`
+
+**✅ Avantages :**
+
+- Contrôle total sur l'UX/UI
+- Validation en temps réel
+- Formulaires personnalisés
+- Intégration native avec React
+
+**✅ Compatible avec :**
+
+- Utilisateurs connectés et guests
+- Tous types de plans
+- Gestion avancée des erreurs
+
+**Utilisation recommandée :** Applications avec design system spécifique
+
+### 2.5 External Form (Stripe Checkout)
+
+**Configuration :** `NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=ExternalForm`  
+**Fichiers :** `external-checkout/checkout-button-external.tsx`
+
+**✅ Avantages :**
+
+- Interface Stripe officielle
+- Optimisations de conversion Stripe
+- Support multi-langues automatique
+- Gestion automatique des moyens de paiement
+
+**✅ Compatible avec :**
+
+- Utilisateurs connectés et guests
+- Tous types de plans
+- Coupons et promotions
+
+**Utilisation recommandée :** Mise en place rapide, confiance utilisateur
+
+## 3. Matrice de Compatibilité
+
+| Feature / Type      | Installments | Payment Link | Embedded | React Elements | External |
+| ------------------- | ------------ | ------------ | -------- | -------------- | -------- |
+| **Guest Users**     | ✅           | ✅ (Only)    | ✅       | ✅             | ✅       |
+| **Logged Users**    | ✅           | ❌           | ✅       | ✅             | ✅       |
+| **Recurring Plans** | ❌           | ✅           | ✅       | ✅             | ✅       |
+| **One-time Plans**  | ✅           | ✅           | ✅       | ✅             | ✅       |
+| **Coupons**         | ❌           | ✅           | ✅       | ✅             | ✅       |
+| **Multi-seats**     | ✅           | ✅           | ✅       | ✅             | ✅       |
+| **Custom UI**       | ⚠️ (Limited) | ❌           | ✅       | ✅ (Full)      | ❌       |
+
+## 4. Paramètres URL et Configuration
+
+### Paramètres Supportés
+
+```typescript
+// Structure URL complète
+/checkout/[priceId]?guest=true&enableInstallments=true&seats=5&couponCode=PROMO20
+
+// Paramètres disponibles :
+interface CheckoutParams {
+  priceId: string           // ID du prix Stripe (requis)
+  guest?: boolean          // Mode guest (défaut: false)
+  enableInstallments?: boolean // Paiements fractionnés (défaut: false)
+  seats?: number           // Nombre de sièges (défaut: 1)
+  couponCode?: string      // Code promo (optionnel)
+}
+```
+
+### Exemples d'URLs par Cas d'Usage
+
+```typescript
+// Utilisateur connecté - Checkout standard
+const standardUrl = `/checkout/${priceId}?guest=false&seats=1`
+
+// Utilisateur non connecté - Payment Link
+const guestUrl = `/checkout/${priceId}?guest=true`
+
+// Plan Lifetime avec installments
+const installmentsUrl = `/checkout/${priceId}?enableInstallments=true&guest=false`
+
+// Team subscription avec coupon
+const teamUrl = `/checkout/${priceId}?seats=10&couponCode=TEAM50&guest=false`
+
+// Cas d'erreur - Installments + Recurring (incompatible)
+const errorUrl = `/checkout/${recurring_price_id}?enableInstallments=true`
+// → Affichera un message d'erreur
+```
+
+## 5. Gestion des Incompatibilités
+
+### Validation Automatique
+
+Le système détecte et gère automatiquement les incompatibilités :
+
+```typescript
+// 1. Installments + Plans Récurrents
+if (enableInstallments && isRecurring) {
+  return {
+    component: <></>,
+    message: 'Installments (split payment) are not supported for recurring plans, please change price id'
+  }
+}
+
+// 2. Payment Link + Utilisateur Connecté
+if (type === 'PaymentLink' && !guest) {
+  return {
+    component: <ErrorMessage />,
+    message: 'Le mode paiement Link est reservé aux utilisateurs non connectés'
+  }
+}
+
+// 3. Type de checkout non configuré
+default: {
+  return {
+    component: <ErrorMessage />,
+    message: `Type de checkout non supporté: ${env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE}`
+  }
+}
+```
+
+### Messages d'Erreur Utilisateur
+
+Les erreurs sont affichées avec des messages explicites :
+
+- **Français par défaut** pour l'interface utilisateur
+- **Logs techniques** en anglais pour le débogage
+- **Context debugging** avec `console.log` en développement
+
+## 6. Debugging et Logs
+
+### Logs de Debug Intégrés
+
+```typescript
+console.log(
+  '🔧 getCheckoutConfig',
+  enableInstallments, // true/false
+  isRecurring, // true/false
+  recapInfo.success, // true/false
+  env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE, // Type configuré
+  guest, // true/false
+  priceId, // price_xxx
+  seats // nombre
+)
+```
+
+### Messages d'Avertissement
+
+```typescript
+// Cas d'incompatibilité détectée
+console.warn(
+  'Installments are not supported for recurring plans, please use embed checkout page instead'
+)
+```
+
+| **Logged Users** | ✅ | ❌ | ✅ | ✅ | ✅ |
+| **Recurring Plans** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **One-time Plans** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Coupons** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Multi-seats** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Custom UI** | ⚠️ (Limited) | ❌ | ✅ | ✅ (Full) | ❌ |
+
+## 4. Paramètres URL et Configuration
+
+### Paramètres Supportés
+
+```typescript
+// Structure URL complète
+/checkout/[priceId]?guest=true&enableInstallments=true&seats=5&couponCode=PROMO20
+
+// Paramètres disponibles :
+interface CheckoutParams {
+  priceId: string           // ID du prix Stripe (requis)
+  guest?: boolean          // Mode guest (défaut: false)
+  enableInstallments?: boolean // Paiements fractionnés (défaut: false)
+  seats?: number           // Nombre de sièges (défaut: 1)
+  couponCode?: string      // Code promo (optionnel)
+}
+```
+
+### Exemples d'URLs par Cas d'Usage
+
+```typescript
+// Utilisateur connecté - Checkout standard
+const standardUrl = `/checkout/${priceId}?guest=false&seats=1`
+
+// Utilisateur non connecté - Payment Link
+const guestUrl = `/checkout/${priceId}?guest=true`
+
+// Plan Lifetime avec installments
+const installmentsUrl = `/checkout/${priceId}?enableInstallments=true&guest=false`
+
+// Team subscription avec coupon
+const teamUrl = `/checkout/${priceId}?seats=10&couponCode=TEAM50&guest=false`
+
+// Cas d'erreur - Installments + Recurring (incompatible)
+const errorUrl = `/checkout/${recurring_price_id}?enableInstallments=true`
+// → Affichera un message d'erreur
+```
+
+## 5. Gestion des Incompatibilités
+
+### Validation Automatique
+
+Le système détecte et gère automatiquement les incompatibilités :
+
+```typescript
+// 1. Installments + Plans Récurrents
+if (enableInstallments && isRecurring) {
+  return {
+    component: <></>,
+    message: 'Installments (split payment) are not supported for recurring plans, please change price id'
+  }
+}
+
+// 2. Payment Link + Utilisateur Connecté
+if (type === 'PaymentLink' && !guest) {
+  return {
+    component: <ErrorMessage />,
+    message: 'Le mode paiement Link est reservé aux utilisateurs non connectés'
+  }
+}
+
+// 3. Type de checkout non configuré
+default: {
+  return {
+    component: <ErrorMessage />,
+    message: `Type de checkout non supporté: ${env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE}`
+  }
+}
+```
+
+### Messages d'Erreur Utilisateur
+
+Les erreurs sont affichées avec des messages explicites :
+
+- **Français par défaut** pour l'interface utilisateur
+- **Logs techniques** en anglais pour le débogage
+- **Context debugging** avec `console.log` en développement
+
+## 6. Architecture des Webhooks
+
+### Gestion Better Auth + Custom
 
 ```typescript
 export async function onStripeEvent(event: Stripe.Event) {
   switch (event.type) {
     case 'checkout.session.completed': {
-      // Gestion de 3 cas spécifiques :
-
       // 1. Better Auth natif (automatique)
       if (metadata.managed_by === 'better_auth' && !metadata.source) {
         console.log('📋 Checkout Better Auth natif - traité automatiquement')
@@ -42,428 +417,214 @@ export async function onStripeEvent(event: Stripe.Event) {
         const newUser = await createUserFromStripeService(/* ... */)
         await createSubscriptionFromStripeService(/* ... */)
       }
+
+      // 4. Installments (nouveau)
+      else if (metadata.source === 'installment_checkout') {
+        await handleInstallmentPayment(/* ... */)
+      }
     }
   }
 }
 ```
 
-## 2. Configuration des Plans Stripe
-
-### Plans Better Auth Standard
-
-Configuration dans `src/lib/stripe/stripe-utils.ts` :
+### Métadonnées par Type de Checkout
 
 ```typescript
-export const betterAuthPlans: StripePlan[] = [
-  {
-    name: PlanConst.PRO,
-    priceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY,
-    annualDiscountPriceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY,
-    limits: {projects: 1, storage: 10},
-  },
-  {
-    name: PlanConst.LIFETIME,
-    priceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME,
-    limits: {projects: 20, storage: 50},
-    freeTrial: {days: 14},
-  },
-]
-```
-
-## 3. Checkout Better Auth Natif
-
-### Fonctionnalités Natives
-
-Better Auth offre une API simple pour les abonnements :
-
-```typescript
-// Exemple dans checkout-better-auth.tsx
-const {error} = await authClient.subscription.upgrade({
-  plan: 'pro',
-  successUrl: '/checkout/success',
-  cancelUrl: '/pricing',
-  annual: isYearly,
-  seats: seats,
-})
-```
-
-**✅ Avantages Better Auth :**
-
-- Gestion automatique des webhooks
-- Synchronisation user/customer automatique
-- API simple et sécurisée
-- Support des essais gratuits
-- Gestion des sièges (team subscriptions)
-
-**❌ Limitations Better Auth :**
-
-- Interface checkout Stripe standard uniquement
-- Pas de formulaires embeddés
-- Pas de React Stripe Elements
-- Pas de création de compte post-paiement
-- Personnalisation limitée de l'UX
-
-## 4. Intégrations Custom - Extensions
-
-Pour pallier les limitations de Better Auth, nous avons développé 4 types de checkout custom :
-
-### 4.1 Embedded Checkout Custom
-
-**Fichiers :**
-
-- `src/components/features/checkout-stripe/embed/checkout-form-embedded.tsx`
-- `src/components/features/checkout-stripe/embed/action.ts`
-
-```typescript
-// Création de session embedée avec métadonnées custom
-const session = await stripeClient.checkout.sessions.create({
-  customer: user.stripeCustomerId,
-  ui_mode: 'embedded', // ✨ Mode embeddé
-  metadata: {
-    source: 'custom_checkout',
-    managed_by: 'better_auth',
-    userId: user.id,
-  },
-})
-```
-
-**Avantages :**
-
-- Interface intégrée dans votre page
-- UX fluide sans redirection
-- Personnalisation du design
-
-### 4.2 Checkout Externe Custom
-
-**Fichiers :**
-
-- `src/components/features/checkout-stripe/external-checkout/checkout-button-external.tsx`
-- `src/components/features/checkout-stripe/external-checkout/actions.ts`
-
-```typescript
-// Session avec redirect mais logique custom
-const session = await stripeClient.checkout.sessions.create({
-  customer: customerId,
-  mode: isReccuring ? 'subscription' : 'payment',
-  metadata: {
-    source: 'custom_checkout',
-    managed_by: 'better_auth',
-  },
-})
-```
-
-### 4.3 Payment Links (Guest Checkout)
-
-**Fichiers :**
-
-- `src/components/features/checkout-stripe/payment-link/checkout-payment-link.tsx`
-- `src/components/features/checkout-stripe/payment-link/actions.ts`
-
-```typescript
-// Payment link pour utilisateurs non connectés
-const paymentLink = await stripeClient.paymentLinks.create({
-  metadata: {
-    guest_checkout: 'true', // ✨ Création compte automatique
-    source: 'custom_checkout',
-  },
-})
-```
-
-**Avantages :**
-
-- Permet la création de compte après paiement
-- Pas besoin d'authentification préalable
-- URL partageable
-
-### 4.4 React Stripe Elements
-
-**Fichiers :**
-
-- `src/components/features/checkout-stripe/react-stripe/checkout-button-react-stripe.tsx`
-- `src/components/features/checkout-stripe/react-stripe/actions.ts`
-
-```typescript
-// Utilisation de Setup Intent + éléments custom
-const setupIntent = await stripeClient.setupIntents.create({
-  customer: customerId,
-  payment_method_types: ['card'],
-  metadata: { /* ... */ },
-})
-
-// Côté client avec Elements
-<Elements stripe={stripe} options={{clientSecret}}>
-  <PaymentElement />
-</Elements>
-```
-
-**Avantages :**
-
-- Contrôle total sur l'UX
-- Validation en temps réel
-- Formulaires personnalisés
-
-## 5. Architecture de Routage des Checkouts
-
-### Paramètre Guest - Logique de Routage
-
-Le paramètre `guest` dans l'URL détermine quel type d'interface de checkout afficher :
-
-```typescript
-// URL Examples:
-// /checkout/price_123?guest=true    → Payment Links (utilisateurs non connectés)
-// /checkout/price_123?guest=false   → Formulaires avancés (utilisateurs connectés)
-// /checkout/price_123               → Par défaut guest=false
-```
-
-**Logique d'affichage :**
-
-- **`guest=true`** : Affiche uniquement les Payment Links Stripe (checkout sans compte)
-- **`guest=false`** : Affiche les formulaires avancés (Embedded, External, React Elements)
-
-### Configuration dans `checkout-page.tsx`
-
-```typescript
-// Configuration par type d'utilisateur
-// Pour les utilisateurs connectés (guest=false)
-const enableEmbededForm = true
-const enableExternalForm = false
-const enableCheckoutButtonReactStripe = false
-
-// Pour les utilisateurs non connectés (guest=true)
-const enablePaymentLink = true
-```
-
-### Router par Price ID avec Paramètre Guest
-
-```typescript
-// Route: /checkout/[priceId]?guest=true|false
-// Contrôle le type de checkout via le paramètre guest
-export default async function Page({params, searchParams}: PropsParams) {
-  const guest = searchParamsStore.guest === 'true'
-  return (
-    <CheckoutPage
-      priceId={priceId}
-      couponId={searchParams.couponCode}
-      seats={searchParams.seats}
-      guest={guest} // ✨ Nouveau paramètre
-    />
-  )
-}
-```
-
-### Logique de Routage Guest vs Authenticated
-
-```typescript
-// Dans checkout-page.tsx
-export default async function CheckoutPage({
-  priceId,
-  couponId,
-  seats = 1,
-  guest = false, // ✨ Paramètre guest
-}) {
-  return (
-    <Card>
-      {/* Guest Checkout - Payment Links */}
-      {guest && enablePaymentLink && (
-        <CheckoutPaymentLink priceId={priceId} seats={seats} />
-      )}
-
-      {/* Authenticated Checkout - Options avancées */}
-      {!guest && enableEmbededForm && (
-        <CheckoutFormEmbedded priceId={priceId} seats={seats} />
-      )}
-      {!guest && enableCheckoutButtonReactStripe && (
-        <CheckoutButtonReactStripe priceId={priceId} seats={seats} />
-      )}
-      {!guest && enableExternalForm && (
-        <CheckoutButtonExternal priceId={priceId} seats={seats} />
-      )}
-    </Card>
-  )
-}
-```
-
-## 6. Gestion des Événements Webhook
-
-### Flux de Traitement
-
-1. **Better Auth natif** → Traitement automatique
-2. **Custom checkout** → `createSubscriptionFromStripeService()`
-3. **Guest checkout** → `createUserFromStripeService()` + abonnement
-
-### Métadonnées de Routage
-
-```typescript
-// Identification du type de checkout via metadata
+// Métadonnées standardisées pour identification
 metadata: {
-  source: 'custom_checkout' | 'guest_checkout',
-  managed_by: 'better_auth',
+  source: 'custom_checkout' | 'installment_checkout',
+  guest_checkout: 'true' | 'false',
   userId?: string,
   plan: SubscriptionPlan,
   seats: number,
-  interval: 'month' | 'year',
-  isReccuring: 'true' | 'false',
+  interval: 'month' | 'year' | 'one_time',
+  isRecurring: 'true' | 'false',
+  installment_number?: string, // Pour les paiements fractionnés
+  total_installments?: string, // Nombre total d'installments
 }
 ```
 
-## 7. Avantages de l'Architecture Hybride
+## 7. Configuration Recommandée par Environnement
 
-### ✅ Combinaison du Meilleur des Deux Mondes
-
-**Better Auth (Base solide) :**
-
-- Gestion automatique des abonnements
-- Sécurité et validation
-- Synchronisation données
-- API standardisée
-
-**Custom (Flexibilité) :**
-
-- Formulaires embeddés
-- Création compte post-paiement
-- React Stripe Elements
-- UX personnalisée
-
-### 🔧 Maintenance Simplifiée
-
-- Un seul webhook endpoint
-- Routage intelligent par métadonnées
-- Services centralisés
-- Architecture en couches respectée
-
-## 8. Utilisation Recommandée
-
-### Cas d'Usage par Type
-
-| Type                  | Cas d'Usage                                 | Paramètre Guest | Authentification | Fichier Principal                                |
-| --------------------- | ------------------------------------------- | --------------- | ---------------- | ------------------------------------------------ |
-| **Better Auth Natif** | Abonnements simples, utilisateurs connectés | `false`         | ✅ Requise       | `checkout-better-auth.tsx`                       |
-| **Embedded Custom**   | UX fluide, intégration design               | `false`         | ✅ Requise       | `embed/checkout-form-embedded.tsx`               |
-| **External Custom**   | Fonctionnalités avancées                    | `false`         | ✅ Requise       | `external-checkout/checkout-button-external.tsx` |
-| **Payment Links**     | Utilisateurs non connectés, partage         | `true`          | ❌ Optionnelle   | `payment-link/checkout-payment-link.tsx`         |
-| **React Elements**    | Contrôle total UX                           | `false`         | ✅ Requise       | `react-stripe/checkout-button-react-stripe.tsx`  |
-
-### Configuration Recommandée
-
-```typescript
-// URLs de checkout recommandées :
-
-// Pour utilisateurs non connectés (guest checkout)
-// /checkout/price_xxx?guest=true
-const guestCheckoutUrl = `/checkout/${priceId}?guest=true&seats=${seats}`
-
-// Pour utilisateurs connectés (formulaires avancés)
-// /checkout/price_xxx?guest=false
-const authCheckoutUrl = `/checkout/${priceId}?guest=false&seats=${seats}`
-
-// Logique d'application
-const redirectUrl = user ? authCheckoutUrl : guestCheckoutUrl
-```
-
-## 9. Structure des Fichiers
-
-```
-src/
-├── lib/stripe/
-│   ├── stripe-events.ts          # Gestion webhooks custom
-│   └── stripe-utils.ts           # Configuration plans & utils
-├── app/[locale]/(public)/checkout/
-│   ├── [priceId]/page.tsx       # Route checkout dynamique (?guest=true|false)
-│   └── better-auth/             # Checkout Better Auth natif
-└── components/features/checkout-stripe/
-    ├── checkout-page.tsx        # Page principale avec logique guest/auth
-    ├── actions.ts              # Actions communes
-    ├── embed/                  # Checkout embeddé (guest=false)
-    ├── external-checkout/      # Checkout externe (guest=false)
-    ├── payment-link/          # Payment links (guest=true)
-    └── react-stripe/         # React Stripe Elements (guest=false)
-```
-
-## 10. Variables d'Environnement Requises
+### Développement
 
 ```env
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+# Checkout type recommandé pour le dev
+NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=EmbededForm
 
-# Plans Stripe
-NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY=price_...
-NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY=price_...
-NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME=price_...
+# Permet de tester tous les scénarios facilement
 ```
 
-## 11. Points d'Attention
+**Avantages :** Interface intégrée, debug facile, pas de redirections
 
-### Sécurité
+### Production
 
-- Toujours utiliser `metadata.managed_by = 'better_auth'` pour identifier nos checkouts
-- Valider les webhooks avec `stripeWebhookSecret`
-- Vérifier l'authentification dans les Server Actions
+```env
+# Checkout type recommandé pour la prod
+NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=ExternalForm
+
+# OU pour une UX premium
+NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=EmbededForm
+```
+
+**Critères de choix :**
+
+- **External** : Conversion optimisée, confiance utilisateur
+- **Embedded** : UX premium, design cohérent
+
+### Marketing / Landing Pages
+
+```env
+# Pour les campagnes marketing
+NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=PaymentLink
+```
+
+**Avantages :** URLs partageables, pas d'authentification requise
+
+## 8. Performance et Optimisations
+
+### Lazy Loading des Composants
+
+```typescript
+// Chargement conditionnel des composants checkout
+const CheckoutInstallment = dynamic(
+  () => import('./installments/checkout-installment')
+)
+const CheckoutFormEmbedded = dynamic(
+  () => import('./embed/checkout-form-embedded')
+)
+// etc...
+```
+
+### Cache et Récupération de Prix
+
+```typescript
+// Cache des informations de prix via DAL
+const recapInfo = await getSubscriptionRecapInfo(priceId, couponId, seats)
+
+// Gestion des erreurs gracieuse
+if (!recapInfo.success) {
+  return <ErrorDisplay error={recapInfo.error} />
+}
+```
+
+## 9. Debugging et Logs
+
+### Logs de Debug Intégrés
+
+```typescript
+console.log(
+  '🔧 getCheckoutConfig',
+  enableInstallments, // true/false
+  isRecurring, // true/false
+  recapInfo.success, // true/false
+  env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE, // Type configuré
+  guest, // true/false
+  priceId, // price_xxx
+  seats // nombre
+)
+```
+
+### Messages d'Avertissement
+
+```typescript
+// Cas d'incompatibilité détectée
+console.warn(
+  'Installments are not supported for recurring plans, please use embed checkout page instead'
+)
+```
+
+## 10. Migration et Mises à Jour
+
+### Migration depuis l'Ancienne Architecture
+
+```typescript
+// AVANT (variables enable*)
+const enableEmbededForm = env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE === 'EmbededForm'
+if (enableEmbededForm) {
+  /* ... */
+}
+
+// APRÈS (switch case)
+switch (env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE) {
+  case StripeCheckoutConst.EMBEDED_FORM:
+    return {
+      /* ... */
+    }
+}
+```
+
+### Tests de Non-Régression
+
+```bash
+# Tester tous les types de checkout
+npm run test:checkout
+
+# URLs de test par type
+curl "/checkout/price_test?guest=true"
+curl "/checkout/price_test?enableInstallments=true"
+curl "/checkout/price_test" # Type configuré par défaut
+```
+
+## 11. Sécurité et Validation
+
+### Validation des Paramètres
+
+```typescript
+// Validation automatique des paramètres
+const validateCheckoutParams = (params: CheckoutParams) => {
+  // Validation du priceId
+  if (!params.priceId.startsWith('price_')) {
+    throw new Error('Invalid priceId format')
+  }
+
+  // Validation des seats
+  if (params.seats < 1 || params.seats > 100) {
+    throw new Error('Seats must be between 1 and 100')
+  }
+}
+```
+
+### Authentification et Autorisation
+
+```typescript
+// Vérification des permissions pour chaque type
+const checkPermissions = (user: User | null, guest: boolean) => {
+  if (!guest && !user) {
+    throw new AuthorizationError(
+      'Authentication required for non-guest checkout'
+    )
+  }
+}
+```
+
+---
+
+## 12. Checklist de Déploiement
+
+### Variables d'Environnement
+
+```env
+✅ STRIPE_SECRET_KEY
+✅ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+✅ NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE
+✅ STRIPE_WEBHOOK_SECRET
+✅ NEXT_PUBLIC_STRIPE_PRICE_ID_*
+```
+
+### Tests Fonctionnels
+
+- [ ] Checkout standard (type configuré)
+- [ ] Mode guest avec Payment Links
+- [ ] Installments pour plans non-récurrents
+- [ ] Validation des incompatibilités
+- [ ] Webhooks et création d'abonnements
+- [ ] Messages d'erreur appropriés
 
 ### Performance
 
-- Utiliser `react-cache` pour les appels DAL
-- Éviter les appels Stripe redondants
-- Implémenter la validation côté client ET serveur
+- [ ] Lazy loading des composants
+- [ ] Cache DAL configuré
+- [ ] Logs de production minimisés
 
-### Maintenance
-
-- Respecter l'architecture en couches
-- Centraliser la logique Stripe dans les façades
-- Documenter les nouveaux types de checkout
-
----
-
-## 12. Exemples d'Utilisation du Paramètre Guest
-
-### Redirection Conditionnelle dans l'Application
-
-```typescript
-// Dans votre composant de pricing ou bouton d'abonnement
-function SubscribeButton({ priceId, planName }) {
-  const { user } = useAuth()
-
-  const handleSubscribe = () => {
-    // Logique de redirection basée sur l'état d'authentification
-    const checkoutUrl = user
-      ? `/checkout/${priceId}?guest=false&seats=1`  // Utilisateur connecté → UX avancée
-      : `/checkout/${priceId}?guest=true&seats=1`   // Visiteur → Payment Link simple
-
-    window.location.href = checkoutUrl
-  }
-
-  return (
-    <Button onClick={handleSubscribe}>
-      S'abonner au {planName}
-    </Button>
-  )
-}
-```
-
-### Gestion des Liens Directs
-
-```typescript
-// URLs directes que vous pouvez partager ou utiliser dans vos emails
-const links = {
-  // Pour partage public / marketing
-  publicCheckout: `https://yourapp.com/checkout/price_123?guest=true`,
-
-  // Pour utilisateurs dans l'app
-  userCheckout: `https://yourapp.com/checkout/price_123?guest=false`,
-
-  // Avec paramètres additionnels
-  teamCheckout: `https://yourapp.com/checkout/price_123?guest=false&seats=5&couponCode=TEAM20`,
-}
-```
-
-### Avantages de cette Approche
-
-✅ **Flexibilité Maximale** : Une seule route pour tous les cas d'usage  
-✅ **UX Adaptée** : Interface optimisée selon le contexte utilisateur  
-✅ **Maintenance Simplifiée** : Logique centralisée dans `checkout-page.tsx`  
-✅ **URLs Partageables** : Links directs pour marketing/support
-
----
-
-Cette architecture nous permet de bénéficier de la robustesse de Better Auth tout en offrant la flexibilité nécessaire pour des besoins spécifiques d'UX et de fonctionnalités avancées.
+Cette architecture offre une flexibilité maximale tout en maintenant la robustesse et la sécurité nécessaires pour un système de paiement en production.
