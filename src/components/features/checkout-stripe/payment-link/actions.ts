@@ -4,11 +4,23 @@ import {headers} from 'next/headers'
 
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 
-export async function createPaymentLink(priceId: string, seats: number = 1) {
+export async function createPaymentLink(
+  priceId: string,
+  seats: number = 1,
+  guest: boolean = true
+) {
   // const user = await getAuthUser()
   // if (!user) {
   //   throw new Error('User not found')
   // }
+
+  if (!guest) {
+    return {
+      success: false,
+      error: 'Payment link is only available for guest checkout',
+    }
+  }
+
   const plan = getPlanByPriceId(priceId)
   if (!plan) {
     throw new Error('Plan not found')

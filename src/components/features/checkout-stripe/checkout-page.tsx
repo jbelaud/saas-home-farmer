@@ -94,13 +94,17 @@ export default async function CheckoutPage({
 
               {!enableInstallments && (
                 <>
-                  {guest && enablePaymentLink && (
+                  {enablePaymentLink && (
                     <>
                       <p className="text-muted-foreground">
                         Please click the button below to complete your purchase
                       </p>
                       <div className="mt-4">
-                        <CheckoutPaymentLink priceId={priceId} seats={seats} />
+                        <CheckoutPaymentLink
+                          priceId={priceId}
+                          seats={seats}
+                          guest={guest}
+                        />
                       </div>
                     </>
                   )}
