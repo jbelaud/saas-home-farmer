@@ -11,12 +11,14 @@ type CheckoutButtonProps = {
   priceId: string
   variant?: 'default' | 'secondary' | 'outline'
   seats: number
+  guest?: boolean
 }
 
 export default function CheckoutButtonExternal({
   priceId,
   variant = 'default',
   seats = 1,
+  guest = false,
 }: CheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -24,7 +26,7 @@ export default function CheckoutButtonExternal({
     setIsLoading(true)
 
     try {
-      const result = await createCheckoutSession(priceId, seats)
+      const result = await createCheckoutSession(priceId, seats, guest)
 
       if (!result.success) {
         throw new Error(result.error)
@@ -49,7 +51,11 @@ export default function CheckoutButtonExternal({
       variant={variant}
       className="w-full rounded-lg bg-yellow-400 px-4 py-2.5 font-medium text-black transition-colors hover:bg-yellow-500 disabled:opacity-50"
     >
-      {isLoading ? 'Processing...' : 'Checkout Session'}
+      {isLoading
+        ? 'Processing...'
+        : guest
+          ? 'Guest Checkout'
+          : 'Checkout Session'}
     </Button>
   )
 }
