@@ -59,7 +59,7 @@ export default function StripeFormEmbedded({
     }
 
     initializeStripe()
-  }, [priceId, seats])
+  }, [priceId, seats, guest])
 
   const options = {
     clientSecret,
