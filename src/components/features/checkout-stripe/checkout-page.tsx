@@ -3,12 +3,13 @@ import CheckoutFormEmbedded from '@/components/features/checkout-stripe/embed/ch
 import {Card} from '@/components/ui/card'
 
 import CheckoutButtonExternal from './external-checkout/checkout-button-external'
+import CheckoutInstallment from './installments/checkout-installment'
 import CheckoutPaymentLink from './payment-link/checkout-payment-link'
 import CheckoutButtonReactStripe from './react-stripe/checkout-button-react-stripe'
 import SubscriptionRecap from './subscription-recap'
 
 // pour les payment avec user (guest=false)
-const enableEmbededForm = true
+const enableEmbededForm = false
 const enableExternalForm = false
 const enableCheckoutButtonReactStripe = false
 
@@ -20,11 +21,13 @@ export default async function CheckoutPage({
   couponId,
   seats = 1,
   guest = false,
+  enableInstallments = false,
 }: {
   priceId: string
   couponId: string
   seats: number
   guest: boolean
+  enableInstallments?: boolean
 }) {
   let recapInfo
   try {
@@ -36,6 +39,11 @@ export default async function CheckoutPage({
       error: error instanceof Error ? error.message : 'Unknown error occurred',
     }
   }
+
+  const isRecurring = recapInfo.success
+    ? recapInfo.recap?.interval !== undefined &&
+      recapInfo.recap?.interval !== null
+    : false
 
   return (
     <div className="bg-background min-h-screen">
@@ -66,48 +74,73 @@ export default async function CheckoutPage({
           <Card className="bg-card text-foreground space-y-6 border-0 p-4 sm:border sm:p-6">
             <div>
               <h2 className="mb-1 text-xl font-bold">Complete your purchase</h2>
-              {guest && enablePaymentLink && (
+
+              {enableInstallments && !guest && recapInfo.success && (
                 <>
-                  <p className="text-muted-foreground">
-                    Please click the button below to complete your purchase
-                  </p>
-                  <div className="mt-4">
-                    <CheckoutPaymentLink priceId={priceId} seats={seats} />
+                  <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/20">
+                    <p className="text-sm text-green-700 dark:text-green-300">
+                      🆕 <strong>Mode Test:</strong> Paiements en plusieurs fois
+                      activés
+                    </p>
                   </div>
-                </>
-              )}
-              {!guest && enableEmbededForm && (
-                <>
-                  <p className="text-muted-foreground">
-                    Please fill the form below to complete your purchase
-                  </p>
-                  <div className="mt-4">
-                    <CheckoutFormEmbedded priceId={priceId} seats={seats} />
-                  </div>
+                  <CheckoutInstallment
+                    priceId={priceId}
+                    seats={seats}
+                    recap={recapInfo.recap!}
+                    isRecurring={isRecurring}
+                  />
                 </>
               )}
 
-              {!guest && enableCheckoutButtonReactStripe && (
+              {!enableInstallments && (
                 <>
-                  <p className="text-muted-foreground">
-                    Please click the button below to complete your purchase
-                  </p>
-                  <div className="mt-4">
-                    <CheckoutButtonReactStripe
-                      priceId={priceId}
-                      seats={seats}
-                    />
-                  </div>
-                </>
-              )}
-              {!guest && enableExternalForm && (
-                <>
-                  <p className="text-muted-foreground">
-                    Please click the button below to complete your purchase
-                  </p>
-                  <div className="mt-4">
-                    <CheckoutButtonExternal priceId={priceId} seats={seats} />
-                  </div>
+                  {guest && enablePaymentLink && (
+                    <>
+                      <p className="text-muted-foreground">
+                        Please click the button below to complete your purchase
+                      </p>
+                      <div className="mt-4">
+                        <CheckoutPaymentLink priceId={priceId} seats={seats} />
+                      </div>
+                    </>
+                  )}
+                  {!guest && enableEmbededForm && (
+                    <>
+                      <p className="text-muted-foreground">
+                        Please fill the form below to complete your purchase
+                      </p>
+                      <div className="mt-4">
+                        <CheckoutFormEmbedded priceId={priceId} seats={seats} />
+                      </div>
+                    </>
+                  )}
+
+                  {!guest && enableCheckoutButtonReactStripe && (
+                    <>
+                      <p className="text-muted-foreground">
+                        Please click the button below to complete your purchase
+                      </p>
+                      <div className="mt-4">
+                        <CheckoutButtonReactStripe
+                          priceId={priceId}
+                          seats={seats}
+                        />
+                      </div>
+                    </>
+                  )}
+                  {!guest && enableExternalForm && (
+                    <>
+                      <p className="text-muted-foreground">
+                        Please click the button below to complete your purchase
+                      </p>
+                      <div className="mt-4">
+                        <CheckoutButtonExternal
+                          priceId={priceId}
+                          seats={seats}
+                        />
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </div>

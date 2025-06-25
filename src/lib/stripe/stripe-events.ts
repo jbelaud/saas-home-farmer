@@ -79,6 +79,63 @@ export async function onStripeEvent(event: Stripe.Event) {
               plan,
             })
           }
+
+          // CAS : Paiements en échéanciers - checkout installment
+        } else if (
+          metadata.source === 'installment_checkout' &&
+          metadata.managed_by === 'better_auth'
+        ) {
+          console.log('🗓️ Traitement checkout échéancier via Better Auth')
+
+          if (customerEmail && plan && metadata.schedule_id) {
+            try {
+              // Récupérer le nombre de paiements pour calculer la date de fin
+              const numberOfPayments = parseInt(
+                metadata.number_of_payments || '1'
+              )
+
+              // Calculer la date de fin du dernier échéancier
+              const currentDate = new Date()
+              const endDate = new Date(currentDate)
+              endDate.setMonth(endDate.getMonth() + numberOfPayments) // Dernier paiement + 1 mois de validité
+
+              console.log('🔧 Schedule ID:', metadata.schedule_id)
+              console.log('🔧 Nombre de paiements:', numberOfPayments)
+              console.log('🔧 Date de fin calculée:', endDate.toISOString())
+
+              // Note: createSubscriptionFromStripeService ne supporte pas encore de date de fin personnalisée
+              // TODO: Étendre la fonction pour supporter les dates de fin custom pour les échéanciers
+              await createSubscriptionFromStripeService(
+                customerEmail,
+                plan,
+                isYearly,
+                session.subscription as string,
+                stripeCustomerId as string,
+                seats
+              )
+
+              console.log(
+                '✅ Subscription échéancier créée avec succès:',
+                customerEmail,
+                plan,
+                stripeCustomerId,
+                'fin prévue le:',
+                endDate.toLocaleDateString()
+              )
+            } catch (error) {
+              console.error(
+                '❌ Erreur création subscription échéancier:',
+                error
+              )
+            }
+          } else {
+            console.warn('⚠️ Données manquantes pour checkout échéancier:', {
+              customerEmail,
+              plan,
+              schedule_id: metadata.schedule_id,
+            })
+          }
+
           // CAS : User inconnu (checkout as guest + creation de compte)
         } else if (metadata.source === 'guest_checkout') {
           console.log('📋 Checkout guest - traité automatiquement')
