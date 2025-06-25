@@ -1,6 +1,9 @@
 import winston from 'winston'
 
-export const logger = winston.createLogger({
+const isConsole = process.env.NODE_ENV === 'development' ? false : false
+
+// Logger Winston pour la production
+const winstonLogger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   transports: [
     new winston.transports.Console({
@@ -65,3 +68,24 @@ export const logger = winston.createLogger({
     // }),
   ],
 })
+
+// Wrapper pour console.log en développement (meilleur formatage)
+const consoleLogger = {
+  error: (message: string, ...args: unknown[]) => {
+    console.error('❌', message, ...args)
+  },
+  warn: (message: string, ...args: unknown[]) => {
+    console.warn('⚠️', message, ...args)
+  },
+  info: (message: string, ...args: unknown[]) => {
+    console.info('ℹ️', message, ...args)
+  },
+  debug: (message: string, ...args: unknown[]) => {
+    console.debug('🐛', message, ...args)
+  },
+  log: (message: string, ...args: unknown[]) => {
+    console.log('📝', message, ...args)
+  },
+}
+// Exporter le logger approprié selon l'environnement
+export const logger = isConsole ? consoleLogger : winstonLogger
