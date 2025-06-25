@@ -7,56 +7,88 @@ import {getAuthUser} from '@/services/authentication/auth-service'
 
 export async function createEmbededCheckoutSession(
   priceId: string,
-  seats: number = 1
+  seats: number = 1,
+  guest: boolean = false
 ) {
   try {
-    // Récupérer l'utilisateur connecté
+    // Récupérer l'utilisateur connecté (optionnel si guest)
     const user = await getAuthUser()
-    if (!user) {
+
+    // Vérifier si le checkout est possible selon le contexte
+    if (!guest && !user) {
       return {
         success: false,
-        error: 'Utilisateur non connecté',
+        error:
+          'Utilisateur non connecté - utilisez le mode guest ou connectez-vous',
       }
     }
+
     const plan = getPlanByPriceId(priceId)
     if (!plan) {
       throw new Error('Plan not found')
     }
 
     const isReccuring = plan.isReccuring
-
     const headersList = await headers()
     const origin = headersList.get('origin') || ''
 
-    // Utiliser le stripeCustomerId de l'utilisateur Better Auth
-    const customer = user.stripeCustomerId || undefined
+    // Logique différente selon guest ou user connecté
+    let customer: string | undefined
+    let customerEmail: string | undefined
+    let baseMetadata: Record<string, string>
 
-    // Créer la session avec le customer existant
+    if (guest || !user) {
+      // Mode Guest : pas de customer, utilise customer_email
+      customer = undefined
+      customerEmail = undefined // L'utilisateur saisira son email dans le checkout
+      baseMetadata = {
+        source: 'custom_checkout',
+        guest_checkout: 'true', // Marquer comme guest checkout
+        isReccuring: isReccuring ? 'true' : 'false',
+        seats: seats.toString(),
+        plan: plan.planCode,
+        interval: plan.isYearly ? 'year' : 'month',
+      }
+    } else {
+      // Mode User connecté : utilise le customer Better Auth
+      customer = user.stripeCustomerId || undefined
+      customerEmail = customer ? undefined : user.email // Si pas de customer Stripe, utilise l'email
+      baseMetadata = {
+        source: 'custom_checkout',
+        isReccuring: isReccuring ? 'true' : 'false',
+        seats: seats.toString(),
+        email: user.email,
+        plan: plan.planCode,
+        interval: plan.isYearly ? 'year' : 'month',
+        userId: user.id,
+        customerEmail: user.email, // Ajout pour le webhook
+      }
+    }
+
+    // Créer la session avec la configuration appropriée
     const session = await stripeClient.checkout.sessions.create({
-      customer: customer || undefined, // Utilise le customer Better Auth existant
-      customer_email: customer ? undefined : user.email, //Error: Error: You may only specify one of these parameters: customer, customer_email.
+      customer: customer,
+      customer_email: customerEmail,
       line_items: [
         {
           price: priceId,
           quantity: seats,
         },
       ],
-      mode: isReccuring ? 'subscription' : 'payment', // Mode subscription pour les abonnements
+      mode: isReccuring ? 'subscription' : 'payment',
       return_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
-      //cancel_url: `${origin}/pricing`,
-      metadata: {
-        isReccuring: isReccuring ? 'true' : 'false',
-        seats,
-        email: user.email,
-        plan: plan.planCode,
-        interval: plan.isYearly ? 'year' : 'month',
-        userId: user.id, // Ajout de l'userId pour le webhook
-        source: 'custom_checkout', // IMPORTANT : Marquer comme checkout custom
-        managed_by: 'better_auth', // Indiquer que Better Auth doit gérer
-      },
+      metadata: baseMetadata,
       payment_method_types: ['card'],
       ui_mode: 'embedded',
-      // 🌙 Configuration du dark mode ICI
+      // Note: customer_creation='always' n'est disponible qu'en mode 'payment'
+      // Pour les subscriptions, Stripe crée automatiquement un customer
+    })
+
+    console.log('🔧 Session créée:', {
+      mode: guest || !user ? 'guest' : 'user_connecté',
+      customer: customer,
+      customerEmail: customerEmail,
+      metadata: baseMetadata,
     })
 
     return {

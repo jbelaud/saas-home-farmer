@@ -9,12 +9,12 @@ import CheckoutButtonReactStripe from './react-stripe/checkout-button-react-stri
 import SubscriptionRecap from './subscription-recap'
 
 // pour les payment avec user (guest=false)
-const enableEmbededForm = false
+const enableEmbededForm = true
 const enableExternalForm = false
-const enableCheckoutButtonReactStripe = false
+const enableCheckoutButtonReactStripe = true
 
 // pour les payment sans user (guest=true)
-const enablePaymentLink = true
+const enablePaymentLink = false
 
 export default async function CheckoutPage({
   priceId,
@@ -104,13 +104,17 @@ export default async function CheckoutPage({
                       </div>
                     </>
                   )}
-                  {!guest && enableEmbededForm && (
+                  {guest && enableEmbededForm && (
                     <>
                       <p className="text-muted-foreground">
                         Please fill the form below to complete your purchase
                       </p>
                       <div className="mt-4">
-                        <CheckoutFormEmbedded priceId={priceId} seats={seats} />
+                        <CheckoutFormEmbedded
+                          priceId={priceId}
+                          seats={seats}
+                          guest={guest}
+                        />
                       </div>
                     </>
                   )}

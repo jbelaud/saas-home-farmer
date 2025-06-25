@@ -45,170 +45,137 @@ export async function onStripeEvent(event: Stripe.Event) {
         console.log('🔧 subscription', subscriptionId)
         console.log('🔧 isReccuring', isReccuring)
 
-        // CAS : User connu - checkout custom (non gerer par l'api better-auth)
-        if (
-          metadata.source === 'custom_checkout' &&
-          metadata.managed_by === 'better_auth'
-        ) {
-          console.log('🔧 Traitement checkout custom via Better Auth')
+        // Détecter le type de traitement nécessaire
+        const isGuestCheckout =
+          !customerEmail || metadata.guest_checkout === 'true'
+        const isInstallmentCheckout = metadata.source === 'installment_checkout'
+        const isCustomCheckout = metadata.source === 'custom_checkout'
 
-          if (customerEmail && plan) {
-            // Utiliser votre service existant pour créer la subscription
+        console.log('🔧 Type de checkout détecté:', {
+          isGuestCheckout,
+          isInstallmentCheckout,
+          isCustomCheckout,
+          source: metadata.source,
+        })
 
-            try {
-              await createSubscriptionFromStripeService(
-                customerEmail,
-                plan,
-                isYearly,
-                session.subscription as string,
-                stripeCustomerId as string,
-                seats
-              )
-              console.log(
-                '✅ Custom subscription créée avec succès:',
-                customerEmail,
-                plan,
-                stripeCustomerId
-              )
-            } catch (error) {
-              console.error('❌ Erreur création custom subscription:', error)
-            }
-          } else {
-            console.warn('⚠️ Données manquantes pour checkout custom:', {
-              customerEmail,
-              plan,
-            })
-          }
+        // ÉTAPE 1: Gestion de l'utilisateur (guest ou existant)
+        let finalCustomerId = stripeCustomerId as string
+        let finalCustomerEmail = customerEmail
 
-          // CAS : Paiements en échéanciers - checkout installment
-        } else if (
-          metadata.source === 'installment_checkout' &&
-          metadata.managed_by === 'better_auth'
-        ) {
-          console.log('🗓️ Traitement checkout échéancier via Better Auth')
-
-          if (customerEmail && plan && metadata.schedule_id) {
-            try {
-              // Récupérer le nombre de paiements pour calculer la date de fin
-              const numberOfPayments = parseInt(
-                metadata.number_of_payments || '1'
-              )
-
-              // Calculer la date de fin du dernier échéancier
-              const currentDate = new Date()
-              const endDate = new Date(currentDate)
-              endDate.setMonth(endDate.getMonth() + numberOfPayments) // Dernier paiement + 1 mois de validité
-
-              console.log('🔧 Schedule ID:', metadata.schedule_id)
-              console.log('🔧 Nombre de paiements:', numberOfPayments)
-              console.log('🔧 Date de fin calculée:', endDate.toISOString())
-
-              // Note: createSubscriptionFromStripeService ne supporte pas encore de date de fin personnalisée
-              // TODO: Étendre la fonction pour supporter les dates de fin custom pour les échéanciers
-              await createSubscriptionFromStripeService(
-                customerEmail,
-                plan,
-                isYearly,
-                session.subscription as string,
-                stripeCustomerId as string,
-                seats,
-                endDate
-              )
-
-              console.log(
-                '✅ Subscription échéancier créée avec succès:',
-                customerEmail,
-                plan,
-                stripeCustomerId,
-                'fin prévue le:',
-                endDate.toLocaleDateString()
-              )
-            } catch (error) {
-              console.error(
-                '❌ Erreur création subscription échéancier:',
-                error
-              )
-            }
-          } else {
-            console.warn('⚠️ Données manquantes pour checkout échéancier:', {
-              customerEmail,
-              plan,
-              schedule_id: metadata.schedule_id,
-            })
-          }
-
-          // CAS : User inconnu (checkout as guest + creation de compte)
-        } else if (metadata.source === 'guest_checkout') {
-          console.log('📋 Checkout guest - traité automatiquement')
+        if (isGuestCheckout) {
+          console.log('📋 Traitement utilisateur guest')
           const email = session.customer_details?.email ?? ''
           const name = session.customer_details?.name ?? ''
 
-          console.log('🔧 customerEmail', email)
-          let customerId = stripeCustomerId
-          if (!stripeCustomerId) {
+          finalCustomerEmail = email
+
+          // Créer customer Stripe si nécessaire
+          if (!finalCustomerId) {
             const customer = await stripeClient.customers.create({
               email: email,
               metadata: {
                 managed_by: 'webhook_guest_checkout',
               },
             })
-            customerId = customer.id
+            finalCustomerId = customer.id
           }
-          const user = await getUserByEmailDao(email ?? '')
+
+          // Gestion de l'utilisateur en base
+          const user = await getUserByEmailDao(email)
           if (user) {
-            console.log('🔧 user found')
-            if (
-              stripeCustomerId &&
-              user.stripeCustomerId !== stripeCustomerId
-            ) {
-              // Attention : Ce cas doit etre gerer avec prudence
-              // mettre a jout le user va casser le lien avec des plans existants
-              console.warn('⚠️ user stripeCustomerId mismatch')
+            console.log('🔧 Utilisateur existant trouvé')
+            if (finalCustomerId && user.stripeCustomerId !== finalCustomerId) {
+              console.warn('⚠️ Mismatch stripeCustomerId détecté')
               const subscription = await getSubscriptionByUserIdService(user.id)
-              if (subscription) {
-                console.warn('⚠️ subscription found')
-              } else {
-                console.warn('🔧 no subscription found')
-                // Envisager lupdate de stripeCustomerId
+              if (!subscription) {
                 await updateUserSafeByUidDao(
                   {
                     email: user.email,
                     name: user.name,
-                    stripeCustomerId: stripeCustomerId as string,
+                    stripeCustomerId: finalCustomerId,
                   },
                   user.id
                 )
               }
-
-              //await updateStripeCustomerIdService(user.id, stripeCustomerId)
             }
           } else {
-            const newUser = await createUserFromStripeService({
+            await createUserFromStripeService({
               email,
-              stripeCustomerId: customerId as string,
+              stripeCustomerId: finalCustomerId,
               name: name ?? email?.split('@')[0] ?? '',
             })
-            console.log('🔧 newUser', newUser)
+            console.log('✅ Nouvel utilisateur créé pour guest checkout')
           }
-          if (isReccuring) {
+        }
+
+        // ÉTAPE 2: Gestion de la subscription UNIQUEMENT pour vos cas spécifiques
+        if (
+          isInstallmentCheckout &&
+          finalCustomerEmail &&
+          plan &&
+          metadata.schedule_id
+        ) {
+          console.log('🗓️ Traitement subscription échéancier')
+
+          try {
+            const numberOfPayments = parseInt(
+              metadata.number_of_payments || '1'
+            )
+            const currentDate = new Date()
+            const endDate = new Date(currentDate)
+            endDate.setMonth(endDate.getMonth() + numberOfPayments)
+
             await createSubscriptionFromStripeService(
-              email,
+              finalCustomerEmail,
               plan,
               isYearly,
-              subscriptionId as string,
-              customerId as string
+              subscriptionId,
+              finalCustomerId,
+              seats,
+              endDate
             )
-          } else {
+
+            console.log('✅ Subscription échéancier créée avec succès')
+          } catch (error) {
+            console.error('❌ Erreur création subscription échéancier:', error)
+          }
+        } else if (isCustomCheckout && finalCustomerEmail && plan) {
+          console.log('🔧 Traitement subscription custom')
+
+          try {
             await createSubscriptionFromStripeService(
-              email,
+              finalCustomerEmail,
               plan,
               isYearly,
-              subscriptionId as string,
-              customerId as string
+              subscriptionId,
+              finalCustomerId,
+              seats
             )
+            console.log('✅ Custom subscription créée avec succès')
+          } catch (error) {
+            console.error('❌ Erreur création custom subscription:', error)
           }
+        } else if (
+          isGuestCheckout &&
+          !isInstallmentCheckout &&
+          !isCustomCheckout &&
+          finalCustomerEmail &&
+          plan
+        ) {
+          console.log('📋 Traitement subscription guest simple')
+
+          await createSubscriptionFromStripeService(
+            finalCustomerEmail,
+            plan,
+            isYearly,
+            subscriptionId,
+            finalCustomerId
+          )
+          console.log('✅ Subscription guest simple créée avec succès')
         } else {
-          console.log('📋 Checkout Better Auth natif - traité automatiquement')
+          console.log(
+            "📋 Checkout Better Auth natif - traité automatiquement par l'API Better Auth"
+          )
         }
         break
       }

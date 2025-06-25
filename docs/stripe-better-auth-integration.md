@@ -163,8 +163,8 @@ const session = await stripeClient.checkout.sessions.create({
 // Payment link pour utilisateurs non connectés
 const paymentLink = await stripeClient.paymentLinks.create({
   metadata: {
-    source: 'guest_checkout', // ✨ Création compte automatique
-    managed_by: 'better_auth',
+    guest_checkout: 'true', // ✨ Création compte automatique
+    source: 'custom_checkout',
   },
 })
 ```

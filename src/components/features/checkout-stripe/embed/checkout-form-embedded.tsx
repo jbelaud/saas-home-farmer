@@ -15,6 +15,7 @@ type CheckoutButtonProps = {
   priceId: string
   variant?: 'default' | 'secondary' | 'outline'
   seats: number
+  guest: boolean
 }
 
 if (!env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
@@ -26,6 +27,7 @@ if (!env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
 export default function StripeFormEmbedded({
   priceId,
   seats = 1,
+  guest = false,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   variant = 'default',
 }: CheckoutButtonProps) {
@@ -42,7 +44,7 @@ export default function StripeFormEmbedded({
         )
         setStripe(stripeInstance)
 
-        const result = await createEmbededCheckoutSession(priceId, seats)
+        const result = await createEmbededCheckoutSession(priceId, seats, guest)
         if (!result.success) throw new Error(result.error)
         setClientSecret(result.clientSecret || '')
       } catch (error) {

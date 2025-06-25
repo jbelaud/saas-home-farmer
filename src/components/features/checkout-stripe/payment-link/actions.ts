@@ -38,7 +38,7 @@ export async function createPaymentLink(priceId: string, seats: number = 1) {
         seats,
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
-        source: 'guest_checkout', // IMPORTANT : Marquer comme checkout custom
+        guest_checkout: 'true', // IMPORTANT : Marquer comme checkout custom
         managed_by: 'better_auth', // Indiquer que Better Auth doit gérer
       },
     })
