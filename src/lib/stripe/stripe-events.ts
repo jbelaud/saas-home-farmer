@@ -32,7 +32,6 @@ export async function onStripeEvent(event: Stripe.Event) {
         const metadata = session.metadata || {}
         const seats = metadata.seats ? parseInt(metadata.seats) : 1
 
-        logger.debug('Checkout session metadata:', metadata)
         // Récupérer les infos nécessaires
         const customerEmail =
           metadata.customerEmail ?? session.customer_details?.email
@@ -44,7 +43,8 @@ export async function onStripeEvent(event: Stripe.Event) {
         // const payment_intent = session.payment_intent as string
         const subscriptionId = session.subscription as string
 
-        logger.debug('🔧 session', session)
+        logger.info('🔧 session', session)
+        logger.debug('🔧 metadata:', metadata)
         logger.debug('🔧 customerEmail', customerEmail)
         logger.debug('🔧 stripeCustomerId', stripeCustomerId)
         logger.debug('🔧 plan', plan)
@@ -187,6 +187,44 @@ export async function onStripeEvent(event: Stripe.Event) {
             "📋 Checkout Better Auth natif - traité automatiquement par l'API Better Auth"
           )
         }
+        break
+      }
+
+      case 'customer.subscription.updated': {
+        logger.info('🔄 [TEST] Traitement customer.subscription.updated')
+        const subscription = event.data.object as Stripe.Subscription
+
+        logger.debug('🔄 [TEST] Subscription object:', {
+          id: subscription.id,
+          customer: subscription.customer,
+          status: subscription.status,
+          start_date: subscription.start_date,
+          ended_at: subscription.ended_at,
+          metadata: subscription.metadata,
+        })
+
+        // TODO: Ici Better Auth gère automatiquement la mise à jour
+        logger.info(
+          '✅ [TEST] customer.subscription.updated traité par Better Auth'
+        )
+        break
+      }
+
+      case 'customer.subscription.deleted': {
+        logger.info('🗑️ [TEST] Traitement customer.subscription.deleted')
+        const subscription = event.data.object as Stripe.Subscription
+
+        logger.debug('🗑️ [TEST] Subscription deleted:', {
+          id: subscription.id,
+          customer: subscription.customer,
+          status: subscription.status,
+          metadata: subscription.metadata,
+        })
+
+        // TODO: Ici Better Auth gère automatiquement l'annulation
+        logger.info(
+          '✅ [TEST] customer.subscription.deleted traité par Better Auth'
+        )
         break
       }
 

@@ -62,7 +62,7 @@ stripe trigger payment_intent.succeeded \
   --add "payment_intent:metadata[customerEmail]=admin@mikecodeur.com" 
 
   // payment recurent
-stripe trigger customer.subscription.created \
+stripe trigger customer.subscription.updated \
   --add "payment_intent:receipt_email=admin@mikecodeur.com" \
   --add "payment_intent:metadata[plan]=pro" \
   --add "payment_intent:metadata[customerEmail]=admin@mikecodeur.com" \
