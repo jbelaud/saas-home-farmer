@@ -7,11 +7,21 @@ import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 
+// Types communs importés
+import type {
+  CheckoutMode,
+  CheckoutResult,
+  CustomerInfo,
+  SubscriptionData,
+} from '../checkout-stripe-util'
+import {createBaseMetadata, validateCheckoutMode} from '../checkout-stripe-util'
+
+// 🎯 Fonction principale refactorisée
 export async function createEmbededCheckoutSession(
   priceId: string,
   seats: number = 1,
   guest: boolean = false
-) {
+): Promise<CheckoutResult> {
   logger.info('[EMBED-CHECKOUT] Création session checkout embedded démarrée')
   logger.debug('[EMBED-CHECKOUT] Paramètres reçus:', {priceId, seats, guest})
 
@@ -24,18 +34,7 @@ export async function createEmbededCheckoutSession(
       userEmail: user?.email,
     })
 
-    // Vérifier si le checkout est possible selon le contexte
-    if (!guest && !user) {
-      logger.error(
-        '[EMBED-CHECKOUT] ❌ Échec: utilisateur non connecté en mode non-guest'
-      )
-      return {
-        success: false,
-        error:
-          'Utilisateur non connecté - utilisez le mode guest ou connectez-vous',
-      }
-    }
-
+    // Valider le plan
     const plan = getPlanByPriceId(priceId)
     if (!plan) {
       logger.error('[EMBED-CHECKOUT] ❌ Plan non trouvé pour priceId:', priceId)
@@ -46,97 +45,41 @@ export async function createEmbededCheckoutSession(
       isReccuring: plan.isReccuring,
     })
 
-    const isReccuring = plan.isReccuring
-    const headersList = await headers()
-    const origin = headersList.get('origin') || ''
+    // 1️⃣ Validation du mode
+    const mode = validateCheckoutMode(guest, user, 'EMBED-CHECKOUT')
 
-    // 🎯 Initialiser la subscription en BDD AVANT la session checkout
-    logger.info('[EMBED-CHECKOUT] 💾 Initialisation subscription en BDD')
-    const subscriptionId = await initSubscriptionService({
-      plan: plan.planCode,
+    // 2️⃣ Gestion customer
+    const customerInfo = await initUserCustomer(mode, user)
+
+    // 3️⃣ Initialisation subscription
+    const subscriptionId = await initSubscription(
+      customerInfo,
+      plan.planCode,
+      seats
+    )
+
+    // 4️⃣ Préparation des données
+    const subscriptionData: SubscriptionData = {
+      subscriptionId,
+      plan,
       seats,
-      referenceId: user?.id, // undefined en mode guest
-      stripeCustomerId: user?.stripeCustomerId || undefined,
-    })
-    logger.debug('[EMBED-CHECKOUT] Subscription initialisée:', {subscriptionId})
-    if (!subscriptionId) {
-      logger.error(
-        "[EMBED-CHECKOUT] ❌ Erreur lors de l'initialisation de la subscription"
-      )
-      throw new Error("Erreur lors de l'initialisation de la subscription")
-    }
-    // Logique différente selon guest ou user connecté
-    let customer: string | undefined
-    let customerEmail: string | undefined
-    let baseMetadata: Record<string, string>
-
-    if (guest || !user) {
-      logger.info('[EMBED-CHECKOUT] 📋 Mode guest détecté')
-      // Mode Guest : pas de customer, utilise customer_email
-      customer = undefined
-      customerEmail = undefined // L'utilisateur saisira son email dans le checkout
-      baseMetadata = {
-        source: 'custom_checkout',
-        guest_checkout: 'true', // Marquer comme guest checkout
-        isReccuring: isReccuring ? 'true' : 'false',
-        seats: seats.toString(),
-        plan: plan.planCode,
-        interval: plan.isYearly ? 'year' : 'month',
-        subscriptionId, // 🎯 Utilise le vrai UUID généré
-      }
-      logger.debug('[EMBED-CHECKOUT] Configuration guest:', baseMetadata)
-    } else {
-      logger.info('[EMBED-CHECKOUT] 👤 Mode utilisateur connecté détecté')
-      // Mode User connecté : utilise le customer Better Auth
-      customer = user.stripeCustomerId || undefined
-      customerEmail = customer ? undefined : user.email // Si pas de customer Stripe, utilise l'email
-      baseMetadata = {
-        source: 'custom_checkout',
-        isReccuring: isReccuring ? 'true' : 'false',
-        seats: seats.toString(),
-        email: user.email,
-        plan: plan.planCode,
-        interval: plan.isYearly ? 'year' : 'month',
-        userId: user.id,
-        customerEmail: user.email, // Ajout pour le webhook
-        subscriptionId, // 🎯 Utilise le vrai UUID généré
-      }
-      logger.debug('[EMBED-CHECKOUT] Configuration utilisateur connecté:', {
-        hasStripeCustomerId: !!customer,
-        customerEmail,
-        userId: user.id,
-      })
     }
 
-    logger.info('[EMBED-CHECKOUT] 🔧 Création session Stripe')
-    // Créer la session avec la configuration appropriée
-    const session = await stripeClient.checkout.sessions.create({
-      customer: customer,
-      customer_email: customerEmail,
-      line_items: [
-        {
-          price: priceId,
-          quantity: seats,
-        },
-      ],
-      mode: isReccuring ? 'subscription' : 'payment',
-      return_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
-      metadata: baseMetadata,
-      payment_method_types: ['card'],
-      ui_mode: 'embedded',
+    // 5️⃣ Création metadata
+    const metadata = createBaseMetadata(
+      mode,
+      subscriptionData,
+      customerInfo,
+      'embed'
+    )
 
-      // Note: customer_creation='always' n'est disponible qu'en mode 'payment'
-      // Pour les subscriptions, Stripe crée automatiquement un customer
-    })
-
-    logger.info('✅ [EMBED-CHECKOUT] Session embedded créée avec succès')
-    logger.debug('[EMBED-CHECKOUT] Détails session:', {
-      sessionId: session.id,
-      mode: guest || !user ? 'guest' : 'user_connecté',
-      customer: customer,
-      customerEmail: customerEmail,
-      metadata: baseMetadata,
-    })
+    // 6️⃣ Création session Stripe
+    const session = await createStripeSession(
+      priceId,
+      subscriptionData,
+      customerInfo,
+      metadata
+    )
 
     return {
       success: true,
@@ -154,4 +97,112 @@ export async function createEmbededCheckoutSession(
       error: error instanceof Error ? error.message : 'Unknown error occurred',
     }
   }
+}
+
+// 2️⃣ Gestion du customer selon le mode
+async function initUserCustomer(
+  mode: CheckoutMode,
+  user: CustomerInfo['user']
+): Promise<CustomerInfo> {
+  if (mode === 'guest') {
+    logger.info('[EMBED-CHECKOUT] 📋 Mode guest détecté')
+    return {
+      customerId: undefined,
+      customerEmail: undefined, // L'utilisateur saisira son email dans le checkout
+      user: undefined,
+    }
+  }
+
+  // Mode authenticated
+  if (!user) {
+    throw new Error('User required for authenticated checkout')
+  }
+
+  logger.info('[EMBED-CHECKOUT] 👤 Mode utilisateur connecté détecté')
+
+  // Pour l'embed checkout, on utilise le stripeCustomerId existant ou l'email
+  const customerId = user.stripeCustomerId || undefined
+  const customerEmail = customerId ? undefined : user.email
+
+  logger.debug('[EMBED-CHECKOUT] Configuration utilisateur connecté:', {
+    hasStripeCustomerId: !!customerId,
+    customerEmail,
+    userId: user.id,
+  })
+
+  return {
+    customerId,
+    customerEmail,
+    user,
+  }
+}
+
+// 3️⃣ Initialisation de la subscription
+async function initSubscription(
+  customerInfo: CustomerInfo,
+  planCode: SubscriptionData['plan']['planCode'],
+  seats: number
+): Promise<string> {
+  logger.info('[EMBED-CHECKOUT] 💾 Initialisation subscription en BDD')
+
+  const subscriptionId = await initSubscriptionService({
+    plan: planCode,
+    seats,
+    referenceId: customerInfo.user?.id, // undefined en mode guest
+    stripeCustomerId: customerInfo.customerId || undefined,
+  })
+
+  logger.debug('[EMBED-CHECKOUT] Subscription initialisée:', {subscriptionId})
+
+  if (!subscriptionId) {
+    logger.error(
+      "[EMBED-CHECKOUT] ❌ Erreur lors de l'initialisation de la subscription"
+    )
+    throw new Error("Erreur lors de l'initialisation de la subscription")
+  }
+
+  return subscriptionId
+}
+
+// 5️⃣ Création de la session Stripe
+async function createStripeSession(
+  priceId: string,
+  subscriptionData: SubscriptionData,
+  customerInfo: CustomerInfo,
+  metadata: Record<string, string>
+): Promise<{url: string | null; id: string; client_secret: string | null}> {
+  logger.info('[EMBED-CHECKOUT] 🔧 Création session Stripe')
+
+  const headersList = await headers()
+  const origin = headersList.get('origin') || ''
+
+  const session = await stripeClient.checkout.sessions.create({
+    customer: customerInfo.customerId,
+    customer_email: customerInfo.customerEmail,
+    line_items: [
+      {
+        price: priceId,
+        quantity: subscriptionData.seats,
+      },
+    ],
+    mode: subscriptionData.plan.isReccuring ? 'subscription' : 'payment',
+    return_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
+    metadata,
+    payment_method_types: ['card'],
+    ui_mode: 'embedded',
+
+    // Note: customer_creation='always' n'est disponible qu'en mode 'payment'
+    // Pour les subscriptions, Stripe crée automatiquement un customer
+  })
+
+  logger.info('✅ [EMBED-CHECKOUT] Session embedded créée avec succès')
+  logger.debug('[EMBED-CHECKOUT] Détails session:', {
+    sessionId: session.id,
+    mode: customerInfo.customerId ? 'authenticated' : 'guest',
+    customer: customerInfo.customerId,
+    customerEmail: customerInfo.customerEmail,
+    clientSecret: session.client_secret,
+  })
+
+  return session
 }

@@ -6,34 +6,22 @@ import {logger} from '@/lib/logger'
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
-import type {SubscriptionPlan} from '@/services/types/domain/subscription-types'
-import type {User} from '@/services/types/domain/user-types'
 
-// Types pour la clarté
-type CheckoutMode = 'guest' | 'authenticated'
-
-type CustomerInfo = {
-  customerId?: string
-  customerEmail?: string
-  user?: User
-}
-
-type SubscriptionData = {
-  subscriptionId: string
-  plan: {
-    planCode: string
-    isReccuring: boolean
-    isYearly: boolean
-  }
-  seats: number
-}
+// Types communs importés
+import type {
+  CheckoutMode,
+  CheckoutResult,
+  CustomerInfo,
+  SubscriptionData,
+} from '../checkout-stripe-util'
+import {createBaseMetadata, validateCheckoutMode} from '../checkout-stripe-util'
 
 // 🎯 Fonction principale refactorisée
 export async function createCheckoutSession(
   priceId: string,
   seats: number = 1,
   guest: boolean = false
-) {
+): Promise<CheckoutResult> {
   logger.info('[EXTERNAL-CHECKOUT] Création session checkout externe démarrée')
   logger.debug('[EXTERNAL-CHECKOUT] Paramètres reçus:', {priceId, seats, guest})
 
@@ -61,7 +49,7 @@ export async function createCheckoutSession(
     })
 
     // 1️⃣ Validation du mode
-    const mode = checkCheckoutMode(guest, user)
+    const mode = validateCheckoutMode(guest, user, 'EXTERNAL-CHECKOUT')
 
     // 2️⃣ Gestion customer
     const customerInfo = await initUserCustomer(mode, user)
@@ -81,7 +69,12 @@ export async function createCheckoutSession(
     }
 
     // 5️⃣ Création metadata
-    const metadata = createMetadata(mode, subscriptionData, customerInfo)
+    const metadata = createBaseMetadata(
+      mode,
+      subscriptionData,
+      customerInfo,
+      'external'
+    )
 
     // 6️⃣ Création session Stripe
     const session = await createStripeSession(
@@ -108,40 +101,10 @@ export async function createCheckoutSession(
   }
 }
 
-// 1️⃣ Validation du mode de checkout
-function checkCheckoutMode(
-  guest: boolean,
-  user: User | undefined
-): CheckoutMode {
-  const isGuestCheckout = guest && !user
-  const isUserCheckout = !guest && !!user
-
-  // Vérifier que le mode est valide
-  if (!isGuestCheckout && !isUserCheckout) {
-    if (guest && user) {
-      logger.error(
-        '[EXTERNAL-CHECKOUT] ❌ Échec: impossible mode guest avec utilisateur connecté'
-      )
-      throw new Error(
-        'Mode guest impossible avec utilisateur connecté - utilisez guest=false'
-      )
-    } else {
-      logger.error(
-        '[EXTERNAL-CHECKOUT] ❌ Échec: utilisateur non connecté en mode non-guest'
-      )
-      throw new Error(
-        'Utilisateur non connecté - utilisez le mode guest ou connectez-vous'
-      )
-    }
-  }
-
-  return isGuestCheckout ? 'guest' : 'authenticated'
-}
-
 // 2️⃣ Gestion du customer selon le mode
 async function initUserCustomer(
   mode: CheckoutMode,
-  user: User | undefined
+  user: CustomerInfo['user']
 ): Promise<CustomerInfo> {
   if (mode === 'guest') {
     logger.info('[EXTERNAL-CHECKOUT] 📋 Mode guest détecté')
@@ -185,7 +148,7 @@ async function initUserCustomer(
 // 3️⃣ Initialisation de la subscription
 async function initSubscription(
   customerInfo: CustomerInfo,
-  planCode: SubscriptionPlan,
+  planCode: SubscriptionData['plan']['planCode'],
   seats: number
 ): Promise<string> {
   logger.info('[EXTERNAL-CHECKOUT] 💾 Initialisation subscription en BDD')
@@ -209,48 +172,6 @@ async function initSubscription(
   }
 
   return subscriptionId
-}
-
-// 4️⃣ Création des metadata selon le mode
-function createMetadata(
-  mode: CheckoutMode,
-  subscriptionData: SubscriptionData,
-  customerInfo: CustomerInfo
-): Record<string, string> {
-  const baseMetadata = {
-    subscriptionId: subscriptionData.subscriptionId,
-    source: 'custom_checkout',
-    isReccuring: subscriptionData.plan.isReccuring ? 'true' : 'false',
-    seats: subscriptionData.seats.toString(),
-    plan: subscriptionData.plan.planCode,
-    interval: subscriptionData.plan.isYearly ? 'year' : 'month',
-  }
-
-  if (mode === 'guest') {
-    logger.debug('[EXTERNAL-CHECKOUT] Configuration guest')
-    return {
-      ...baseMetadata,
-      guest_checkout: 'true',
-    }
-  }
-
-  // Mode authenticated
-  if (!customerInfo.user) {
-    throw new Error('User required for metadata creation')
-  }
-
-  logger.debug('[EXTERNAL-CHECKOUT] Configuration utilisateur connecté:', {
-    customerId: customerInfo.customerId,
-    userId: customerInfo.user.id,
-    email: customerInfo.user.email,
-  })
-
-  return {
-    ...baseMetadata,
-    email: customerInfo.user.email ?? '',
-    userId: customerInfo.user.id,
-    customerEmail: customerInfo.user.email ?? '',
-  }
 }
 
 // 5️⃣ Création de la session Stripe
