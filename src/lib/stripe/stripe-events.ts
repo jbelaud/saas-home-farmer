@@ -24,15 +24,25 @@ export async function onStripeEvent(event: Stripe.Event) {
 
   try {
     switch (event.type) {
+      case 'customer.subscription.created': {
+        logger.info('🔧 Traitement customer.subscription.created')
+        const subscription = event.data.object as Stripe.Subscription
+        logger.info(
+          '🔧 Traitement customer.subscription.created subscription.id',
+          subscription.id
+        )
+        break
+      }
       case 'checkout.session.completed': {
         logger.info('🔧 Traitement checkout session completed')
         const session = event.data.object as Stripe.Checkout.Session
-
         const isCustomCheckout = session.metadata?.source === 'custom_checkout'
 
+        // Ici on traite le cas non couverts par better-auth
+
+        // CAS : Checkout AS guest + Creation de compte
         if (isCustomCheckout) {
           try {
-            // ici on traite le cas non couvert par better auth :
             // - le checkout as guest
             // - creation du compte
             await handleGuestCheckoutSessionCompleted(session)
@@ -43,14 +53,14 @@ export async function onStripeEvent(event: Stripe.Event) {
             )
           }
         }
+
+        // CAS : Paiement en plusieurs fois
         const isInstallmentCheckout =
           session.metadata?.source === 'installment_checkout'
         if (isInstallmentCheckout) {
           logger.info('🔧 Traitement installment checkout')
           await handleInstallmentCheckoutSessionCompleted(session)
         }
-
-        // TODO traiter les split pay car better auth ne les gere pas (price id differents)
 
         // En cas de besoin de traiter le workflow complet
         // si oui supprimer metadata.referenceId de la session.checkout pour eviter un double traitement par better auth
@@ -60,51 +70,9 @@ export async function onStripeEvent(event: Stripe.Event) {
       }
 
       case 'customer.subscription.updated': {
-        const disabled = true
-        if (disabled) {
-          logger.info('🔧 Traitement customer.subscription.updated - disabled')
-          return
-        }
         //https://github.com/better-auth/better-auth/issues/2087
         //https://github.com/better-auth/better-auth/blob/main/packages/stripe/src/hooks.ts#L42-L43
         logger.info('🔄 [TEST] Traitement customer.subscription.updated')
-        const subscription = event.data.object as Stripe.Subscription
-        //console.log('🔧 [STRIPE-EVENT] subscription', subscription)
-
-        // Vérification des données critiques pour Better Auth
-        const hasItemsData = subscription.items?.data?.[0]
-        const itemData = hasItemsData ? subscription.items.data[0] : null
-
-        // logger.info('🔧 [VALIDATION] Vérification structure items.data[0]:', {
-        //   hasItemsData: !!hasItemsData,
-        //   itemId: itemData?.id,
-        //   priceId: itemData?.price?.id,
-        //   quantity: itemData?.quantity,
-        //   current_period_start: itemData?.current_period_start,
-        //   current_period_end: itemData?.current_period_end,
-        // })
-
-        if (!hasItemsData) {
-          logger.error(
-            '❌ [CRITICAL] subscription.items.data[0] missing - Better Auth will fail!'
-          )
-        }
-
-        if (!itemData?.current_period_start || !itemData?.current_period_end) {
-          logger.error(
-            '❌ [CRITICAL] Period dates missing in items.data[0] - Better Auth will fail!'
-          )
-        }
-
-        console.log('🔧 [STRIPE-EVENT] subscription.items.data[0]:', itemData)
-
-        logger.info('🔄 [TEST] Subscription object:', {
-          id: subscription.id,
-          customer: subscription.customer,
-          status: subscription.status,
-          priceId: itemData?.price?.id,
-          metadata: subscription.metadata,
-        })
 
         // TODO: Ici Better Auth gère automatiquement la mise à jour
         logger.info(
@@ -114,28 +82,8 @@ export async function onStripeEvent(event: Stripe.Event) {
       }
 
       case 'customer.subscription.deleted': {
-        const disabled = true
-        if (disabled) {
-          logger.info('🔧 Traitement customer.subscription.deleted - disabled')
-          return
-        }
         logger.info('🗑️ [TEST] Traitement customer.subscription.deleted')
-        const subscription = event.data.object as Stripe.Subscription
-        console.log(
-          '🔧 [STRIPE-EVENT] subscription.items.data[0]:',
-          subscription
-        )
-        logger.debug('🗑️ [TEST] Subscription deleted:', {
-          id: subscription.id,
-          customer: subscription.customer,
-          status: subscription.status,
-          metadata: subscription.metadata,
-        })
 
-        // TODO: Ici Better Auth gère automatiquement l'annulation
-        logger.info(
-          '✅ [TEST] customer.subscription.deleted traité par Better Auth'
-        )
         break
       }
 
@@ -160,10 +108,6 @@ export async function onStripeEvent(event: Stripe.Event) {
     logger.error('❌ Erreur dans onEvent Stripe:', error)
   }
 }
-
-// ===================================
-// 🎯 TOP-DOWN DESIGN : FONCTIONS SPÉCIALISÉES
-// ===================================
 
 /**
  * 🎯 FONCTION PRINCIPALE : Orchestration du checkout session completed
