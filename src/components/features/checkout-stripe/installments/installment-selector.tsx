@@ -13,11 +13,8 @@ import {
 import {Label} from '@/components/ui/label'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 
-import {
-  calculateInstallmentAmount,
-  InstallmentPlans,
-  InstallmentType,
-} from './types'
+import {InstallmentPlans, InstallmentType} from './types'
+import {calculateInstallmentAmount} from './utils'
 
 interface InstallmentSelectorProps {
   totalAmount: number

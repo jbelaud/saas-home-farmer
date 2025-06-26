@@ -163,6 +163,8 @@ export function createCheckoutMetadata(
     | 'installments'
 ): Record<string, string> {
   const baseMetadata = {
+    referenceId:
+      mode === 'guest' ? 'guest' : (customerInfo.user?.id ?? 'guest'),
     subscriptionId: subscriptionData.subscriptionId,
     source: 'custom_checkout',
     checkoutType,

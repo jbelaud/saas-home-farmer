@@ -21,6 +21,7 @@ import {
 import {
   type CreateSubscription,
   PlanConst,
+  type Subscription,
   type SubscriptionPlan,
   type UpdateSubscription,
 } from '@/services/types/domain/subscription-types'
@@ -225,4 +226,54 @@ export const initSubscriptionService = async (params: {
   const subscriptionId = await initSubscriptionDao(params)
 
   return subscriptionId
+}
+
+/**
+ * Service spécialisé pour la mise à jour des subscriptions depuis les webhooks
+ * Pas de vérification d'autorisation car les webhooks sont des sources trusted
+ */
+export const updateSubscriptionForWebhookService = async (params: {
+  subscriptionId: string
+  referenceId: string
+  stripeCustomerId?: string
+}): Promise<Subscription> => {
+  // Validation simple des paramètres
+  if (!params.subscriptionId) {
+    throw new ValidationError('SubscriptionId is required')
+  }
+  if (!params.referenceId) {
+    throw new ValidationError('ReferenceId is required')
+  }
+
+  // Vérifier que la subscription existe
+  const existingSubscription = await getSubscriptionByIdDao(
+    params.subscriptionId
+  )
+  if (!existingSubscription) {
+    throw new ValidationError(
+      `Subscription with id ${params.subscriptionId} not found`
+    )
+  }
+
+  // Préparation des données à mettre à jour
+  const updateData: Partial<Parameters<typeof updateSubscriptionDao>[1]> = {
+    referenceId: params.referenceId,
+  }
+
+  // Ajouter stripeCustomerId si fourni
+  if (params.stripeCustomerId) {
+    updateData.stripeCustomerId = params.stripeCustomerId
+  }
+
+  // Mise à jour directe sans autorisation (webhook trusted)
+  const updatedSubscription = await updateSubscriptionDao(
+    params.subscriptionId,
+    updateData
+  )
+
+  if (!updatedSubscription) {
+    throw new Error('Failed to update subscription')
+  }
+
+  return updatedSubscription
 }

@@ -15,3 +15,5 @@ export const getSubscriptionByUserIdService =
   subscriptionServiceInterceptor.getSubscriptionByUserIdService
 export const initSubscriptionService =
   subscriptionServiceInterceptor.initSubscriptionService
+export const updateSubscriptionForWebhookService =
+  subscriptionServiceInterceptor.updateSubscriptionForWebhookService
