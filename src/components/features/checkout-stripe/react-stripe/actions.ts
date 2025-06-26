@@ -76,7 +76,11 @@ export async function createCheckoutSession(
     }
 
     // 5️⃣ Création metadata
-    const metadata = createReactStripeMetadata(subscriptionData, customerInfo)
+    const metadata = createReactStripeMetadata(
+      subscriptionData,
+      customerInfo,
+      priceId
+    )
 
     // 6️⃣ Récupération du prix pour calculs
     const priceDetails = await getStripePrice(priceId, seats)
@@ -207,17 +211,24 @@ async function initSubscription(
 // 3️⃣ Création des metadata spécifiques React Stripe
 function createReactStripeMetadata(
   subscriptionData: SubscriptionData,
-  customerInfo: CustomerInfo
+  customerInfo: CustomerInfo,
+  priceId: string
 ): Record<string, string> {
   const mode = customerInfo.user ? 'authenticated' : 'guest'
 
   // Utilise la fonction commune avec checkoutType 'react-stripe'
-  return createCheckoutMetadata(
+  const baseMetadata = createCheckoutMetadata(
     mode,
     subscriptionData,
     customerInfo,
     'react-stripe'
   )
+
+  // ✅ AJOUT CRITIQUE : Ajouter le priceId pour confirmSubscription
+  return {
+    ...baseMetadata,
+    priceId: priceId,
+  }
 }
 
 // 4️⃣ Récupération des détails du prix
