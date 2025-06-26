@@ -2,6 +2,9 @@ import {logger} from '@/lib/logger'
 import type {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 import type {User} from '@/services/types/domain/user-types'
 
+// Import pour les types installments
+import type {InstallmentPlan} from './installments/types'
+
 // Types communs pour tous les modes de checkout
 export type CheckoutMode = 'guest' | 'authenticated'
 
@@ -38,6 +41,9 @@ export type CheckoutResult = {
   unit_amount?: number
   currency?: string
   seats?: number
+  // Pour installments checkout
+  scheduleId?: string
+  installmentPlan?: InstallmentPlan
 }
 
 export type CheckoutParams = {
@@ -61,7 +67,12 @@ export type MetadataConfig = {
   mode: CheckoutMode
   subscriptionData: SubscriptionData
   customerInfo: CustomerInfo
-  checkoutType: 'external' | 'embed' | 'payment-link' | 'react-stripe'
+  checkoutType:
+    | 'external'
+    | 'embed'
+    | 'payment-link'
+    | 'react-stripe'
+    | 'installments'
 }
 
 // 🛠️ Fonctions utilitaires communes
@@ -121,13 +132,35 @@ export function validateReactStripeMode(
 }
 
 /**
- * Création des metadata communes - maintenant supporte react-stripe
+ * Validation spécifique pour Installments (incompatible avec plans récurrents)
+ */
+export function validateInstallmentsPlan(
+  plan: SubscriptionData['plan'],
+  context: string = 'INSTALLMENTS-CHECKOUT'
+): void {
+  if (plan.isReccuring) {
+    logger.error(`[${context}] ❌ Plan récurrent incompatible avec échéancier`)
+    throw new Error(
+      'Les paiements en plusieurs fois ne sont pas disponibles pour les abonnements récurrents'
+    )
+  }
+
+  logger.debug(`[${context}] ✅ Plan one-time validé pour échéancier`)
+}
+
+/**
+ * Création des metadata communes - maintenant supporte installments
  */
 export function createCheckoutMetadata(
   mode: CheckoutMode,
   subscriptionData: SubscriptionData,
   customerInfo: CustomerInfo,
-  checkoutType: 'external' | 'embed' | 'payment-link' | 'react-stripe'
+  checkoutType:
+    | 'external'
+    | 'embed'
+    | 'payment-link'
+    | 'react-stripe'
+    | 'installments'
 ): Record<string, string> {
   const baseMetadata = {
     subscriptionId: subscriptionData.subscriptionId,
@@ -162,6 +195,26 @@ export function createCheckoutMetadata(
       return {
         ...baseMetadata,
         source: 'react_stripe_elements',
+        email: customerInfo.user?.email ?? '',
+        userId: customerInfo.user?.id ?? '',
+        customerEmail: customerInfo.user?.email ?? '',
+      }
+    }
+  }
+
+  // 🎯 Installments : configuration spécialisée
+  if (checkoutType === 'installments') {
+    logger.debug(`[INSTALLMENTS-CHECKOUT] Configuration ${mode}`)
+    if (mode === 'guest') {
+      return {
+        ...baseMetadata,
+        source: 'installment_checkout',
+        guest_checkout: 'true',
+      }
+    } else {
+      return {
+        ...baseMetadata,
+        source: 'installment_checkout',
         email: customerInfo.user?.email ?? '',
         userId: customerInfo.user?.id ?? '',
         customerEmail: customerInfo.user?.email ?? '',

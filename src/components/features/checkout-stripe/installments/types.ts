@@ -39,18 +39,3 @@ export const InstallmentPlans: Record<InstallmentType, InstallmentPlan> = {
     description: 'Paiement en 4 fois',
   },
 }
-
-// Fonction utilitaire pour calculer les montants d'échéancier
-export function calculateInstallmentAmount(
-  totalAmount: number,
-  numberOfPayments: number
-): {installmentAmount: number; lastPaymentAmount: number} {
-  const installmentAmount = Math.floor(totalAmount / numberOfPayments)
-  const lastPaymentAmount =
-    totalAmount - installmentAmount * (numberOfPayments - 1)
-
-  return {
-    installmentAmount,
-    lastPaymentAmount,
-  }
-}

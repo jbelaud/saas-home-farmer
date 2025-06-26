@@ -1,6 +1,9 @@
 import React from 'react'
 
-import {getSubscriptionRecapInfo} from '@/components/features/checkout-stripe/actions'
+import {
+  getSubscriptionRecapInfo,
+  PriceRecap,
+} from '@/components/features/checkout-stripe/actions'
 import CheckoutFormEmbedded from '@/components/features/checkout-stripe/embed/checkout-form-embedded'
 import {Card} from '@/components/ui/card'
 import {env} from '@/env'
@@ -153,16 +156,15 @@ function getCheckoutConfig({
   guest: boolean
   isRecurring: boolean
 }): CheckoutConfig {
-  console.log(
-    '🔧 getCheckoutConfig',
+  console.log('🔧 getCheckoutConfig', {
     enableInstallments,
     isRecurring,
-    recapInfo.success,
-    env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE,
+    recapInfoSuccess: recapInfo.success,
+    envStripeCheckoutType: env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE,
     guest,
     priceId,
-    seats
-  )
+    seats,
+  })
   // Mode installments - prioritaire si activé
   if (enableInstallments && isRecurring) {
     console.warn(
@@ -174,13 +176,19 @@ function getCheckoutConfig({
         'Installments (split payment) are not supported for recurring plans, please change price id',
     }
   }
-  if (enableInstallments && recapInfo.success) {
+  if (enableInstallments) {
+    if (!recapInfo.success) {
+      return {
+        component: <></>,
+        message: 'Error loading subscription details',
+      }
+    }
     return {
       component: (
         <CheckoutInstallment
           priceId={priceId}
           seats={seats}
-          recap={recapInfo.recap!}
+          recap={recapInfo.recap as PriceRecap}
           isRecurring={isRecurring}
           guest={guest}
         />

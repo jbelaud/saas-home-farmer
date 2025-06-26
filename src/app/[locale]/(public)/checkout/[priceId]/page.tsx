@@ -1,3 +1,5 @@
+import {env} from 'process'
+
 import CheckoutPage from '@/components/features/checkout-stripe/checkout-page'
 import {logger} from '@/lib/logger'
 
@@ -17,7 +19,10 @@ export default async function Page({params, searchParams}: PropsParams) {
   const priceId = paramStore.priceId ?? ''
   const guest = searchParamsStore.guest === 'true'
   const enableInstallments = searchParamsStore.split === 'true'
-
+  logger.info(
+    '🔧 [CHECKOUT] checkoutType',
+    env.NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE
+  )
   logger.info('🔧 [CHECKOUT] checkout as guest', guest)
   logger.info('🔧 [CHECKOUT] installments mode', enableInstallments)
   logger.info('🔧 [CHECKOUT] priceId', priceId)
