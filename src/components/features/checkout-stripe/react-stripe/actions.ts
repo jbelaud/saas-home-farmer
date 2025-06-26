@@ -286,6 +286,7 @@ export async function confirmSubscription(setupIntentId: string) {
         ],
         default_payment_method: paymentMethodId,
         metadata: {
+          subscriptionId: 'uuid-de-votre-bdd',
           email: customerEmail,
           source: 'react_stripe_elements',
           ...(isGuestCheckout

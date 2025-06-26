@@ -66,6 +66,7 @@ export async function createCheckoutSession(
         seats: seats.toString(),
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
+        subscriptionId: 'uuid-de-votre-bdd',
       }
       logger.debug('[EXTERNAL-CHECKOUT] Configuration guest:', baseMetadata)
     } else {
@@ -87,6 +88,7 @@ export async function createCheckoutSession(
       }
 
       baseMetadata = {
+        subscriptionId: 'uuid-de-votre-bdd',
         source: 'custom_checkout',
         isReccuring: plan.isReccuring ? 'true' : 'false',
         seats: seats.toString(),

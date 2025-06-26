@@ -66,6 +66,7 @@ export async function createEmbededCheckoutSession(
         seats: seats.toString(),
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
+        subscriptionId: 'uuid-de-votre-bdd',
       }
       logger.debug('[EMBED-CHECKOUT] Configuration guest:', baseMetadata)
     } else {
@@ -82,6 +83,7 @@ export async function createEmbededCheckoutSession(
         interval: plan.isYearly ? 'year' : 'month',
         userId: user.id,
         customerEmail: user.email, // Ajout pour le webhook
+        subscriptionId: 'uuid-de-votre-bdd',
       }
       logger.debug('[EMBED-CHECKOUT] Configuration utilisateur connecté:', {
         hasStripeCustomerId: !!customer,
@@ -106,6 +108,7 @@ export async function createEmbededCheckoutSession(
       metadata: baseMetadata,
       payment_method_types: ['card'],
       ui_mode: 'embedded',
+
       // Note: customer_creation='always' n'est disponible qu'en mode 'payment'
       // Pour les subscriptions, Stripe crée automatiquement un customer
     })

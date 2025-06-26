@@ -191,15 +191,44 @@ export async function onStripeEvent(event: Stripe.Event) {
       }
 
       case 'customer.subscription.updated': {
+        //https://github.com/better-auth/better-auth/issues/2087
+        //https://github.com/better-auth/better-auth/blob/main/packages/stripe/src/hooks.ts#L42-L43
         logger.info('🔄 [TEST] Traitement customer.subscription.updated')
         const subscription = event.data.object as Stripe.Subscription
+        //console.log('🔧 [STRIPE-EVENT] subscription', subscription)
 
-        logger.debug('🔄 [TEST] Subscription object:', {
+        // Vérification des données critiques pour Better Auth
+        const hasItemsData = subscription.items?.data?.[0]
+        const itemData = hasItemsData ? subscription.items.data[0] : null
+
+        // logger.info('🔧 [VALIDATION] Vérification structure items.data[0]:', {
+        //   hasItemsData: !!hasItemsData,
+        //   itemId: itemData?.id,
+        //   priceId: itemData?.price?.id,
+        //   quantity: itemData?.quantity,
+        //   current_period_start: itemData?.current_period_start,
+        //   current_period_end: itemData?.current_period_end,
+        // })
+
+        if (!hasItemsData) {
+          logger.error(
+            '❌ [CRITICAL] subscription.items.data[0] missing - Better Auth will fail!'
+          )
+        }
+
+        if (!itemData?.current_period_start || !itemData?.current_period_end) {
+          logger.error(
+            '❌ [CRITICAL] Period dates missing in items.data[0] - Better Auth will fail!'
+          )
+        }
+
+        console.log('🔧 [STRIPE-EVENT] subscription.items.data[0]:', itemData)
+
+        logger.info('🔄 [TEST] Subscription object:', {
           id: subscription.id,
           customer: subscription.customer,
           status: subscription.status,
-          start_date: subscription.start_date,
-          ended_at: subscription.ended_at,
+          priceId: itemData?.price?.id,
           metadata: subscription.metadata,
         })
 
@@ -213,7 +242,10 @@ export async function onStripeEvent(event: Stripe.Event) {
       case 'customer.subscription.deleted': {
         logger.info('🗑️ [TEST] Traitement customer.subscription.deleted')
         const subscription = event.data.object as Stripe.Subscription
-
+        console.log(
+          '🔧 [STRIPE-EVENT] subscription.items.data[0]:',
+          subscription
+        )
         logger.debug('🗑️ [TEST] Subscription deleted:', {
           id: subscription.id,
           customer: subscription.customer,

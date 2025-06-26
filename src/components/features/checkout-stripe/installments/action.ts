@@ -147,6 +147,7 @@ export async function createInstallmentCheckoutSession(
       baseMetadata = {
         source: 'installment_checkout',
         guest_checkout: 'true', // Marquer comme guest checkout
+        subscriptionId: 'uuid-de-votre-bdd',
         plan: plan.planCode,
         installment_type: installmentType,
       }
