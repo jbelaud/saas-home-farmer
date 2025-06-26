@@ -13,8 +13,11 @@ import {
 import {Label} from '@/components/ui/label'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 
-import {InstallmentPlans, InstallmentType} from './types'
-import {calculateInstallmentAmount} from './utils'
+import {
+  calculateInstallmentAmount,
+  InstallmentPlans,
+  InstallmentType,
+} from './types'
 
 interface InstallmentSelectorProps {
   totalAmount: number
@@ -177,3 +180,5 @@ export default function InstallmentSelector({
     </Card>
   )
 }
+
+// Fonction utilitaire pour calculer les montants d'échéancier

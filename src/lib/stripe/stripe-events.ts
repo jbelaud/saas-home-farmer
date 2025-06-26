@@ -28,18 +28,29 @@ export async function onStripeEvent(event: Stripe.Event) {
         logger.info('🔧 Traitement checkout session completed')
         const session = event.data.object as Stripe.Checkout.Session
 
-        try {
-          // ici on traite le cas non couvert par better auth :
-          // - le checkout as guest
-          // - creation du compte
-          await handleGuestCheckoutSessionCompleted(session)
-        } catch (error) {
-          logger.error(
-            '❌ Erreur dans handleGuestCheckoutSessionCompleted:',
-            error
-          )
+        const isCustomCheckout = session.metadata?.source === 'custom_checkout'
+
+        if (isCustomCheckout) {
+          try {
+            // ici on traite le cas non couvert par better auth :
+            // - le checkout as guest
+            // - creation du compte
+            await handleGuestCheckoutSessionCompleted(session)
+          } catch (error) {
+            logger.error(
+              '❌ Erreur dans handleGuestCheckoutSessionCompleted:',
+              error
+            )
+          }
         }
-        // TODO faut il traiter ici le isInstallmentCheckout ?
+        const isInstallmentCheckout =
+          session.metadata?.source === 'installment_checkout'
+        if (isInstallmentCheckout) {
+          logger.info('🔧 Traitement installment checkout')
+          await handleInstallmentCheckoutSessionCompleted(session)
+        }
+
+        // TODO traiter les split pay car better auth ne les gere pas (price id differents)
 
         // En cas de besoin de traiter le workflow complet
         // si oui supprimer metadata.referenceId de la session.checkout pour eviter un double traitement par better auth
@@ -390,29 +401,17 @@ async function updateSubscriptionWithUser(
   logger.info('🔄 Mise à jour du referenceId dans la subscription...')
 
   try {
-    if (!subscriptionId) {
-      console.warn('🔧 subscriptionId manquante des metadata', subscriptionId)
-      // Normalement ce cas ne devrait pas se presenter
-      // await createSubscriptionFromStripeService(
-      //   user.email,
-      //   'pro',
-      //   false,
-      //   'sub_XXXXXX', //stripe subscriptionId
-      //   user.stripeCustomerId,
-      //   1
-      // )
-    } else {
-      const updatedSubscription = await updateSubscriptionForWebhookService({
-        subscriptionId,
-        referenceId: user.id,
-        stripeCustomerId: user.stripeCustomerId,
-      })
-      logger.info('✅ Subscription mise à jour avec succès:', {
-        subscriptionId: updatedSubscription.id,
-        newReferenceId: updatedSubscription.referenceId,
-        stripeCustomerId: updatedSubscription.stripeCustomerId,
-      })
-    }
+    const updatedSubscription = await updateSubscriptionForWebhookService({
+      subscriptionId,
+      referenceId: user.id,
+      stripeCustomerId: user.stripeCustomerId,
+    })
+
+    logger.info('✅ Subscription mise à jour avec succès:', {
+      subscriptionId: updatedSubscription.id,
+      newReferenceId: updatedSubscription.referenceId,
+      stripeCustomerId: updatedSubscription.stripeCustomerId,
+    })
   } catch (error) {
     logger.error('❌ Erreur lors de la mise à jour de la subscription:', error)
     // Ne pas throw car l'utilisateur est créé, juste log l'erreur
@@ -600,5 +599,191 @@ async function handleFullCheckoutSessionCompleted(event: Stripe.Event) {
     logger.debug(
       "📋 Checkout Better Auth natif - traité automatiquement par l'API Better Auth"
     )
+  }
+}
+
+// ===================================
+// 🎯 INSTALLMENT CHECKOUT : FONCTIONS SPÉCIALISÉES
+// ===================================
+
+/**
+ * 🎯 FONCTION PRINCIPALE : Gestion des installment checkouts
+ */
+async function handleInstallmentCheckoutSessionCompleted(
+  session: Stripe.Checkout.Session
+): Promise<void> {
+  logger.info('🗓️ Traitement installment checkout session completed')
+  const metadata = session.metadata || {}
+  console.log('🔧handleInstallmentCheckoutSessionCompleted  metadata', metadata)
+  // 1️⃣ Validation des données installment
+  const installmentData = validateInstallmentCheckoutData(session, metadata)
+
+  // 2️⃣ Détection du mode (guest ou authenticated)
+  const isGuestCheckout = detectGuestCheckoutMode(metadata)
+
+  // 3️⃣ Gestion utilisateur selon le mode
+  let finalUser
+  if (isGuestCheckout) {
+    finalUser = await createGuestUser({
+      customerEmail: installmentData.customerEmail,
+      customerName: installmentData.customerName,
+      stripeCustomerId: installmentData.stripeCustomerId,
+    })
+  } else {
+    // Mode authenticated - récupérer user existant
+    finalUser = await getAuthenticatedUser(installmentData.customerEmail)
+  }
+
+  // 4️⃣ Création subscription avec périodes installment
+  await createInstallmentSubscription(installmentData, finalUser)
+
+  logger.info('🎉 Workflow installment checkout terminé avec succès!')
+}
+
+/**
+ * 1️⃣ VALIDATION : Données installment checkout
+ */
+function validateInstallmentCheckoutData(
+  session: Stripe.Checkout.Session,
+  metadata: Record<string, string>
+): {
+  customerEmail: string
+  customerName?: string
+  stripeCustomerId?: string
+  plan: string
+  seats: number
+  numberOfPayments: number
+  scheduleId?: string
+  stripeSubscriptionId?: string
+} {
+  logger.info('🔍 Validation des données installment checkout...')
+
+  // Récupération des informations
+  const customerEmail =
+    metadata.customerEmail ?? session.customer_details?.email
+  const customerName = session.customer_details?.name || undefined
+  const stripeCustomerId = session.customer as string
+  const plan = metadata.plan
+  const seats = parseInt(metadata.seats || '1')
+  const numberOfPayments = parseInt(metadata.number_of_payments || '1')
+  const scheduleId = metadata.schedule_id
+  const stripeSubscriptionId = session.subscription as string
+  const isInstallmentCheckout = metadata.source === 'installment_checkout'
+
+  // Validations critiques
+  if (!customerEmail) {
+    logger.error('❌ Email manquant pour installment checkout')
+    throw new Error('Email manquant pour installment checkout')
+  }
+
+  if (!plan) {
+    logger.error('❌ Plan manquant pour installment checkout')
+    throw new Error('Plan manquant pour installment checkout')
+  }
+
+  if (!scheduleId) {
+    logger.error('❌ Schedule ID manquant pour installment checkout')
+    throw new Error('Schedule ID manquant pour installment checkout')
+  }
+
+  if (numberOfPayments < 2) {
+    logger.error('❌ Nombre de paiements invalide pour installment')
+    throw new Error('Nombre de paiements doit être >= 2')
+  }
+
+  if (!isInstallmentCheckout) {
+    logger.error('❌ Installment checkout non supporté')
+    throw new Error('Installment checkout non supporté')
+  }
+
+  logger.info('✅ Validation installment réussie')
+
+  return {
+    customerEmail,
+    customerName,
+    stripeCustomerId,
+    plan,
+    seats,
+    numberOfPayments,
+    scheduleId,
+    stripeSubscriptionId,
+  }
+}
+
+/**
+ * 2️⃣ UTILISATEUR AUTHENTIFIÉ : Récupérer user existant
+ */
+async function getAuthenticatedUser(email: string): Promise<{
+  id: string
+  email: string
+  stripeCustomerId: string
+}> {
+  logger.info('🔍 Récupération utilisateur authentifié...')
+
+  const existingUser = await getUserByEmailDao(email)
+  if (!existingUser) {
+    throw new Error(`Utilisateur authentifié non trouvé: ${email}`)
+  }
+
+  return {
+    id: existingUser.id,
+    email: existingUser.email,
+    stripeCustomerId: existingUser.stripeCustomerId || '',
+  }
+}
+
+/**
+ * 3️⃣ CRÉATION SUBSCRIPTION : Avec périodes installment
+ */
+async function createInstallmentSubscription(
+  installmentData: {
+    customerEmail: string
+    plan: string
+    seats: number
+    numberOfPayments: number
+    stripeSubscriptionId?: string
+  },
+  user: {
+    id: string
+    email: string
+    stripeCustomerId: string
+  }
+): Promise<void> {
+  logger.info('🗓️ Création subscription installment...')
+
+  try {
+    // Calculer la date de fin basée sur le nombre de paiements
+    const currentDate = new Date()
+    const endDate = new Date(currentDate)
+    endDate.setMonth(endDate.getMonth() + installmentData.numberOfPayments)
+
+    // Utiliser le service de création subscription existant
+    const {createSubscriptionFromStripeService} = await import(
+      '@/services/facades/subscription-service-facade'
+    )
+
+    await createSubscriptionFromStripeService(
+      installmentData.customerEmail,
+      installmentData.plan as SubscriptionPlan, // Cast vers SubscriptionPlan
+      false, // yearly = false pour installments
+      installmentData.stripeSubscriptionId || '',
+      user.stripeCustomerId,
+      installmentData.seats,
+      endDate
+    )
+
+    logger.info('✅ Subscription installment créée avec succès:', {
+      userEmail: installmentData.customerEmail,
+      plan: installmentData.plan,
+      seats: installmentData.seats,
+      numberOfPayments: installmentData.numberOfPayments,
+      endDate: endDate.toISOString(),
+    })
+  } catch (error) {
+    logger.error(
+      '❌ Erreur lors de la création subscription installment:',
+      error
+    )
+    throw error
   }
 }

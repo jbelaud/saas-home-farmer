@@ -1,6 +1,10 @@
+import 'server-only'
+
 import Stripe from 'stripe'
 
 import {stripeClient} from '@/lib/stripe/stripe-utils'
+
+import {calculateInstallmentAmount} from './types'
 
 // Fonction pour créer un Schedule Stripe pour les paiements en plusieurs fois
 export async function createInstallmentSubscriptionSchedule(
@@ -103,6 +107,7 @@ export async function createInstallmentSubscriptionSchedule(
       original_price_id: priceId,
       seats: seats.toString(),
       ...metadata,
+      source: 'installment_checkout',
     },
   })
 
@@ -111,20 +116,5 @@ export async function createInstallmentSubscriptionSchedule(
     product,
     installmentPrice,
     lastPaymentPrice,
-  }
-}
-
-// Fonction utilitaire pour calculer les montants d'échéancier
-export function calculateInstallmentAmount(
-  totalAmount: number,
-  numberOfPayments: number
-): {installmentAmount: number; lastPaymentAmount: number} {
-  const installmentAmount = Math.floor(totalAmount / numberOfPayments)
-  const lastPaymentAmount =
-    totalAmount - installmentAmount * (numberOfPayments - 1)
-
-  return {
-    installmentAmount,
-    lastPaymentAmount,
   }
 }
