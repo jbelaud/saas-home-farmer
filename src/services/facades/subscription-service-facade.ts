@@ -13,3 +13,5 @@ export const getActiveSubscriptionsByUserEmailService =
   subscriptionServiceInterceptor.getActiveSubscriptionsByUserEmailService
 export const getSubscriptionByUserIdService =
   subscriptionServiceInterceptor.getSubscriptionByUserIdService
+export const initSubscriptionService =
+  subscriptionServiceInterceptor.initSubscriptionService

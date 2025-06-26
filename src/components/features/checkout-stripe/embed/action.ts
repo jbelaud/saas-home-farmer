@@ -5,6 +5,7 @@ import {headers} from 'next/headers'
 import {logger} from '@/lib/logger'
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
+import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 
 export async function createEmbededCheckoutSession(
   priceId: string,
@@ -49,6 +50,21 @@ export async function createEmbededCheckoutSession(
     const headersList = await headers()
     const origin = headersList.get('origin') || ''
 
+    // 🎯 Initialiser la subscription en BDD AVANT la session checkout
+    logger.info('[EMBED-CHECKOUT] 💾 Initialisation subscription en BDD')
+    const subscriptionId = await initSubscriptionService({
+      plan: plan.planCode,
+      seats,
+      referenceId: user?.id, // undefined en mode guest
+      stripeCustomerId: user?.stripeCustomerId || undefined,
+    })
+    logger.debug('[EMBED-CHECKOUT] Subscription initialisée:', {subscriptionId})
+    if (!subscriptionId) {
+      logger.error(
+        "[EMBED-CHECKOUT] ❌ Erreur lors de l'initialisation de la subscription"
+      )
+      throw new Error("Erreur lors de l'initialisation de la subscription")
+    }
     // Logique différente selon guest ou user connecté
     let customer: string | undefined
     let customerEmail: string | undefined
@@ -66,7 +82,7 @@ export async function createEmbededCheckoutSession(
         seats: seats.toString(),
         plan: plan.planCode,
         interval: plan.isYearly ? 'year' : 'month',
-        subscriptionId: 'uuid-de-votre-bdd',
+        subscriptionId, // 🎯 Utilise le vrai UUID généré
       }
       logger.debug('[EMBED-CHECKOUT] Configuration guest:', baseMetadata)
     } else {
@@ -83,7 +99,7 @@ export async function createEmbededCheckoutSession(
         interval: plan.isYearly ? 'year' : 'month',
         userId: user.id,
         customerEmail: user.email, // Ajout pour le webhook
-        subscriptionId: 'uuid-de-votre-bdd',
+        subscriptionId, // 🎯 Utilise le vrai UUID généré
       }
       logger.debug('[EMBED-CHECKOUT] Configuration utilisateur connecté:', {
         hasStripeCustomerId: !!customer,

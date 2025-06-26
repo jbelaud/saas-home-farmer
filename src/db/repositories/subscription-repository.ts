@@ -255,3 +255,26 @@ export const getActiveSubscriptionsByUserIdDao = async (userId: string) => {
 
   return rows
 }
+
+export const initSubscriptionDao = async (params: {
+  plan: SubscriptionModel['plan']
+  seats: number
+  referenceId?: string
+  stripeCustomerId?: string
+}): Promise<string> => {
+  const [row] = await db
+    .insert(subscription)
+    .values({
+      plan: params.plan,
+      seats: params.seats,
+      referenceId: params.referenceId || 'guest', // Guest mode si pas d'utilisateur
+      stripeCustomerId: params.stripeCustomerId,
+      status: 'incomplete',
+      periodStart: new Date(),
+      // periodEnd laissé undefined (sera rempli après paiement)
+      // stripeSubscriptionId laissé undefined (sera rempli par webhook)
+    })
+    .returning({id: subscription.id})
+
+  return row.id
+}

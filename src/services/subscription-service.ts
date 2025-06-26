@@ -4,6 +4,7 @@ import {
   getActiveSubscriptionsByUserIdDao,
   getSubscriptionByIdDao,
   getSubscriptionByUserIdDao,
+  initSubscriptionDao,
   isActivePlanExistDao,
   isPlanExistDao,
   updateSubscriptionDao,
@@ -204,4 +205,24 @@ export const getActiveSubscriptionsByStripeCustomerIdService = async (
   const subscriptions =
     await getActiveSubscriptionsByStripeCustomerIdDao(stripeCustomerId)
   return subscriptions
+}
+
+export const initSubscriptionService = async (params: {
+  plan: SubscriptionPlan
+  seats: number
+  referenceId?: string
+  stripeCustomerId?: string
+}): Promise<string> => {
+  // Validation des paramètres
+  if (!params.plan) {
+    throw new ValidationError('Plan is required')
+  }
+  if (!params.seats || params.seats < 1) {
+    throw new ValidationError('Seats must be at least 1')
+  }
+
+  // Créer la subscription en statut 'incomplete'
+  const subscriptionId = await initSubscriptionDao(params)
+
+  return subscriptionId
 }
