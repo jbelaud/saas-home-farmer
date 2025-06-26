@@ -481,21 +481,6 @@ NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE=PaymentLink
 
 **Avantages :** URLs partageables, pas d'authentification requise
 
-## 8. Performance et Optimisations
-
-### Lazy Loading des Composants
-
-```typescript
-// Chargement conditionnel des composants checkout
-const CheckoutInstallment = dynamic(
-  () => import('./installments/checkout-installment')
-)
-const CheckoutFormEmbedded = dynamic(
-  () => import('./embed/checkout-form-embedded')
-)
-// etc...
-```
-
 ### Cache et Récupération de Prix
 
 ```typescript

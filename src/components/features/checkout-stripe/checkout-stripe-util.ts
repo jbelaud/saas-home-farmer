@@ -24,7 +24,7 @@ export type SubscriptionData = {
 export type CheckoutResult = {
   success: boolean
   error?: string
-  // Pour external checkout
+  // Pour external checkout et payment link
   url?: string | null
   sessionId?: string
   // Pour embed checkout
@@ -53,7 +53,7 @@ export type MetadataConfig = {
   mode: CheckoutMode
   subscriptionData: SubscriptionData
   customerInfo: CustomerInfo
-  checkoutType: 'external' | 'embed'
+  checkoutType: 'external' | 'embed' | 'payment-link'
 }
 
 // 🛠️ Fonctions utilitaires communes
@@ -92,13 +92,13 @@ export function validateCheckoutMode(
 }
 
 /**
- * Création des metadata communes
+ * Création des metadata communes - maintenant supporte payment-link
  */
 export function createCheckoutMetadata(
   mode: CheckoutMode,
   subscriptionData: SubscriptionData,
   customerInfo: CustomerInfo,
-  checkoutType: 'external' | 'embed'
+  checkoutType: 'external' | 'embed' | 'payment-link'
 ): Record<string, string> {
   const baseMetadata = {
     subscriptionId: subscriptionData.subscriptionId,
@@ -110,6 +110,16 @@ export function createCheckoutMetadata(
     interval: subscriptionData.plan.isYearly ? 'year' : 'month',
   }
 
+  // 🎯 Payment link : mode guest uniquement, pas de customerInfo
+  if (checkoutType === 'payment-link') {
+    logger.debug('[PAYMENT-LINK] Configuration guest (mode obligatoire)')
+    return {
+      ...baseMetadata,
+      guest_checkout: 'true', // Payment link = toujours guest
+    }
+  }
+
+  // Logique existante pour external/embed
   if (mode === 'guest') {
     logger.debug(`[${checkoutType.toUpperCase()}-CHECKOUT] Configuration guest`)
     return {
