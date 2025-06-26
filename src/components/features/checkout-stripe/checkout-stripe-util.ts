@@ -30,6 +30,14 @@ export type CheckoutResult = {
   // Pour embed checkout
   sessionUrl?: string | null
   clientSecret?: string | null
+  // Pour react-stripe checkout
+  setupIntentId?: string
+  customerId?: string
+  priceId?: string
+  amount?: number
+  unit_amount?: number
+  currency?: string
+  seats?: number
 }
 
 export type CheckoutParams = {
@@ -53,7 +61,7 @@ export type MetadataConfig = {
   mode: CheckoutMode
   subscriptionData: SubscriptionData
   customerInfo: CustomerInfo
-  checkoutType: 'external' | 'embed' | 'payment-link'
+  checkoutType: 'external' | 'embed' | 'payment-link' | 'react-stripe'
 }
 
 // 🛠️ Fonctions utilitaires communes
@@ -92,13 +100,34 @@ export function validateCheckoutMode(
 }
 
 /**
- * Création des metadata communes - maintenant supporte payment-link
+ * Validation spécifique pour React Stripe (email requis en mode guest)
+ */
+export function validateReactStripeMode(
+  guest: boolean,
+  user: User | undefined,
+  email?: string,
+  context: string = 'REACT-STRIPE'
+): CheckoutMode {
+  // Validation de base
+  const mode = validateCheckoutMode(guest, user, context)
+
+  // Validation spécifique React Stripe
+  if (mode === 'guest' && !email) {
+    logger.error(`[${context}] ❌ Échec: email requis pour le mode guest`)
+    throw new Error('Email requis pour le mode guest')
+  }
+
+  return mode
+}
+
+/**
+ * Création des metadata communes - maintenant supporte react-stripe
  */
 export function createCheckoutMetadata(
   mode: CheckoutMode,
   subscriptionData: SubscriptionData,
   customerInfo: CustomerInfo,
-  checkoutType: 'external' | 'embed' | 'payment-link'
+  checkoutType: 'external' | 'embed' | 'payment-link' | 'react-stripe'
 ): Record<string, string> {
   const baseMetadata = {
     subscriptionId: subscriptionData.subscriptionId,
@@ -116,6 +145,27 @@ export function createCheckoutMetadata(
     return {
       ...baseMetadata,
       guest_checkout: 'true', // Payment link = toujours guest
+    }
+  }
+
+  // 🎯 React Stripe : configuration spécialisée
+  if (checkoutType === 'react-stripe') {
+    logger.debug(`[REACT-STRIPE] Configuration ${mode}`)
+    if (mode === 'guest') {
+      return {
+        ...baseMetadata,
+        source: 'react_stripe_elements',
+        guest_checkout: 'true',
+        email: customerInfo.customerEmail ?? '',
+      }
+    } else {
+      return {
+        ...baseMetadata,
+        source: 'react_stripe_elements',
+        email: customerInfo.user?.email ?? '',
+        userId: customerInfo.user?.id ?? '',
+        customerEmail: customerInfo.user?.email ?? '',
+      }
     }
   }
 

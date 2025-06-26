@@ -5,15 +5,28 @@ import Stripe from 'stripe'
 import {logger} from '@/lib/logger'
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
+import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
 import {createUserFromStripeService} from '@/services/facades/user-service-facade'
 
+// Types communs importés
+import type {
+  CheckoutResult,
+  CustomerInfo,
+  SubscriptionData,
+} from '../checkout-stripe-util'
+import {
+  createCheckoutMetadata,
+  validateReactStripeMode,
+} from '../checkout-stripe-util'
+
+// 🎯 Fonction principale refactorisée
 export async function createCheckoutSession(
   priceId: string,
   seats: number = 1,
   guest: boolean = false,
   email?: string
-) {
+): Promise<CheckoutResult> {
   logger.info('[REACT-STRIPE] Création session checkout démarrée')
   logger.debug('[REACT-STRIPE] Paramètres reçus:', {
     priceId,
@@ -22,163 +35,71 @@ export async function createCheckoutSession(
     email,
   })
 
-  // Récupérer l'utilisateur connecté (optionnel si guest)
-  const user = await getAuthUser()
-  logger.debug('[REACT-STRIPE] Utilisateur récupéré:', {
-    hasUser: !!user,
-    userId: user?.id,
-    userEmail: user?.email,
-  })
-
-  // Vérifier si le checkout est possible selon le contexte
-  if (!guest && !user) {
-    logger.error(
-      '[REACT-STRIPE] ❌ Échec: utilisateur non connecté en mode non-guest'
-    )
-    return {
-      success: false,
-      error:
-        'Utilisateur non connecté - utilisez le mode guest ou connectez-vous',
-    }
-  }
-
-  if (guest && !email) {
-    logger.error('[REACT-STRIPE] ❌ Échec: email requis pour le mode guest')
-    return {
-      success: false,
-      error: 'Email requis pour le mode guest',
-    }
-  }
-
-  const plan = getPlanByPriceId(priceId)
-  if (!plan) {
-    logger.error('[REACT-STRIPE] ❌ Plan non trouvé pour priceId:', priceId)
-    throw new Error('Plan not found')
-  }
-  logger.debug('[REACT-STRIPE] Plan récupéré:', {
-    planCode: plan.planCode,
-    isReccuring: plan.isReccuring,
-  })
-
   try {
-    // Logique différente selon guest ou user connecté
-    let customerId: string | undefined
-    let customerEmail: string | undefined
-    let baseMetadata: Record<string, string>
+    // Récupérer l'utilisateur connecté (optionnel si guest)
+    const user = await getAuthUser()
+    logger.debug('[REACT-STRIPE] Utilisateur récupéré:', {
+      hasUser: !!user,
+      userId: user?.id,
+      userEmail: user?.email,
+    })
 
-    if (guest || !user) {
-      logger.info('[REACT-STRIPE] 📋 Mode guest détecté')
-      // Mode Guest : créer un customer avec l'email fourni
-      customerEmail = email // Email fourni par le formulaire guest
-
-      const customer = await stripeClient.customers.create({
-        email: email,
-        metadata: {
-          managed_by: 'webhook_guest_checkout',
-          source: 'react_stripe_elements',
-        },
-      })
-      customerId = customer.id
-      logger.debug('[REACT-STRIPE] Customer guest créé:', {customerId})
-
-      baseMetadata = {
-        source: 'react_stripe_elements',
-        guest_checkout: 'true', // Marquer comme guest checkout
-        isReccuring: plan.isReccuring ? 'true' : 'false',
-        seats: seats.toString(),
-        plan: plan.planCode,
-        interval: plan.isYearly ? 'year' : 'month',
-        email: email || '', // Ajout de l'email dans les metadata
-      }
-    } else {
-      logger.info('[REACT-STRIPE] 👤 Mode utilisateur connecté détecté')
-      // Mode User connecté : utiliser ou créer le customer
-      customerId = user.stripeCustomerId || undefined
-
-      if (!customerId) {
-        logger.info(
-          '[REACT-STRIPE] 🔧 Création customer Stripe pour utilisateur'
-        )
-        const customer = await stripeClient.customers.create({
-          email: user.email ?? '',
-          metadata: {
-            userId: user.id,
-          },
-        })
-        customerId = customer.id
-        logger.debug('[REACT-STRIPE] Customer Stripe créé:', {customerId})
-      }
-
-      baseMetadata = {
-        source: 'react_stripe_elements',
-        isReccuring: plan.isReccuring ? 'true' : 'false',
-        seats: seats.toString(),
-        email: user.email ?? '',
-        plan: plan.planCode,
-        interval: plan.isYearly ? 'year' : 'month',
-        userId: user.id,
-        customerEmail: user.email ?? '', // Ajout pour le webhook
-      }
-      logger.debug('[REACT-STRIPE] Configuration utilisateur connecté:', {
-        customerId,
-        userId: user.id,
-        email: user.email,
-      })
+    // Valider le plan
+    const plan = getPlanByPriceId(priceId)
+    if (!plan) {
+      logger.error('[REACT-STRIPE] ❌ Plan non trouvé pour priceId:', priceId)
+      throw new Error('Plan not found')
     }
+    logger.debug('[REACT-STRIPE] Plan récupéré:', {
+      planCode: plan.planCode,
+      isReccuring: plan.isReccuring,
+    })
 
-    // Récupérer le prix pour connaître le montant
-    const price = await stripeClient.prices.retrieve(priceId)
-    if (!price || !price.unit_amount) {
-      logger.error('[REACT-STRIPE] ❌ Prix non trouvé pour priceId:', priceId)
-      throw new Error('Price not found')
-    }
-    const amount = price.unit_amount * seats * 100
-    logger.debug('[REACT-STRIPE] Calculs montants:', {
-      unitAmount: price.unit_amount,
-      amount,
+    // 1️⃣ Validation du mode (avec email requis pour guest)
+    const mode = validateReactStripeMode(guest, user, email)
+
+    // 2️⃣ Gestion customer
+    const customerInfo = await initReactStripeCustomer(mode, user, email)
+
+    // 3️⃣ Initialisation subscription
+    const subscriptionId = await initSubscription(
+      customerInfo,
+      plan.planCode,
+      seats
+    )
+
+    // 4️⃣ Préparation des données
+    const subscriptionData: SubscriptionData = {
+      subscriptionId,
+      plan,
       seats,
-    })
-
-    logger.info('[REACT-STRIPE] 🔧 Création Setup Intent Stripe')
-    // Créer un Setup Intent pour configurer le mode de paiement
-    const setupIntent = await stripeClient.setupIntents.create({
-      customer: customerId,
-      payment_method_types: ['card'],
-      usage: 'off_session',
-      metadata: {
-        ...baseMetadata,
-        priceId: priceId,
-        amount: amount.toString(),
-        currency: price.currency,
-      },
-    })
-
-    // Sauvegarder les informations de l'abonnement en attente dans les métadonnées
-    if (!setupIntent.client_secret) {
-      logger.error(
-        '[REACT-STRIPE] ❌ Client secret manquant pour le setup intent'
-      )
-      throw new Error('Client secret manquant pour le setup intent')
     }
 
-    logger.info('✅ [REACT-STRIPE] Setup Intent créé avec succès')
-    logger.debug('[REACT-STRIPE] Détails Setup Intent:', {
-      setupIntentId: setupIntent.id,
-      mode: guest || !user ? 'guest' : 'user_connecté',
-      customer: customerId,
-      customerEmail: customerEmail || email,
-      metadata: baseMetadata,
-    })
+    // 5️⃣ Création metadata
+    const metadata = createReactStripeMetadata(subscriptionData, customerInfo)
+
+    // 6️⃣ Récupération du prix pour calculs
+    const priceDetails = await getStripePrice(priceId, seats)
+
+    // 7️⃣ Création Setup Intent Stripe
+    if (!customerInfo.customerId) {
+      throw new Error('Customer ID is required for Setup Intent creation')
+    }
+    const setupIntent = await createStripeSetupIntent(
+      customerInfo.customerId,
+      metadata,
+      priceDetails
+    )
 
     return {
       success: true,
       clientSecret: setupIntent.client_secret,
       setupIntentId: setupIntent.id,
-      customerId: customerId,
+      customerId: customerInfo.customerId,
       priceId: priceId,
-      amount: amount,
-      unit_amount: price.unit_amount,
-      currency: price.currency,
+      amount: priceDetails.amount,
+      unit_amount: priceDetails.unit_amount,
+      currency: priceDetails.currency,
       seats: seats,
     }
   } catch (error) {
@@ -193,6 +114,176 @@ export async function createCheckoutSession(
   }
 }
 
+// 1️⃣ Gestion du customer React Stripe (toujours crée un customer)
+async function initReactStripeCustomer(
+  mode: 'guest' | 'authenticated',
+  user: CustomerInfo['user'],
+  email?: string
+): Promise<CustomerInfo> {
+  if (mode === 'guest') {
+    logger.info('[REACT-STRIPE] 📋 Mode guest détecté')
+
+    // Mode Guest : créer un customer avec l'email fourni
+    if (!email) {
+      throw new Error('Email is required for guest checkout')
+    }
+    const customer = await stripeClient.customers.create({
+      email: email,
+      metadata: {
+        managed_by: 'webhook_guest_checkout',
+        source: 'react_stripe_elements',
+      },
+    })
+
+    logger.debug('[REACT-STRIPE] Customer guest créé:', {
+      customerId: customer.id,
+      email: email,
+    })
+
+    return {
+      customerId: customer.id,
+      customerEmail: email,
+      user: undefined,
+    }
+  }
+
+  // Mode authenticated
+  if (!user) {
+    throw new Error('User required for authenticated checkout')
+  }
+
+  logger.info('[REACT-STRIPE] 👤 Mode utilisateur connecté détecté')
+
+  let customerId = user.stripeCustomerId
+
+  // Créer customer si nécessaire
+  if (!customerId) {
+    logger.info('[REACT-STRIPE] 🔧 Création customer Stripe pour utilisateur')
+    const customer = await stripeClient.customers.create({
+      email: user.email ?? '',
+      metadata: {
+        userId: user.id,
+        source: 'react_stripe_elements',
+      },
+    })
+    customerId = customer.id
+    logger.debug('[REACT-STRIPE] Customer Stripe créé:', {customerId})
+  }
+
+  return {
+    customerId,
+    customerEmail: user.email,
+    user,
+  }
+}
+
+// 2️⃣ Initialisation de la subscription
+async function initSubscription(
+  customerInfo: CustomerInfo,
+  planCode: SubscriptionData['plan']['planCode'],
+  seats: number
+): Promise<string> {
+  logger.info('[REACT-STRIPE] 💾 Initialisation subscription en BDD')
+
+  const subscriptionId = await initSubscriptionService({
+    plan: planCode,
+    seats,
+    referenceId: customerInfo.user?.id || 'guest', // guest si pas d'utilisateur
+    stripeCustomerId: customerInfo.customerId,
+  })
+
+  logger.debug('[REACT-STRIPE] Subscription initialisée:', {subscriptionId})
+
+  if (!subscriptionId) {
+    logger.error(
+      "[REACT-STRIPE] ❌ Erreur lors de l'initialisation de la subscription"
+    )
+    throw new Error("Erreur lors de l'initialisation de la subscription")
+  }
+
+  return subscriptionId
+}
+
+// 3️⃣ Création des metadata spécifiques React Stripe
+function createReactStripeMetadata(
+  subscriptionData: SubscriptionData,
+  customerInfo: CustomerInfo
+): Record<string, string> {
+  const mode = customerInfo.user ? 'authenticated' : 'guest'
+
+  // Utilise la fonction commune avec checkoutType 'react-stripe'
+  return createCheckoutMetadata(
+    mode,
+    subscriptionData,
+    customerInfo,
+    'react-stripe'
+  )
+}
+
+// 4️⃣ Récupération des détails du prix
+async function getStripePrice(
+  priceId: string,
+  seats: number
+): Promise<{amount: number; unit_amount: number; currency: string}> {
+  const price = await stripeClient.prices.retrieve(priceId)
+
+  if (!price || !price.unit_amount) {
+    logger.error('[REACT-STRIPE] ❌ Prix non trouvé pour priceId:', priceId)
+    throw new Error('Price not found')
+  }
+
+  const amount = price.unit_amount * seats * 100
+
+  logger.debug('[REACT-STRIPE] Calculs montants:', {
+    unitAmount: price.unit_amount,
+    amount,
+    seats,
+  })
+
+  return {
+    amount,
+    unit_amount: price.unit_amount,
+    currency: price.currency,
+  }
+}
+
+// 5️⃣ Création du Setup Intent Stripe
+async function createStripeSetupIntent(
+  customerId: string,
+  metadata: Record<string, string>,
+  priceDetails: {amount: number; unit_amount: number; currency: string}
+): Promise<Stripe.SetupIntent> {
+  logger.info('[REACT-STRIPE] 🔧 Création Setup Intent Stripe')
+
+  const setupIntent = await stripeClient.setupIntents.create({
+    customer: customerId,
+    payment_method_types: ['card'],
+    usage: 'off_session',
+    metadata: {
+      ...metadata,
+      amount: priceDetails.amount.toString(),
+      currency: priceDetails.currency,
+    },
+  })
+
+  if (!setupIntent.client_secret) {
+    logger.error(
+      '[REACT-STRIPE] ❌ Client secret manquant pour le setup intent'
+    )
+    throw new Error('Client secret manquant pour le setup intent')
+  }
+
+  logger.info('✅ [REACT-STRIPE] Setup Intent créé avec succès')
+  logger.debug('[REACT-STRIPE] Détails Setup Intent:', {
+    setupIntentId: setupIntent.id,
+    customerId,
+    metadata,
+  })
+
+  return setupIntent
+}
+
+// 🔄 Fonction de confirmation (gardée pour compatibilité mais simplifiée)
 export async function confirmSubscription(setupIntentId: string) {
   logger.info("[REACT-STRIPE] Confirmation de l'abonnement démarrée")
   logger.debug('[REACT-STRIPE] Setup Intent ID:', setupIntentId)
@@ -201,27 +292,19 @@ export async function confirmSubscription(setupIntentId: string) {
     // Récupérer le Setup Intent pour obtenir le payment method ET les métadonnées
     const setupIntent = await stripeClient.setupIntents.retrieve(setupIntentId)
     logger.debug('[REACT-STRIPE] Setup Intent récupéré:', setupIntent)
+
     const metadata = setupIntent.metadata
+    const subscriptionId = metadata?.subscriptionId // 🎯 Maintenant vrai UUID !
+
     logger.debug('[REACT-STRIPE] Métadonnées Setup Intent:', metadata)
 
     const seats = metadata?.seats ? parseInt(metadata.seats) : 1
-    const isReccuring = metadata?.isReccuring
-      ? metadata.isReccuring === 'true'
-      : false
+    const isReccuring = metadata?.isReccuring === 'true'
     const isGuestCheckout = metadata?.guest_checkout === 'true'
 
     if (setupIntent.status !== 'succeeded') {
       logger.error('[REACT-STRIPE] ❌ Setup Intent non confirmé')
       throw new Error('Setup Intent non confirmé')
-    }
-
-    // Récupérer le priceId depuis les métadonnées du SetupIntent
-    const priceId = setupIntent.metadata?.priceId
-    if (!priceId) {
-      logger.error(
-        '[REACT-STRIPE] ❌ PriceId manquant dans les métadonnées du SetupIntent'
-      )
-      throw new Error('PriceId manquant dans les métadonnées du SetupIntent')
     }
 
     const customerId = setupIntent.customer as string
@@ -233,7 +316,8 @@ export async function confirmSubscription(setupIntentId: string) {
     // Gestion différente selon guest ou user connecté
     if (isGuestCheckout) {
       logger.info('[REACT-STRIPE] 📋 Mode guest détecté pour confirmation')
-      // Mode Guest : récupérer l'email du customer ou demander à l'utilisateur
+
+      // Mode Guest : récupérer l'email du customer
       const customer = await stripeClient.customers.retrieve(customerId)
       if (customer.deleted) {
         logger.error('[REACT-STRIPE] ❌ Customer supprimé')
@@ -259,6 +343,7 @@ export async function confirmSubscription(setupIntentId: string) {
       logger.info(
         '[REACT-STRIPE] 👤 Mode utilisateur connecté détecté pour confirmation'
       )
+
       // Mode User connecté : vérifier l'authentification
       const user = await getAuthUser()
       if (!user) {
@@ -275,18 +360,19 @@ export async function confirmSubscription(setupIntentId: string) {
 
     if (isReccuring) {
       logger.info('[REACT-STRIPE] 🔧 Création abonnement Stripe')
+
       // Créer l'abonnement Stripe avec le payment method confirmé
       stripeSubscription = await stripeClient.subscriptions.create({
         customer: customerId,
         items: [
           {
-            price: priceId,
+            price: metadata?.priceId || '',
             quantity: seats,
           },
         ],
         default_payment_method: paymentMethodId,
         metadata: {
-          subscriptionId: 'uuid-de-votre-bdd',
+          subscriptionId: subscriptionId || 'default-subscription-id', // 🎯 Utilise le vrai UUID !
           email: customerEmail,
           source: 'react_stripe_elements',
           ...(isGuestCheckout
@@ -294,6 +380,7 @@ export async function confirmSubscription(setupIntentId: string) {
             : {managed_by: 'better_auth'}),
         },
       })
+
       logger.debug('[REACT-STRIPE] Abonnement Stripe créé:', {
         subscriptionId: stripeSubscription.id,
         status: stripeSubscription.status,
@@ -301,11 +388,11 @@ export async function confirmSubscription(setupIntentId: string) {
     }
 
     // Récupérer les informations du plan depuis le priceId
-    const plan = getPlanByPriceId(priceId)
+    const plan = getPlanByPriceId(metadata?.priceId || '')
     if (!plan) {
       logger.error(
         '[REACT-STRIPE] ❌ Plan non trouvé pour ce priceId:',
-        priceId
+        metadata?.priceId
       )
       throw new Error('Plan non trouvé pour ce priceId')
     }
