@@ -14,7 +14,10 @@ import type {
   CustomerInfo,
   SubscriptionData,
 } from '../checkout-stripe-util'
-import {createBaseMetadata, validateCheckoutMode} from '../checkout-stripe-util'
+import {
+  createCheckoutMetadata,
+  validateCheckoutMode,
+} from '../checkout-stripe-util'
 
 // 🎯 Fonction principale refactorisée
 export async function createEmbededCheckoutSession(
@@ -66,7 +69,7 @@ export async function createEmbededCheckoutSession(
     }
 
     // 5️⃣ Création metadata
-    const metadata = createBaseMetadata(
+    const metadata = createCheckoutMetadata(
       mode,
       subscriptionData,
       customerInfo,

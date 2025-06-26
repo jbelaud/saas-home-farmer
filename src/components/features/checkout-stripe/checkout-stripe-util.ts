@@ -94,7 +94,7 @@ export function validateCheckoutMode(
 /**
  * Création des metadata communes
  */
-export function createBaseMetadata(
+export function createCheckoutMetadata(
   mode: CheckoutMode,
   subscriptionData: SubscriptionData,
   customerInfo: CustomerInfo,
