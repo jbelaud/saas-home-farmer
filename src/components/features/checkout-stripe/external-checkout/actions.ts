@@ -6,6 +6,7 @@ import {logger} from '@/lib/logger'
 import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
+import {getBillingContext} from '@/services/subscription-service'
 
 // Types communs importés
 import type {
@@ -156,10 +157,21 @@ async function initSubscription(
 ): Promise<string> {
   logger.info('[EXTERNAL-CHECKOUT] 💾 Initialisation subscription en BDD')
 
+  let referenceId: string | undefined
+
+  // Déterminer referenceId seulement si pas en mode guest
+  if (customerInfo.user) {
+    const context = await getBillingContext()
+    referenceId = context.referenceId
+  } else {
+    // Mode guest : referenceId sera undefined
+    referenceId = undefined
+  }
+
   const subscriptionId = await initSubscriptionService({
     plan: planCode,
     seats,
-    referenceId: customerInfo.user?.id,
+    referenceId, // 🎯 Utilise le bon referenceId selon la config BILLING_MODE
     stripeCustomerId: customerInfo.customerId,
   })
 

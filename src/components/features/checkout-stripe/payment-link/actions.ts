@@ -122,7 +122,7 @@ async function initSubscriptionForPaymentLink(
   const subscriptionId = await initSubscriptionService({
     plan: planCode,
     seats,
-    referenceId: 'guest', // Mode guest obligatoire
+    referenceId: undefined, // 🎯 Mode guest : referenceId sera undefined (cohérent avec embed/external)
     stripeCustomerId: undefined, // Pas de customer en mode guest
   })
 
