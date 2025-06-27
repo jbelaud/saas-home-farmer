@@ -52,3 +52,13 @@ export enum StripeWebhooks {
   SubscriptionDeleted = 'customer.subscription.deleted',
   SubscriptionUpdated = 'customer.subscription.updated',
 }
+
+// Billing Configuration
+
+// Billing modes
+export const BillingModes = {
+  USER: 'user',
+  ORGANIZATION: 'organization',
+} as const
+
+export type BillingMode = (typeof BillingModes)[keyof typeof BillingModes]

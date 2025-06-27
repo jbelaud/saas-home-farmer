@@ -7,6 +7,7 @@ import {
 import {logger} from '@/lib/logger'
 import {
   createSubscriptionFromStripeService,
+  getBillingContext,
   getSubscriptionByUserIdService,
   updateSubscriptionForWebhookService,
 } from '@/services/facades/subscription-service-facade'
@@ -345,9 +346,12 @@ async function updateSubscriptionWithUser(
   logger.info('🔄 Mise à jour du referenceId dans la subscription...')
 
   try {
+    // 🎯 Utiliser la config BILLING_MODE pour déterminer le bon referenceId
+    const {referenceId} = await getBillingContext(user.id)
+
     const updatedSubscription = await updateSubscriptionForWebhookService({
       subscriptionId,
-      referenceId: user.id,
+      referenceId,
       stripeCustomerId: user.stripeCustomerId,
     })
 
@@ -503,11 +507,17 @@ async function handleFullCheckoutSessionCompleted(event: Stripe.Event) {
 
     try {
       if (subscriptionUUID) {
-        await updateSubscriptionForWebhookService({
-          subscriptionId: subscriptionUUID,
-          referenceId: finalCustomerId,
-          stripeCustomerId: finalCustomerId,
-        })
+        // 🎯 Déterminer le bon referenceId selon BILLING_MODE
+        const authenticatedUser = await getUserByEmailDao(finalCustomerEmail)
+        if (authenticatedUser) {
+          const {referenceId} = await getBillingContext(authenticatedUser.id)
+
+          await updateSubscriptionForWebhookService({
+            subscriptionId: subscriptionUUID,
+            referenceId,
+            stripeCustomerId: finalCustomerId,
+          })
+        }
       } else {
         await createSubscriptionFromStripeService(
           finalCustomerEmail,

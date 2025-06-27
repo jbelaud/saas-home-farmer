@@ -17,3 +17,5 @@ export const initSubscriptionService =
   subscriptionServiceInterceptor.initSubscriptionService
 export const updateSubscriptionForWebhookService =
   subscriptionServiceInterceptor.updateSubscriptionForWebhookService
+export const getBillingContext =
+  subscriptionServiceInterceptor.getBillingContext

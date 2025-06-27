@@ -14,11 +14,13 @@ import {
   getUserByIdDao,
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
+import {env} from '@/env'
 import {
   canReadSubscription,
   canUpdateSubscription,
 } from '@/services/authorization/subscription-authorization'
 import {
+  BillingModes,
   type CreateSubscription,
   PlanConst,
   type Subscription,
@@ -30,8 +32,12 @@ import {
   updateSubscriptionServiceSchema,
 } from '@/services/validation/subscription-validation'
 
+import {getAuthUser} from './authentication/auth-service'
 import {AuthorizationError} from './errors/authorization-error'
 import {ValidationError} from './errors/validation-error'
+import {getUserOrganizationsService} from './organization-service'
+import {OrganizationRoleConst} from './types/domain/organization-types'
+import {User} from './types/domain/user-types'
 
 export const createSubscriptionService = async (params: CreateSubscription) => {
   const parsed = createSubscriptionServiceSchema.safeParse(params)
@@ -291,4 +297,115 @@ export const updateSubscriptionForWebhookService = async (params: {
   }
 
   return updatedSubscription
+}
+
+//BILLING
+export const BILLING_MODE = env.NEXT_PUBLIC_BILLING_MODE
+
+/**
+ * 🎯 Détermine le referenceId pour les subscriptions selon le mode de facturation
+ */
+export async function getBillingReferenceId(
+  userId?: string,
+  organizationId?: string
+): Promise<string> {
+  // Si organizationId explicite fourni, l'utiliser en mode organization
+  if (organizationId && BILLING_MODE === BillingModes.ORGANIZATION) {
+    return organizationId
+  }
+
+  // Mode USER : utilise toujours l'userId
+  if (BILLING_MODE === BillingModes.USER) {
+    const user = userId ? {id: userId} : await getAuthUser()
+    if (!user?.id) {
+      throw new Error('User ID required for user billing mode')
+    }
+    return user.id
+  }
+
+  // Mode ORGANIZATION : récupère l'org par défaut de l'user
+  if (BILLING_MODE === BillingModes.ORGANIZATION) {
+    const user = userId ? {id: userId} : await getAuthUser()
+    if (!user?.id) {
+      throw new Error('User ID required to get organization')
+    }
+
+    // Récupérer la première organisation de l'utilisateur (ou celle créée automatiquement)
+    const organizations = await getUserOrganizationsService(user.id)
+    const defaultOrg =
+      organizations.find((org) => org.role === OrganizationRoleConst.owner) ||
+      organizations[0] // Cherche d'abord le rôle owner, sinon prend la première org
+
+    if (!defaultOrg) {
+      console.warn(
+        'No organization found for user : referenceId is user.id',
+        user.id
+      )
+      return user.id
+    }
+
+    return defaultOrg.organizationId
+  }
+
+  throw new Error(`Invalid billing mode: ${BILLING_MODE}`)
+}
+
+/**
+ * 🏢 Récupère le contexte de facturation complet
+ */
+export async function getBillingContext(
+  userId?: string,
+  organizationId?: string
+) {
+  const referenceId = await getBillingReferenceId(userId, organizationId)
+
+  return {
+    referenceId,
+    billingMode: BILLING_MODE,
+    isUserBilling: BILLING_MODE === BillingModes.USER,
+    isOrganizationBilling: BILLING_MODE === BillingModes.ORGANIZATION,
+  }
+}
+
+/**
+ * 🎫 Validation des permissions pour la gestion de subscription
+ */
+export async function canManageSubscription(
+  referenceId: string,
+  user?: User
+): Promise<boolean> {
+  const authUser = user || (await getAuthUser())
+  if (!authUser?.id) return false
+
+  // Mode USER : seul le propriétaire peut gérer
+  if (BILLING_MODE === BillingModes.USER) {
+    return authUser.id === referenceId
+  }
+
+  // Mode ORGANIZATION : vérifier les permissions dans l'org
+  if (BILLING_MODE === BillingModes.ORGANIZATION) {
+    const organizations = await getUserOrganizationsService(authUser.id)
+    const userOrg = organizations.find(
+      (org) => org.organizationId === referenceId
+    )
+
+    // User doit être OWNER ou ADMIN pour gérer les subscriptions
+    return userOrg?.role === 'owner' || userOrg?.role === 'admin'
+  }
+
+  return false
+}
+
+/**
+ * 📊 Helper pour affichage UI
+ */
+export function getBillingDisplayInfo() {
+  return {
+    mode: BILLING_MODE,
+    isUserBilling: BILLING_MODE === BillingModes.USER,
+    isOrganizationBilling: BILLING_MODE === BillingModes.ORGANIZATION,
+    billingEntity:
+      BILLING_MODE === BillingModes.USER ? 'utilisateur' : 'organisation',
+    seatLabel: BILLING_MODE === BillingModes.USER ? 'utilisateur' : 'membres',
+  }
 }

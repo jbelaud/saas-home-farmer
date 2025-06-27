@@ -23,6 +23,12 @@ export type MemberData = MemberModel & {
 
 export type OrganizationRole = OrganizationRoleEnumModel
 
+export const OrganizationRoleConst = {
+  admin: 'admin',
+  member: 'member',
+  owner: 'owner',
+} satisfies Record<OrganizationRole, string>
+
 // Types pour les opérations
 export type CreateOrganization = AddOrganizationModel
 export type UpdateOrganization = {

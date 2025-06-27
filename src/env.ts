@@ -5,6 +5,7 @@ import {
   StripeCheckoutType,
   StripeCheckoutTypeSchema,
 } from './lib/stripe/stripe-types'
+import {BillingModes} from './services/types/domain/subscription-types'
 
 // Types de checkout Stripe disponibles
 
@@ -104,6 +105,9 @@ export const env = createEnv({
     NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY: z.string().min(1),
     NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY: z.string().min(1),
     NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME: z.string().min(1),
+    NEXT_PUBLIC_BILLING_MODE: z
+      .enum([BillingModes.USER, BillingModes.ORGANIZATION])
+      .default(BillingModes.USER),
   },
 
   /*
@@ -158,6 +162,7 @@ export const env = createEnv({
     NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL:
       process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_BILLING_MODE: process.env.NEXT_PUBLIC_BILLING_MODE,
   },
 
   /*
