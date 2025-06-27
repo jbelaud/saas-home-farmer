@@ -68,22 +68,16 @@ export const updateSubscriptionService = async (params: UpdateSubscription) => {
 }
 
 export const isPlanExistService = async (
-  email: string,
+  referenceId: string,
   plan: SubscriptionPlan,
-  checkActiveOnly = false
+  seats: number,
+  checkActiveOnly = true
 ): Promise<boolean> => {
-  const user = await getUserByEmailDao(email)
-  if (!user) {
-    return false
-  }
   try {
-    // Utilise stripeCustomerId si disponible, sinon userId
-    const customerId = user.stripeCustomerId || user.id
-
     if (checkActiveOnly) {
-      return isActivePlanExistDao(customerId, plan)
+      return isActivePlanExistDao(referenceId, plan, seats)
     }
-    return isPlanExistDao(customerId, plan)
+    return isPlanExistDao(referenceId, plan, seats)
   } catch (error) {
     console.error('Error checking plan existence:', error)
     throw new Error('Failed to check plan existence')
@@ -106,7 +100,7 @@ export const createSubscriptionFromStripeService = async (
   }
 
   // Vérifier si l'abonnement existe déjà
-  const planExists = await isPlanExistService(email, plan, true)
+  const planExists = await isPlanExistService(user.id, plan, seats, true)
   if (planExists) {
     console.warn('⚠️ User already has an active subscription')
     //throw new Error(`User already has an active ${plan} subscription`)
@@ -221,7 +215,28 @@ export const initSubscriptionService = async (params: {
   if (!params.seats || params.seats < 1) {
     throw new ValidationError('Seats must be at least 1')
   }
+  if (params.referenceId) {
+    const planExists = await isPlanExistService(
+      params.referenceId,
+      params.plan,
+      params.seats,
+      true
+    )
+    if (planExists) {
+      throw new ValidationError("You're already subscribed to this plan")
+    }
+  }
 
+  let existingSubscription
+  if (params.referenceId) {
+    const subscriptions = await getSubscriptionByUserIdDao(params.referenceId)
+    existingSubscription = subscriptions.find(
+      (sub) => sub.status === 'active' || sub.status === 'trialing'
+    )
+  }
+  if (existingSubscription) {
+    return existingSubscription.id
+  }
   // Créer la subscription en statut 'incomplete'
   const subscriptionId = await initSubscriptionDao(params)
 
