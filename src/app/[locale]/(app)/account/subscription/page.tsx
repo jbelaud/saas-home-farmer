@@ -1,15 +1,8 @@
 'use client'
 
 import {Subscription} from '@better-auth/stripe'
-import {
-  Calendar,
-  CheckCircle,
-  CreditCard,
-  Crown,
-  Users,
-  Zap,
-} from 'lucide-react'
-import {useEffect, useState} from 'react'
+import {Calendar, CheckCircle, CreditCard, Crown, Zap} from 'lucide-react'
+import React, {useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
 import {Badge} from '@/components/ui/badge'
@@ -30,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {Separator} from '@/components/ui/separator'
 import {authClient} from '@/lib/better-auth/auth-client'
 
 const planDetails = {
@@ -66,6 +58,20 @@ const planDetails = {
 }
 
 const availablePlans = [
+  {
+    id: 'free',
+    name: 'Gratuit',
+    price: '€0/mois',
+    yearlyPrice: '€0/an',
+    description: 'Idéal pour débuter',
+    features: [
+      '1 utilisateur',
+      '5 projets',
+      '1GB de stockage',
+      'Support communautaire',
+    ],
+    popular: false,
+  },
   {
     id: 'pro',
     name: 'Pro',
@@ -105,6 +111,7 @@ export default function SubscriptionPage() {
   const [selectedSeats, setSelectedSeats] = useState<{
     [planId: string]: number
   }>({
+    free: 1,
     pro: 5,
     enterprise: 10,
   })
@@ -126,6 +133,19 @@ export default function SubscriptionPage() {
   useEffect(() => {
     loadSubscriptions()
   }, [])
+
+  // Initialiser les seats avec l'abonnement actuel
+  useEffect(() => {
+    const activeSubscription = subscriptions.find(
+      (sub) => sub.status === 'active' || sub.status === 'trialing'
+    )
+    if (activeSubscription) {
+      setSelectedSeats((prev) => ({
+        ...prev,
+        [activeSubscription.plan]: activeSubscription.seats || 1,
+      }))
+    }
+  }, [subscriptions])
 
   const handleUpgrade = async (planId: string, annual = false) => {
     try {
@@ -202,32 +222,97 @@ export default function SubscriptionPage() {
     }
   }
 
+  // Fonctions helper pour l'approche Zapier
+  const isCurrentPlan = (planId: string) => {
+    const activeSubscription = subscriptions.find(
+      (sub) => sub.status === 'active' || sub.status === 'trialing'
+    )
+    return activeSubscription?.plan === planId
+  }
+
+  const hasSeatsChanged = (planId: string) => {
+    if (!isCurrentPlan(planId)) return false
+    const activeSubscription = subscriptions.find(
+      (sub) => sub.status === 'active' || sub.status === 'trialing'
+    )
+    return selectedSeats[planId] !== activeSubscription?.seats
+  }
+
+  const getActionButton = (plan: (typeof availablePlans)[0]) => {
+    const isCurrent = isCurrentPlan(plan.id)
+    const hasChanged = hasSeatsChanged(plan.id)
+    const activeSubscription = subscriptions.find(
+      (sub) => sub.status === 'active' || sub.status === 'trialing'
+    )
+
+    // Cas spécial pour le plan gratuit
+    if (plan.id === 'free') {
+      // Si on est déjà sur le plan gratuit (pas d'abonnement actif)
+      if (!activeSubscription) {
+        return (
+          <Button variant="outline" disabled className="w-full">
+            Plan actuel
+          </Button>
+        )
+      }
+      // Si on a un abonnement payant, permettre de downgrader vers gratuit
+      return (
+        <Button
+          variant="destructive"
+          onClick={() => handleCancel(activeSubscription.referenceId || '')}
+          disabled={actionLoading === 'cancel'}
+          className="w-full"
+        >
+          {actionLoading === 'cancel' ? 'Annulation...' : 'Passer au gratuit'}
+        </Button>
+      )
+    }
+
+    // Logique existante pour les plans payants
+    if (isCurrent && !hasChanged) {
+      return (
+        <Button
+          variant="destructive"
+          onClick={() => handleCancel(activeSubscription?.referenceId || '')}
+          disabled={actionLoading === 'cancel'}
+          className="w-full"
+        >
+          {actionLoading === 'cancel' ? 'Annulation...' : 'Annuler'}
+        </Button>
+      )
+    }
+
+    if (isCurrent && hasChanged) {
+      return (
+        <Button
+          onClick={() => handleUpgrade(plan.id, false)}
+          disabled={actionLoading === `upgrade-${plan.id}`}
+          className="w-full"
+        >
+          {actionLoading === `upgrade-${plan.id}`
+            ? 'Mise à jour...'
+            : 'Mettre à jour'}
+        </Button>
+      )
+    }
+
+    return (
+      <Button
+        variant={plan.popular ? 'default' : 'outline'}
+        onClick={() => handleUpgrade(plan.id, false)}
+        disabled={actionLoading === `upgrade-${plan.id}`}
+        className="w-full"
+      >
+        {actionLoading === `upgrade-${plan.id}`
+          ? 'Redirection...'
+          : `Passer à ${plan.name}`}
+      </Button>
+    )
+  }
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString('fr-FR')
-  }
-
-  const getStatusBadge = (status: string, cancelAtPeriodEnd?: boolean) => {
-    if (cancelAtPeriodEnd) {
-      return <Badge variant="destructive">Sera annulé</Badge>
-    }
-
-    switch (status) {
-      case 'active':
-        return (
-          <Badge variant="default" className="bg-green-500">
-            Actif
-          </Badge>
-        )
-      case 'trialing':
-        return <Badge variant="secondary">Période d&apos;essai</Badge>
-      case 'canceled':
-        return <Badge variant="destructive">Annulé</Badge>
-      case 'incomplete':
-        return <Badge variant="outline">Incomplet</Badge>
-      default:
-        return <Badge variant="outline">{status}</Badge>
-    }
   }
 
   if (loading) {
@@ -263,164 +348,55 @@ export default function SubscriptionPage() {
   const activeSubscription = subscriptions.find(
     (sub) => sub.status === 'active' || sub.status === 'trialing'
   )
-  const hasActiveSubscription = !!activeSubscription
 
   return (
-    <div className="container mx-auto space-y-8 p-6">
+    <div className="container mx-auto max-w-6xl space-y-8 p-6">
       {/* Header */}
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold">Abonnements</h1>
+      <div className="flex flex-col space-y-2 text-center">
+        <h1 className="text-3xl font-bold">Choisissez votre plan</h1>
         <p className="text-muted-foreground">
-          Gérez vos abonnements et accédez à plus de fonctionnalités
+          {activeSubscription
+            ? 'Modifiez votre abonnement ou changez de plan'
+            : 'Sélectionnez le plan qui vous convient'}
         </p>
       </div>
 
-      {/* Abonnements actuels */}
-      {subscriptions.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Vos abonnements</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {subscriptions.map((subscription) => {
-              const plan =
-                planDetails[subscription.plan as keyof typeof planDetails]
-              const isActive =
-                subscription.status === 'active' ||
-                subscription.status === 'trialing'
+      {/* Grille des plans - Approche Zapier */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {availablePlans.map((plan) => {
+          const isCurrent =
+            plan.id === 'free'
+              ? !activeSubscription // Pour le plan gratuit, on est "actuel" s'il n'y a pas d'abonnement
+              : isCurrentPlan(plan.id) // Pour les autres plans, logique normale
+          const planData = planDetails[plan.id as keyof typeof planDetails]
 
-              return (
-                <Card
-                  key={subscription.id}
-                  className={`relative ${isActive ? 'ring-2 ring-blue-500' : ''}`}
-                >
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div
-                          className={`rounded-full p-2 ${plan?.color || 'bg-gray-500'} text-white`}
-                        >
-                          {plan?.icon || <Zap className="h-4 w-4" />}
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg">
-                            {plan?.name || subscription.plan}
-                          </CardTitle>
-                          <CardDescription>
-                            ID: {subscription.id.slice(0, 8)}...
-                          </CardDescription>
-                        </div>
-                      </div>
-                      {getStatusBadge(
-                        subscription.status,
-                        subscription.cancelAtPeriodEnd
-                      )}
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    {subscription.seats && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <Users className="text-muted-foreground h-4 w-4" />
-                        <span>{subscription.seats} siège(s)</span>
-                      </div>
-                    )}
-
-                    {subscription.periodStart && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <Calendar className="text-muted-foreground h-4 w-4" />
-                        <span>
-                          Du{' '}
-                          {formatDate(subscription.periodStart.toISOString())}
-                          au {formatDate(subscription.periodEnd?.toISOString())}
-                        </span>
-                      </div>
-                    )}
-
-                    {plan?.features && (
-                      <div className="space-y-1">
-                        {plan.features.slice(0, 3).map((feature, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center space-x-2 text-sm"
-                          >
-                            <CheckCircle className="h-3 w-3 text-green-500" />
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-
-                  <CardFooter className="flex space-x-2">
-                    {isActive && (
-                      <>
-                        {subscription.cancelAtPeriodEnd ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleRestore}
-                            disabled={actionLoading === 'restore'}
-                            className="flex-1"
-                          >
-                            {actionLoading === 'restore'
-                              ? 'Restauration...'
-                              : 'Restaurer'}
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleCancel(subscription.referenceId)
-                            }
-                            disabled={actionLoading === 'cancel'}
-                            className="flex-1"
-                          >
-                            {actionLoading === 'cancel'
-                              ? 'Annulation...'
-                              : 'Annuler'}
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </CardFooter>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      <Separator />
-
-      {/* Plans disponibles */}
-      <div className="space-y-4">
-        <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-bold">
-            {hasActiveSubscription
-              ? 'Changer de plan'
-              : 'Choisissez votre plan'}
-          </h2>
-          <p className="text-muted-foreground">
-            {hasActiveSubscription
-              ? 'Upgrader ou changer votre abonnement actuel'
-              : 'Débloquez plus de fonctionnalités avec nos plans premium'}
-          </p>
-        </div>
-
-        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2 lg:grid-cols-2">
-          {availablePlans.map((plan) => (
+          return (
             <Card
               key={plan.id}
-              className={`relative ${plan.popular ? 'ring-2 ring-blue-500' : ''}`}
+              className={`relative ${isCurrent ? 'ring-2 ring-blue-500' : ''} ${plan.popular && !isCurrent ? 'ring-2 ring-yellow-500' : ''}`}
             >
-              {plan.popular && (
+              {/* Badge Current plan ou Popular */}
+              {isCurrent && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
-                  <Badge className="bg-blue-500">Populaire</Badge>
+                  <Badge className="bg-blue-500">Plan actuel</Badge>
+                </div>
+              )}
+              {plan.popular && !isCurrent && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
+                  <Badge className="bg-yellow-500 text-black">Populaire</Badge>
                 </div>
               )}
 
               <CardHeader className="text-center">
-                <CardTitle className="text-xl">{plan.name}</CardTitle>
+                <div className="mb-2 flex items-center justify-center space-x-2">
+                  <div
+                    className={`rounded-full p-2 ${planData?.color || 'bg-gray-500'} text-white`}
+                  >
+                    {planData?.icon || <Zap className="h-4 w-4" />}
+                  </div>
+                  <CardTitle className="text-xl">{plan.name}</CardTitle>
+                </div>
+
                 <div className="space-y-1">
                   <div className="text-3xl font-bold">{plan.price}</div>
                   <div className="text-muted-foreground text-sm">
@@ -428,6 +404,21 @@ export default function SubscriptionPage() {
                   </div>
                 </div>
                 <CardDescription>{plan.description}</CardDescription>
+
+                {/* Informations de l'abonnement actuel */}
+                {isCurrent && activeSubscription && (
+                  <div className="mt-4 space-y-2 text-sm">
+                    <div className="text-muted-foreground flex items-center justify-center space-x-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>
+                        Prochaine facturation:{' '}
+                        {formatDate(
+                          activeSubscription.periodEnd?.toISOString()
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </CardHeader>
 
               <CardContent className="space-y-4">
@@ -440,71 +431,78 @@ export default function SubscriptionPage() {
                   ))}
                 </div>
 
-                {/* Sélecteur de sièges */}
-                <div className="space-y-2 border-t pt-2">
-                  <Label className="text-sm font-medium">
-                    Nombre de sièges
-                  </Label>
-                  <div className="flex items-center space-x-2">
-                    <Select
-                      value={selectedSeats[plan.id]?.toString() || '1'}
-                      onValueChange={(value) =>
-                        setSelectedSeats((prev) => ({
-                          ...prev,
-                          [plan.id]: parseInt(value),
-                        }))
-                      }
-                    >
-                      <SelectTrigger className="w-20">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 50, 100].map(
-                          (seats) => (
-                            <SelectItem key={seats} value={seats.toString()}>
-                              {seats}
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <span className="text-muted-foreground text-sm">
-                      utilisateur(s)
-                    </span>
+                {/* Sélecteur de sièges - masqué pour le plan gratuit */}
+                {plan.id !== 'free' && (
+                  <div className="space-y-2 border-t pt-2">
+                    <Label className="text-sm font-medium">
+                      Nombre de sièges
+                    </Label>
+                    <div className="flex items-center space-x-2">
+                      <Select
+                        value={selectedSeats[plan.id]?.toString() || '1'}
+                        onValueChange={(value) =>
+                          setSelectedSeats((prev) => ({
+                            ...prev,
+                            [plan.id]: parseInt(value),
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="w-20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 50, 100].map(
+                            (seats) => (
+                              <SelectItem key={seats} value={seats.toString()}>
+                                {seats}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <span className="text-muted-foreground text-sm">
+                        utilisateur(s)
+                      </span>
+                      {hasSeatsChanged(plan.id) && (
+                        <Badge variant="outline" className="text-orange-600">
+                          Modifié
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      Prix ajusté selon le nombre d&apos;utilisateurs
+                    </p>
                   </div>
-                  <p className="text-muted-foreground text-xs">
-                    Prix ajusté selon le nombre d&apos;utilisateurs
-                  </p>
-                </div>
+                )}
               </CardContent>
 
-              <CardFooter className="flex flex-col space-y-2">
-                <Button
-                  className="w-full"
-                  variant={plan.popular ? 'default' : 'outline'}
-                  onClick={() => handleUpgrade(plan.id, false)}
-                  disabled={actionLoading === `upgrade-${plan.id}`}
-                >
-                  {actionLoading === `upgrade-${plan.id}`
-                    ? 'Redirection...'
-                    : hasActiveSubscription
-                      ? `Passer à ${plan.name}`
-                      : `Commencer avec ${plan.name}`}
-                </Button>
+              <CardFooter className="flex-col space-y-2">
+                {getActionButton(plan)}
 
-                <Button
-                  className="w-full"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleUpgrade(plan.id, true)}
-                  disabled={actionLoading === `upgrade-${plan.id}`}
-                >
-                  {plan.yearlyPrice} (Annuel)
-                </Button>
+                {/* Actions secondaires pour le plan actuel */}
+                {isCurrent &&
+                  activeSubscription &&
+                  !hasSeatsChanged(plan.id) && (
+                    <div className="flex w-full space-x-2">
+                      {activeSubscription.cancelAtPeriodEnd ? (
+                        <Button
+                          variant="outline"
+                          onClick={handleRestore}
+                          disabled={actionLoading === 'restore'}
+                          className="flex-1 text-sm"
+                          size="sm"
+                        >
+                          {actionLoading === 'restore'
+                            ? 'Restauration...'
+                            : 'Réactiver'}
+                        </Button>
+                      ) : null}
+                    </div>
+                  )}
               </CardFooter>
             </Card>
-          ))}
-        </div>
+          )
+        })}
       </div>
 
       {/* Note d'information */}
