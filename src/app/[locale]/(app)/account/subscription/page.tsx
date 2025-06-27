@@ -22,6 +22,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {Label} from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {Separator} from '@/components/ui/separator'
 import {authClient} from '@/lib/better-auth/auth-client'
 
@@ -94,6 +102,12 @@ export default function SubscriptionPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [selectedSeats, setSelectedSeats] = useState<{
+    [planId: string]: number
+  }>({
+    pro: 5,
+    enterprise: 10,
+  })
 
   const loadSubscriptions = async () => {
     try {
@@ -121,13 +135,15 @@ export default function SubscriptionPage() {
         (sub) => sub.status === 'active' || sub.status === 'trialing'
       )
 
+      const seats = selectedSeats[planId] || 1
+
       const {error} = await authClient.subscription.upgrade({
         plan: planId,
         successUrl: '/account/subscription',
         cancelUrl: '/account/subscription',
         annual,
         subscriptionId: activeSubscription?.id,
-        seats: 5, // Par défaut 5 sièges
+        seats,
       })
 
       if (error) {
@@ -422,6 +438,43 @@ export default function SubscriptionPage() {
                       <span className="text-sm">{feature}</span>
                     </div>
                   ))}
+                </div>
+
+                {/* Sélecteur de sièges */}
+                <div className="space-y-2 border-t pt-2">
+                  <Label className="text-sm font-medium">
+                    Nombre de sièges
+                  </Label>
+                  <div className="flex items-center space-x-2">
+                    <Select
+                      value={selectedSeats[plan.id]?.toString() || '1'}
+                      onValueChange={(value) =>
+                        setSelectedSeats((prev) => ({
+                          ...prev,
+                          [plan.id]: parseInt(value),
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="w-20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 50, 100].map(
+                          (seats) => (
+                            <SelectItem key={seats} value={seats.toString()}>
+                              {seats}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <span className="text-muted-foreground text-sm">
+                      utilisateur(s)
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground text-xs">
+                    Prix ajusté selon le nombre d&apos;utilisateurs
+                  </p>
                 </div>
               </CardContent>
 

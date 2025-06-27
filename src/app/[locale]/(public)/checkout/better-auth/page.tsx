@@ -5,30 +5,46 @@ import CheckoutBetterAuth from './checkout-better-auth'
 
 export default async function Page() {
   // permet un gestion dynamique des prix (si modifié coté dashboard stripe)
-  const [proMonthlyResult, proYearlyResult, lifetimeResult] = await Promise.all(
-    [
-      getSubscriptionRecapInfo(
-        env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY,
-        undefined,
-        1
-      ),
-      getSubscriptionRecapInfo(
-        env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY,
-        undefined,
-        1
-      ),
-      getSubscriptionRecapInfo(
-        env.NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME,
-        undefined,
-        1
-      ),
-    ]
-  )
+  const [
+    proMonthlyResult,
+    proYearlyResult,
+    lifetimeResult,
+    entrepriseMonthlyResult,
+    entrepriseYearlyResult,
+  ] = await Promise.all([
+    getSubscriptionRecapInfo(
+      env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY,
+      undefined,
+      1
+    ),
+    getSubscriptionRecapInfo(
+      env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY,
+      undefined,
+      1
+    ),
+    getSubscriptionRecapInfo(
+      env.NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME,
+      undefined,
+      1
+    ),
+    getSubscriptionRecapInfo(
+      env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_MONTHLY,
+      undefined,
+      1
+    ),
+    getSubscriptionRecapInfo(
+      env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_YEARLY,
+      undefined,
+      1
+    ),
+  ])
 
   const initialPriceRecaps = {
     proMonthly: proMonthlyResult.recap,
     proYearly: proYearlyResult.recap,
     lifetime: lifetimeResult.recap,
+    entrepriseMonthly: entrepriseMonthlyResult.recap,
+    entrepriseYearly: entrepriseYearlyResult.recap,
   }
 
   return <CheckoutBetterAuth initialPriceRecaps={initialPriceRecaps} />

@@ -62,6 +62,10 @@ const menuData = {
           url: '/account',
         },
         {
+          title: 'Abonnements',
+          url: '/account/subscription',
+        },
+        {
           title: 'Organizations',
           url: '/organizations',
         },

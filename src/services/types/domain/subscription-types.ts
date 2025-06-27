@@ -5,11 +5,12 @@ import {
 
 // Types de domaine découplés des types Drizzle - Aligned with Better Auth
 export type Subscription = SubscriptionModel
-export type SubscriptionPlan = 'pro' | 'lifetime'
+export type SubscriptionPlan = 'pro' | 'enterprise' | 'lifetime'
 
 // Constantes pour les rôles globaux
 export const PlanConst = {
   PRO: 'pro' as SubscriptionPlan,
+  ENTREPRISE: 'enterprise' as SubscriptionPlan,
   LIFETIME: 'lifetime' as SubscriptionPlan,
 } as const
 

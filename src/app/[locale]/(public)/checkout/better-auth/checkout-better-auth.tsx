@@ -29,7 +29,8 @@ interface CheckoutBetterAuthProps {
   initialPriceRecaps: {
     proMonthly: PriceRecap
     proYearly: PriceRecap
-    lifetime: PriceRecap
+    entrepriseMonthly: PriceRecap
+    entrepriseYearly: PriceRecap
   }
 }
 
@@ -37,14 +38,17 @@ export default function CheckoutBetterAuth({
   initialPriceRecaps,
 }: CheckoutBetterAuthProps) {
   const [isUpgradingPro, setIsUpgradingPro] = useState(false)
-  const [isUpgradingLifetime, setIsUpgradingLifetime] = useState(false)
+  const [isUpgradingEnterprise, setIsUpgradingEnterprise] = useState(false)
   const [isYearly, setIsYearly] = useState(false)
   const [seats, setSeats] = useState(1)
 
   // Calcul des prix totaux avec le nombre de sièges
   const totalProMonthly = initialPriceRecaps.proMonthly.unitPrice * seats
   const totalProYearly = initialPriceRecaps.proYearly.unitPrice * seats
-  const totalLifetime = initialPriceRecaps.lifetime.unitPrice * seats
+  const totalEntrepriseMonthly =
+    initialPriceRecaps.entrepriseMonthly.unitPrice * seats
+  const totalEntrepriseYearly =
+    initialPriceRecaps.entrepriseYearly.unitPrice * seats
 
   const handleUpgradePro = async () => {
     try {
@@ -74,31 +78,31 @@ export default function CheckoutBetterAuth({
     }
   }
 
-  const handleUpgradeLifetime = async () => {
+  const handleUpgradeEnterprise = async () => {
     try {
-      setIsUpgradingLifetime(true)
+      setIsUpgradingEnterprise(true)
 
-      //better auth dont supporte one time payment
       const {error} = await authClient.subscription.upgrade({
-        plan: 'lifetime',
-        successUrl: '/dashboard',
+        plan: 'enterprise',
+        successUrl: '/checkout/success?redirect_status=succeeded',
         cancelUrl: '/pricing',
-        annual: false,
+        annual: isYearly,
         seats: seats,
       })
 
       console.log(error)
       if (error) {
+        console.log('🔧 error', error)
         toast.error('Error', {description: error.message || error.statusText})
         return
       }
 
       toast.success('Redirection vers le paiement...')
     } catch (error) {
-      console.error('Erreur lors de la mise à niveau Lifetime:', error)
-      toast.error('Erreur lors de la mise à niveau vers Lifetime')
+      console.error('Erreur lors de la mise à niveau Enterprise:', error)
+      toast.error('Erreur lors de la mise à niveau vers Enterprise')
     } finally {
-      setIsUpgradingLifetime(false)
+      setIsUpgradingEnterprise(false)
     }
   }
 
@@ -263,15 +267,71 @@ export default function CheckoutBetterAuth({
           </CardFooter>
         </Card>
 
-        {/* Carte LIFETIME */}
-        <Card className="relative">
+        {/* Carte ENTERPRISE */}
+        <Card className="relative border-purple-500">
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
+            <span className="rounded-full bg-purple-500 px-3 py-1 text-sm font-medium text-white">
+              Enterprise
+            </span>
+          </div>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Lifetime</CardTitle>
-            <CardDescription>
-              Pour les utilisateurs à long terme
-            </CardDescription>
-            <div className="mt-4 text-5xl font-bold">${totalLifetime}</div>
-            <div className="text-muted-foreground text-sm">paiement unique</div>
+            <CardTitle className="text-2xl">Enterprise</CardTitle>
+            <CardDescription>Pour les grandes organisations</CardDescription>
+
+            {/* Toggle annuel/mensuel */}
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <Label className="text-sm">Mensuel</Label>
+              <Switch checked={isYearly} onCheckedChange={setIsYearly} />
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">Annuel</Label>
+                {isYearly && (
+                  <span className="rounded-full bg-green-500/10 px-2 py-1 text-xs text-green-500">
+                    -20%
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4 text-5xl font-bold">
+              ${isYearly ? totalEntrepriseYearly : totalEntrepriseMonthly}
+            </div>
+            <div className="text-muted-foreground text-sm">
+              par {isYearly ? 'an' : 'mois'}
+            </div>
+
+            {/* Sélecteur minimaliste de sièges */}
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <span className="text-muted-foreground text-xs">
+                Utilisateurs:
+              </span>
+              <Select
+                value={seats.toString()}
+                onValueChange={(value) => setSeats(parseInt(value))}
+              >
+                <SelectTrigger className="h-6 w-12 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({length: 10}, (_, i) => i + 1).map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {isYearly && (
+              <div className="text-sm text-green-500">✨ 2 mois gratuits</div>
+            )}
+            {seats > 1 && (
+              <div className="text-muted-foreground mt-1 text-xs">
+                $
+                {isYearly
+                  ? initialPriceRecaps.entrepriseYearly.unitPrice
+                  : initialPriceRecaps.entrepriseMonthly.unitPrice}{' '}
+                par utilisateur
+              </div>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
             <ul className="space-y-2 text-sm">
@@ -281,31 +341,34 @@ export default function CheckoutBetterAuth({
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-500" />
-                Mises à jour à vie
+                Utilisateurs illimités
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-500" />
-                Accès anticipé aux nouvelles fonctionnalités
+                Support 24/7 dédié
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-500" />
-                Support email premium
+                SSO et sécurité avancée
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-500" />
-                Options de branding personnalisé
+                API personnalisée
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-green-500" />
+                Formation équipe incluse
               </li>
             </ul>
           </CardContent>
           <CardFooter>
             <Button
-              onClick={handleUpgradeLifetime}
-              disabled={isUpgradingLifetime}
-              variant="outline"
-              className="w-full"
+              onClick={handleUpgradeEnterprise}
+              disabled={isUpgradingEnterprise}
+              className="w-full bg-purple-500 text-white hover:bg-purple-400"
               size="lg"
             >
-              {isUpgradingLifetime ? (
+              {isUpgradingEnterprise ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Redirection...
@@ -313,7 +376,7 @@ export default function CheckoutBetterAuth({
               ) : (
                 <>
                   <CreditCard className="mr-2 h-4 w-4" />
-                  Acheter l&apos;accès à vie
+                  S&apos;abonner à Enterprise {isYearly ? 'Annuel' : 'Mensuel'}
                 </>
               )}
             </Button>
