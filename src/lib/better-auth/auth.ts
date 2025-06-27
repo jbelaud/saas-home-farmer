@@ -138,7 +138,25 @@ export const auth = betterAuth({
       subscription: {
         enabled: true,
         plans: betterAuthPlans,
-        // ... other options
+        authorizeReference: async ({user, session, referenceId, action}) => {
+          // Check if the user has permission to manage subscriptions for this reference
+          console.log('authorizeReference', user, session, referenceId, action)
+          if (
+            action === 'upgrade-subscription' ||
+            action === 'cancel-subscription' ||
+            action === 'restore-subscription'
+          ) {
+            // const org = await db.member.findFirst({
+            //     where: {
+            //         organizationId: referenceId,
+            //         userId: user.id
+            //     }
+            // });
+            // return org?.role === "owner"
+          }
+          return true
+        },
+
         onSubscriptionComplete: async ({
           event,
           subscription,
