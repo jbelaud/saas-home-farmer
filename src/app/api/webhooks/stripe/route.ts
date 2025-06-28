@@ -291,7 +291,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session) {
     }
 
     // Compatible Better Auth : créer la subscription avec stripeCustomerId
-    const exist = await isPlanExistService(customerEmail, plan)
+    const exist = await isPlanExistService(customerEmail, plan, 1)
     if (exist) {
       console.error('Plan already exists:', {
         customerEmail,
