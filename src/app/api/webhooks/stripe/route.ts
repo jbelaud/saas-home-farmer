@@ -235,7 +235,7 @@ async function handleOneTimePayment(session: Stripe.Checkout.Session) {
       })
       return
     }
-    const exist = await isPlanExistService(customerEmail, plan)
+    const exist = await isPlanExistService(customerEmail, plan, 1)
     if (exist) {
       console.error('Plan already exists:', {
         customerEmail,
