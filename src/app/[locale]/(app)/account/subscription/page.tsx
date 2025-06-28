@@ -255,7 +255,16 @@ export default function SubscriptionPage() {
           </Button>
         )
       }
-      // Si on a un abonnement payant, permettre de downgrader vers gratuit
+      // Si abonnement payant se termine, plan gratuit devient le futur plan
+      if (activeSubscription.cancelAtPeriodEnd) {
+        return (
+          <Button variant="outline" disabled className="w-full">
+            À partir du{' '}
+            {formatDate(activeSubscription.periodEnd?.toISOString())}
+          </Button>
+        )
+      }
+      // Si on a un abonnement payant actif, permettre de downgrader vers gratuit
       return (
         <Button
           variant="destructive"
@@ -270,6 +279,25 @@ export default function SubscriptionPage() {
 
     // Logique existante pour les plans payants
     if (isCurrent && !hasChanged) {
+      // Si l'abonnement est déjà marqué pour annulation, afficher le bouton pour continuer
+      if (activeSubscription?.cancelAtPeriodEnd) {
+        const planName =
+          planDetails[plan.id as keyof typeof planDetails]?.name || plan.name
+        return (
+          <Button
+            variant="default"
+            onClick={handleRestore}
+            disabled={actionLoading === 'restore'}
+            className="w-full"
+          >
+            {actionLoading === 'restore'
+              ? 'Restauration...'
+              : `Continuer ${planName}`}
+          </Button>
+        )
+      }
+
+      // Sinon, afficher le bouton annuler
       return (
         <Button
           variant="destructive"
@@ -359,6 +387,26 @@ export default function SubscriptionPage() {
             ? 'Modifiez votre abonnement ou changez de plan'
             : 'Sélectionnez le plan qui vous convient'}
         </p>
+
+        {/* Récapitulatif discret de l&apos;offre en cours */}
+        {activeSubscription && (
+          <p className="text-muted-foreground text-sm italic">
+            Offre &apos;
+            {planDetails[activeSubscription.plan as keyof typeof planDetails]
+              ?.name || activeSubscription.plan}
+            &apos; ({activeSubscription.seats || 1} siège
+            {activeSubscription.seats && activeSubscription.seats > 1
+              ? 's'
+              : ''}
+            ){' '}
+            {activeSubscription.cancelAtPeriodEnd
+              ? 'se termine'
+              : 'se renouvelle'}{' '}
+            le {formatDate(activeSubscription.periodEnd?.toISOString())}
+            {activeSubscription.cancelAtPeriodEnd &&
+              ', passage au gratuit automatique'}
+          </p>
+        )}
       </div>
 
       {/* Grille des plans - Approche Zapier */}
@@ -366,22 +414,44 @@ export default function SubscriptionPage() {
         {availablePlans.map((plan) => {
           const isCurrent =
             plan.id === 'free'
-              ? !activeSubscription // Pour le plan gratuit, on est "actuel" s'il n'y a pas d'abonnement
+              ? !activeSubscription // Pour le plan gratuit, on est "actuel" s'il n'y a pas d'abonnement du tout
               : isCurrentPlan(plan.id) // Pour les autres plans, logique normale
           const planData = planDetails[plan.id as keyof typeof planDetails]
+
+          // État spécial pour plan gratuit quand abonnement se termine
+          const isFutureFree =
+            plan.id === 'free' && activeSubscription?.cancelAtPeriodEnd
+          // État spécial pour plan payant qui se termine
+          const isEnding = isCurrent && activeSubscription?.cancelAtPeriodEnd
 
           return (
             <Card
               key={plan.id}
-              className={`relative ${isCurrent ? 'ring-2 ring-blue-500' : ''} ${plan.popular && !isCurrent ? 'ring-2 ring-yellow-500' : ''}`}
+              className={`relative ${isCurrent ? 'ring-2 ring-blue-500' : ''} ${isFutureFree ? 'ring-2 ring-green-500' : ''} ${plan.popular && !isCurrent && !isFutureFree ? 'ring-2 ring-yellow-500' : ''}`}
             >
-              {/* Badge Current plan ou Popular */}
-              {isCurrent && (
+              {/* Badges selon l'état */}
+              {isCurrent && !isEnding && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
                   <Badge className="bg-blue-500">Plan actuel</Badge>
                 </div>
               )}
-              {plan.popular && !isCurrent && (
+              {isEnding && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
+                  <Badge className="bg-orange-500">
+                    Se termine le{' '}
+                    {formatDate(activeSubscription?.periodEnd?.toISOString())}
+                  </Badge>
+                </div>
+              )}
+              {isFutureFree && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
+                  <Badge className="bg-green-500">
+                    Votre futur plan à partir du{' '}
+                    {formatDate(activeSubscription?.periodEnd?.toISOString())}
+                  </Badge>
+                </div>
+              )}
+              {plan.popular && !isCurrent && !isFutureFree && !isEnding && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
                   <Badge className="bg-yellow-500 text-black">Populaire</Badge>
                 </div>
@@ -406,7 +476,7 @@ export default function SubscriptionPage() {
                 <CardDescription>{plan.description}</CardDescription>
 
                 {/* Informations de l'abonnement actuel */}
-                {isCurrent && activeSubscription && (
+                {isCurrent && activeSubscription && !isEnding && (
                   <div className="mt-4 space-y-2 text-sm">
                     <div className="text-muted-foreground flex items-center justify-center space-x-2">
                       <Calendar className="h-4 w-4" />
@@ -478,27 +548,6 @@ export default function SubscriptionPage() {
 
               <CardFooter className="flex-col space-y-2">
                 {getActionButton(plan)}
-
-                {/* Actions secondaires pour le plan actuel */}
-                {isCurrent &&
-                  activeSubscription &&
-                  !hasSeatsChanged(plan.id) && (
-                    <div className="flex w-full space-x-2">
-                      {activeSubscription.cancelAtPeriodEnd ? (
-                        <Button
-                          variant="outline"
-                          onClick={handleRestore}
-                          disabled={actionLoading === 'restore'}
-                          className="flex-1 text-sm"
-                          size="sm"
-                        >
-                          {actionLoading === 'restore'
-                            ? 'Restauration...'
-                            : 'Réactiver'}
-                        </Button>
-                      ) : null}
-                    </div>
-                  )}
               </CardFooter>
             </Card>
           )
