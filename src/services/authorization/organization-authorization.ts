@@ -5,6 +5,7 @@ import {
   UserOrganizationRoleConst,
 } from '@/services/types/domain/auth-types'
 
+import {LimitTypeConst} from '../types/domain/subscription-types'
 import {
   getUserRoleInOrganization,
   isOrganizationAdmin,
@@ -13,6 +14,7 @@ import {
   userCanOnResource,
 } from './authorization-service'
 import {ActionsConst, SubjectsConst} from './casl-abilities'
+import {checkSubscriptionLimit} from './subscription-authorization'
 
 /**
  * Système d'autorisation pour les organisations avec contexte organisationnel
@@ -208,14 +210,22 @@ export const canManageOrganizationMembers = async (
 
 /**
  * Vérifie si l'utilisateur connecté peut inviter des membres dans une organisation
+ * Vérifie à la fois les permissions ET les limites d'abonnement
  * @param resourceId - ID de l'organisation
+ * @param requestedAmount - Nombre de membres à inviter (défaut: 1)
  * @returns true si l'accès est autorisé
  */
 export const canInviteToOrganization = async (
-  resourceId: string
+  resourceId: string,
+  requestedAmount: number = 1
 ): Promise<boolean> => {
-  // Pour l'invitation, on utilise la même logique que la gestion des membres
-  return canManageOrganizationMembers(resourceId)
+  // 1️⃣ Vérification des permissions (rôle dans l'organisation)
+  const hasPermission = await canManageOrganizationMembers(resourceId)
+  if (!hasPermission) return false
+
+  // 2️⃣ Vérification des limites d'abonnement
+  const limitCheck = await checkMembersLimit(requestedAmount)
+  return limitCheck.allowed
 }
 
 /**
@@ -391,4 +401,12 @@ export const canManageOrganizationSubscriptions = async (
     },
     orgContext
   )
+}
+
+export const checkMembersLimit = async (requestedAmount: number = 1) => {
+  const limitCheck = await checkSubscriptionLimit(
+    LimitTypeConst.USERS,
+    requestedAmount
+  )
+  return limitCheck
 }

@@ -48,3 +48,14 @@ export type CreateInvitation = AddInvitationModel
 export type UpdateInvitation = {
   id: string
 } & Partial<Omit<UpdateInvitationModel, 'id'>>
+
+export type MemberOrInvitationDTO = {
+  id: string
+  invitationId: string | null
+  name: string | null
+  email: string
+  image: string | null
+  role: string | null
+  joinedAt: Date | null
+  status: 'member' | 'invited'
+}

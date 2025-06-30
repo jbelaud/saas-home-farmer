@@ -15,7 +15,7 @@ export const PlanConst = {
 } as const
 
 // Types pour les limites d'abonnement
-export type LimitType = 'projects' | 'storage'
+export type LimitType = 'projects' | 'storage' | 'users'
 
 // Constantes pour les limites
 export const LimitTypeConst = {

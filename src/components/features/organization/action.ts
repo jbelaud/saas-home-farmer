@@ -5,6 +5,10 @@ import {headers} from 'next/headers'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
 import {auth} from '@/lib/better-auth/auth'
+import {
+  canInviteToOrganization,
+  checkMembersLimit,
+} from '@/services/authorization/organization-authorization'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {
   createOrganizationMemberService,
@@ -107,14 +111,21 @@ export async function addUserToOrganizationAction(
 ): Promise<MemberActionResult> {
   await requireActionAuth()
   try {
+    const limits = await checkMembersLimit(1)
+    if (!limits.allowed) {
+      return {
+        success: false,
+        message: `Vous avez atteint la limite d'invitations pour votre abonnement ${limits.limitType} : ${limits.limit}`,
+      }
+    }
+    const hasPermission = await canInviteToOrganization(organizationId)
+    if (!hasPermission) {
+      return {
+        success: false,
+        message: "Vous n'avez pas les permissions pour inviter des membres",
+      }
+    }
     if (sendInvitationEmail) {
-      //console.log('hasPermission', hasPermission)
-      // const headersList = await headers()
-      // console.log('headersList', headersList)
-      // const session = await auth.api.getSession({
-      //   headers: await headers(), // you need to pass the headers object.
-      // })
-      //console.log('session', session)
       const response = await auth.api.createInvitation({
         headers: await headers(),
         body: {

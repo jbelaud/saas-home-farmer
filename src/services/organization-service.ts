@@ -39,6 +39,7 @@ import {
   CreateMember,
   CreateOrganization,
   InvitationWithUser,
+  MemberOrInvitationDTO,
   OrganizationRole,
   UpdateOrganization,
 } from './types/domain/organization-types'
@@ -370,4 +371,42 @@ export const getInvitationMembersService = async (
   }
 
   return await getInvitationMembersDao(organizationIdSanitized)
+}
+
+export async function getMembersAndInvitationsService(
+  organizationId: string
+): Promise<MemberOrInvitationDTO[]> {
+  const [members, invitations] = await Promise.all([
+    getOrganizationMembersService(organizationId),
+    getInvitationMembersService(organizationId),
+  ])
+
+  const memberDTOs = members.map((m) => {
+    if (!m.user) {
+      throw new Error('User data missing from organization member')
+    }
+    return {
+      id: m.user.id,
+      invitationId: null,
+      name: m.user.name,
+      email: m.user.email,
+      image: m.user.image ?? null,
+      role: m.role,
+      joinedAt: m.createdAt,
+      status: 'member' as const,
+    }
+  })
+
+  const invitationDTOs = invitations.map((i) => ({
+    id: i.user?.id ?? '',
+    invitationId: i.id,
+    name: i.user?.name ?? null,
+    email: i.email,
+    image: i.user?.image ?? null,
+    role: i.role,
+    joinedAt: i.expiresAt,
+    status: 'invited' as const,
+  }))
+
+  return [...memberDTOs, ...invitationDTOs]
 }

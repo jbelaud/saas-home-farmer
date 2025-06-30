@@ -7,6 +7,7 @@ import {
   getAuthUser,
   getSessionReferenceId,
 } from '../authentication/auth-service'
+import {getMembersAndInvitationsService} from '../organization-service'
 import {getProjectsByOrganizationService} from '../project-service'
 import {checkSubscriptionLimitService} from '../subscription-service'
 import {LimitType, LimitTypeConst} from '../types/domain/subscription-types'
@@ -96,6 +97,11 @@ export const checkSubscriptionLimit = async (
     case LimitTypeConst.PROJECTS: {
       const projects = await getProjectsByOrganizationService(referenceId) //todo
       currentUsage = projects.length
+      break
+    }
+    case LimitTypeConst.USERS: {
+      const members = await getMembersAndInvitationsService(referenceId) //todo attention en billingmodeuser
+      currentUsage = members.length
       break
     }
     case LimitTypeConst.STORAGE:

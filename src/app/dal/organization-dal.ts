@@ -9,11 +9,12 @@ import {
 } from '@/services/authorization/organization-authorization'
 import {
   getAllOrganizationsWithPaginationService,
-  getInvitationMembersService,
+  getMembersAndInvitationsService,
   getOrganizationBySlugService,
   getOrganizationMembersService,
 } from '@/services/facades/organization-service-facade'
 import {Pagination} from '@/services/types/common-type'
+import {MemberOrInvitationDTO} from '@/services/types/domain/organization-types'
 
 export type OrganizationMemberDTO = {
   id: string
@@ -55,54 +56,11 @@ export async function getOrganizationMembersDal(
   })
 }
 
-export type MemberOrInvitationDTO = {
-  id: string
-  invitationId: string | null
-  name: string | null
-  email: string
-  image: string | null
-  role: string | null
-  joinedAt: Date | null
-  status: 'member' | 'invited'
-}
-
-export async function getMembersAndInvitationsDal(
-  organizationId: string
-): Promise<MemberOrInvitationDTO[]> {
-  const [members, invitations] = await Promise.all([
-    getOrganizationMembersService(organizationId),
-    getInvitationMembersService(organizationId),
-  ])
-
-  const memberDTOs = members.map((m) => {
-    if (!m.user) {
-      throw new Error('User data missing from organization member')
-    }
-    return {
-      id: m.user.id,
-      invitationId: null,
-      name: m.user.name,
-      email: m.user.email,
-      image: m.user.image ?? null,
-      role: m.role,
-      joinedAt: m.createdAt,
-      status: 'member' as const,
-    }
-  })
-
-  const invitationDTOs = invitations.map((i) => ({
-    id: i.user?.id ?? '',
-    invitationId: i.id,
-    name: i.user?.name ?? null,
-    email: i.email,
-    image: i.user?.image ?? null,
-    role: i.role,
-    joinedAt: i.expiresAt,
-    status: 'invited' as const,
-  }))
-
-  return [...memberDTOs, ...invitationDTOs]
-}
+export const getMembersAndInvitationsDal = cache(
+  async (organizationId: string): Promise<MemberOrInvitationDTO[]> => {
+    return await getMembersAndInvitationsService(organizationId)
+  }
+)
 
 export const getAllOrganizationsWithPaginationDal = cache(
   async (pagination: Pagination, search?: string) => {

@@ -33,3 +33,5 @@ export const getUserRoleInOrganizationService =
   organizationServiceInterceptor.getUserRoleInOrganizationService
 export const getInvitationMembersService =
   organizationServiceInterceptor.getInvitationMembersService
+export const getMembersAndInvitationsService =
+  organizationServiceInterceptor.getMembersAndInvitationsService
