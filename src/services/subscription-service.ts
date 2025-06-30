@@ -14,7 +14,7 @@ import {
   getUserByIdDao,
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
-import {env} from '@/env'
+import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {
   canReadSubscription,
   canUpdateSubscription,
@@ -22,6 +22,7 @@ import {
 import {
   BillingModes,
   type CreateSubscription,
+  type LimitType,
   PlanConst,
   type Subscription,
   type SubscriptionPlan,
@@ -299,9 +300,6 @@ export const updateSubscriptionForWebhookService = async (params: {
   return updatedSubscription
 }
 
-//BILLING
-export const BILLING_MODE = env.NEXT_PUBLIC_BILLING_MODE
-
 /**
  * 🎯 Détermine le referenceId pour les subscriptions selon le mode de facturation
  */
@@ -407,5 +405,41 @@ export function getBillingDisplayInfo() {
     billingEntity:
       BILLING_MODE === BillingModes.USER ? 'utilisateur' : 'organisation',
     seatLabel: BILLING_MODE === BillingModes.USER ? 'utilisateur' : 'membres',
+  }
+}
+/**
+ * 🎯 Vérification générique des limites d'abonnement (logique métier pure)
+ */
+export const checkSubscriptionLimitService = (
+  subscription: {limits?: Record<string, number>} | null,
+  limitType: LimitType,
+  currentUsage: number,
+  requestedAmount: number = 1
+): {
+  allowed: boolean
+  limit: number
+  usage: number
+  remaining: number
+  hasSubscription: boolean
+} => {
+  if (!subscription) {
+    return {
+      allowed: false,
+      limit: 0,
+      usage: currentUsage,
+      remaining: 0,
+      hasSubscription: false,
+    }
+  }
+
+  const limit = subscription.limits?.[limitType] || 0
+  const remaining = Math.max(0, limit - currentUsage)
+
+  return {
+    allowed: currentUsage + requestedAmount <= limit,
+    limit,
+    usage: currentUsage,
+    remaining,
+    hasSubscription: true,
   }
 }

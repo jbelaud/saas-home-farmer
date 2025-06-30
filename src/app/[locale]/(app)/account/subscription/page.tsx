@@ -5,6 +5,7 @@ import {Calendar, CheckCircle, CreditCard, Crown, Zap} from 'lucide-react'
 import React, {useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
+import {useOrganization} from '@/components/context/organizarion-provider'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {
@@ -105,6 +106,7 @@ const availablePlans = [
 ]
 
 export default function SubscriptionPage() {
+  const {referenceId} = useOrganization()
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
@@ -115,6 +117,8 @@ export default function SubscriptionPage() {
     pro: 5,
     enterprise: 10,
   })
+
+  console.log('referenceId', referenceId)
 
   const loadSubscriptions = async () => {
     try {
@@ -162,6 +166,7 @@ export default function SubscriptionPage() {
         successUrl: '/account/subscription',
         cancelUrl: '/account/subscription',
         annual,
+        referenceId: activeSubscription?.referenceId,
         subscriptionId: activeSubscription?.id,
         seats,
       })

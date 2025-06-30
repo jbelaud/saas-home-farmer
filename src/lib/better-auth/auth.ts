@@ -22,9 +22,12 @@ import {
   sendResetPasswordLinkEmailService,
   sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
+import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
+import {BillingModes} from '@/services/types/domain/subscription-types'
 
 import {APP_ISSUER} from '../constants'
+import {BILLING_MODE} from '../helper/subscription-helper'
 import {onStripeEvent} from '../stripe/stripe-events'
 import {betterAuthPlans, stripeClient} from '../stripe/stripe-utils'
 
@@ -141,20 +144,31 @@ export const auth = betterAuth({
         authorizeReference: async ({user, session, referenceId, action}) => {
           // Check if the user has permission to manage subscriptions for this reference
           console.log('authorizeReference', user, session, referenceId, action)
+
+          if (action === 'list-subscription') {
+            return true
+          }
           if (
             action === 'upgrade-subscription' ||
             action === 'cancel-subscription' ||
             action === 'restore-subscription'
           ) {
-            // const org = await db.member.findFirst({
-            //     where: {
-            //         organizationId: referenceId,
-            //         userId: user.id
-            //     }
-            // });
-            // return org?.role === "owner"
+            // Mode USER : seul le propriétaire peut gérer
+            if (BILLING_MODE === BillingModes.USER) {
+              return user.id === referenceId
+            }
+
+            // Mode ORGANIZATION : vérifier le rôle dans l'org
+            if (BILLING_MODE === BillingModes.ORGANIZATION) {
+              const org = await getOrganizationMembersService(referenceId)
+              const member = org.find((m) => m.userId === user.id)
+              console.log('authorizeReference member', member)
+              // Seuls owner et admin peuvent gérer les abonnements
+              return member?.role === 'owner' //|| member?.role === 'admin'
+            }
+            return false
           }
-          return true
+          return false
         },
 
         onSubscriptionComplete: async ({
@@ -223,19 +237,28 @@ export const auth = betterAuth({
 function createAuthRedirectMiddleware() {
   return createAuthMiddleware(async (ctx) => {
     console.log('ctx.path', ctx.path)
+    //console.log('ctx.context newSession', ctx.context.newSession)
 
-    if (ctx.path === '/magic-link/verify') {
+    if (
+      ctx.path === '/magic-link/verify' &&
+      ctx.context.newSession &&
+      ctx.context.newSession.user.email
+    ) {
       console.log('/magic-link/verify')
       const result = await initializeRegisterUserDataService(
         ctx.context?.newSession?.user.email ?? ''
       )
       if (result.organizationId) {
-        await auth.api.setActiveOrganization({
-          headers: ctx.headers,
-          body: {
-            organizationId: result.organizationId,
-          },
-        })
+        try {
+          await auth.api.setActiveOrganization({
+            headers: ctx.headers,
+            body: {
+              organizationId: result.organizationId,
+            },
+          })
+        } catch (error) {
+          console.warn('Error setting active organization', error)
+        }
       }
     }
 

@@ -1,3 +1,4 @@
+import {checkSubscriptionLimitService as _checkSubscriptionLimitService} from '../subscription-service'
 import subscriptionServiceInterceptor from './interceptors/subscription-service-logger-interceptor'
 
 //POST SERVICE
@@ -19,3 +20,6 @@ export const updateSubscriptionForWebhookService =
   subscriptionServiceInterceptor.updateSubscriptionForWebhookService
 export const getBillingContext =
   subscriptionServiceInterceptor.getBillingContext
+
+// Export direct pour les fonctions pures sans interceptor nécessaire
+export const checkSubscriptionLimitService = _checkSubscriptionLimitService

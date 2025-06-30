@@ -11,6 +11,7 @@ import React, {
 } from 'react'
 
 import {authClient} from '@/lib/better-auth/auth-client'
+import {getReferenceIdByBillingMode} from '@/lib/helper/subscription-helper'
 import {
   RoleConst,
   UserOrganizationRoleConst,
@@ -27,6 +28,7 @@ interface OrganizationContextType {
   // États
   user: User | null
   organizations: MemberData[]
+  referenceId: string | undefined //uid or organizationId
   currentOrganization: Organization | null
   currentUserOrganization: MemberData | null
 
@@ -53,6 +55,9 @@ export function OrganizationProvider({
   const [currentOrganization, setCurrentOrganization] =
     useState<Organization | null>(initialOrganization)
   const {data: activeOrganization} = authClient.useActiveOrganization()
+  const [referenceId, setReferenceId] = useState<string | undefined>(
+    getReferenceIdByBillingMode(user?.id, initialOrganization?.id)
+  )
 
   // Fonction utilitaire pour définir l'organisation active
   const setActiveOrganization = async (organization: Organization) => {
@@ -82,6 +87,9 @@ export function OrganizationProvider({
     ) {
       await setActiveOrganization(member.organization)
       setCurrentOrganization(member.organization)
+      setReferenceId(
+        getReferenceIdByBillingMode(user?.id, member.organization.id)
+      )
       // Rediriger vers la page de l'équipe
       // router.push(`/team/${member.organization.slug}`)
     }
@@ -101,6 +109,9 @@ export function OrganizationProvider({
     ) {
       await setActiveOrganization(member.organization)
       setCurrentOrganization(member.organization)
+      setReferenceId(
+        getReferenceIdByBillingMode(user?.id, member.organization.id)
+      )
     }
   }
 
@@ -125,6 +136,9 @@ export function OrganizationProvider({
         if (member && member.organization) {
           await setActiveOrganization(member.organization)
           setCurrentOrganization(member.organization)
+          setReferenceId(
+            getReferenceIdByBillingMode(user?.id, member.organization.id)
+          )
           return
         }
       }
@@ -137,9 +151,14 @@ export function OrganizationProvider({
       ) {
         await setActiveOrganization(organizations[0].organization)
         setCurrentOrganization(organizations[0].organization)
+        setReferenceId(
+          getReferenceIdByBillingMode(
+            user?.id,
+            organizations[0].organization.id
+          )
+        )
       }
     }
-
     initializeOrganization()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizations, activeOrganization])
@@ -148,6 +167,7 @@ export function OrganizationProvider({
     // États
     user,
     organizations,
+    referenceId,
     currentOrganization,
     currentUserOrganization,
 
@@ -169,6 +189,16 @@ export function useOrganization() {
   if (context === undefined) {
     throw new Error(
       'useOrganization must be used within an OrganizationProvider'
+    )
+  }
+  return context
+}
+
+export function useReferenceId() {
+  const context = useContext(OrganizationContext)
+  if (context === undefined) {
+    throw new Error(
+      'useReferenceId must be used within an OrganizationProvider'
     )
   }
   return context

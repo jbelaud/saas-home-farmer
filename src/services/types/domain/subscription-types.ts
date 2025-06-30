@@ -14,6 +14,42 @@ export const PlanConst = {
   LIFETIME: 'lifetime' as SubscriptionPlan,
 } as const
 
+// Types pour les limites d'abonnement
+export type LimitType = 'projects' | 'storage'
+
+// Constantes pour les limites
+export const LimitTypeConst = {
+  PROJECTS: 'projects' as LimitType,
+  STORAGE: 'storage' as LimitType,
+} as const
+
+// Type pour la configuration d'une limite
+export type LimitConfig = {
+  key: LimitType
+  label: string
+  unit: string
+  icon: string
+  description?: string
+}
+
+// Configuration des limites disponibles
+export const AVAILABLE_LIMITS: LimitConfig[] = [
+  {
+    key: 'projects',
+    label: 'Projets',
+    unit: 'projets',
+    icon: '📁',
+    description: 'Nombre de projets maximum',
+  },
+  {
+    key: 'storage',
+    label: 'Stockage',
+    unit: 'GB',
+    icon: '💾',
+    description: 'Espace de stockage total',
+  },
+] as const
+
 // Types pour les opérations
 export type CreateSubscription = Pick<
   SubscriptionAddModel,
