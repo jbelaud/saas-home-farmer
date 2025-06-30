@@ -141,9 +141,9 @@ export const auth = betterAuth({
       subscription: {
         enabled: true,
         plans: betterAuthPlans,
-        authorizeReference: async ({user, session, referenceId, action}) => {
+        authorizeReference: async ({user, referenceId, action}) => {
           // Check if the user has permission to manage subscriptions for this reference
-          console.log('authorizeReference', user, session, referenceId, action)
+          console.log('authorizeReference', referenceId, action)
 
           if (action === 'list-subscription') {
             return true

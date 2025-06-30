@@ -140,7 +140,8 @@ export default function SubscriptionPage() {
 
   useEffect(() => {
     loadSubscriptions()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referenceId])
 
   // Initialiser les seats avec l'abonnement actuel
   useEffect(() => {

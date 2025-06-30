@@ -7,9 +7,6 @@ export function getReferenceIdByBillingMode(
   userId?: string,
   organizationId?: string
 ): string | undefined {
-  console.log('BILLING_MODE', BILLING_MODE)
-  console.log('organizationId', organizationId)
-  console.log('userId', userId)
   if (organizationId && BILLING_MODE === BillingModes.ORGANIZATION) {
     return organizationId
   }

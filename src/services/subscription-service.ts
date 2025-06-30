@@ -407,6 +407,15 @@ export function getBillingDisplayInfo() {
     seatLabel: BILLING_MODE === BillingModes.USER ? 'utilisateur' : 'membres',
   }
 }
+
+export type SubscriptionLimit = {
+  allowed: boolean
+  limit: number
+  usage: number
+  remaining: number
+  hasSubscription: boolean
+  limitType: LimitType
+}
 /**
  * 🎯 Vérification générique des limites d'abonnement (logique métier pure)
  */
@@ -415,13 +424,7 @@ export const checkSubscriptionLimitService = (
   limitType: LimitType,
   currentUsage: number,
   requestedAmount: number = 1
-): {
-  allowed: boolean
-  limit: number
-  usage: number
-  remaining: number
-  hasSubscription: boolean
-} => {
+): SubscriptionLimit => {
   if (!subscription) {
     return {
       allowed: false,
@@ -429,6 +432,7 @@ export const checkSubscriptionLimitService = (
       usage: currentUsage,
       remaining: 0,
       hasSubscription: false,
+      limitType,
     }
   }
 
@@ -441,5 +445,6 @@ export const checkSubscriptionLimitService = (
     usage: currentUsage,
     remaining,
     hasSubscription: true,
+    limitType,
   }
 }
