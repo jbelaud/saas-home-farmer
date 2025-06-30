@@ -17,6 +17,10 @@ import {
   updateTaskByIdDao,
 } from '@/db/repositories/project-repository'
 
+import {
+  getActiveSubscriptions,
+  getSessionReferenceId,
+} from '../authentication/auth-service'
 import {AuthorizationError} from '../errors/authorization-error'
 import {
   createProjectService,
@@ -89,6 +93,22 @@ describe('[ADMIN] CRUD : Project Service', () => {
       organizationId,
       createdBy: userTestAdmin.id,
     }
+    vi.mocked(getSessionReferenceId).mockResolvedValue(organizationId)
+    vi.mocked(getActiveSubscriptions).mockResolvedValue([
+      {
+        id: faker.string.uuid(),
+        plan: 'Test Subscription',
+        stripeSubscriptionId: faker.string.uuid(),
+        stripeCustomerId: faker.string.uuid(),
+        limits: {
+          projects: 10,
+        },
+        seats: 10,
+        priceId: undefined,
+        referenceId: organizationId,
+        status: 'active',
+      },
+    ])
 
     const result = await createProjectService(createData)
 
@@ -243,7 +263,22 @@ describe('[ORGANIZATION OWNER] CRUD : Project Service', () => {
       organizationId,
       createdBy: userTest.id,
     }
-
+    vi.mocked(getSessionReferenceId).mockResolvedValue(organizationId)
+    vi.mocked(getActiveSubscriptions).mockResolvedValue([
+      {
+        id: faker.string.uuid(),
+        plan: 'Test Subscription',
+        stripeSubscriptionId: faker.string.uuid(),
+        stripeCustomerId: faker.string.uuid(),
+        limits: {
+          projects: 10,
+        },
+        seats: 10,
+        priceId: undefined,
+        referenceId: organizationId,
+        status: 'active',
+      },
+    ])
     const result = await createProjectService(createData)
 
     expect(result).toEqual(projectData)
@@ -365,7 +400,22 @@ describe('[ORGANIZATION ADMIN] CRUD : Project Service', () => {
       organizationId,
       createdBy: userTest.id,
     }
-
+    vi.mocked(getSessionReferenceId).mockResolvedValue(organizationId)
+    vi.mocked(getActiveSubscriptions).mockResolvedValue([
+      {
+        id: faker.string.uuid(),
+        plan: 'Test Subscription',
+        stripeSubscriptionId: faker.string.uuid(),
+        stripeCustomerId: faker.string.uuid(),
+        limits: {
+          projects: 10,
+        },
+        seats: 10,
+        priceId: undefined,
+        referenceId: organizationId,
+        status: 'active',
+      },
+    ])
     const result = await createProjectService(createData)
 
     expect(result).toEqual(projectData)

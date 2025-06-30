@@ -56,6 +56,7 @@ const mockMemberData = [
       banExpires: null,
       visibility: 'public' as const,
       twoFactorEnabled: false,
+      stripeCustomerId: null,
     },
   },
   {
@@ -78,6 +79,7 @@ const mockMemberData = [
       banExpires: null,
       visibility: 'public' as const,
       twoFactorEnabled: false,
+      stripeCustomerId: null,
     },
   },
 ]
