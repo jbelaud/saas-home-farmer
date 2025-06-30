@@ -19,7 +19,11 @@ import {
   EntityTypeConst,
   FileCategoryConst,
 } from '@/services/types/domain/file-types'
-import {UpdateOrganization} from '@/services/types/domain/organization-types'
+import {
+  OrganizationRole,
+  OrganizationRoleConst,
+  UpdateOrganization,
+} from '@/services/types/domain/organization-types'
 import {User, UserDTO} from '@/services/types/domain/user-types'
 import {searchUsersService} from '@/services/user-service'
 
@@ -106,7 +110,7 @@ export async function addUserToOrganizationAction(
   organizationId: string,
   userId: string,
   email: string,
-  role?: 'admin' | 'member',
+  role: OrganizationRole = OrganizationRoleConst.member as OrganizationRole,
   sendInvitationEmail?: boolean
 ): Promise<MemberActionResult> {
   await requireActionAuth()
@@ -131,7 +135,7 @@ export async function addUserToOrganizationAction(
         body: {
           organizationId,
           email: email,
-          role: 'member',
+          role: role,
         },
         asResponse: true,
       })

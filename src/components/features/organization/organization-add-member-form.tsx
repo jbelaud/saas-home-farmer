@@ -15,6 +15,10 @@ import {
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
+import {
+  OrganizationRole,
+  OrganizationRoleConst,
+} from '@/services/types/domain/organization-types'
 import {UserDTO} from '@/services/types/domain/user-types'
 
 import {
@@ -34,7 +38,9 @@ export function OrganizationAddMemberForm({
   const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null)
   const [isPending, startTransition] = useTransition()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedRole, setSelectedRole] = useState<'admin' | 'member'>('member')
+  const [selectedRole, setSelectedRole] = useState<OrganizationRole>(
+    OrganizationRoleConst.member as OrganizationRole
+  )
 
   function handleSearch(value: string) {
     setEmail(value)
@@ -202,7 +208,7 @@ export function OrganizationAddMemberForm({
             <RadioGroup
               value={selectedRole}
               onValueChange={(value: string) =>
-                setSelectedRole(value as 'admin' | 'member')
+                setSelectedRole(value as OrganizationRole)
               }
               className="space-y-2"
             >
