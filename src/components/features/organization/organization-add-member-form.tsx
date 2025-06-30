@@ -213,7 +213,11 @@ export function OrganizationAddMemberForm({
               className="space-y-2"
             >
               <div className="hover:bg-muted/50 flex items-start space-x-3 rounded-lg border p-3">
-                <RadioGroupItem value="ADMIN" id="admin" className="mt-1" />
+                <RadioGroupItem
+                  value={OrganizationRoleConst.admin}
+                  id="admin"
+                  className="mt-1"
+                />
                 <div className="flex-1">
                   <Label htmlFor="admin" className="cursor-pointer font-medium">
                     Admin
@@ -224,7 +228,11 @@ export function OrganizationAddMemberForm({
                 </div>
               </div>
               <div className="hover:bg-muted/50 flex items-start space-x-3 rounded-lg border p-3">
-                <RadioGroupItem value="MEMBER" id="member" className="mt-1" />
+                <RadioGroupItem
+                  value={OrganizationRoleConst.member}
+                  id="member"
+                  className="mt-1"
+                />
                 <div className="flex-1">
                   <Label
                     htmlFor="member"
