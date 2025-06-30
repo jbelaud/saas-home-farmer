@@ -5,8 +5,10 @@ import {
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {OrganizationContext} from '@/services/types/domain/auth-types'
 
+import {LimitTypeConst} from '../types/domain/subscription-types'
 import {userCanOnResource} from './authorization-service'
 import {ActionsConst, SubjectsConst} from './casl-abilities'
+import {checkSubscriptionLimit} from './subscription-authorization'
 
 /**
  * Système d'autorisation pour les projets et tâches avec contexte organisationnel
@@ -26,15 +28,16 @@ import {ActionsConst, SubjectsConst} from './casl-abilities'
  * Vérifie si l'utilisateur connecté peut créer un projet dans une organisation
  */
 export const canCreateProject = async (
-  organizationId: string
+  organizationId: string,
+  requestedAmount: number = 1
 ): Promise<boolean> => {
   const authUser = await getAuthUser()
 
   const orgContext: OrganizationContext = {
     organizationId,
   }
-
-  return userCanOnResource(
+  // 1️⃣ Vérification permissions CASL
+  const hasPermission = userCanOnResource(
     authUser,
     ActionsConst.CREATE,
     SubjectsConst.PROJECT,
@@ -43,6 +46,20 @@ export const canCreateProject = async (
     },
     orgContext
   )
+  if (!hasPermission) return false
+
+  const limitCheck = await checkProjectCreationLimit(requestedAmount)
+  return limitCheck.allowed
+}
+
+export const checkProjectCreationLimit = async (
+  requestedAmount: number = 1
+) => {
+  const limitCheck = await checkSubscriptionLimit(
+    LimitTypeConst.PROJECTS,
+    requestedAmount
+  )
+  return limitCheck
 }
 
 /**

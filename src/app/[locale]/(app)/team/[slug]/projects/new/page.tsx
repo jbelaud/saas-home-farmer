@@ -2,13 +2,11 @@ import {Metadata} from 'next'
 import {forbidden, notFound} from 'next/navigation'
 
 import {getOrganizationBySlugDal} from '@/app/dal/organization-dal'
-import {
-  checkSubscriptionLimitDal,
-  getReferenceIdDal,
-} from '@/app/dal/subscription-dal'
 import {CreateProjectForm} from '@/components/features/projects/create-project-form'
-import {canCreateProject} from '@/services/authorization/project-authorization'
-import {LimitTypeConst} from '@/services/types/domain/subscription-types'
+import {
+  canCreateProject,
+  checkProjectCreationLimit,
+} from '@/services/authorization/project-authorization'
 
 export const metadata: Metadata = {
   title: 'Nouveau projet',
@@ -24,15 +22,7 @@ interface NewProjectPageProps {
 export default async function NewProjectPage({params}: NewProjectPageProps) {
   const {slug} = await params
 
-  const referenceId = await getReferenceIdDal(slug)
-  if (!referenceId) {
-    notFound()
-  }
-  const limits = await checkSubscriptionLimitDal(
-    referenceId,
-    LimitTypeConst.PROJECTS,
-    1
-  )
+  const limits = await checkProjectCreationLimit()
   if (!limits.allowed) {
     return <div>Vous avez atteint la limite de création de projets.</div>
   }
