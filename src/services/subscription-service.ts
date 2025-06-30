@@ -23,6 +23,7 @@ import {
   BillingModes,
   type CreateSubscription,
   type LimitType,
+  LimitTypeConst,
   PlanConst,
   type Subscription,
   type SubscriptionPlan,
@@ -416,11 +417,14 @@ export type SubscriptionLimit = {
   hasSubscription: boolean
   limitType: LimitType
 }
+
+export const perSeatMultiplier = false //todo env
+
 /**
  * 🎯 Vérification générique des limites d'abonnement (logique métier pure)
  */
 export const checkSubscriptionLimitService = (
-  subscription: {limits?: Record<string, number>} | null,
+  subscription: {limits?: Record<string, number>; seats?: number} | null,
   limitType: LimitType,
   currentUsage: number,
   requestedAmount: number = 1
@@ -436,12 +440,28 @@ export const checkSubscriptionLimitService = (
     }
   }
 
-  const limit = subscription.limits?.[limitType] || 0
-  const remaining = Math.max(0, limit - currentUsage)
+  // 🎯 Logique spécifique selon le type de limite
+  let effectiveLimit: number
+
+  if (limitType === LimitTypeConst.USERS) {
+    // Pour les utilisateurs : utiliser le nombre de sièges
+    effectiveLimit = subscription.seats || 0
+  } else {
+    // Pour les autres ressources : utiliser la limite fixe du plan
+    if (perSeatMultiplier) {
+      //si les limites sont multiplier par nombres de seat
+      effectiveLimit =
+        (subscription.limits?.[limitType] || 1) * (subscription.seats || 1)
+    } else {
+      effectiveLimit = subscription.limits?.[limitType] || 0
+    }
+  }
+
+  const remaining = Math.max(0, effectiveLimit - currentUsage)
 
   return {
-    allowed: currentUsage + requestedAmount <= limit,
-    limit,
+    allowed: currentUsage + requestedAmount <= effectiveLimit,
+    limit: effectiveLimit,
     usage: currentUsage,
     remaining,
     hasSubscription: true,

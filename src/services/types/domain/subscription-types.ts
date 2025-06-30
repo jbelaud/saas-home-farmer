@@ -21,6 +21,7 @@ export type LimitType = 'projects' | 'storage'
 export const LimitTypeConst = {
   PROJECTS: 'projects' as LimitType,
   STORAGE: 'storage' as LimitType,
+  USERS: 'users' as LimitType,
 } as const
 
 // Type pour la configuration d'une limite
