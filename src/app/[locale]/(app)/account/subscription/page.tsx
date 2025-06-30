@@ -123,7 +123,11 @@ export default function SubscriptionPage() {
   const loadSubscriptions = async () => {
     try {
       setLoading(true)
-      const {data} = await authClient.subscription.list()
+      const {data} = await authClient.subscription.list({
+        query: {
+          referenceId: referenceId || '',
+        },
+      })
       console.log('sSubscriptions', data)
       setSubscriptions(data || [])
     } catch (error) {
@@ -161,15 +165,43 @@ export default function SubscriptionPage() {
 
       const seats = selectedSeats[planId] || 1
 
-      const {error} = await authClient.subscription.upgrade({
+      // Déterminer le mode selon la présence d'une subscription active
+      const isUpdateMode = activeSubscription?.id
+      const isCreateMode = !activeSubscription && referenceId
+
+      if (!isUpdateMode && !isCreateMode) {
+        toast.error('Impossible de déterminer le mode de subscription')
+        return
+      }
+
+      // Préparer les paramètres selon le mode
+      const upgradeParams: {
+        plan: string
+        successUrl: string
+        cancelUrl: string
+        annual: boolean
+        seats: number
+        subscriptionId?: string
+        referenceId?: string
+      } = {
         plan: planId,
         successUrl: '/account/subscription',
         cancelUrl: '/account/subscription',
         annual,
-        referenceId: activeSubscription?.referenceId,
-        subscriptionId: activeSubscription?.id,
         seats,
-      })
+      }
+
+      if (isUpdateMode) {
+        // Mode UPDATE : modifier une subscription existante
+        upgradeParams.subscriptionId = activeSubscription.id
+        console.log('Mode UPDATE - subscriptionId:', activeSubscription.id)
+      } else if (isCreateMode) {
+        // Mode CREATE : créer une nouvelle subscription
+        upgradeParams.referenceId = referenceId
+        console.log('Mode CREATE - referenceId:', referenceId)
+      }
+
+      const {error} = await authClient.subscription.upgrade(upgradeParams)
 
       if (error) {
         toast.error(error.message || 'Erreur lors de la mise à jour')

@@ -132,7 +132,7 @@ export function userCanOnResource(
 
     // Vérifier si l'objet match les conditions de la règle
     return Object.keys(rule.conditions).every((key) => {
-      const ruleValue = rule.conditions![key]
+      const ruleValue = rule.conditions?.[key]
       const objectValue = subjectObject[key]
       return ruleValue === objectValue
     })
