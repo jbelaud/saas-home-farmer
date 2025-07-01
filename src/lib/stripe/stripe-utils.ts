@@ -22,7 +22,7 @@ export const betterAuthPlans: StripePlan[] = [
     priceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY, // the price ID from stripe
     annualDiscountPriceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY, // (optional) the price ID for annual billing with a discount
     limits: {
-      projects: 1,
+      projects: 2,
       storage: 10,
     },
   },
@@ -31,7 +31,7 @@ export const betterAuthPlans: StripePlan[] = [
     priceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_MONTHLY, // the price ID from stripe
     annualDiscountPriceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_YEARLY, // (optional) the price ID for annual billing with a discount
     limits: {
-      projects: 1,
+      projects: 3,
       storage: 10,
     },
   },
@@ -47,6 +47,15 @@ export const betterAuthPlans: StripePlan[] = [
     },
   },
 ]
+
+export const freePlan: StripePlan = {
+  name: 'free',
+  priceId: 'free',
+  limits: {
+    projects: 1,
+    storage: 1,
+  },
+}
 
 // Plans for App
 export const planProMontly: Plan = {

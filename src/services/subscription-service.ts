@@ -15,6 +15,8 @@ import {
   updateUserSafeByUidDao,
 } from '@/db/repositories/user-repository'
 import {BILLING_MODE} from '@/lib/helper/subscription-helper'
+import {logger} from '@/lib/logger'
+import {freePlan} from '@/lib/stripe/stripe-utils'
 import {
   canReadSubscription,
   canUpdateSubscription,
@@ -416,6 +418,7 @@ export type SubscriptionLimit = {
   remaining: number
   hasSubscription: boolean
   limitType: LimitType
+  plan: string
 }
 
 export const perSeatMultiplier = false //todo env
@@ -424,12 +427,17 @@ export const perSeatMultiplier = false //todo env
  * 🎯 Vérification générique des limites d'abonnement (logique métier pure)
  */
 export const checkSubscriptionLimitService = (
-  subscription: {limits?: Record<string, number>; seats?: number} | null,
+  subscription: {
+    limits?: Record<string, number>
+    seats?: number
+    plan?: string
+  } | null,
   limitType: LimitType,
   currentUsage: number,
   requestedAmount: number = 1
 ): SubscriptionLimit => {
   if (!subscription) {
+    logger.warn('[checkSubscriptionLimitService] no subscription')
     return {
       allowed: false,
       limit: 0,
@@ -437,6 +445,7 @@ export const checkSubscriptionLimitService = (
       remaining: 0,
       hasSubscription: false,
       limitType,
+      plan: freePlan.name,
     }
   }
 
@@ -453,6 +462,7 @@ export const checkSubscriptionLimitService = (
       effectiveLimit =
         (subscription.limits?.[limitType] || 1) * (subscription.seats || 1)
     } else {
+      console.log('subscription.limits', subscription)
       effectiveLimit = subscription.limits?.[limitType] || 0
     }
   }
@@ -466,5 +476,6 @@ export const checkSubscriptionLimitService = (
     remaining,
     hasSubscription: true,
     limitType,
+    plan: subscription.plan || freePlan.name,
   }
 }

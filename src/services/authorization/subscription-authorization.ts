@@ -1,6 +1,7 @@
 import {logger} from 'better-auth'
 
 import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
+import {freePlan} from '@/lib/stripe/stripe-utils'
 
 import {
   getActiveSubscriptions,
@@ -10,7 +11,11 @@ import {
 import {getMembersAndInvitationsService} from '../organization-service'
 import {getProjectsByOrganizationService} from '../project-service'
 import {checkSubscriptionLimitService} from '../subscription-service'
-import {LimitType, LimitTypeConst} from '../types/domain/subscription-types'
+import {
+  LimitType,
+  LimitTypeConst,
+  PlanConst,
+} from '../types/domain/subscription-types'
 import {userCan, userCanOnResource} from './authorization-service'
 import {ActionsConst, SubjectsConst} from './casl-abilities'
 
@@ -86,8 +91,19 @@ export const checkSubscriptionLimit = async (
   }
   // 1. Récupérer l'abonnement via Better Auth API
   const subscription = await getActiveSubscriptions(referenceId)
-  if (!subscription) {
-    throw new Error('No subscription found')
+
+  if (subscription.length === 0) {
+    subscription.push({
+      id: PlanConst.FREE,
+      referenceId,
+      limits: freePlan.limits,
+      priceId: freePlan.priceId,
+      plan: freePlan.name,
+      status: 'active',
+      seats: 1,
+      stripeCustomerId: 'free',
+      stripeSubscriptionId: 'free',
+    })
   }
   if (subscription.length > 1) {
     logger.warn('Multiple subscriptions found for referenceId', {referenceId})
