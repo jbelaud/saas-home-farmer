@@ -88,37 +88,37 @@ export const planEntrepriseMontly: Plan = {
   ],
 }
 
-export const planProYearly: Plan = {
-  priceId: betterAuthPlans[0].annualDiscountPriceId ?? '',
-  planCode: betterAuthPlans[0].name as SubscriptionPlan,
-  planName: 'Pro Yearly',
-  //isYearly: true,
-  isReccuring: true,
-  limits: betterAuthPlans[0].limits,
-  features: [
-    "Jusqu'à 5 utilisateurs",
-    `${betterAuthPlans[0].limits?.projects} projets`,
-    `${betterAuthPlans[0].limits?.storage} GB stockage`,
-    'Support prioritaire',
-    'Intégrations avancées',
-  ],
-}
+// export const planProYearly: Plan = {
+//   priceId: betterAuthPlans[0].annualDiscountPriceId ?? '',
+//   planCode: betterAuthPlans[0].name as SubscriptionPlan,
+//   planName: 'Pro Yearly',
+//   //isYearly: true,
+//   isReccuring: true,
+//   limits: betterAuthPlans[0].limits,
+//   features: [
+//     "Jusqu'à 5 utilisateurs",
+//     `${betterAuthPlans[0].limits?.projects} projets`,
+//     `${betterAuthPlans[0].limits?.storage} GB stockage`,
+//     'Support prioritaire',
+//     'Intégrations avancées',
+//   ],
+// }
 
-export const planEntrepriseYearly: Plan = {
-  priceId: betterAuthPlans[1].annualDiscountPriceId ?? '',
-  planCode: betterAuthPlans[1].name as SubscriptionPlan,
-  planName: 'Entreprise Yearly',
-  //isYearly: false,
-  isReccuring: true,
-  limits: betterAuthPlans[1].limits,
-  features: [
-    'Utilisateurs illimités',
-    `${betterAuthPlans[1].limits?.projects} projets`,
-    `${betterAuthPlans[1].limits?.storage} GB stockage`,
-    'Support 24/7',
-    'SSO & sécurité avancée',
-  ],
-}
+// export const planEntrepriseYearly: Plan = {
+//   priceId: betterAuthPlans[1].annualDiscountPriceId ?? '',
+//   planCode: betterAuthPlans[1].name as SubscriptionPlan,
+//   planName: 'Entreprise Yearly',
+//   //isYearly: false,
+//   isReccuring: true,
+//   limits: betterAuthPlans[1].limits,
+//   features: [
+//     'Utilisateurs illimités',
+//     `${betterAuthPlans[1].limits?.projects} projets`,
+//     `${betterAuthPlans[1].limits?.storage} GB stockage`,
+//     'Support 24/7',
+//     'SSO & sécurité avancée',
+//   ],
+// }
 
 export const planLifetime: Plan = {
   priceId: betterAuthPlans[2].priceId ?? '',
@@ -162,16 +162,16 @@ export function isYearlyPrice(priceId?: string): boolean {
 
 export const plans = [
   planProMontly,
-  planProYearly,
   planLifetime,
   planFree,
   planEntrepriseMontly,
-  planEntrepriseYearly,
 ]
 
 export function getPlanByPriceId(priceId?: string) {
   if (!priceId) {
     return
   }
-  return plans.find((plan) => plan.priceId === priceId)
+  return plans.find(
+    (plan) => plan.priceId === priceId || plan.annualDiscountPriceId === priceId
+  )
 }
