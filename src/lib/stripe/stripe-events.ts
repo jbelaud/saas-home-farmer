@@ -14,7 +14,7 @@ import {
 import {createUserFromStripeService} from '@/services/facades/user-service-facade'
 import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
-import {stripeClient} from './stripe-utils'
+import {stripeClient} from './stripe-client'
 
 export async function onStripeEvent(event: Stripe.Event) {
   logger.info('[STRIPE-EVENT] Réception événement Stripe:', event.type)

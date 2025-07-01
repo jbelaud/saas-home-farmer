@@ -12,3 +12,9 @@ export const priceProYearly = await getSubscriptionRecapInfo(
 export const priceLifetime = await getSubscriptionRecapInfo(
   env.NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME
 )
+export const priceEntrepriseMonthly = await getSubscriptionRecapInfo(
+  env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_MONTHLY
+)
+export const priceEntrepriseYearly = await getSubscriptionRecapInfo(
+  env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_YEARLY
+)

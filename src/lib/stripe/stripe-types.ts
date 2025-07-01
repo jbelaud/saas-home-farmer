@@ -9,6 +9,11 @@ export type Plan = {
   isYearly: boolean
   isReccuring: boolean
   features: string[]
+  limits?: {
+    users?: number
+    projects?: number
+    storage?: number
+  }
 }
 export const StripeCheckoutConst = {
   EMBEDED_FORM: 'EmbededForm',

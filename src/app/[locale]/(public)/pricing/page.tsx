@@ -1,4 +1,6 @@
 import {
+  priceEntrepriseMonthly,
+  priceEntrepriseYearly,
   priceLifetime,
   priceProMonthly,
   priceProYearly,
@@ -16,6 +18,8 @@ export default async function Page() {
       priceProMonthly={priceProMonthly.recap}
       priceProYearly={priceProYearly.recap}
       priceLifetime={priceLifetime.recap}
+      priceEntrepriseMonthly={priceEntrepriseMonthly.recap}
+      priceEntrepriseYearly={priceEntrepriseYearly.recap}
     />
   )
 }

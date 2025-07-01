@@ -2,7 +2,7 @@ import 'server-only'
 
 import Stripe from 'stripe'
 
-import {stripeClient} from '@/lib/stripe/stripe-utils'
+import {stripeClient} from '@/lib/stripe/stripe-client'
 
 import {calculateInstallmentAmount} from './types'
 

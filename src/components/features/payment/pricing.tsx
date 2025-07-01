@@ -1,6 +1,6 @@
 'use client'
 import {motion} from 'framer-motion'
-import {Check} from 'lucide-react'
+import {Check, CreditCard, Crown, Zap} from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 
@@ -24,6 +24,58 @@ import {
 } from '@/components/ui/select'
 import {Switch} from '@/components/ui/switch'
 import {authClient} from '@/lib/better-auth/auth-client'
+import {
+  planEntrepriseMontly,
+  planFree,
+  planLifetime,
+  planProMontly,
+} from '@/lib/stripe/stripe-utils'
+
+const availablePlans = [
+  {
+    id: planFree.planCode,
+    name: 'Gratuit',
+    price: '€0/mois',
+    yearlyPrice: '€0/an',
+    description: 'Idéal pour débuter',
+    features: planFree.features,
+    icon: <Zap className="h-5 w-5" />,
+    color: 'bg-gray-500',
+    popular: false,
+  },
+  {
+    id: planProMontly.planCode,
+    name: 'Pro',
+    price: '€29/mois',
+    yearlyPrice: '€290/an',
+    description: 'Parfait pour les équipes en croissance',
+    features: planProMontly.features,
+    icon: <Crown className="h-5 w-5" />,
+    color: 'bg-blue-500',
+    popular: true,
+  },
+  {
+    id: planEntrepriseMontly.planCode,
+    name: 'Enterprise',
+    price: '€99/mois',
+    yearlyPrice: '€990/an',
+    description: 'Pour les grandes organisations',
+    features: planEntrepriseMontly.features,
+    icon: <CreditCard className="h-5 w-5" />,
+    color: 'bg-purple-500',
+    popular: false,
+  },
+  {
+    id: planLifetime.planCode,
+    name: 'Lifetime',
+    price: '€199/once',
+    description: 'Pour les longues durées',
+    features: planLifetime.features,
+    icon: <Zap className="h-5 w-5" />,
+    color: 'bg-gray-500',
+    popular: false,
+  },
+]
 
 // Type pour les subscriptions venant de Better Auth
 type ActiveSubscription = {
@@ -36,11 +88,15 @@ export default function PricingPlans({
   priceProMonthly,
   priceProYearly,
   priceLifetime,
+  priceEntrepriseMonthly,
+  priceEntrepriseYearly,
   subscriptions,
 }: {
   priceProMonthly?: PriceRecap
   priceProYearly?: PriceRecap
   priceLifetime?: PriceRecap
+  priceEntrepriseMonthly?: PriceRecap
+  priceEntrepriseYearly?: PriceRecap
   subscriptions?: ActiveSubscription[]
 }) {
   const subscription = subscriptions?.[0]
@@ -54,12 +110,21 @@ export default function PricingPlans({
   const totalProMonthly = (priceProMonthly?.price || 0) * seats
   const totalProYearly = (priceProYearly?.price || 0) * seats
   const totalLifetime = (priceLifetime?.price || 0) * seats
+  const totalEntrepriseMonthly = (priceEntrepriseMonthly?.price || 0) * seats
+  const totalEntrepriseYearly = (priceEntrepriseYearly?.price || 0) * seats
 
   const prices = {
     pro: {
       monthly: totalProMonthly,
       yearly: totalProYearly,
       priceId: isYearly ? priceProYearly?.priceId : priceProMonthly?.priceId,
+    },
+    entreprise: {
+      monthly: totalEntrepriseMonthly,
+      yearly: totalEntrepriseYearly,
+      priceId: isYearly
+        ? priceEntrepriseYearly?.priceId
+        : priceEntrepriseMonthly?.priceId,
     },
     lifetime: {
       monthly: totalLifetime,
@@ -71,18 +136,26 @@ export default function PricingPlans({
   const linkPro = session
     ? `/checkout/${prices.pro?.priceId}?seats=${seats}`
     : `/checkout/${prices.pro?.priceId}?guest=true&seats=${seats}`
+  const linkEntreprise = session
+    ? `/checkout/${prices.entreprise?.priceId}?seats=${seats}`
+    : `/checkout/${prices.entreprise?.priceId}?guest=true&seats=${seats}`
   const linkLifetime = session
     ? `/checkout/${prices.lifetime?.priceId}?seats=${seats}`
     : `/checkout/${prices.lifetime?.priceId}?guest=true&seats=${seats}`
 
   // Fonction helper pour vérifier le plan actuel
-  const isCurrentPlan = (planType: 'free' | 'pro' | 'lifetime') => {
+  const isCurrentPlan = (
+    planType: 'free' | 'pro' | 'entreprise' | 'lifetime'
+  ) => {
     switch (planType) {
       case 'free': {
         return currentPlan === 'free' && session
       }
       case 'pro': {
         return currentPlan === 'pro'
+      }
+      case 'entreprise': {
+        return currentPlan === 'entreprise'
       }
       case 'lifetime': {
         return currentPlan === 'lifetime'
@@ -135,7 +208,7 @@ export default function PricingPlans({
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-4">
           {/* Free Plan */}
           <Card className="border-border bg-card text-foreground relative">
             {isCurrentPlan('free') && (
@@ -162,10 +235,9 @@ export default function PricingPlans({
                 $0
               </motion.div>
               <ul className="space-y-2 text-sm">
-                <ListItem>Unlimited code snippets</ListItem>
-                <ListItem>5 code snippets save</ListItem>
-                <ListItem>Basic themes</ListItem>
-                <ListItem>Standard support</ListItem>
+                {availablePlans[0].features.map((feature, index) => (
+                  <ListItem key={index}>{feature}</ListItem>
+                ))}
               </ul>
             </CardContent>
             <CardFooter>
@@ -244,17 +316,92 @@ export default function PricingPlans({
                 )}
               </div>
               <ul className="space-y-2 text-sm">
-                <ListItem>Unlimited code snippets</ListItem>
-                <ListItem>Unlimited save snippets</ListItem>
-                <ListItem>Premium themes</ListItem>
-                <ListItem>Priority support</ListItem>
-                <ListItem>Custom syntax highlighting</ListItem>
-                <ListItem>Snippet organization</ListItem>
+                {availablePlans[1].features.map((feature, index) => (
+                  <ListItem key={index}>{feature}</ListItem>
+                ))}
               </ul>
             </CardContent>
             <CardFooter>
               <Link href={linkPro} className="w-full">
                 <Button className="w-full bg-yellow-500 text-black hover:bg-yellow-400">
+                  Subscribe Now
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+
+          {/* Enterprise Plan */}
+          <Card className="border-border bg-card text-foreground relative">
+            {isCurrentPlan('entreprise') && (
+              <div className="absolute -top-4 right-0 left-0 flex justify-center">
+                <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-medium text-black">
+                  Current Plan
+                </span>
+              </div>
+            )}
+            <CardHeader>
+              <CardTitle className="text-2xl">Enterprise</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Pour les grandes organisations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1">
+                <motion.div
+                  className="text-4xl font-bold"
+                  key={`entreprise-${isYearly}-${seats}`}
+                  initial={{y: 10, opacity: 0}}
+                  animate={{y: 0, opacity: 1}}
+                  transition={{duration: 0.3}}
+                >
+                  $
+                  {isYearly
+                    ? prices.entreprise.yearly
+                    : prices.entreprise.monthly}
+                </motion.div>
+                <div className="text-muted-foreground text-sm">
+                  per {isYearly ? 'year' : 'month'}
+                </div>
+
+                {/* Sélecteur de sièges */}
+                <div className="mt-3 flex items-center justify-center gap-2">
+                  <span className="text-muted-foreground text-xs">Users:</span>
+                  <Select
+                    value={seats.toString()}
+                    onValueChange={(value) => setSeats(parseInt(value))}
+                  >
+                    <SelectTrigger className="h-6 w-12 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({length: 10}, (_, i) => i + 1).map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {seats > 1 && (
+                  <div className="text-muted-foreground mt-1 text-xs">
+                    $
+                    {isYearly
+                      ? priceEntrepriseYearly?.price
+                      : priceEntrepriseMonthly?.price}{' '}
+                    per user
+                  </div>
+                )}
+              </div>
+              <ul className="space-y-2 text-sm">
+                {availablePlans[2].features.map((feature, index) => (
+                  <ListItem key={index}>{feature}</ListItem>
+                ))}
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Link href={linkEntreprise} className="w-full">
+                <Button className="bg-background text-foreground border-input hover:bg-muted w-full border">
                   Subscribe Now
                 </Button>
               </Link>
@@ -298,11 +445,9 @@ export default function PricingPlans({
                 )}
               </div>
               <ul className="space-y-2 text-sm">
-                <ListItem>Everything in Pro plan</ListItem>
-                <ListItem>Lifetime updates</ListItem>
-                <ListItem>Early access to features</ListItem>
-                <ListItem>Premium email support</ListItem>
-                <ListItem>Custom branding options</ListItem>
+                {availablePlans[3].features.map((feature, index) => (
+                  <ListItem key={index}>{feature}</ListItem>
+                ))}
               </ul>
             </CardContent>
             <CardFooter>

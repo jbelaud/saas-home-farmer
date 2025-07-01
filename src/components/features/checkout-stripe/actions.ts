@@ -2,8 +2,8 @@
 
 import Stripe from 'stripe'
 
-import {getPlanByPriceId, stripeClient} from '@/lib/stripe/stripe-utils'
-
+import {stripeClient} from '@/lib/stripe/stripe-client'
+import {getPlanByPriceId} from '@/lib/stripe/stripe-utils'
 // Numéro : 4242 4242 4242 4242
 // Date d'expiration : N'importe quelle date future
 // CVC : N'importe quels 3 chiffres

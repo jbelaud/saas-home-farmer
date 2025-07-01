@@ -28,82 +28,44 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {authClient} from '@/lib/better-auth/auth-client'
-
-const planDetails = {
-  free: {
-    name: 'Gratuit',
-    icon: <Zap className="h-5 w-5" />,
-    color: 'bg-gray-500',
-    features: ['1 utilisateur', '5 projets', '1GB stockage'],
-  },
-  pro: {
-    name: 'Pro',
-    icon: <Crown className="h-5 w-5" />,
-    color: 'bg-blue-500',
-    features: [
-      'Utilisateurs illimités',
-      '50 projets',
-      '10GB stockage',
-      'Support prioritaire',
-    ],
-  },
-  enterprise: {
-    name: 'Enterprise',
-    icon: <CreditCard className="h-5 w-5" />,
-    color: 'bg-purple-500',
-    features: [
-      'Tout Pro +',
-      'Projets illimités',
-      '100GB stockage',
-      'Support 24/7',
-      'SSO',
-    ],
-  },
-}
+import {
+  planEntrepriseMontly,
+  planFree,
+  planProMontly,
+} from '@/lib/stripe/stripe-utils'
 
 const availablePlans = [
   {
-    id: 'free',
+    id: planFree.planCode,
     name: 'Gratuit',
     price: '€0/mois',
     yearlyPrice: '€0/an',
     description: 'Idéal pour débuter',
-    features: [
-      '1 utilisateur',
-      '5 projets',
-      '1GB de stockage',
-      'Support communautaire',
-    ],
+    features: planFree.features,
+    icon: <Zap className="h-5 w-5" />,
+    color: 'bg-gray-500',
     popular: false,
   },
   {
-    id: 'pro',
+    id: planProMontly.planCode,
     name: 'Pro',
     price: '€29/mois',
     yearlyPrice: '€290/an',
     description: 'Parfait pour les équipes en croissance',
-    features: [
-      "Jusqu'à 10 utilisateurs",
-      '50 projets',
-      '10GB de stockage',
-      'Support prioritaire',
-      'Intégrations avancées',
-    ],
+    features: planProMontly.features,
+    icon: <Crown className="h-5 w-5" />,
+    color: 'bg-blue-500',
     popular: true,
   },
   {
-    id: 'enterprise',
+    id: planEntrepriseMontly.planCode,
     name: 'Enterprise',
     price: '€99/mois',
     yearlyPrice: '€990/an',
     description: 'Pour les grandes organisations',
-    features: [
-      'Utilisateurs illimités',
-      'Projets illimités',
-      '100GB de stockage',
-      'Support 24/7',
-      'SSO & sécurité avancée',
-    ],
+    features: planEntrepriseMontly.features,
+    icon: <CreditCard className="h-5 w-5" />,
+    color: 'bg-purple-500',
     popular: false,
   },
 ]
@@ -351,8 +313,7 @@ export default function SubscriptionPage() {
     if (isCurrent && !hasChanged) {
       // Si l'abonnement est déjà marqué pour annulation, afficher le bouton pour continuer
       if (activeSubscription?.cancelAtPeriodEnd) {
-        const planName =
-          planDetails[plan.id as keyof typeof planDetails]?.name || plan.name
+        const planName = plan.name
         return (
           <Button
             variant="default"
@@ -462,7 +423,7 @@ export default function SubscriptionPage() {
         {activeSubscription && (
           <p className="text-muted-foreground text-sm italic">
             Offre &apos;
-            {planDetails[activeSubscription.plan as keyof typeof planDetails]
+            {availablePlans.find((p) => p.id === activeSubscription.plan)
               ?.name || activeSubscription.plan}
             &apos; ({activeSubscription.seats || 1} siège
             {activeSubscription.seats && activeSubscription.seats > 1
@@ -486,8 +447,6 @@ export default function SubscriptionPage() {
             plan.id === 'free'
               ? !activeSubscription // Pour le plan gratuit, on est "actuel" s'il n'y a pas d'abonnement du tout
               : isCurrentPlan(plan.id) // Pour les autres plans, logique normale
-          const planData = planDetails[plan.id as keyof typeof planDetails]
-
           // État spécial pour plan gratuit quand abonnement se termine
           const isFutureFree =
             plan.id === 'free' && activeSubscription?.cancelAtPeriodEnd
@@ -529,10 +488,8 @@ export default function SubscriptionPage() {
 
               <CardHeader className="text-center">
                 <div className="mb-2 flex items-center justify-center space-x-2">
-                  <div
-                    className={`rounded-full p-2 ${planData?.color || 'bg-gray-500'} text-white`}
-                  >
-                    {planData?.icon || <Zap className="h-4 w-4" />}
+                  <div className={`rounded-full p-2 ${plan.color} text-white`}>
+                    {plan.icon}
                   </div>
                   <CardTitle className="text-xl">{plan.name}</CardTitle>
                 </div>

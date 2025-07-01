@@ -16,6 +16,7 @@ import {v4 as uuidv4} from 'uuid'
 import db from '@/db/models/db'
 import {getUserByIdDao} from '@/db/repositories/user-repository'
 import {env} from '@/env'
+import {stripeClient} from '@/lib/stripe/stripe-client'
 import {
   sendEmailChangeEmailVerificationService,
   sendMagicLinkEmailService,
@@ -31,7 +32,7 @@ import {BillingModes} from '@/services/types/domain/subscription-types'
 import {APP_ISSUER} from '../constants'
 import {BILLING_MODE} from '../helper/subscription-helper'
 import {onStripeEvent} from '../stripe/stripe-events'
-import {betterAuthPlans, stripeClient} from '../stripe/stripe-utils'
+import {betterAuthPlans} from '../stripe/stripe-utils'
 
 export const AuthAppConfig = {
   requireEmailVerification:

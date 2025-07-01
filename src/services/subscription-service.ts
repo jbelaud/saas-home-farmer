@@ -16,7 +16,7 @@ import {
 } from '@/db/repositories/user-repository'
 import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {logger} from '@/lib/logger'
-import {freePlan} from '@/lib/stripe/stripe-utils'
+import {freeStripePlan} from '@/lib/stripe/stripe-utils'
 import {
   canReadSubscription,
   canUpdateSubscription,
@@ -445,7 +445,7 @@ export const checkSubscriptionLimitService = (
       remaining: 0,
       hasSubscription: false,
       limitType,
-      plan: freePlan.name,
+      plan: freeStripePlan.name,
     }
   }
 
@@ -476,6 +476,6 @@ export const checkSubscriptionLimitService = (
     remaining,
     hasSubscription: true,
     limitType,
-    plan: subscription.plan || freePlan.name,
+    plan: subscription.plan || freeStripePlan.name,
   }
 }

@@ -1,5 +1,4 @@
 import {StripePlan} from '@better-auth/stripe'
-import Stripe from 'stripe'
 
 import {env} from '@/env'
 import {
@@ -8,10 +7,6 @@ import {
 } from '@/services/types/domain/subscription-types'
 
 import {Plan} from './stripe-types'
-
-export const stripeClient = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-05-28.basil',
-})
 
 /**
  * Les plans Stripe sont définie ici pour Better auth et le reste de l'app
@@ -32,7 +27,7 @@ export const betterAuthPlans: StripePlan[] = [
     annualDiscountPriceId: env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_YEARLY, // (optional) the price ID for annual billing with a discount
     limits: {
       projects: 3,
-      storage: 10,
+      storage: 50,
     },
   },
   {
@@ -48,7 +43,8 @@ export const betterAuthPlans: StripePlan[] = [
   },
 ]
 
-export const freePlan: StripePlan = {
+// A fake plan with free limit
+export const freeStripePlan: StripePlan = {
   name: 'free',
   priceId: 'free',
   limits: {
@@ -57,17 +53,18 @@ export const freePlan: StripePlan = {
   },
 }
 
-// Plans for App
+// Plans extended to App
 export const planProMontly: Plan = {
   priceId: betterAuthPlans[0].priceId ?? '',
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
   planName: 'Pro',
   isYearly: false,
   isReccuring: true,
+  limits: betterAuthPlans[0].limits,
   features: [
-    "Jusqu'à 10 utilisateurs",
-    '50 projets',
-    '10GB de stockage',
+    "Jusqu'à 5 utilisateurs",
+    `${betterAuthPlans[0].limits?.projects} projets`,
+    `${betterAuthPlans[0].limits?.storage} GB stockage`,
     'Support prioritaire',
     'Intégrations avancées',
   ],
@@ -79,10 +76,11 @@ export const planProYearly: Plan = {
   planName: 'Pro Yearly',
   isYearly: true,
   isReccuring: true,
+  limits: betterAuthPlans[0].limits,
   features: [
-    "Jusqu'à 10 utilisateurs",
-    '50 projets',
-    '10GB de stockage',
+    "Jusqu'à 5 utilisateurs",
+    `${betterAuthPlans[0].limits?.projects} projets`,
+    `${betterAuthPlans[0].limits?.storage} GB stockage`,
     'Support prioritaire',
     'Intégrations avancées',
   ],
@@ -94,10 +92,11 @@ export const planEntrepriseMontly: Plan = {
   planName: 'Entreprise',
   isYearly: false,
   isReccuring: true,
+  limits: betterAuthPlans[1].limits,
   features: [
     'Utilisateurs illimités',
-    'Projets illimités',
-    '100GB de stockage',
+    `${betterAuthPlans[1].limits?.projects} projets`,
+    `${betterAuthPlans[1].limits?.storage} GB stockage`,
     'Support 24/7',
     'SSO & sécurité avancée',
   ],
@@ -109,10 +108,11 @@ export const planEntrepriseYearly: Plan = {
   planName: 'Entreprise Yearly',
   isYearly: false,
   isReccuring: true,
+  limits: betterAuthPlans[1].limits,
   features: [
     'Utilisateurs illimités',
-    'Projets illimités',
-    '100GB de stockage',
+    `${betterAuthPlans[1].limits?.projects} projets`,
+    `${betterAuthPlans[1].limits?.storage} GB stockage`,
     'Support 24/7',
     'SSO & sécurité avancée',
   ],
@@ -124,23 +124,41 @@ export const planLifetime: Plan = {
   planName: 'Lifetime',
   isYearly: false,
   isReccuring: false,
+  limits: betterAuthPlans[2].limits,
   features: [
     'Introduction Course / Components',
     'PRO: Complete Email Integration Guide',
     'PRO: All  Features Access',
     'PRO: Code Review Sessions',
     'PRO: 100% Money Back Guarantee',
-    'Unlimited Projects',
-    'Unlimited Storage',
-    'Unlimited Emails',
-    'Unlimited Users',
-    'Unlimited Features',
-    'Unlimited Code Reviews',
-    'Unlimited Support',
+    `${betterAuthPlans[2].limits?.projects} projets`,
+    `${betterAuthPlans[2].limits?.storage} GB stockage`,
   ],
 }
 
-export const plans = [planProMontly, planProYearly, planLifetime]
+export const planFree: Plan = {
+  priceId: freeStripePlan.priceId ?? '',
+  planCode: freeStripePlan.name as SubscriptionPlan,
+  planName: 'Free',
+  isYearly: false,
+  isReccuring: true,
+  limits: freeStripePlan.limits,
+  features: [
+    '1 utilisateur',
+    `${freeStripePlan.limits?.projects} projets`,
+    `${freeStripePlan.limits?.storage} GB stockage`,
+    'Support communautaire',
+  ],
+}
+
+export const plans = [
+  planProMontly,
+  planProYearly,
+  planLifetime,
+  planFree,
+  planEntrepriseMontly,
+  planEntrepriseYearly,
+]
 
 export function getPlanByPriceId(priceId?: string) {
   if (!priceId) {
