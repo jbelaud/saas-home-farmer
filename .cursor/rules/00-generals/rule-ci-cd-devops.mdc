@@ -12,6 +12,7 @@ Key Principles
 - Deployments should be **automated and versioned** using GitHub Actions.
 - Update README.md when structure / Script change 
 - Use pnpm instead of npm
+- Generate a consice commit description
 
 ### Linting, Formatting, and Code Quality
 - Use **ESLint** for linting and **Prettier** for formatting.
