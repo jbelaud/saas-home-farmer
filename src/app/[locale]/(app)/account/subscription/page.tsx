@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {Switch} from '@/components/ui/switch'
 import {authClient} from '@/lib/better-auth/auth-client'
 import {planEntreprise, planFree, planPro} from '@/lib/stripe/stripe-plans'
 
@@ -72,6 +73,7 @@ export default function SubscriptionPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [isYearly, setIsYearly] = useState(false)
   const [selectedSeats, setSelectedSeats] = useState<{
     [planId: string]: number
   }>({
@@ -340,7 +342,7 @@ export default function SubscriptionPage() {
     if (isCurrent && hasChanged) {
       return (
         <Button
-          onClick={() => handleUpgrade(plan.id, false)}
+          onClick={() => handleUpgrade(plan.id, isYearly)}
           disabled={actionLoading === `upgrade-${plan.id}`}
           className="w-full"
         >
@@ -354,7 +356,7 @@ export default function SubscriptionPage() {
     return (
       <Button
         variant={plan.popular ? 'default' : 'outline'}
-        onClick={() => handleUpgrade(plan.id, false)}
+        onClick={() => handleUpgrade(plan.id, isYearly)}
         disabled={actionLoading === `upgrade-${plan.id}`}
         className="w-full"
       >
@@ -434,6 +436,35 @@ export default function SubscriptionPage() {
               ', passage au gratuit automatique'}
           </p>
         )}
+
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center gap-8 pt-8">
+          <div className="flex items-center gap-4">
+            <Label
+              htmlFor="billing-toggle"
+              className="text-foreground text-lg font-medium"
+            >
+              Mensuel
+            </Label>
+            <Switch
+              id="billing-toggle"
+              checked={isYearly}
+              onCheckedChange={setIsYearly}
+              className="data-[state=checked]:bg-yellow-500"
+            />
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="billing-toggle"
+                className="text-foreground text-lg font-medium"
+              >
+                Annuel
+              </Label>
+              <span className="inline-block rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-medium text-yellow-500">
+                Économisez 17%
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Grille des plans - Approche Zapier */}
