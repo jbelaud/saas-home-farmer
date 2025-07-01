@@ -6,9 +6,11 @@ export type Plan = {
   priceId: string
   planCode: SubscriptionPlan
   planName: string
-  isYearly: boolean
+  annualDiscountPriceId?: string
+  //isYearly: boolean
   isReccuring: boolean
   features: string[]
+  freeTrial?: number
   limits?: {
     users?: number
     projects?: number

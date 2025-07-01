@@ -19,8 +19,8 @@ export type SubscriptionData = {
   plan: {
     planCode: SubscriptionPlan
     isReccuring: boolean
-    isYearly: boolean
   }
+  isYearly: boolean
   seats: number
 }
 
@@ -171,7 +171,7 @@ export function createCheckoutMetadata(
     isReccuring: subscriptionData.plan.isReccuring ? 'true' : 'false',
     seats: subscriptionData.seats.toString(),
     plan: subscriptionData.plan.planCode,
-    interval: subscriptionData.plan.isYearly ? 'year' : 'month',
+    interval: subscriptionData.isYearly ? 'year' : 'month',
   }
 
   // 🎯 Payment link : mode guest uniquement, pas de customerInfo

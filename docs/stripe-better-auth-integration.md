@@ -441,7 +441,7 @@ const baseMetadata = {
   isReccuring: subscriptionData.plan.isReccuring ? 'true' : 'false',
   seats: subscriptionData.seats.toString(),
   plan: subscriptionData.plan.planCode,
-  interval: subscriptionData.plan.isYearly ? 'year' : 'month',
+  interval: subscriptionData.isYearly ? 'year' : 'month',
 }
 
 // 🎯 Métadonnées SPÉCIALISÉES par type
