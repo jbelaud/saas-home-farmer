@@ -104,14 +104,31 @@ export default function PricingPlans({
   const {data: session} = authClient.useSession()
 
   const [isYearly, setIsYearly] = React.useState(false)
-  const [seats, setSeats] = React.useState(1)
+  const [seatsByPlan, setSeatsByPlan] = React.useState({
+    pro: 1,
+    entreprise: 1,
+    lifetime: 1,
+  })
 
-  // Calcul des prix totaux avec le nombre de sièges
-  const totalProMonthly = (priceProMonthly?.price || 0) * seats
-  const totalProYearly = (priceProYearly?.price || 0) * seats
-  const totalLifetime = (priceLifetime?.price || 0) * seats
-  const totalEntrepriseMonthly = (priceEntrepriseMonthly?.price || 0) * seats
-  const totalEntrepriseYearly = (priceEntrepriseYearly?.price || 0) * seats
+  // Fonction pour mettre à jour les sièges d'un plan spécifique
+  const updateSeats = (
+    plan: 'pro' | 'entreprise' | 'lifetime',
+    seats: number
+  ) => {
+    setSeatsByPlan((prev) => ({
+      ...prev,
+      [plan]: seats,
+    }))
+  }
+
+  // Calcul des prix totaux avec le nombre de sièges spécifique à chaque plan
+  const totalProMonthly = (priceProMonthly?.price || 0) * seatsByPlan.pro
+  const totalProYearly = (priceProYearly?.price || 0) * seatsByPlan.pro
+  const totalLifetime = (priceLifetime?.price || 0) * seatsByPlan.lifetime
+  const totalEntrepriseMonthly =
+    (priceEntrepriseMonthly?.price || 0) * seatsByPlan.entreprise
+  const totalEntrepriseYearly =
+    (priceEntrepriseYearly?.price || 0) * seatsByPlan.entreprise
 
   const prices = {
     pro: {
@@ -134,14 +151,14 @@ export default function PricingPlans({
   }
   const linkFree = session ? '/dashboard' : '/login'
   const linkPro = session
-    ? `/checkout/${prices.pro?.priceId}?seats=${seats}`
-    : `/checkout/${prices.pro?.priceId}?guest=true&seats=${seats}`
+    ? `/checkout/${prices.pro?.priceId}?seats=${seatsByPlan.pro}`
+    : `/checkout/${prices.pro?.priceId}?guest=true&seats=${seatsByPlan.pro}`
   const linkEntreprise = session
-    ? `/checkout/${prices.entreprise?.priceId}?seats=${seats}`
-    : `/checkout/${prices.entreprise?.priceId}?guest=true&seats=${seats}`
+    ? `/checkout/${prices.entreprise?.priceId}?seats=${seatsByPlan.entreprise}`
+    : `/checkout/${prices.entreprise?.priceId}?guest=true&seats=${seatsByPlan.entreprise}`
   const linkLifetime = session
-    ? `/checkout/${prices.lifetime?.priceId}?seats=${seats}`
-    : `/checkout/${prices.lifetime?.priceId}?guest=true&seats=${seats}`
+    ? `/checkout/${prices.lifetime?.priceId}?seats=${seatsByPlan.lifetime}`
+    : `/checkout/${prices.lifetime?.priceId}?guest=true&seats=${seatsByPlan.lifetime}`
 
   // Fonction helper pour vérifier le plan actuel
   const isCurrentPlan = (
@@ -272,7 +289,7 @@ export default function PricingPlans({
               <div className="space-y-1">
                 <motion.div
                   className="text-4xl font-bold"
-                  key={`pro-${isYearly}-${seats}`}
+                  key={`pro-${isYearly}-${seatsByPlan.pro}`}
                   initial={{y: 10, opacity: 0}}
                   animate={{y: 0, opacity: 1}}
                   transition={{duration: 0.3}}
@@ -292,8 +309,10 @@ export default function PricingPlans({
                 <div className="mt-3 flex items-center justify-center gap-2">
                   <span className="text-muted-foreground text-xs">Users:</span>
                   <Select
-                    value={seats.toString()}
-                    onValueChange={(value) => setSeats(parseInt(value))}
+                    value={seatsByPlan.pro.toString()}
+                    onValueChange={(value) =>
+                      updateSeats('pro', parseInt(value))
+                    }
                   >
                     <SelectTrigger className="h-6 w-12 text-xs">
                       <SelectValue />
@@ -308,7 +327,7 @@ export default function PricingPlans({
                   </Select>
                 </div>
 
-                {seats > 1 && (
+                {seatsByPlan.pro > 1 && (
                   <div className="text-muted-foreground mt-1 text-xs">
                     ${isYearly ? priceProYearly?.price : priceProMonthly?.price}{' '}
                     per user
@@ -349,7 +368,7 @@ export default function PricingPlans({
               <div className="space-y-1">
                 <motion.div
                   className="text-4xl font-bold"
-                  key={`entreprise-${isYearly}-${seats}`}
+                  key={`entreprise-${isYearly}-${seatsByPlan.entreprise}`}
                   initial={{y: 10, opacity: 0}}
                   animate={{y: 0, opacity: 1}}
                   transition={{duration: 0.3}}
@@ -367,8 +386,10 @@ export default function PricingPlans({
                 <div className="mt-3 flex items-center justify-center gap-2">
                   <span className="text-muted-foreground text-xs">Users:</span>
                   <Select
-                    value={seats.toString()}
-                    onValueChange={(value) => setSeats(parseInt(value))}
+                    value={seatsByPlan.entreprise.toString()}
+                    onValueChange={(value) =>
+                      updateSeats('entreprise', parseInt(value))
+                    }
                   >
                     <SelectTrigger className="h-6 w-12 text-xs">
                       <SelectValue />
@@ -383,7 +404,7 @@ export default function PricingPlans({
                   </Select>
                 </div>
 
-                {seats > 1 && (
+                {seatsByPlan.entreprise > 1 && (
                   <div className="text-muted-foreground mt-1 text-xs">
                     $
                     {isYearly
@@ -427,7 +448,7 @@ export default function PricingPlans({
               <div className="space-y-1">
                 <motion.div
                   className="text-4xl font-bold"
-                  key={`lifetime-${isYearly}-${seats}`}
+                  key={`lifetime-${isYearly}-${seatsByPlan.lifetime}`}
                   initial={{y: 10, opacity: 0}}
                   animate={{y: 0, opacity: 1}}
                   transition={{duration: 0.3}}
@@ -438,7 +459,7 @@ export default function PricingPlans({
                   one-time payment
                 </div>
 
-                {seats > 1 && (
+                {seatsByPlan.lifetime > 1 && (
                   <div className="text-muted-foreground mt-1 text-xs">
                     ${priceLifetime?.price} per user
                   </div>
