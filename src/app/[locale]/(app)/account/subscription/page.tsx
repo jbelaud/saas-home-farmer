@@ -5,7 +5,10 @@ import {Calendar, CheckCircle, CreditCard, Crown, Zap} from 'lucide-react'
 import React, {useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
-import {useOrganization} from '@/components/context/organizarion-provider'
+import {
+  useOrganization,
+  useOrganizationRole,
+} from '@/components/context/organizarion-provider'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {
@@ -107,6 +110,7 @@ const availablePlans = [
 
 export default function SubscriptionPage() {
   const {referenceId} = useOrganization()
+  const {isOwner} = useOrganizationRole()
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
@@ -132,7 +136,11 @@ export default function SubscriptionPage() {
       setSubscriptions(data || [])
     } catch (error) {
       console.error('Erreur lors du chargement des abonnements:', error)
-      toast.error('Impossible de charger les abonnements')
+      toast.error('Impossible de charger les abonnements', {
+        description: !isOwner
+          ? "Vous n'êtes pas propriétaire de cette organisation"
+          : '',
+      })
     } finally {
       setLoading(false)
     }
@@ -205,13 +213,21 @@ export default function SubscriptionPage() {
       const {error} = await authClient.subscription.upgrade(upgradeParams)
 
       if (error) {
-        toast.error(error.message || 'Erreur lors de la mise à jour')
+        toast.error(error.statusText || 'Erreur lors de la mise à jour', {
+          description: !isOwner
+            ? "Vous n'etes pas proprietaire de l'organisation"
+            : '',
+        })
       } else {
         toast.success('Redirection vers le paiement...')
       }
     } catch (error) {
       console.error('Erreur upgrade:', error)
-      toast.error('Erreur lors de la mise à jour')
+      toast.error('Erreur lors de la mise à jour', {
+        description: !isOwner
+          ? "Vous n'êtes pas propriétaire de cette organisation"
+          : '',
+      })
     } finally {
       setActionLoading(null)
     }
@@ -226,7 +242,11 @@ export default function SubscriptionPage() {
       })
 
       if (error) {
-        toast.error(error.message || "Erreur lors de l'annulation")
+        toast.error(error.message || "Erreur lors de l'annulation", {
+          description: !isOwner
+            ? "Vous n'êtes pas propriétaire de cette organisation"
+            : '',
+        })
       } else if (data?.url) {
         window.location.href = data.url
       } else {
@@ -235,7 +255,11 @@ export default function SubscriptionPage() {
       }
     } catch (error) {
       console.error('Erreur cancel:', error)
-      toast.error("Erreur lors de l'annulation")
+      toast.error("Erreur lors de l'annulation", {
+        description: !isOwner
+          ? "Vous n'êtes pas propriétaire de cette organisation"
+          : '',
+      })
     } finally {
       setActionLoading(null)
     }
@@ -247,14 +271,22 @@ export default function SubscriptionPage() {
       const {error} = await authClient.subscription.restore()
 
       if (error) {
-        toast.error(error.message || 'Erreur lors de la restauration')
+        toast.error(error.message || 'Erreur lors de la restauration', {
+          description: !isOwner
+            ? "Vous n'êtes pas propriétaire de cette organisation"
+            : '',
+        })
       } else {
         toast.success('Abonnement restauré avec succès')
         await loadSubscriptions()
       }
     } catch (error) {
       console.error('Erreur restore:', error)
-      toast.error('Erreur lors de la restauration')
+      toast.error('Erreur lors de la restauration', {
+        description: !isOwner
+          ? "Vous n'êtes pas propriétaire de cette organisation"
+          : '',
+      })
     } finally {
       setActionLoading(null)
     }
