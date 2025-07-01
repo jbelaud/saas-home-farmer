@@ -3,26 +3,19 @@ import {
   priceProMonthly,
   priceProYearly,
 } from '@/app/dal/stripe-dal'
-import {getActiveSubscriptionsByEmailDal} from '@/app/dal/user-dal'
+import {getActiveSubscriptionsDal} from '@/app/dal/subscription-dal'
 import PricingPlans from '@/components/features/payment/pricing'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
 export default async function Page() {
   const user = await getAuthUser()
-
-  //const subscription = await getSubscriptionDal(user?.id)
-  const userSubscriptions = user
-    ? await getActiveSubscriptionsByEmailDal(user?.email)
-    : []
-  console.log('🔧 userSubscriptions', userSubscriptions)
+  const userSubscriptions = user ? await getActiveSubscriptionsDal() : []
   return (
-    <>
-      <PricingPlans
-        subscriptions={userSubscriptions}
-        priceProMonthly={priceProMonthly.recap}
-        priceProYearly={priceProYearly.recap}
-        priceLifetime={priceLifetime.recap}
-      />
-    </>
+    <PricingPlans
+      subscriptions={userSubscriptions}
+      priceProMonthly={priceProMonthly.recap}
+      priceProYearly={priceProYearly.recap}
+      priceLifetime={priceLifetime.recap}
+    />
   )
 }

@@ -1,24 +1,12 @@
 import 'server-only'
 
-import {notFound} from 'next/navigation'
 import {cache} from 'react'
-import {z} from 'zod'
 
-import {
-  getAuthUser,
-  getAuthUserId,
-} from '@/services/authentication/auth-service'
+import {getAuthUser} from '@/services/authentication/auth-service'
 import {hasRequiredRoles} from '@/services/authentication/auth-util'
 import {canManageUsers} from '@/services/authorization/user-authorization'
 import {AuthorizationError} from '@/services/errors/authorization-error'
-import {
-  getActiveSubscriptionsByUserEmailService,
-  getSubscriptionByUserIdService,
-} from '@/services/facades/subscription-service-facade'
-import {
-  getAllUsersWithPaginationService,
-  getUserByIdService,
-} from '@/services/facades/user-service-facade'
+import {getAllUsersWithPaginationService} from '@/services/facades/user-service-facade'
 import {
   RequireAuthOptions,
   Roles,
@@ -26,6 +14,9 @@ import {
   UserDTO,
 } from '@/services/types/domain/user-types'
 
+/**
+ * A light DTO user
+ */
 export const getAuthUserDTO = cache(async () => {
   const user = await getAuthUser()
   if (!user) return
@@ -48,30 +39,6 @@ export async function requireActionAuth(options?: RequireAuthOptions) {
   return user
 }
 
-const userIdSchema = z.object({
-  id: z.string(),
-})
-
-export const getUserByIdDal = cache(async (userId: string) => {
-  const validateFields = userIdSchema.safeParse({id: userId})
-  if (!validateFields.success) {
-    throw new Error('Invalid User')
-  }
-  const user = await getUserByIdService(userId)
-  if (!user) notFound()
-  return user
-})
-
-export const getUserIdDal = cache(async () => {
-  const userId = await getAuthUserId()
-  return userId
-})
-
-export const getUserDal = cache(async () => {
-  const user = await getAuthUser()
-  return user
-})
-
 export function userDTO(user: User): UserDTO | undefined {
   if (!user) return undefined
 
@@ -83,31 +50,6 @@ export function userDTO(user: User): UserDTO | undefined {
     image: user?.image ?? '',
   }
 }
-
-export const getSubscriptionDal = cache(async (userId: string) => {
-  const subscription = await getSubscriptionByUserIdService(userId)
-  return subscription
-})
-
-export const getActiveSubscriptionsByEmailDal = cache(async (email: string) => {
-  const subscriptions = await getActiveSubscriptionsByUserEmailService(email)
-  return subscriptions
-})
-
-export const isPaidUser = cache(async (): Promise<boolean> => {
-  try {
-    const user = await getUserDal()
-    if (!user) return false
-
-    const subscriptions = await getActiveSubscriptionsByEmailDal(user.email)
-    return subscriptions?.some(
-      (sub) => sub.plan === 'lifetime' || sub.plan === 'pro'
-    )
-  } catch (error) {
-    console.error('Error checking paid user status:', error)
-    return false
-  }
-})
 
 export const getAllUsersWithPaginationDal = cache(
   async (pagination: {limit: number; offset: number}, search?: string) => {

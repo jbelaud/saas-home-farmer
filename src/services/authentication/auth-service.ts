@@ -1,25 +1,21 @@
 import {headers} from 'next/headers'
 
-import {getUserByIdDao} from '@/db/repositories/user-repository'
 import {auth} from '@/lib/better-auth/auth'
 import {getReferenceIdByBillingMode} from '@/lib/helper/subscription-helper'
 
 import {RoleConst} from '../types/domain/auth-types'
 
 /**
- * Récupère l'utilisateur connecté a partir de la session
+ * Récupère l'utilisateur connecté a partir de la session enrichie
  * Attention : expose toutes les données
  * préferer 'getAuthUserDTO' pour exposition aux clients
- * @returns L'utilisateur connecté
+ * @returns L'utilisateur connecté avec organizations et settings
  */
 export const getAuthUser = async () => {
   const session = await getSessionAuth()
-  const userZ = session?.user
-  console.log('getAuthUser betterauth user session', userZ)
   if (!session?.session?.userId) return
-  const user = await getUserByIdDao(session.session.userId)
-  console.log('getAuthUser getUserByIdDao', user)
-  return user
+  // La session est maintenant enrichie avec customSession, pas besoin d'appel séparé à getUserByIdDao
+  return session.user
 }
 
 export const getSessionAuth = async () => {

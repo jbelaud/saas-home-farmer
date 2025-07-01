@@ -10,18 +10,13 @@ import {getProjectsWithPaginationService} from '@/services/facades/project-servi
 import {PaginatedResponse} from '@/services/types/common-type'
 import {Project, ProjectFilters} from '@/services/types/domain/project-types'
 
-// Cache pour optimiser les performances côté serveur
-export const getAllProjectsWithPaginationDal = cache(
-  async (
-    {limit, offset}: {limit: number; offset: number},
-    search?: string
-  ): Promise<PaginatedResponse<Project>> => {
-    const filters: ProjectFilters = search ? {name: search} : {}
-    return await getProjectsWithPaginationService({limit, offset}, filters)
-  }
-)
-
-// Nouvelle fonction pour récupérer les projets par organisation avec pagination
+/**
+ * Récupère les projets d'une organisation avec pagination et recherche optionnelle
+ * @param organizationId - L'identifiant de l'organisation
+ * @param pagination - Les paramètres de pagination (limit, offset)
+ * @param search - Terme de recherche optionnel pour filtrer les projets par nom
+ * @returns Une réponse paginée contenant les projets correspondants aux critères
+ */
 export const getProjectsByOrganizationWithPaginationDal = cache(
   async (
     organizationId: string,
@@ -37,35 +32,15 @@ export const getProjectsByOrganizationWithPaginationDal = cache(
       {limit, offset},
       filters
     )
-
     return result
   }
 )
 
-export const getProjectAdminPermissionsDal = cache(async () => {
-  // Pour les permissions générales, on peut passer un organization ID factice
-  // ou modifier les fonctions d'autorisation pour supporter des vérifications générales
-  const user = await getAuthUser()
-  if (!user) {
-    return {
-      canCreate: false,
-      canEdit: false,
-      canDelete: false,
-      canManage: false,
-    }
-  }
-
-  // Pour l'instant, on considère que si l'utilisateur est connecté,
-  // il peut potentiellement avoir des droits (vérification détaillée par organisation)
-  return {
-    canCreate: true, // Sera vérifié au niveau organisation
-    canEdit: true, // Sera vérifié au niveau projet
-    canDelete: true, // Sera vérifié au niveau projet
-    canManage: true,
-  }
-})
-
-// Nouvelle fonction pour récupérer les permissions par organisation
+/**
+ * Récupère les permissions d'une organisation pour les projets
+ * @param organizationId - L'identifiant de l'organisation
+ * @returns Les permissions pour les projets de l'organisation
+ */
 export const getProjectPermissionsByOrganizationDal = cache(
   async (organizationId: string) => {
     const user = await getAuthUser()
@@ -90,6 +65,11 @@ export const getProjectPermissionsByOrganizationDal = cache(
   }
 )
 
+/**
+ * Récupère les permissions d'un projet
+ * @param projectId - L'identifiant du projet
+ * @returns Les permissions pour le projet
+ */
 export async function getProjectPermissions(projectId?: string) {
   if (!projectId) {
     return {

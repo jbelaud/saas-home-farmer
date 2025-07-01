@@ -1,7 +1,6 @@
 'use client'
 import {motion} from 'framer-motion'
 import {Check} from 'lucide-react'
-// Import React
 import Link from 'next/link'
 import React from 'react'
 
@@ -25,7 +24,13 @@ import {
 } from '@/components/ui/select'
 import {Switch} from '@/components/ui/switch'
 import {authClient} from '@/lib/better-auth/auth-client'
-import {Subscription} from '@/services/types/domain/subscription-types'
+
+// Type pour les subscriptions venant de Better Auth
+type ActiveSubscription = {
+  id: string
+  plan: string
+  [key: string]: unknown // Permet d'autres propriétés sans contraintes
+}
 
 export default function PricingPlans({
   priceProMonthly,
@@ -36,10 +41,9 @@ export default function PricingPlans({
   priceProMonthly?: PriceRecap
   priceProYearly?: PriceRecap
   priceLifetime?: PriceRecap
-  subscriptions?: Subscription[]
+  subscriptions?: ActiveSubscription[]
 }) {
   const subscription = subscriptions?.[0]
-  console.log('subscription', subscription)
   const currentPlan = subscription?.plan || 'free'
   const {data: session} = authClient.useSession()
 

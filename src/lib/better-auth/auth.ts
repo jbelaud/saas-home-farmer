@@ -1,11 +1,12 @@
 import {stripe} from '@better-auth/stripe'
-import {betterAuth} from 'better-auth'
+import {betterAuth, BetterAuthOptions} from 'better-auth'
 import {drizzleAdapter} from 'better-auth/adapters/drizzle'
 import {createAuthMiddleware} from 'better-auth/api'
 import {nextCookies} from 'better-auth/next-js'
 import {
   admin,
   bearer,
+  customSession,
   magicLink,
   organization,
   twoFactor,
@@ -13,6 +14,7 @@ import {
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
+import {getUserByIdDao} from '@/db/repositories/user-repository'
 import {env} from '@/env'
 import {
   sendEmailChangeEmailVerificationService,
@@ -41,11 +43,20 @@ export const AuthAppConfig = {
   changeEmail: env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL,
 } as const
 
-export const auth = betterAuth({
+// Solution officielle Better Auth pour résoudre le problème de typage
+// avec customSession + organization plugin
+// Source : https://github.com/better-auth/better-auth/issues/3233
+const options = {
   appName: APP_ISSUER,
   database: drizzleAdapter(db, {
     provider: 'pg',
   }),
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // Cache de 5 minutes
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: AuthAppConfig.requireEmailVerification,
@@ -97,6 +108,7 @@ export const auth = betterAuth({
   },
   plugins: [
     bearer(),
+
     twoFactor({
       issuer: APP_ISSUER,
       skipVerificationOnEnable: AuthAppConfig.skipVerificationOnEnable,
@@ -223,13 +235,29 @@ export const auth = betterAuth({
       },
       onEvent: onStripeEvent,
     }),
-    nextCookies(),
-  ], //garder nextCookies() en dernier
+  ],
   trustedOrigins: ['http://localhost:3000'],
+  hooks: {},
+  databaseHooks: {},
+} satisfies BetterAuthOptions
+
+export const auth = betterAuth({
+  ...options,
+  plugins: [
+    ...(options.plugins ?? []),
+    customSession(async ({session}) => {
+      // Maintenant TypeScript connaît tous les champs des plugins, y compris activeOrganizationId
+      const fullUser = await getUserByIdDao(session.userId)
+      return {
+        user: fullUser,
+        session, // activeOrganizationId est maintenant correctement typé
+      }
+    }, options), // Passer les options pour l'inférence TypeScript
+    nextCookies(), // TOUJOURS en dernier
+  ],
   hooks: {
     after: createAuthRedirectMiddleware(),
   },
-  databaseHooks: {},
 })
 /**
  * Middleware pour gérer les redirections après les actions d'authentification
