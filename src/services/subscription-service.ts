@@ -16,7 +16,7 @@ import {
 } from '@/db/repositories/user-repository'
 import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {logger} from '@/lib/logger'
-import {freeStripePlan} from '@/lib/stripe/stripe-utils'
+import {freeStripePlan} from '@/lib/stripe/stripe-plans'
 import {
   canReadSubscription,
   canUpdateSubscription,

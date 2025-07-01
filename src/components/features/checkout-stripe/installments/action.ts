@@ -4,7 +4,7 @@ import {headers} from 'next/headers'
 
 import {logger} from '@/lib/logger'
 import {stripeClient} from '@/lib/stripe/stripe-client'
-import {getPlanByPriceId, isYearlyPrice} from '@/lib/stripe/stripe-utils'
+import {getPlanByPriceId, isYearlyPrice} from '@/lib/stripe/stripe-plans'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 import {getBillingContext} from '@/services/subscription-service'

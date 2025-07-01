@@ -1,7 +1,7 @@
 import {logger} from 'better-auth'
 
 import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
-import {freeStripePlan} from '@/lib/stripe/stripe-utils'
+import {freeStripePlan} from '@/lib/stripe/stripe-plans'
 
 import {
   getActiveSubscriptions,

@@ -54,13 +54,12 @@ export const freeStripePlan: StripePlan = {
 }
 
 // Plans extended to App
-export const planProMontly: Plan = {
+export const planPro: Plan = {
   priceId: betterAuthPlans[0].priceId ?? '',
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
   limits: betterAuthPlans[0].limits,
   annualDiscountPriceId: betterAuthPlans[0].annualDiscountPriceId,
   planName: 'Pro',
-  //isYearly: false,
   isReccuring: true,
   features: [
     "Jusqu'à 5 utilisateurs",
@@ -71,13 +70,12 @@ export const planProMontly: Plan = {
   ],
 }
 
-export const planEntrepriseMontly: Plan = {
+export const planEntreprise: Plan = {
   priceId: betterAuthPlans[1].priceId ?? '',
   planCode: betterAuthPlans[1].name as SubscriptionPlan,
   limits: betterAuthPlans[1].limits,
   annualDiscountPriceId: betterAuthPlans[1].annualDiscountPriceId,
   planName: 'Entreprise',
-  //isYearly: false,
   isReccuring: true,
   features: [
     'Utilisateurs illimités',
@@ -88,43 +86,10 @@ export const planEntrepriseMontly: Plan = {
   ],
 }
 
-// export const planProYearly: Plan = {
-//   priceId: betterAuthPlans[0].annualDiscountPriceId ?? '',
-//   planCode: betterAuthPlans[0].name as SubscriptionPlan,
-//   planName: 'Pro Yearly',
-//   //isYearly: true,
-//   isReccuring: true,
-//   limits: betterAuthPlans[0].limits,
-//   features: [
-//     "Jusqu'à 5 utilisateurs",
-//     `${betterAuthPlans[0].limits?.projects} projets`,
-//     `${betterAuthPlans[0].limits?.storage} GB stockage`,
-//     'Support prioritaire',
-//     'Intégrations avancées',
-//   ],
-// }
-
-// export const planEntrepriseYearly: Plan = {
-//   priceId: betterAuthPlans[1].annualDiscountPriceId ?? '',
-//   planCode: betterAuthPlans[1].name as SubscriptionPlan,
-//   planName: 'Entreprise Yearly',
-//   //isYearly: false,
-//   isReccuring: true,
-//   limits: betterAuthPlans[1].limits,
-//   features: [
-//     'Utilisateurs illimités',
-//     `${betterAuthPlans[1].limits?.projects} projets`,
-//     `${betterAuthPlans[1].limits?.storage} GB stockage`,
-//     'Support 24/7',
-//     'SSO & sécurité avancée',
-//   ],
-// }
-
 export const planLifetime: Plan = {
   priceId: betterAuthPlans[2].priceId ?? '',
   planCode: betterAuthPlans[2].name as SubscriptionPlan,
   planName: 'Lifetime',
-  //isYearly: false,
   isReccuring: false,
   limits: betterAuthPlans[2].limits,
   features: [
@@ -142,7 +107,6 @@ export const planFree: Plan = {
   priceId: freeStripePlan.priceId ?? '',
   planCode: freeStripePlan.name as SubscriptionPlan,
   planName: 'Free',
-  //isYearly: false,
   isReccuring: true,
   limits: freeStripePlan.limits,
   features: [
@@ -160,12 +124,7 @@ export function isYearlyPrice(priceId?: string): boolean {
   return betterAuthPlans.some((plan) => plan.annualDiscountPriceId === priceId)
 }
 
-export const plans = [
-  planProMontly,
-  planLifetime,
-  planFree,
-  planEntrepriseMontly,
-]
+export const plans = [planFree, planPro, planEntreprise, planLifetime]
 
 export function getPlanByPriceId(priceId?: string) {
   if (!priceId) {

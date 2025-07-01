@@ -7,7 +7,6 @@ export type Plan = {
   planCode: SubscriptionPlan
   planName: string
   annualDiscountPriceId?: string
-  //isYearly: boolean
   isReccuring: boolean
   features: string[]
   freeTrial?: number
@@ -38,13 +37,3 @@ export const StripeCheckoutTypeSchema = z.enum(
     message: 'Type de checkout Stripe non supporté.',
   }
 )
-// dynamic version
-// export const StripeCheckoutTypeSchema = z.enum(
-//     Object.values(StripeCheckoutConst) as [
-//       StripeCheckoutType,
-//       ...StripeCheckoutType[],
-//     ],
-//     {
-//       message: 'Type de checkout Stripe non supporté.',
-//     }
-//   )
