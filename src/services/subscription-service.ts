@@ -6,6 +6,7 @@ import {
   getSubscriptionByUserIdDao,
   initSubscriptionDao,
   isActivePlanExistDao,
+  isPlanAndStripeSubscriptionExistDao,
   isPlanExistDao,
   updateSubscriptionDao,
 } from '@/db/repositories/subscription-repository'
@@ -114,6 +115,16 @@ export const createSubscriptionFromStripeService = async (
   if (planExists) {
     console.warn('⚠️ User already has an active subscription')
     //throw new Error(`User already has an active ${plan} subscription`)
+  }
+  const planAndStripeSubscriptionExist =
+    await isPlanAndStripeSubscriptionExistDao(
+      user.organizations?.[0]?.organizationId || user.id,
+      plan
+    )
+  if (planAndStripeSubscriptionExist) {
+    console.warn(
+      "⚠️You're already subscribed to a plan with a stripe subscription"
+    )
   }
 
   const currentDate = new Date()
@@ -232,8 +243,18 @@ export const initSubscriptionService = async (params: {
       params.seats,
       true
     )
+
     if (planExists) {
       throw new ValidationError("You're already subscribed to this plan")
+    }
+    // Vérifier si l'utilisateur a déjà un abonnement avec ce stripe subscription
+    // on veut eviter decraser une soucription si elle na pas etait cancel dans stripe portal
+    const planAndStripeSubscriptionExist =
+      await isPlanAndStripeSubscriptionExistDao(params.referenceId, params.plan)
+    if (planAndStripeSubscriptionExist) {
+      throw new ValidationError(
+        "You're already subscribed to a plan with a stripe subscription"
+      )
     }
   }
 

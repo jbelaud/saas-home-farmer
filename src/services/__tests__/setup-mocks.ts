@@ -19,3 +19,6 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('@/db/repositories/user-repository', () => ({
   getUserByIdDao: vi.fn(() => Promise.resolve()),
 }))
+
+// Mock server-only pour éviter les erreurs lors des tests
+vi.mock('server-only', () => ({}))

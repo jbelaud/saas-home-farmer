@@ -35,6 +35,7 @@ vi.mock('@/db/repositories/subscription-repository', () => ({
   isActivePlanExistDao: vi.fn(),
   getActiveSubscriptionsByUserIdDao: vi.fn(),
   getSubscriptionByUserIdDao: vi.fn(),
+  isPlanAndStripeSubscriptionExistDao: vi.fn(),
 }))
 
 vi.mock('@/db/repositories/user-repository', () => ({

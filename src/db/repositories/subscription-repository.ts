@@ -1,4 +1,4 @@
-import {and, desc, eq, lte, or, sql} from 'drizzle-orm'
+import {and, desc, eq, lte, not, or, sql} from 'drizzle-orm'
 
 import db from '../models/db'
 import type {
@@ -194,6 +194,30 @@ export const isPlanExistDao = async (
         eq(subscription.referenceId, referenceId),
         eq(subscription.plan, plan),
         eq(subscription.seats, seats)
+      )
+    )
+    .limit(1)
+
+  return Boolean(row)
+}
+
+export const isPlanAndStripeSubscriptionExistDao = async (
+  referenceId: string,
+  plan: SubscriptionModel['plan']
+): Promise<boolean> => {
+  const [row] = await db
+    .select({id: subscription.id})
+    .from(subscription)
+    .where(
+      and(
+        eq(subscription.referenceId, referenceId),
+        eq(subscription.plan, plan),
+
+        or(
+          eq(subscription.status, 'active'),
+          eq(subscription.status, 'trialing')
+        ),
+        not(eq(subscription.stripeSubscriptionId, ''))
       )
     )
     .limit(1)
