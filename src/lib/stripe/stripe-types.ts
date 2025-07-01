@@ -7,6 +7,8 @@ export type Plan = {
   planCode: SubscriptionPlan
   planName: string
   annualDiscountPriceId?: string
+  price?: number // les prix peuvent etre calculé depuis 'getSubscriptionRecapInfo' mais pour plus de souplesse on peut les definir en dur
+  yearlyPrice?: number
   isReccuring: boolean
   features: string[]
   freeTrial?: number

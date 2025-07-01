@@ -29,14 +29,23 @@ import {
 } from '@/components/ui/select'
 import {Switch} from '@/components/ui/switch'
 import {authClient} from '@/lib/better-auth/auth-client'
-import {planEntreprise, planFree, planPro} from '@/lib/stripe/stripe-plans'
+import {
+  isYearlyPrice,
+  planEntreprise,
+  planFree,
+  planPro,
+} from '@/lib/stripe/stripe-plans'
+
+import {getPriceIdFromSubscriptionIdAction} from './action'
 
 const availablePlans = [
   {
     id: planFree.planCode,
     name: 'Gratuit',
-    price: '€0/mois',
-    yearlyPrice: '€0/an',
+    price: planFree.price,
+    yearlyPrice: planFree.yearlyPrice ?? 0,
+    priceDisplay: '€0/mois',
+    yearlyPriceDisplay: '€0/an',
     description: 'Idéal pour débuter',
     features: planFree.features,
     icon: <Zap className="h-5 w-5" />,
@@ -46,8 +55,10 @@ const availablePlans = [
   {
     id: planPro.planCode,
     name: 'Pro',
-    price: '€29/mois',
-    yearlyPrice: '€290/an',
+    price: planPro.price,
+    yearlyPrice: planPro.yearlyPrice ?? 0,
+    priceDisplay: '€29/mois',
+    yearlyPriceDisplay: '€249/an',
     description: 'Parfait pour les équipes en croissance',
     features: planPro.features,
     icon: <Crown className="h-5 w-5" />,
@@ -57,8 +68,10 @@ const availablePlans = [
   {
     id: planEntreprise.planCode,
     name: 'Enterprise',
-    price: '€99/mois',
-    yearlyPrice: '€990/an',
+    price: planEntreprise.price,
+    yearlyPrice: planEntreprise.yearlyPrice ?? 0,
+    priceDisplay: '€99/mois',
+    yearlyPriceDisplay: '€990/an',
     description: 'Pour les grandes organisations',
     features: planEntreprise.features,
     icon: <CreditCard className="h-5 w-5" />,
@@ -74,6 +87,7 @@ export default function SubscriptionPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [isYearly, setIsYearly] = useState(false)
+  const [realPriceId, setRealPriceId] = useState<string | null>(null)
   const [selectedSeats, setSelectedSeats] = useState<{
     [planId: string]: number
   }>({
@@ -81,8 +95,6 @@ export default function SubscriptionPage() {
     pro: 5,
     enterprise: 10,
   })
-
-  console.log('referenceId', referenceId)
 
   const loadSubscriptions = async () => {
     try {
@@ -92,7 +104,21 @@ export default function SubscriptionPage() {
           referenceId: referenceId || '',
         },
       })
-      console.log('sSubscriptions', data)
+
+      // Récupérer le vrai priceId via Stripe si il y a un abonnement actif
+      const activeSubscription = data?.find(
+        (sub) => sub.status === 'active' || sub.status === 'trialing'
+      )
+
+      if (activeSubscription?.stripeSubscriptionId) {
+        const priceId = await getPriceIdFromSubscriptionIdAction(
+          activeSubscription.stripeSubscriptionId
+        )
+        setRealPriceId(priceId)
+      } else {
+        setRealPriceId(null)
+      }
+
       setSubscriptions(data || [])
     } catch (error) {
       console.error('Erreur lors du chargement des abonnements:', error)
@@ -111,7 +137,7 @@ export default function SubscriptionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [referenceId])
 
-  // Initialiser les seats avec l'abonnement actuel
+  // Initialiser les seats et le mode de facturation avec l'abonnement actuel
   useEffect(() => {
     const activeSubscription = subscriptions.find(
       (sub) => sub.status === 'active' || sub.status === 'trialing'
@@ -121,8 +147,14 @@ export default function SubscriptionPage() {
         ...prev,
         [activeSubscription.plan]: activeSubscription.seats || 1,
       }))
+
+      // Initialiser le toggle yearly/monthly basé sur le vrai priceId
+      if (realPriceId) {
+        const isYearly = isYearlyPrice(realPriceId)
+        setIsYearly(isYearly)
+      }
     }
-  }, [subscriptions])
+  }, [subscriptions, realPriceId])
 
   const handleUpgrade = async (planId: string, annual = false) => {
     try {
@@ -163,11 +195,9 @@ export default function SubscriptionPage() {
       if (isUpdateMode) {
         // Mode UPDATE : modifier une subscription existante
         upgradeParams.subscriptionId = activeSubscription.id
-        console.log('Mode UPDATE - subscriptionId:', activeSubscription.id)
       } else if (isCreateMode) {
         // Mode CREATE : créer une nouvelle subscription
         upgradeParams.referenceId = referenceId
-        console.log('Mode CREATE - referenceId:', referenceId)
       }
 
       const {error} = await authClient.subscription.upgrade(upgradeParams)
@@ -268,9 +298,21 @@ export default function SubscriptionPage() {
     return selectedSeats[planId] !== activeSubscription?.seats
   }
 
+  const hasBillingChanged = (planId: string) => {
+    if (!isCurrentPlan(planId)) return false
+    // Détecter si le mode de facturation a changé
+    // On suppose que l'abonnement actuel est mensuel si pas d'info spécifique
+    const currentIsYearly = activeSubscriptionIsYearly
+    return isYearly !== currentIsYearly
+  }
+
+  const hasPlanChanged = (planId: string) => {
+    return hasSeatsChanged(planId) || hasBillingChanged(planId)
+  }
+
   const getActionButton = (plan: (typeof availablePlans)[0]) => {
     const isCurrent = isCurrentPlan(plan.id)
-    const hasChanged = hasSeatsChanged(plan.id)
+    const hasChanged = hasPlanChanged(plan.id)
     const activeSubscription = subscriptions.find(
       (sub) => sub.status === 'active' || sub.status === 'trialing'
     )
@@ -372,6 +414,21 @@ export default function SubscriptionPage() {
     return new Date(dateString).toLocaleDateString('fr-FR')
   }
 
+  // Calcul des prix totaux avec le nombre de sièges
+  const calculatePrice = (planId: string) => {
+    const plan = availablePlans.find((p) => p.id === planId)
+    if (!plan) return 0
+
+    const seats = selectedSeats[planId] || 1
+    const basePrice = isYearly ? (plan.yearlyPrice ?? 0) : (plan.price ?? 0)
+
+    return basePrice * seats
+  }
+
+  const formatPrice = (price: number) => {
+    return `€${price}`
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto space-y-6 p-6">
@@ -406,6 +463,11 @@ export default function SubscriptionPage() {
     (sub) => sub.status === 'active' || sub.status === 'trialing'
   )
 
+  // Utiliser le vrai priceId récupéré via Stripe pour déterminer si l'abonnement est annuel
+  const activeSubscriptionIsYearly = realPriceId
+    ? isYearlyPrice(realPriceId)
+    : false
+
   return (
     <div className="container mx-auto max-w-6xl space-y-8 p-6">
       {/* Header */}
@@ -427,7 +489,7 @@ export default function SubscriptionPage() {
             {activeSubscription.seats && activeSubscription.seats > 1
               ? 's'
               : ''}
-            ){' '}
+            ) - {activeSubscriptionIsYearly ? 'Annuel' : 'Mensuel'} -{' '}
             {activeSubscription.cancelAtPeriodEnd
               ? 'se termine'
               : 'se renouvelle'}{' '}
@@ -522,10 +584,24 @@ export default function SubscriptionPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <div className="text-3xl font-bold">{plan.price}</div>
-                  <div className="text-muted-foreground text-sm">
-                    {plan.yearlyPrice} (économisez 17%)
+                  <div className="text-3xl font-bold">
+                    {plan.id === 'free'
+                      ? plan.priceDisplay
+                      : `${formatPrice(calculatePrice(plan.id))}/${isYearly ? 'an' : 'mois'}`}
                   </div>
+                  {isYearly && plan.id !== 'free' && (
+                    <div className="text-sm text-yellow-500">
+                      ✨ 2 mois gratuits
+                    </div>
+                  )}
+                  {plan.id !== 'free' && selectedSeats[plan.id] > 1 && (
+                    <div className="text-muted-foreground text-xs">
+                      {formatPrice(
+                        isYearly ? (plan.yearlyPrice ?? 0) : (plan.price ?? 0)
+                      )}{' '}
+                      par utilisateur
+                    </div>
+                  )}
                 </div>
                 <CardDescription>{plan.description}</CardDescription>
 

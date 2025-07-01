@@ -8,6 +8,7 @@ import {
 
 import {Plan} from './stripe-types'
 
+export const stripeCurrencyAccount = 'EUR'
 /**
  * Les plans Stripe sont définie ici pour Better auth et le reste de l'app
  */
@@ -55,11 +56,13 @@ export const freeStripePlan: StripePlan = {
 
 // Plans extended to App
 export const planPro: Plan = {
+  planName: 'Pro',
   priceId: betterAuthPlans[0].priceId ?? '',
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
   limits: betterAuthPlans[0].limits,
   annualDiscountPriceId: betterAuthPlans[0].annualDiscountPriceId,
-  planName: 'Pro',
+  price: 29,
+  yearlyPrice: 249,
   isReccuring: true,
   features: [
     "Jusqu'à 5 utilisateurs",
@@ -71,11 +74,13 @@ export const planPro: Plan = {
 }
 
 export const planEntreprise: Plan = {
+  planName: 'Entreprise',
   priceId: betterAuthPlans[1].priceId ?? '',
   planCode: betterAuthPlans[1].name as SubscriptionPlan,
   limits: betterAuthPlans[1].limits,
   annualDiscountPriceId: betterAuthPlans[1].annualDiscountPriceId,
-  planName: 'Entreprise',
+  price: 99,
+  yearlyPrice: 990,
   isReccuring: true,
   features: [
     'Utilisateurs illimités',
@@ -92,6 +97,7 @@ export const planLifetime: Plan = {
   planName: 'Lifetime',
   isReccuring: false,
   limits: betterAuthPlans[2].limits,
+  price: 70,
   features: [
     'Introduction Course / Components',
     'PRO: Complete Email Integration Guide',
@@ -109,6 +115,8 @@ export const planFree: Plan = {
   planName: 'Free',
   isReccuring: true,
   limits: freeStripePlan.limits,
+  price: 0,
+  yearlyPrice: 0,
   features: [
     '1 utilisateur',
     `${freeStripePlan.limits?.projects} projets`,
