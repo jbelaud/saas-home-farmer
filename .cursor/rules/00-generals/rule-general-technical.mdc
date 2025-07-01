@@ -51,7 +51,11 @@ Security and Best Practices
 - Use **environment variables (`process.env`)** for sensitive configurations.
 
 Clean Code 
-- Judicious commenting: Comments are permitted but should be used sparingly—only in particularly complex cases where the code itself can’t fully convey intent.
-- Explicit error handling: Always handle errors deliberately—catch exceptions where they occur, provide contextual information, and ensure failures are surfaced rather than silently ignored.
+
+- **Judicious commenting:** Comments are permitted but should be used sparingly—only in particularly complex cases where the code itself can’t fully convey intent.
+- **No emojis in comments.**
+- **Use JSDoc annotations for functions** when adding comments.
+- **Explicit error handling:** Always handle errors deliberately—catch exceptions where they occur, provide contextual information, and ensure failures are surfaced rather than silently ignored.
+
 
 Follow Next.js and TypeScript best practices for maintainability, scalability, and performance.

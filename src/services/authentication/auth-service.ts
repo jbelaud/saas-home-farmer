@@ -6,10 +6,19 @@ import {getReferenceIdByBillingMode} from '@/lib/helper/subscription-helper'
 
 import {RoleConst} from '../types/domain/auth-types'
 
+/**
+ * Récupère l'utilisateur connecté a partir de la session
+ * Attention : expose toutes les données
+ * préferer 'getAuthUserDTO' pour exposition aux clients
+ * @returns L'utilisateur connecté
+ */
 export const getAuthUser = async () => {
   const session = await getSessionAuth()
+  const userZ = session?.user
+  console.log('getAuthUser betterauth user session', userZ)
   if (!session?.session?.userId) return
   const user = await getUserByIdDao(session.session.userId)
+  console.log('getAuthUser getUserByIdDao', user)
   return user
 }
 

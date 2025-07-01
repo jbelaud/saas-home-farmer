@@ -64,7 +64,6 @@ export const getMembersAndInvitationsDal = cache(
 
 export const getAllOrganizationsWithPaginationDal = cache(
   async (pagination: Pagination, search?: string) => {
-    // Utiliser le service pour récupérer les organisations avec pagination et recherche
     return await getAllOrganizationsWithPaginationService(pagination, search)
   }
 )

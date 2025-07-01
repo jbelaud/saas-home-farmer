@@ -26,7 +26,7 @@ import {
   UserDTO,
 } from '@/services/types/domain/user-types'
 
-export const getConnectedUser = cache(async () => {
+export const getAuthUserDTO = cache(async () => {
   const user = await getAuthUser()
   if (!user) return
   return userDTO(user as User)
