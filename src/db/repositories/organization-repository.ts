@@ -235,7 +235,7 @@ export const getOrganizationMembersDao = async (
 
 export const getOrganizationsByUserIdDao = async (
   userId: string
-): Promise<OrganizationModel[]> => {
+): Promise<(OrganizationModel & {role: OrganizationRoleEnumModel})[]> => {
   const rows = await db
     .select({
       id: organizations.id,
@@ -246,6 +246,7 @@ export const getOrganizationsByUserIdDao = async (
       metadata: organizations.metadata,
       createdAt: organizations.createdAt,
       updatedAt: organizations.updatedAt,
+      role: member.role,
     })
     .from(organizations)
     .innerJoin(member, eq(organizations.id, member.organizationId))

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
+import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {
   Card,
@@ -10,10 +11,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {sortOrganizationsByRole} from '@/lib/helper/organization-helper'
 import {getOrganizationsByUserIdService} from '@/services/facades/organization-service-facade'
+import {UserOrganizationRoleConst} from '@/services/types/domain/auth-types'
 
 export default async function OrganizationsPage() {
   const organizations = await getOrganizationsByUserIdService()
+
+  // Trier les organisations par rôle : OWNER en premier, puis ADMIN, puis les autres
+  const sortedOrganizations = sortOrganizationsByRole(organizations)
 
   return (
     <div className="container mx-auto py-8">
@@ -24,7 +30,7 @@ export default async function OrganizationsPage() {
         </Button> */}
       </div>
 
-      {organizations.length === 0 ? (
+      {sortedOrganizations.length === 0 ? (
         <div className="text-center">
           <p className="text-muted-foreground mb-4">
             Vous n&apos;avez pas encore d&apos;organisation.
@@ -37,10 +43,24 @@ export default async function OrganizationsPage() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {organizations.map((organization) => (
-            <Card key={organization.id}>
+          {sortedOrganizations.map((organization) => (
+            <Card
+              key={organization.id}
+              className={
+                organization.role === UserOrganizationRoleConst.OWNER
+                  ? 'ring-primary/20 border-primary/30 ring-2'
+                  : ''
+              }
+            >
               <CardHeader>
-                <CardTitle>{organization.name}</CardTitle>
+                <div className="flex items-start justify-between">
+                  <CardTitle className="flex-1">{organization.name}</CardTitle>
+                  {organization.role === UserOrganizationRoleConst.OWNER && (
+                    <Badge variant="default" className="ml-2">
+                      Propriétaire
+                    </Badge>
+                  )}
+                </div>
                 <CardDescription>{organization.description}</CardDescription>
               </CardHeader>
               <CardContent>
@@ -54,9 +74,19 @@ export default async function OrganizationsPage() {
                     />
                   </div>
                 )}
-                <p className="text-muted-foreground text-sm">
-                  Slug: {organization.slug}
-                </p>
+                <div className="space-y-2">
+                  <p className="text-muted-foreground text-sm">
+                    Slug: {organization.slug}
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    Rôle:{' '}
+                    {organization.role === UserOrganizationRoleConst.OWNER
+                      ? 'Propriétaire'
+                      : organization.role === UserOrganizationRoleConst.ADMIN
+                        ? 'Administrateur'
+                        : 'Membre'}
+                  </p>
+                </div>
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button variant="outline" asChild>
