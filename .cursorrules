@@ -14,6 +14,7 @@
   Styling rapide et efficace avec une approche utility-first.
 - **PNPM**  
   Utilisation de PNPM en priorité
+- **GIT** - Generate a concise Git commit message based on the staged diff.
 
 ---
 

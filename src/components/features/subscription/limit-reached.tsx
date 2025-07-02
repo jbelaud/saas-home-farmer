@@ -8,15 +8,17 @@ import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {Progress} from '@/components/ui/progress'
 import {SubscriptionLimit} from '@/services/subscription-service'
 import {
+  AVAILABLE_LIMITS,
+  LimitType,
   PlanConst,
   SubscriptionPlan,
 } from '@/services/types/domain/subscription-types'
 
-interface ProjectLimitReachedProps {
+interface LimitReachedProps {
   limits: SubscriptionLimit
 }
 
-export function ProjectLimitReached({limits}: ProjectLimitReachedProps) {
+export function LimitReached({limits}: LimitReachedProps) {
   const progressPercentage =
     limits.limit > 0 ? (limits.usage / limits.limit) * 100 : 0
 
@@ -36,6 +38,21 @@ export function ProjectLimitReached({limits}: ProjectLimitReachedProps) {
     }
   }
 
+  // Fonction pour obtenir la configuration de la limite
+  const getLimitConfig = (limitType: LimitType) => {
+    return (
+      AVAILABLE_LIMITS.find((limit) => limit.key === limitType) || {
+        key: limitType,
+        label: limitType.charAt(0).toUpperCase() + limitType.slice(1),
+        unit: limitType,
+        icon: '📊',
+        description: `Limite de ${limitType}`,
+      }
+    )
+  }
+
+  const limitConfig = getLimitConfig(limits.limitType)
+
   return (
     <div className="container mx-auto py-8">
       <div className="mx-auto max-w-2xl">
@@ -48,10 +65,11 @@ export function ProjectLimitReached({limits}: ProjectLimitReachedProps) {
                 </div>
                 <div>
                   <CardTitle className="text-destructive">
-                    Limite de projets atteinte
+                    Limite de {limitConfig.label.toLowerCase()} atteinte
                   </CardTitle>
                   <p className="text-muted-foreground mt-1 text-sm">
-                    Vous avez atteint votre limite de création de projets
+                    Vous avez atteint votre limite de{' '}
+                    {limitConfig.label.toLowerCase()}
                   </p>
                 </div>
               </div>
@@ -70,14 +88,16 @@ export function ProjectLimitReached({limits}: ProjectLimitReachedProps) {
                 </span>
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary">
-                    {limits.usage} / {limits.limit} projets
+                    {limits.usage} / {limits.limit} {limitConfig.unit}
                   </Badge>
                 </div>
               </div>
               <Progress value={progressPercentage} className="h-2" />
               <div className="text-muted-foreground flex justify-between text-xs">
-                <span>0 projet</span>
-                <span>{limits.limit} projets maximum</span>
+                <span>0 {limitConfig.unit}</span>
+                <span>
+                  {limits.limit} {limitConfig.unit} maximum
+                </span>
               </div>
             </div>
 
@@ -86,8 +106,8 @@ export function ProjectLimitReached({limits}: ProjectLimitReachedProps) {
               <Zap className="h-4 w-4" />
               <AlertTitle>Mise à niveau nécessaire</AlertTitle>
               <AlertDescription>
-                Pour créer plus de projets, vous devez mettre à niveau votre
-                abonnement.
+                Pour créer plus de {limitConfig.label.toLowerCase()}, vous devez
+                mettre à niveau votre abonnement.
                 {limits.hasSubscription
                   ? " Consultez les options disponibles sur votre page d'abonnement."
                   : ' Souscrivez à un plan pour débloquer plus de fonctionnalités.'}
@@ -117,7 +137,7 @@ export function ProjectLimitReached({limits}: ProjectLimitReachedProps) {
                   {limits.usage}
                 </div>
                 <div className="text-muted-foreground text-xs">
-                  Projets créés
+                  {limitConfig.label} créés
                 </div>
               </div>
               <div className="text-center">
@@ -125,7 +145,7 @@ export function ProjectLimitReached({limits}: ProjectLimitReachedProps) {
                   {limits.remaining}
                 </div>
                 <div className="text-muted-foreground text-xs">
-                  Projets restants
+                  {limitConfig.label} restants
                 </div>
               </div>
             </div>

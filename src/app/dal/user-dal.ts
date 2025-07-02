@@ -23,6 +23,12 @@ export const getAuthUserDTO = cache(async () => {
   return userDTO(user as User)
 })
 
+/**
+ * Require authentication and authorization for a server action
+ * @param options - The options for the action
+ * @returns The user
+ */
+
 export async function requireActionAuth(options?: RequireAuthOptions) {
   const user = await getAuthUser()
 

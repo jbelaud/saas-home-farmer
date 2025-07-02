@@ -3,7 +3,7 @@ import {forbidden, notFound} from 'next/navigation'
 
 import {getOrganizationBySlugDal} from '@/app/dal/organization-dal'
 import {CreateProjectForm} from '@/components/features/projects/create-project-form'
-import {ProjectLimitReached} from '@/components/features/projects/project-limit-reached'
+import {LimitReached} from '@/components/features/subscription/limit-reached'
 import {
   canCreateProject,
   checkProjectCreationLimit,
@@ -26,7 +26,7 @@ export default async function NewProjectPage({params}: NewProjectPageProps) {
   const limits = await checkProjectCreationLimit()
   console.log('limits', limits)
   if (!limits.allowed) {
-    return <ProjectLimitReached limits={limits} />
+    return <LimitReached limits={limits} />
   }
 
   if (!limits) {
