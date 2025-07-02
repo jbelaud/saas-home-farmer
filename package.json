@@ -35,8 +35,8 @@
     "@hookform/resolvers": "^5.0.1",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
-    "@next/mdx": "15.3.1",
-    "@next/third-parties": "15.2.1",
+    "@next/mdx": "15.3.4",
+    "@next/third-parties": "15.3.4",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -79,7 +79,7 @@
     "jiti": "^2.4.2",
     "jsdom": "^26.1.0",
     "lucide-react": "^0.488.0",
-    "next": "15.3.1",
+    "next": "15.3.4",
     "next-intl": "^4.1.0",
     "next-themes": "^0.4.6",
     "pg": "^8.16.0",
@@ -106,7 +106,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.27.0",
-    "@next/eslint-plugin-next": "^15.3.2",
+    "@next/eslint-plugin-next": "15.3.4",
     "@tailwindcss/postcss": "^4.1.7",
     "@testing-library/cypress": "^10.0.3",
     "@testing-library/jest-dom": "6.6.3",
@@ -116,8 +116,8 @@
     "@types/node": "^22.15.23",
     "@types/pg": "^8.15.2",
     "@types/qrcode": "^1.5.5",
-    "@types/react": "19.1.2",
-    "@types/react-dom": "19.1.2",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
@@ -125,7 +125,7 @@
     "@vitest/eslint-plugin": "^1.2.1",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.27.0",
-    "eslint-config-next": "15.3.1",
+    "eslint-config-next": "15.3.4",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-drizzle": "^0.2.3",
     "eslint-plugin-github": "^6.0.0",
@@ -150,5 +150,11 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.4"
   },
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977",
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.1.8",
+      "@types/react-dom": "19.1.6"
+    }
+  }
 }
