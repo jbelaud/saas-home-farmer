@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
 import {useOrganization} from '@/components/context/organizarion-provider'
@@ -25,32 +25,50 @@ export default function InvitationsOrganization() {
     PartialInvitationWithUser[]
   >([])
   const [isLoading, setIsLoading] = useState(true)
+
+  const fetchInvitations = useCallback(async () => {
+    if (!currentUserOrganization?.organization?.id) {
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      // Récupérer les invitations envoyées par l'organisation (pour les owners)
+      const result = await authClient.organization.listInvitations({
+        query: {
+          organizationId: currentUserOrganization.organization.id,
+        },
+      })
+      setInvitationsOrganization(result.data || [])
+    } catch (error) {
+      console.error('Erreur lors du chargement des invitations:', error)
+      toast.error('Erreur lors du chargement des invitations')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentUserOrganization?.organization?.id])
+
   useEffect(() => {
-    const fetchInvitations = async () => {
-      if (!currentUserOrganization?.organization?.id) {
-        setIsLoading(false)
+    fetchInvitations()
+  }, [fetchInvitations])
+
+  const handleCancelInvitation = async (invitationId: string) => {
+    try {
+      const {error} = await authClient.organization.cancelInvitation({
+        invitationId,
+      })
+      if (error) {
+        toast.error(error.message)
         return
       }
 
-      try {
-        // Récupérer les invitations envoyées par l'organisation (pour les owners)
-
-        const result = await authClient.organization.listInvitations({
-          query: {
-            organizationId: currentUserOrganization.organization.id,
-          },
-        })
-        setInvitationsOrganization(result.data || [])
-      } catch (error) {
-        console.error('Erreur lors du chargement des invitations:', error)
-        toast.error('Erreur lors du chargement des invitations')
-      } finally {
-        setIsLoading(false)
-      }
+      toast.success('Invitation rejetée avec succès')
+      fetchInvitations()
+    } catch (error) {
+      console.error("Erreur lors de la réjection de l'invitation:", error)
+      toast.error("Erreur lors de la réjection de l'invitation")
     }
-
-    fetchInvitations()
-  }, [currentUserOrganization])
+  }
 
   if (isLoading) {
     return (
@@ -106,11 +124,13 @@ export default function InvitationsOrganization() {
                   </TableCell>
                   <TableCell>
                     {invitation.status === 'pending' && (
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" disabled>
-                          En attente
-                        </Button>
-                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleCancelInvitation(invitation.id)}
+                      >
+                        Annuler
+                      </Button>
                     )}
                     {invitation.status === 'accepted' && (
                       <Badge variant="default" className="text-xs">
