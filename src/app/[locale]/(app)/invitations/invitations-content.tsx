@@ -21,6 +21,7 @@ export default function InvitationsContent({
   invitationsUser: PartialInvitationWithUser[]
 }) {
   const {isOwner} = useOrganizationRole()
+
   const [invitations, setInvitations] = useState<PartialInvitationWithUser[]>(
     invitationsUser || []
   )

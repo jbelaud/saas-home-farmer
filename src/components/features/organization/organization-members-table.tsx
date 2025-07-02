@@ -144,7 +144,7 @@ export default async function OrganizationMembersTable({
                   member.status === 'member' ? (
                     <RemoveMemberButton
                       organizationId={organizationId}
-                      userId={member.memberId ?? ''}
+                      userId={member.userId ?? ''}
                       userName={member.name ?? ''}
                     />
                   ) : (

@@ -1,18 +1,8 @@
-import {useState} from 'react'
 import {toast} from 'sonner'
 
-import {useOrganization} from '@/components/context/organizarion-provider'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {
   Table,
   TableBody,
@@ -33,17 +23,17 @@ export default function InvitationsUsers({
   invitations: PartialInvitationWithUser[]
   onInvitationUpdate: (invitationId: string) => void
 }) {
-  const {currentUserOrganization} = useOrganization()
-  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
-  const [isLeaving, setIsLeaving] = useState(false)
-
   const handleAcceptInvitation = async (invitationId: string) => {
     try {
       const {error} = await authClient.organization.acceptInvitation({
         invitationId,
       })
+      console.log(error)
       if (error) {
-        toast.error(error.message)
+        toast.error("Erreur lors de l'acceptation de l'invitation", {
+          description:
+            error.message || error.statusText || 'Une erreur est survenue',
+        })
         return
       }
       onInvitationUpdate(invitationId)
@@ -71,29 +61,6 @@ export default function InvitationsUsers({
     }
   }
 
-  const handleLeaveOrganization = async () => {
-    if (!currentUserOrganization?.organization?.id) {
-      toast.error('Organisation non trouvée')
-      return
-    }
-
-    setIsLeaving(true)
-    try {
-      await authClient.organization.leave({
-        organizationId: currentUserOrganization.organization.id,
-      })
-      toast.success("Vous avez quitté l'organisation avec succès")
-      setIsLeaveModalOpen(false)
-      // Rediriger vers la page d'accueil ou rafraîchir la page
-      window.location.href = '/dashboard'
-    } catch (error) {
-      console.error("Erreur lors de la sortie de l'organisation:", error)
-      toast.error("Erreur lors de la sortie de l'organisation")
-    } finally {
-      setIsLeaving(false)
-    }
-  }
-
   return (
     <>
       <Card>
@@ -105,6 +72,7 @@ export default function InvitationsUsers({
             <TableHeader>
               <TableRow>
                 <TableHead>Organisation</TableHead>
+                <TableHead>Inviteur</TableHead>
                 <TableHead>Rôle</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Date d&apos;expiration</TableHead>
@@ -124,6 +92,10 @@ export default function InvitationsUsers({
                     <TableCell>
                       {invitation.organization?.name || 'Organisation inconnue'}
                     </TableCell>
+                    <TableCell>
+                      {invitation.inviter?.name || 'Inviteur inconnue'}
+                    </TableCell>
+
                     <TableCell>
                       <Badge variant="secondary">{invitation.role}</Badge>
                     </TableCell>
@@ -156,15 +128,6 @@ export default function InvitationsUsers({
                           </Button>
                         </div>
                       )}
-                      {invitation.status === 'accepted' && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => setIsLeaveModalOpen(true)}
-                        >
-                          Quitter l&apos;organisation
-                        </Button>
-                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -173,37 +136,6 @@ export default function InvitationsUsers({
           </Table>
         </CardContent>
       </Card>
-
-      {/* Modal de confirmation pour quitter l'organisation */}
-      <Dialog open={isLeaveModalOpen} onOpenChange={setIsLeaveModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Quitter l&apos;organisation</DialogTitle>
-            <DialogDescription>
-              Êtes-vous sûr de vouloir quitter l&apos;organisation{' '}
-              <strong>{currentUserOrganization?.organization?.name}</strong> ?
-              Cette action est irréversible et vous perdrez l&apos;accès à
-              toutes les ressources de l&apos;organisation.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsLeaveModalOpen(false)}
-              disabled={isLeaving}
-            >
-              Annuler
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleLeaveOrganization}
-              disabled={isLeaving}
-            >
-              {isLeaving ? 'Sortie en cours...' : "Quitter l'organisation"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   )
 }
