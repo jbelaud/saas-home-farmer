@@ -46,7 +46,9 @@ export function AcceptInvitationForm({invitation}: AcceptInvitationFormProps) {
 
       toast.success('Invitation acceptée avec succès')
 
-      router.push('/dashboard')
+      //router.push(`/team/${invitation.organizationSlug}`)
+      //this route wil set as active organization (keep window.location.href)
+      window.location.href = `/team/${invitation.organizationSlug}`
     } catch (err) {
       console.error("Erreur lors de l'acceptation de l'invitation:", err)
       toast.error('Erreur lors de l&apos;acceptation de l&apos;invitation')

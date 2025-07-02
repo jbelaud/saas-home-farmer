@@ -52,6 +52,8 @@ export function OrganizationProvider({
 }: OrganizationProviderProps) {
   //const router = useRouter()
   const {user} = useAuth()
+  console.log('OrganizationProvider initialOrganization', initialOrganization)
+  console.log('OrganizationProvider user', user)
   const [currentOrganization, setCurrentOrganization] =
     useState<Organization | null>(initialOrganization)
   const {data: activeOrganization} = authClient.useActiveOrganization()
