@@ -117,7 +117,26 @@ export default function InvitationsOrganization() {
                     <Badge variant="secondary">{invitation.role}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{invitation.status}</Badge>
+                    {invitation.status === 'accepted' && (
+                      <Badge variant="default" className="text-xs">
+                        Acceptée
+                      </Badge>
+                    )}
+                    {invitation.status === 'rejected' && (
+                      <Badge variant="destructive" className="text-xs">
+                        Rejetée
+                      </Badge>
+                    )}
+                    {invitation.status === 'canceled' && (
+                      <Badge variant="destructive" className="text-xs">
+                        Annulée
+                      </Badge>
+                    )}
+                    {invitation.status === 'pending' && (
+                      <Badge variant="outline" className="text-xs">
+                        En attente
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell suppressHydrationWarning>
                     {formatDate(new Date(invitation.expiresAt ?? new Date()))}
@@ -131,16 +150,6 @@ export default function InvitationsOrganization() {
                       >
                         Annuler
                       </Button>
-                    )}
-                    {invitation.status === 'accepted' && (
-                      <Badge variant="default" className="text-xs">
-                        Acceptée
-                      </Badge>
-                    )}
-                    {invitation.status === 'rejected' && (
-                      <Badge variant="destructive" className="text-xs">
-                        Rejetée
-                      </Badge>
                     )}
                   </TableCell>
                 </TableRow>
