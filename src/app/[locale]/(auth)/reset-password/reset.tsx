@@ -88,7 +88,7 @@ export default function ResetPasswordPage() {
     try {
       const {error} = await authClient.resetPassword({
         newPassword: data.password,
-        token: token!,
+        token: token || '',
       })
 
       if (error) {

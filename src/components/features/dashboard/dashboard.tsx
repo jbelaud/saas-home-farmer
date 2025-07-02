@@ -30,7 +30,6 @@ import {
   type ChartConfig,
   ChartContainer,
   ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
@@ -206,7 +205,7 @@ export default function DashboardPage() {
                           />
                         }
                       />
-                      <ChartLegend content={<ChartLegendContent />} />
+                      <ChartLegend />
                       <Line
                         type="monotone"
                         dataKey="Revenu"
@@ -250,7 +249,7 @@ export default function DashboardPage() {
                           />
                         }
                       />
-                      <ChartLegend content={<ChartLegendContent />} />
+                      <ChartLegend />
                       <Bar
                         dataKey="Ventes"
                         fill="var(--color-Ventes)"

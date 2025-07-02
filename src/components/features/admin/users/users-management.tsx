@@ -158,7 +158,7 @@ export default function UsersManagement({
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground hidden text-sm md:table-cell">
-                  {formatDistanceToNow(new Date(user.createdAt!), {
+                  {formatDistanceToNow(new Date(user.createdAt || ''), {
                     addSuffix: true,
                     locale: fr,
                   })}
