@@ -60,7 +60,7 @@ export default async function OrganizationsPage() {
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button variant="outline" asChild>
-                  <Link href={`/organizations/${organization.id}/edit`}>
+                  <Link href={`/team/${organization.slug}`}>
                     Voir les détails
                   </Link>
                 </Button>
