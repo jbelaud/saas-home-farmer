@@ -6,6 +6,14 @@ import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   Table,
   TableBody,
   TableCell,
@@ -25,6 +33,10 @@ export default function InvitationsOrganization() {
     PartialInvitationWithUser[]
   >([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
+  const [invitationToCancel, setInvitationToCancel] =
+    useState<PartialInvitationWithUser | null>(null)
+  const [isCanceling, setIsCanceling] = useState(false)
 
   const fetchInvitations = useCallback(async () => {
     if (!currentUserOrganization?.organization?.id) {
@@ -52,21 +64,37 @@ export default function InvitationsOrganization() {
     fetchInvitations()
   }, [fetchInvitations])
 
-  const handleCancelInvitation = async (invitationId: string) => {
+  const openCancelModal = (invitation: PartialInvitationWithUser) => {
+    setInvitationToCancel(invitation)
+    setIsCancelModalOpen(true)
+  }
+
+  const closeCancelModal = () => {
+    setIsCancelModalOpen(false)
+    setInvitationToCancel(null)
+  }
+
+  const handleCancelInvitation = async () => {
+    if (!invitationToCancel) return
+
+    setIsCanceling(true)
     try {
       const {error} = await authClient.organization.cancelInvitation({
-        invitationId,
+        invitationId: invitationToCancel.id,
       })
       if (error) {
         toast.error(error.message)
         return
       }
 
-      toast.success('Invitation rejetée avec succès')
+      toast.success('Invitation annulée avec succès')
+      closeCancelModal()
       fetchInvitations()
     } catch (error) {
-      console.error("Erreur lors de la réjection de l'invitation:", error)
-      toast.error("Erreur lors de la réjection de l'invitation")
+      console.error("Erreur lors de l'annulation de l'invitation:", error)
+      toast.error("Erreur lors de l'annulation de l'invitation")
+    } finally {
+      setIsCanceling(false)
     }
   }
 
@@ -85,79 +113,113 @@ export default function InvitationsOrganization() {
     )
   }
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          Invitations envoyées par {currentUserOrganization?.organization?.name}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Email</TableHead>
-              <TableHead>Rôle</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Date d&apos;expiration</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {invitations.length === 0 ? (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Invitations envoyées par{' '}
+            {currentUserOrganization?.organization?.name}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  Aucune invitation envoyée
-                </TableCell>
+                <TableHead>Email</TableHead>
+                <TableHead>Rôle</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Date d&apos;expiration</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ) : (
-              invitations.map((invitation) => (
-                <TableRow key={invitation.id}>
-                  <TableCell>{invitation.email}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{invitation.role}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {invitation.status === 'accepted' && (
-                      <Badge variant="default" className="text-xs">
-                        Acceptée
-                      </Badge>
-                    )}
-                    {invitation.status === 'rejected' && (
-                      <Badge variant="destructive" className="text-xs">
-                        Rejetée
-                      </Badge>
-                    )}
-                    {invitation.status === 'canceled' && (
-                      <Badge variant="destructive" className="text-xs">
-                        Annulée
-                      </Badge>
-                    )}
-                    {invitation.status === 'pending' && (
-                      <Badge variant="outline" className="text-xs">
-                        En attente
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell suppressHydrationWarning>
-                    {formatDate(new Date(invitation.expiresAt ?? new Date()))}
-                  </TableCell>
-                  <TableCell>
-                    {invitation.status === 'pending' && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleCancelInvitation(invitation.id)}
-                      >
-                        Annuler
-                      </Button>
-                    )}
+            </TableHeader>
+            <TableBody>
+              {invitations.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">
+                    Aucune invitation envoyée
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+              ) : (
+                invitations.map((invitation) => (
+                  <TableRow key={invitation.id}>
+                    <TableCell>{invitation.email}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{invitation.role}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {invitation.status === 'accepted' && (
+                        <Badge variant="default" className="text-xs">
+                          Acceptée
+                        </Badge>
+                      )}
+                      {invitation.status === 'rejected' && (
+                        <Badge variant="destructive" className="text-xs">
+                          Rejetée
+                        </Badge>
+                      )}
+                      {invitation.status === 'canceled' && (
+                        <Badge variant="destructive" className="text-xs">
+                          Annulée
+                        </Badge>
+                      )}
+                      {invitation.status === 'pending' && (
+                        <Badge variant="outline" className="text-xs">
+                          En attente
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell suppressHydrationWarning>
+                      {formatDate(new Date(invitation.expiresAt ?? new Date()))}
+                    </TableCell>
+                    <TableCell>
+                      {invitation.status === 'pending' && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => openCancelModal(invitation)}
+                        >
+                          Annuler
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Modal de confirmation pour l'annulation */}
+      <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmer l&apos;annulation</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir annuler l&apos;invitation envoyée à{' '}
+              <strong>{invitationToCancel?.email}</strong> ?
+              <br />
+              Cette action ne peut pas être annulée.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={closeCancelModal}
+              disabled={isCanceling}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleCancelInvitation}
+              disabled={isCanceling}
+            >
+              {isCanceling ? 'Annulation...' : "Confirmer l'annulation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
