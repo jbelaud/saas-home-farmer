@@ -38,6 +38,7 @@ import {
 } from '@/services/validation/subscription-validation'
 
 import {getAuthUser} from './authentication/auth-service'
+import {isAuthAdmin} from './authorization/user-authorization'
 import {AuthorizationError} from './errors/authorization-error'
 import {ValidationError} from './errors/validation-error'
 import {getUserOrganizationsService} from './organization-service'
@@ -447,7 +448,7 @@ export const perSeatMultiplier = false //todo env
 /**
  * 🎯 Vérification générique des limites d'abonnement (logique métier pure)
  */
-export const checkSubscriptionLimitService = (
+export const checkSubscriptionLimitService = async (
   subscription: {
     limits?: Record<string, number>
     seats?: number
@@ -456,7 +457,7 @@ export const checkSubscriptionLimitService = (
   limitType: LimitType,
   currentUsage: number,
   requestedAmount: number = 1
-): SubscriptionLimit => {
+): Promise<SubscriptionLimit> => {
   if (!subscription) {
     logger.warn('[checkSubscriptionLimitService] no subscription')
     return {
@@ -489,6 +490,22 @@ export const checkSubscriptionLimitService = (
   }
 
   const remaining = Math.max(0, effectiveLimit - currentUsage)
+
+  if (remaining === 0) {
+    const isAdmin = await isAuthAdmin()
+    if (isAdmin) {
+      logger.info('remaining is 0 but user is admin, returning max limit')
+      return {
+        allowed: true,
+        limit: 1000000,
+        usage: currentUsage,
+        remaining: 1000000,
+        hasSubscription: true,
+        limitType,
+        plan: freeStripePlan.name,
+      }
+    }
+  }
 
   return {
     allowed: currentUsage + requestedAmount <= effectiveLimit,
