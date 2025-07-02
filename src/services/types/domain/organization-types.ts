@@ -50,8 +50,10 @@ export type UpdateInvitation = {
 } & Partial<Omit<UpdateInvitationModel, 'id'>>
 
 export type MemberOrInvitationDTO = {
-  id: string
+  memberId?: string | null
+  userId?: string
   invitationId: string | null
+  organizationId: string
   name: string | null
   email: string
   image: string | null

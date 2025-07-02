@@ -1,5 +1,8 @@
+import {UserCog} from 'lucide-react'
+
 import {getMembersAndInvitationsDal} from '@/app/dal/organization-dal'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import {Button} from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -8,8 +11,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
-import {CancelInvitationButton} from './cancel-invitation-button'
+import {EditMemberRoleDialog} from './edit-member-role-dialog'
 import {OrganizationAddMemberForm} from './organization-add-member-form'
 import {RemoveMemberButton} from './remove-member-button'
 
@@ -35,7 +44,7 @@ export default async function OrganizationMembersTable({
         {canManageMembers && (
           <OrganizationAddMemberForm
             organizationId={organizationId}
-            existingMemberIds={members.map((m) => m.id)}
+            existingMemberIds={members.map((m) => m.memberId ?? m.userId ?? '')}
           />
         )}
       </div>
@@ -49,12 +58,13 @@ export default async function OrganizationMembersTable({
             <TableHead className="hidden lg:table-cell">
               Date d&apos;ajout
             </TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead className="w-10 text-center">Rôle</TableHead>
+            <TableHead className="w-10 text-center">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {members.map((member) => (
-            <TableRow key={member.id}>
+          {members.map((member, i) => (
+            <TableRow key={i}>
               <TableCell>
                 <Avatar>
                   {member.image ? (
@@ -101,24 +111,41 @@ export default async function OrganizationMembersTable({
                   ? new Date(member.joinedAt).toLocaleDateString()
                   : ''}
               </TableCell>
-              <TableCell>
-                {canManageMembers ? (
-                  member.status === 'member' ? (
-                    <RemoveMemberButton
-                      organizationId={organizationId}
-                      userId={member.id}
-                      userName={member.name ?? ''}
-                    />
-                  ) : (
-                    <CancelInvitationButton
-                      organizationId={organizationId}
-                      invitationId={member.invitationId ?? ''}
-                      userEmail={member.email}
-                    />
-                  )
-                ) : (
-                  <span className="text-muted-foreground text-sm">-</span>
-                )}
+              <TableCell className="text-center">
+                {canManageMembers &&
+                member.status === 'member' &&
+                member.memberId ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <EditMemberRoleDialog
+                          memberId={member.memberId}
+                          memberName={member.name ?? ''}
+                          currentRole={member.role ?? ''}
+                          triggerButton={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Modifier le rôle"
+                            >
+                              <UserCog className="h-4 w-4" />
+                            </Button>
+                          }
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>Modifier le rôle</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : null}
+              </TableCell>
+              <TableCell className="text-center">
+                {canManageMembers && member.status === 'member' ? (
+                  <RemoveMemberButton
+                    organizationId={organizationId}
+                    userId={member.userId ?? member.memberId ?? ''}
+                    userName={member.name ?? ''}
+                  />
+                ) : null}
               </TableCell>
             </TableRow>
           ))}

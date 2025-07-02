@@ -386,8 +386,10 @@ export async function getMembersAndInvitationsService(
       throw new Error('User data missing from organization member')
     }
     return {
-      id: m.user.id,
+      memberId: m.id,
+      userId: m.user.id,
       invitationId: null,
+      organizationId: m.organizationId,
       name: m.user.name,
       email: m.user.email,
       image: m.user.image ?? null,
@@ -398,8 +400,10 @@ export async function getMembersAndInvitationsService(
   })
 
   const invitationDTOs = invitations.map((i) => ({
-    id: i.user?.id ?? '',
+    memberId: null,
+    userId: i.user?.id ?? '',
     invitationId: i.id,
+    organizationId: i.organizationId,
     name: i.user?.name ?? null,
     email: i.email,
     image: i.user?.image ?? null,
