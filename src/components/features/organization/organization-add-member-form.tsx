@@ -1,6 +1,7 @@
 'use client'
 import {Plus} from 'lucide-react'
 import {useState, useTransition} from 'react'
+import {useDebounce} from 'react-use'
 import {toast} from 'sonner'
 
 import {Button} from '@/components/ui/button'
@@ -34,6 +35,7 @@ export function OrganizationAddMemberForm({
   existingMemberIds: string[]
 }) {
   const [email, setEmail] = useState('')
+  const [searchValue, setSearchValue] = useState('')
   const [results, setResults] = useState<UserDTO[]>([])
   const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -42,23 +44,31 @@ export function OrganizationAddMemberForm({
     OrganizationRoleConst.member as OrganizationRole
   )
 
+  // Debounce la recherche pour éviter les appels trop fréquents
+  useDebounce(
+    () => {
+      if (searchValue.length >= 2) {
+        startTransition(async () => {
+          const users = await searchUsersForOrganizationAction(
+            organizationId,
+            searchValue
+          )
+          setResults(
+            users.filter((u: UserDTO) => !existingMemberIds.includes(u.id))
+          )
+        })
+      } else {
+        setResults([])
+      }
+    },
+    300, // 300ms de délai
+    [searchValue]
+  )
+
   function handleSearch(value: string) {
     setEmail(value)
+    setSearchValue(value)
     setSelectedUser(null)
-
-    if (value.length >= 2) {
-      startTransition(async () => {
-        const users = await searchUsersForOrganizationAction(
-          organizationId,
-          value
-        )
-        setResults(
-          users.filter((u: UserDTO) => !existingMemberIds.includes(u.id))
-        )
-      })
-    } else {
-      setResults([])
-    }
   }
 
   function handleSelectUser(user: UserDTO) {
