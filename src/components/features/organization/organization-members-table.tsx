@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
+import {CancelInvitationButton} from './cancel-invitation-button'
 import {EditMemberRoleDialog} from './edit-member-role-dialog'
 import {OrganizationAddMemberForm} from './organization-add-member-form'
 import {RemoveMemberButton} from './remove-member-button'
@@ -139,13 +140,23 @@ export default async function OrganizationMembersTable({
                 ) : null}
               </TableCell>
               <TableCell className="text-center">
-                {canManageMembers && member.status === 'member' ? (
-                  <RemoveMemberButton
-                    organizationId={organizationId}
-                    userId={member.userId ?? member.memberId ?? ''}
-                    userName={member.name ?? ''}
-                  />
-                ) : null}
+                {canManageMembers ? (
+                  member.status === 'member' ? (
+                    <RemoveMemberButton
+                      organizationId={organizationId}
+                      userId={member.memberId ?? ''}
+                      userName={member.name ?? ''}
+                    />
+                  ) : (
+                    <CancelInvitationButton
+                      organizationId={organizationId}
+                      invitationId={member.invitationId ?? ''}
+                      userEmail={member.email}
+                    />
+                  )
+                ) : (
+                  <span className="text-muted-foreground text-sm">-</span>
+                )}
               </TableCell>
             </TableRow>
           ))}

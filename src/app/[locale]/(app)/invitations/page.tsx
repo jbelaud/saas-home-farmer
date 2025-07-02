@@ -70,9 +70,13 @@ export default function AcceptInvitationPage() {
 
   const handleAcceptInvitation = async (invitationId: string) => {
     try {
-      await authClient.organization.acceptInvitation({
+      const {error} = await authClient.organization.acceptInvitation({
         invitationId,
       })
+      if (error) {
+        toast.error(error.message)
+        return
+      }
       setInvitations(invitations.filter((inv) => inv.id !== invitationId))
       toast.success('Invitation acceptée avec succès')
     } catch (error) {
@@ -83,9 +87,13 @@ export default function AcceptInvitationPage() {
 
   const handleRejectInvitation = async (invitationId: string) => {
     try {
-      await authClient.organization.rejectInvitation({
+      const {error} = await authClient.organization.rejectInvitation({
         invitationId,
       })
+      if (error) {
+        toast.error(error.message)
+        return
+      }
       setInvitations(invitations.filter((inv) => inv.id !== invitationId))
       toast.success('Invitation rejetée avec succès')
     } catch (error) {
