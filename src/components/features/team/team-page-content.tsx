@@ -65,9 +65,13 @@ export function TeamPageContent({organization, members}: TeamPageContentProps) {
 
     setIsLeaving(true)
     try {
-      await authClient.organization.leave({
+      const {error} = await authClient.organization.leave({
         organizationId: organization.id,
       })
+      if (error) {
+        toast.error(error.message)
+        return
+      }
       toast.success("Vous avez quitté l'organisation avec succès")
       setIsLeaveModalOpen(false)
       // Rediriger vers le dashboard
