@@ -8,6 +8,14 @@ import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   Table,
   TableBody,
   TableCell,
@@ -32,6 +40,8 @@ export default function AcceptInvitationPage() {
   const {currentUserOrganization} = useOrganization()
   const [invitations, setInvitations] = useState<Invitation[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
+  const [isLeaving, setIsLeaving] = useState(false)
 
   useEffect(() => {
     const fetchInvitations = async () => {
@@ -84,6 +94,29 @@ export default function AcceptInvitationPage() {
     }
   }
 
+  const handleLeaveOrganization = async () => {
+    if (!currentUserOrganization?.organization?.id) {
+      toast.error('Organisation non trouvée')
+      return
+    }
+
+    setIsLeaving(true)
+    try {
+      await authClient.organization.leave({
+        organizationId: currentUserOrganization.organization.id,
+      })
+      toast.success("Vous avez quitté l'organisation avec succès")
+      setIsLeaveModalOpen(false)
+      // Rediriger vers la page d'accueil ou rafraîchir la page
+      window.location.href = '/dashboard'
+    } catch (error) {
+      console.error("Erreur lors de la sortie de l'organisation:", error)
+      toast.error("Erreur lors de la sortie de l'organisation")
+    } finally {
+      setIsLeaving(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="container mx-auto py-6">
@@ -103,7 +136,7 @@ export default function AcceptInvitationPage() {
     <div className="container mx-auto py-6">
       <Card>
         <CardHeader>
-          <CardTitle>Invitations en attente</CardTitle>
+          <CardTitle>Invitations </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -159,6 +192,15 @@ export default function AcceptInvitationPage() {
                           </Button>
                         </div>
                       )}
+                      {invitation.status === 'accepted' && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setIsLeaveModalOpen(true)}
+                        >
+                          Quitter l&apos;organisation
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -167,6 +209,37 @@ export default function AcceptInvitationPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modal de confirmation pour quitter l'organisation */}
+      <Dialog open={isLeaveModalOpen} onOpenChange={setIsLeaveModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Quitter l&apos;organisation</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir quitter l&apos;organisation{' '}
+              <strong>{currentUserOrganization?.organization?.name}</strong> ?
+              Cette action est irréversible et vous perdrez l&apos;accès à
+              toutes les ressources de l&apos;organisation.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsLeaveModalOpen(false)}
+              disabled={isLeaving}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleLeaveOrganization}
+              disabled={isLeaving}
+            >
+              {isLeaving ? 'Sortie en cours...' : "Quitter l'organisation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

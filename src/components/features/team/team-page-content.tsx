@@ -1,7 +1,8 @@
 'use client'
 
 import {CalendarDays, Users} from 'lucide-react'
-import {useEffect} from 'react'
+import {useEffect, useState} from 'react'
+import {toast} from 'sonner'
 
 import {
   OrganizationDTO,
@@ -10,7 +11,17 @@ import {
 import {useOrganization} from '@/components/context/organizarion-provider'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
+import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {authClient} from '@/lib/better-auth/auth-client'
 
 interface TeamPageContentProps {
   organization: OrganizationDTO
@@ -23,6 +34,8 @@ export function TeamPageContent({organization, members}: TeamPageContentProps) {
     setCurrentOrganizationWithoutRedirect,
     organizations,
   } = useOrganization()
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
+  const [isLeaving, setIsLeaving] = useState(false)
 
   // Mettre à jour l'organisation courante si elle ne correspond pas au slug
   useEffect(() => {
@@ -43,6 +56,29 @@ export function TeamPageContent({organization, members}: TeamPageContentProps) {
     setCurrentOrganizationWithoutRedirect,
     organizations,
   ])
+
+  const handleLeaveOrganization = async () => {
+    if (!organization.id) {
+      toast.error('Organisation non trouvée')
+      return
+    }
+
+    setIsLeaving(true)
+    try {
+      await authClient.organization.leave({
+        organizationId: organization.id,
+      })
+      toast.success("Vous avez quitté l'organisation avec succès")
+      setIsLeaveModalOpen(false)
+      // Rediriger vers le dashboard
+      window.location.href = '/dashboard'
+    } catch (error) {
+      console.error("Erreur lors de la sortie de l'organisation:", error)
+      toast.error("Erreur lors de la sortie de l'organisation")
+    } finally {
+      setIsLeaving(false)
+    }
+  }
 
   const formatDate = (date: Date | null) => {
     if (!date) return 'Non définie'
@@ -180,6 +216,52 @@ export function TeamPageContent({organization, members}: TeamPageContentProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Bouton pour quitter l'organisation */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="destructive"
+            onClick={() => setIsLeaveModalOpen(true)}
+          >
+            Quitter l&apos;organisation
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Modal de confirmation pour quitter l'organisation */}
+      <Dialog open={isLeaveModalOpen} onOpenChange={setIsLeaveModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Quitter l&apos;organisation</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir quitter l&apos;organisation{' '}
+              <strong>{organization.name}</strong> ? Cette action est
+              irréversible et vous perdrez l&apos;accès à toutes les ressources
+              de l&apos;organisation.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsLeaveModalOpen(false)}
+              disabled={isLeaving}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleLeaveOrganization}
+              disabled={isLeaving}
+            >
+              {isLeaving ? 'Sortie en cours...' : "Quitter l'organisation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
