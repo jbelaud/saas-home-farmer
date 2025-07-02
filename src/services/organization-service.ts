@@ -11,6 +11,7 @@ import {
   getOrganizationMembersDao,
   getOrganizationsByUserIdDao,
   getOrganizationsDao,
+  getUserInvitationsDao,
   getUserOrganizationDao,
   getUserRoleInOrganizationDao,
   updateOrganizationDao,
@@ -413,4 +414,21 @@ export async function getMembersAndInvitationsService(
   }))
 
   return [...memberDTOs, ...invitationDTOs]
+}
+
+export const getUserInvitationsService = async (): Promise<
+  InvitationWithUser[]
+> => {
+  const authUser = await getAuthUser()
+  if (!authUser?.email) {
+    throw new AuthorizationError()
+  }
+
+  const invitations = await getUserInvitationsDao(authUser.email)
+
+  // Transformer pour correspondre au type InvitationWithUser
+  return invitations.map((invitation) => ({
+    ...invitation,
+    user: authUser, // L'utilisateur connecté est celui qui a reçu l'invitation
+  }))
 }

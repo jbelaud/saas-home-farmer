@@ -39,6 +39,7 @@ export type CreateMember = AddMemberModel
 
 //invitation types
 export type Invitation = InvitationModel
+export type InvitationStatus = 'pending' | 'accepted' | 'rejected' | 'canceled'
 
 export type InvitationWithUser = Invitation & {
   user: UserModel | null

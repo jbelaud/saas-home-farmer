@@ -13,6 +13,7 @@ import {
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {
   Invitation,
+  InvitationStatus,
   MemberData,
 } from '@/services/types/domain/organization-types'
 
@@ -300,4 +301,27 @@ export const getUserRoleInOrganizationDao = async (
     },
   })
   return row?.role || null
+}
+
+export const getUserInvitationsDao = async (
+  userEmail: string,
+  status?: InvitationStatus
+): Promise<
+  (Invitation & {organization: OrganizationModel; inviter: UserModel})[]
+> => {
+  const rows = await db.query.invitation.findMany({
+    where: (invitation, {eq, and}) => {
+      const conditions = [eq(invitation.email, userEmail)]
+      if (status) {
+        conditions.push(eq(invitation.status, status))
+      }
+      return and(...conditions)
+    },
+    with: {
+      organization: true,
+      inviter: true,
+    },
+  })
+
+  return rows
 }
