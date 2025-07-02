@@ -12,6 +12,7 @@ import {
   getMembersAndInvitationsService,
   getOrganizationBySlugService,
   getOrganizationMembersService,
+  getUserInvitationsService,
 } from '@/services/facades/organization-service-facade'
 import {Pagination} from '@/services/types/common-type'
 import {MemberOrInvitationDTO} from '@/services/types/domain/organization-types'
@@ -128,4 +129,8 @@ export const getOrganizationAdminPermissionsDal = cache(async () => {
     canDelete: canCreate, // Admin peut supprimer si il peut créer
     canManage: canCreate, // Admin peut gérer si il peut créer
   }
+})
+export const getUserInvitationsServiceDal = cache(async () => {
+  const invitations = await getUserInvitationsService()
+  return invitations
 })
