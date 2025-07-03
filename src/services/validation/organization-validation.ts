@@ -35,14 +35,14 @@ export const baseOrganizationServiceSchema = z.object({
 export const createOrganizationServiceSchema =
   baseOrganizationServiceSchema.extend({
     description: z.string().optional(),
-    image: z.string().optional(),
+    logo: z.string().optional(),
   }) satisfies z.Schema<CreateOrganization>
 
 export const updateOrganizationServiceSchema =
   baseOrganizationServiceSchema.extend({
     id: z.string().uuid(),
     description: z.string().optional(),
-    image: z.string().optional(),
+    logo: z.string().optional(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
   }) satisfies z.Schema<UpdateOrganization>
