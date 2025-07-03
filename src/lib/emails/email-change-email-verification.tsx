@@ -9,6 +9,7 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components'
+import {getTranslations} from 'next-intl/server'
 import {Fragment} from 'react'
 
 EmailChangeEmailVerification.PreviewProps = {
@@ -19,46 +20,41 @@ type EmailChangeEmailVerificationProps = {
   url: string
 }
 
-export default function EmailChangeEmailVerification({
+export default async function EmailChangeEmailVerification({
   url,
 }: EmailChangeEmailVerificationProps) {
+  const t = await getTranslations('email.user.emailChange')
+
   return (
     <Html>
       <Head />
       <Tailwind>
         <Fragment>
-          <Preview>
-            Vérifiez votre nouvelle adresse email pour confirmer le changement
-          </Preview>
+          <Preview>{t('preview')}</Preview>
           <Body className="mx-auto my-auto bg-white px-2 font-sans">
             <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-8">
               <Text className="text-2xl font-bold text-black">
-                Vérification du changement d&apos;email
+                {t('title')}
               </Text>
               <Section className="my-4">
-                <Text className="text-base">
-                  Vous avez demandé à changer votre adresse email. Pour
-                  confirmer ce changement, veuillez cliquer sur le lien
-                  ci-dessous :
-                </Text>
+                <Text className="text-base">{t('preview')}</Text>
                 <Text className="text-base">
                   <Link
                     className="text-sky-500 hover:cursor-pointer hover:underline"
                     href={url}
                   >
-                    Confirmer le changement d&apos;email
+                    {t('clickToConfirm')}
                   </Link>
                 </Text>
                 <Text className="mt-4 text-base text-gray-500">
-                  Ce lien expirera dans 24 heures.
+                  {t('expirationWarning')}
                 </Text>
                 <Text className="mt-2 text-base text-gray-500">
-                  Si vous n&apos;avez pas demandé ce changement, vous pouvez
-                  ignorer cet email en toute sécurité.
+                  {t('ignoreMessage')}
                 </Text>
               </Section>
               <Text className="text-base leading-6 text-gray-500">
-                SaaS Mike Codeur Stripe Boilerplate
+                {t('footer')}
               </Text>
             </Container>
           </Body>

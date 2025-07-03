@@ -545,6 +545,27 @@
         "clickToConfirm": "Cliquez ici pour confirmer votre nouvelle adresse email",
         "ignoreMessage": "Si vous n'avez pas demandé ce changement, veuillez ignorer cet email.",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "verification": {
+        "subject": "Vérification de votre adresse email",
+        "preview": "Vérifiez votre adresse email pour activer votre compte",
+        "title": "Vérification de votre email",
+        "welcomeMessage": "Merci de vous être inscrit ! Pour activer votre compte, veuillez cliquer sur le lien ci-dessous :",
+        "clickToVerify": "Vérifier mon adresse email",
+        "expirationWarning": "Ce lien expirera dans 24 heures.",
+        "ignoreMessage": "Si vous n'avez pas créé de compte, vous pouvez ignorer cet email en toute sécurité.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "otp": {
+        "subject": "Code de vérification à deux facteurs",
+        "preview": "Votre code de vérification à deux facteurs",
+        "title": "Code de vérification",
+        "description": "Voici votre code de vérification à deux facteurs :",
+        "expirationWarning": "Ce code expirera dans 5 minutes.",
+        "verifyAutomatically": "Vérifier automatiquement",
+        "orCopyCode": "Ou copiez le code ci-dessus dans l'application",
+        "ignoreMessage": "Si vous n'avez pas demandé ce code, vous pouvez ignorer cet email en toute sécurité.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
       }
     },
     "admin": {
@@ -569,6 +590,23 @@
         "title": "Alerte système",
         "alertMessage": "Une alerte système a été déclenchée :",
         "viewDetails": "Voir les détails",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "organizationInvitation": {
+        "subject": "Invitation à rejoindre {teamName}",
+        "preview": "{invitedByUsername} vous invite à rejoindre {teamName}",
+        "title": "Invitation d'Organisation",
+        "hello": "Bonjour,",
+        "invitationMessage": "{invitedByUsername} ({invitedByEmail}) vous invite à rejoindre l'organisation {teamName}.",
+        "acceptInvitation": "Pour accepter cette invitation, veuillez cliquer sur le lien suivant :",
+        "clickToAccept": "Accepter l'invitation",
+        "expirationWarning": "Ce lien expirera dans 24 heures.",
+        "ignoreMessage": "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "internal": {
+        "subject": "Email interne",
+        "preview": "Email interne du système",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       }
     }

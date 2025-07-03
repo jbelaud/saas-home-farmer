@@ -9,6 +9,7 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components'
+import {getTranslations} from 'next-intl/server'
 import {Fragment} from 'react'
 
 export type InvitationOrganizationLinkMailProps = {
@@ -18,53 +19,52 @@ export type InvitationOrganizationLinkMailProps = {
   inviteLink: string
 }
 
-export default function InvitationOrganizationLinkMail({
+export default async function InvitationOrganizationLinkMail({
   invitedByUsername,
   invitedByEmail,
   teamName,
   inviteLink,
 }: InvitationOrganizationLinkMailProps) {
+  const t = await getTranslations('email.user.organizationInvitation')
+
   return (
     <Html>
       <Head />
       <Tailwind>
         <Fragment>
-          <Preview>
-            {invitedByUsername} vous invite à rejoindre {teamName}
-          </Preview>
+          <Preview>{t('preview', {invitedByUsername, teamName})}</Preview>
           <Body className="mx-auto my-auto bg-white px-2 font-sans">
             <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-8">
               <Text className="text-2xl font-bold text-black">
-                Invitation d&apos;Organisation
+                {t('title')}
               </Text>
               <Section className="my-4">
-                <Text className="text-base">Bonjour,</Text>
+                <Text className="text-base">{t('hello')}</Text>
                 <Text className="text-base">
-                  {invitedByUsername} ({invitedByEmail}) vous invite à rejoindre
-                  l&apos;organisation {teamName}.
+                  {t('invitationMessage', {
+                    invitedByUsername,
+                    invitedByEmail,
+                    teamName,
+                  })}
                 </Text>
-                <Text className="text-base">
-                  Pour accepter cette invitation, veuillez cliquer sur le lien
-                  suivant :
-                </Text>
+                <Text className="text-base">{t('acceptInvitation')}</Text>
                 <Text className="text-base">
                   <Link
                     className="text-sky-500 hover:cursor-pointer hover:underline"
                     href={inviteLink}
                   >
-                    Accepter l&apos;invitation
+                    {t('clickToAccept')}
                   </Link>
                 </Text>
                 <Text className="text-base text-gray-500">
-                  Ce lien expirera dans 24 heures.
+                  {t('expirationWarning')}
                 </Text>
                 <Text className="text-base text-gray-500">
-                  Si vous n&apos;êtes pas à l&apos;origine de cette demande,
-                  vous pouvez ignorer cet email.
+                  {t('ignoreMessage')}
                 </Text>
               </Section>
               <Text className="text-base leading-6 text-gray-500">
-                SaaS Mike Codeur Stripe Boilerplate
+                {t('footer')}
               </Text>
             </Container>
           </Body>

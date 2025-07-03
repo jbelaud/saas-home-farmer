@@ -68,11 +68,17 @@ export const sendOrganizationInvitation = async ({
   teamName,
   inviteLink,
 }: SendOrganizationInvitationParams) => {
+  const t = await getTranslations('email.user.organizationInvitation')
+
   await sendEmailService({
     to: email,
-    subject: `Invitation à rejoindre ${teamName}`,
+    subject: t('subject', {teamName}),
     from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
-    text: `${invitedByUsername} (${invitedByEmail}) vous invite à rejoindre l'organisation ${teamName}. Pour accepter cette invitation, veuillez cliquer sur le lien suivant : ${inviteLink}`,
+    text: `${t('invitationMessage', {
+      invitedByUsername,
+      invitedByEmail,
+      teamName,
+    })} ${t('acceptInvitation')} ${inviteLink}`,
     react: InvitationOrganizationLinkMail({
       invitedByUsername,
       invitedByEmail,
@@ -108,13 +114,14 @@ export const sendVerificationEmailService = async ({
   email: string
   url: string
 }) => {
+  const t = await getTranslations('email.user.verification')
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
-    subject: 'Vérification de votre adresse email',
+    subject: t('subject'),
     from: fromEmail,
-    text: 'Vérification de votre adresse email',
+    text: t('preview'),
     react: VerificationEmail({url}),
   })
 }
@@ -147,13 +154,14 @@ export const sendOTPEmailService = async ({
   otp: string
   otpLink?: string
 }) => {
+  const t = await getTranslations('email.user.otp')
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
-    subject: 'Code de vérification à deux facteurs',
+    subject: t('subject'),
     from: fromEmail,
-    text: `Votre code de vérification est : ${otp}${otpLink ? `\n\nOu cliquez sur ce lien pour une vérification automatique : ${otpLink}` : ''}`,
+    text: `${t('description')} ${otp}${otpLink ? `\n\n${t('verifyAutomatically')} : ${otpLink}` : ''}`,
     react: OtpEmail({otp, otpLink}),
   })
 }
@@ -165,13 +173,14 @@ export const sendEmailChangeEmailVerificationService = async ({
   email: string
   url: string
 }) => {
+  const t = await getTranslations('email.user.emailChange')
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
-    subject: "Vérification du changement d'email",
+    subject: t('subject'),
     from: fromEmail,
-    text: "Vérification du changement d'email",
+    text: t('preview'),
     react: EmailChangeEmailVerification({url}),
   })
 }
