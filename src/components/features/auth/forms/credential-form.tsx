@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import {useTranslations} from 'next-intl'
 import React from 'react'
 import {useActionState} from 'react'
 import {useFormStatus} from 'react-dom'
@@ -22,6 +23,9 @@ type LoginFormState = {
 }
 
 export function CredentialForm() {
+  const t = useTranslations('Auth.CredentialForm')
+  const tLogin = useTranslations('Auth.LoginForm')
+
   const [state, formAction] = useActionState<LoginFormState, FormData>(
     loginCredentialAction,
     {
@@ -39,30 +43,30 @@ export function CredentialForm() {
       <div className="grid gap-6">
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
           <span className="bg-background text-muted-foreground relative z-10 px-2">
-            Or continue with
+            {t('orContinueWith')}
           </span>
         </div>
         <div className="grid gap-6">
           <div className="grid gap-3">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('email.label')}</Label>
             <Input
               id="email"
               name="email"
               type="email"
               defaultValue={'user@gmail.com'}
-              placeholder="user@gmail.com"
+              placeholder={t('email.placeholder')}
               required
             />
           </div>
           <div className="grid gap-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password">{t('password.label')}</Label>
               <div className="flex flex-col items-end space-y-1">
                 <Link
                   href="/reset-password"
                   className="text-sm underline-offset-4 hover:underline"
                 >
-                  Mot de passe oublié?
+                  {t('password.forgotPassword')}
                 </Link>
               </div>
             </div>
@@ -77,9 +81,9 @@ export function CredentialForm() {
           <SubmitButton />
         </div>
         <div className="text-center text-sm">
-          Pas encore de compte?{' '}
+          {tLogin('noAccount')}{' '}
           <Link href="/register" className="underline underline-offset-4">
-            S&apos;inscrire
+            {tLogin('signUpLink')}
           </Link>
         </div>
       </div>
@@ -88,11 +92,12 @@ export function CredentialForm() {
 }
 
 function SubmitButton() {
+  const t = useTranslations('Auth.CredentialForm')
   const {pending} = useFormStatus()
 
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Connexion en cours...' : 'Se connecter'}
+      {pending ? t('submitting') : t('submit')}
     </Button>
   )
 }

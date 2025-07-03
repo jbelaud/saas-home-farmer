@@ -9,6 +9,11 @@ alwaysApply: false
 
 Ce projet utilise **Next-intl** pour gérer les traductions internationales. Le système est organisé de manière hiérarchique pour faciliter la maintenance et la cohérence des traductions.
 
+Key Principles
+- Traduire toutes les langues
+
+
+
 ## Architecture des Traductions
 
 ### Organisation des Fichiers de Traduction

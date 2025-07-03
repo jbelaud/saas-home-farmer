@@ -507,6 +507,66 @@
       }
     }
   },
+  "Auth": {
+    "LoginPage": {
+      "title": "Iniciar Sesión",
+      "metadata": {
+        "title": "Iniciar Sesión - Next SaaS Boilerplate",
+        "description": "Accede a tu cuenta"
+      }
+    },
+    "LoginForm": {
+      "welcome": "Bienvenido",
+      "description": "Inicia sesión con tu email y contraseña",
+      "descriptionMagicLink": "Ingresa tu email para recibir un enlace de acceso",
+      "providers": {
+        "apple": "Iniciar sesión con Apple",
+        "google": "Iniciar sesión con Google",
+        "magicLink": "Iniciar sesión con enlace mágico"
+      },
+      "loading": {
+        "connecting": "Conectando...",
+        "apple": "Conectando...",
+        "google": "Conectando..."
+      },
+      "backToClassic": "Volver al inicio de sesión clásico",
+      "terms": "Al continuar, aceptas nuestros",
+      "termsLink": "Términos de Servicio",
+      "and": "y nuestra",
+      "privacyLink": "Política de Privacidad",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpLink": "Registrarse"
+    },
+    "CredentialForm": {
+      "orContinueWith": "O continuar con",
+      "email": {
+        "label": "Email",
+        "placeholder": "user@gmail.com"
+      },
+      "password": {
+        "label": "Contraseña",
+        "forgotPassword": "¿Olvidaste tu contraseña?"
+      },
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión..."
+    },
+    "MagicLinkForm": {
+      "email": {
+        "label": "Email",
+        "placeholder": "Ingresa tu email"
+      },
+      "submit": "Enviar enlace mágico",
+      "submitting": "Enviando...",
+      "checkEmail": "Revisa tu email",
+      "linkSent": "Se ha enviado un enlace de acceso a tu dirección de email."
+    },
+    "messages": {
+      "success": "Éxito",
+      "error": "Error",
+      "loginError": "Error de inicio de sesión",
+      "providerError": "Error al iniciar sesión con {provider}"
+    }
+  },
   "email": {
     "user": {
       "verify": {

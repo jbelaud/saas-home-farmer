@@ -507,6 +507,66 @@
       }
     }
   },
+  "Auth": {
+    "LoginPage": {
+      "title": "Connexion",
+      "metadata": {
+        "title": "Connexion - Next SaaS Boilerplate",
+        "description": "Connectez-vous à votre compte"
+      }
+    },
+    "LoginForm": {
+      "welcome": "Bienvenue",
+      "description": "Connectez-vous avec votre email et mot de passe",
+      "descriptionMagicLink": "Entrez votre email pour recevoir un lien de connexion",
+      "providers": {
+        "apple": "Se connecter avec Apple",
+        "google": "Se connecter avec Google",
+        "magicLink": "Se connecter avec un lien magique"
+      },
+      "loading": {
+        "connecting": "Connexion...",
+        "apple": "Connexion...",
+        "google": "Connexion..."
+      },
+      "backToClassic": "Retour à la connexion classique",
+      "terms": "En cliquant sur continuer, vous acceptez nos",
+      "termsLink": "Conditions d'utilisation",
+      "and": "et notre",
+      "privacyLink": "Politique de confidentialité",
+      "noAccount": "Pas encore de compte?",
+      "signUpLink": "S'inscrire"
+    },
+    "CredentialForm": {
+      "orContinueWith": "Ou continuer avec",
+      "email": {
+        "label": "Email",
+        "placeholder": "user@gmail.com"
+      },
+      "password": {
+        "label": "Mot de passe",
+        "forgotPassword": "Mot de passe oublié?"
+      },
+      "submit": "Se connecter",
+      "submitting": "Connexion en cours..."
+    },
+    "MagicLinkForm": {
+      "email": {
+        "label": "Email",
+        "placeholder": "Entrez votre email"
+      },
+      "submit": "Envoyer le lien magique",
+      "submitting": "Envoi en cours...",
+      "checkEmail": "Vérifiez votre email",
+      "linkSent": "Un lien de connexion a été envoyé à votre adresse email."
+    },
+    "messages": {
+      "success": "Succès",
+      "error": "Erreur",
+      "loginError": "Erreur lors de la connexion",
+      "providerError": "Erreur lors de la connexion avec {provider}"
+    }
+  },
   "email": {
     "user": {
       "verify": {

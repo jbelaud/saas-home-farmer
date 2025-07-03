@@ -1,6 +1,7 @@
 'use client'
 import {Mail} from 'lucide-react'
 import Link from 'next/link'
+import {useTranslations} from 'next-intl'
 import React, {useState} from 'react'
 import {toast} from 'sonner'
 
@@ -19,6 +20,9 @@ import {CredentialForm} from './credential-form'
 import {MagicLinkForm} from './magic-link-form'
 
 export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
+  const t = useTranslations('Auth.LoginForm')
+  const tMessages = useTranslations('Auth.messages')
+
   const [isMagicLink, setIsMagicLink] = useState(false)
   const [isLoadingProvider, setIsLoadingProvider] = useState<string | null>(
     null
@@ -30,18 +34,18 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
       const result = await loginProviderAction(provider)
 
       if (result.success) {
-        toast('Succès', {
+        toast(tMessages('success'), {
           description: result.message,
         })
       } else {
-        toast('Erreur', {
-          description: result.message || 'Erreur lors de la connexion',
+        toast(tMessages('error'), {
+          description: result.message || tMessages('loginError'),
         })
       }
     } catch (error) {
       console.error(`Erreur lors de la connexion ${provider}:`, error)
-      toast('Erreur', {
-        description: `Erreur lors de la connexion avec ${provider}`,
+      toast(tMessages('error'), {
+        description: tMessages('providerError', {provider}),
       })
     } finally {
       setIsLoadingProvider(null)
@@ -52,11 +56,9 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Bienvenue</CardTitle>
+          <CardTitle className="text-xl">{t('welcome')}</CardTitle>
           <CardDescription>
-            {isMagicLink
-              ? 'Entrez votre email pour recevoir un lien de connexion'
-              : 'Connectez-vous avec votre email et mot de passe'}
+            {isMagicLink ? t('descriptionMagicLink') : t('description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -77,8 +79,8 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                     />
                   </svg>
                   {isLoadingProvider === 'apple'
-                    ? 'Connexion...'
-                    : 'Login with Apple'}
+                    ? t('loading.apple')
+                    : t('providers.apple')}
                 </Button>
 
                 <Button
@@ -95,8 +97,8 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                     />
                   </svg>
                   {isLoadingProvider === 'google'
-                    ? 'Connexion...'
-                    : 'Login with Google'}
+                    ? t('loading.google')
+                    : t('providers.google')}
                 </Button>
 
                 <Button
@@ -106,7 +108,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                   onClick={() => setIsMagicLink(true)}
                 >
                   <Mail className="mr-2 h-4 w-4" />
-                  Login with Magic Link
+                  {t('providers.magicLink')}
                 </Button>
               </>
             )}
@@ -122,7 +124,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
                   className="text-sm"
                   onClick={() => setIsMagicLink(false)}
                 >
-                  Retour à la connexion classique
+                  {t('backToClassic')}
                 </Button>
               </div>
             </div>
@@ -133,9 +135,8 @@ export function LoginForm({className, ...props}: React.ComponentProps<'div'>) {
       </Card>
       <div className="flex flex-col items-center gap-2 text-center">
         <div className="text-muted-foreground *:[a]:hover:text-primary text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-          En cliquant sur continuer, vous acceptez nos{' '}
-          <Link href="/terms">Conditions d&apos;utilisation</Link> et notre{' '}
-          <Link href="/privacy">Politique de confidentialité</Link>.
+          {t('terms')} <Link href="/terms">{t('termsLink')}</Link> {t('and')}{' '}
+          <Link href="/privacy">{t('privacyLink')}</Link>.
         </div>
       </div>
     </div>

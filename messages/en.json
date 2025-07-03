@@ -507,6 +507,66 @@
       }
     }
   },
+  "Auth": {
+    "LoginPage": {
+      "title": "Login",
+      "metadata": {
+        "title": "Login - Next SaaS Boilerplate",
+        "description": "Sign in to your account"
+      }
+    },
+    "LoginForm": {
+      "welcome": "Welcome",
+      "description": "Sign in with your email and password",
+      "descriptionMagicLink": "Enter your email to receive a login link",
+      "providers": {
+        "apple": "Sign in with Apple",
+        "google": "Sign in with Google",
+        "magicLink": "Sign in with Magic Link"
+      },
+      "loading": {
+        "connecting": "Connecting...",
+        "apple": "Connecting...",
+        "google": "Connecting..."
+      },
+      "backToClassic": "Back to classic login",
+      "terms": "By continuing, you agree to our",
+      "termsLink": "Terms of Service",
+      "and": "and our",
+      "privacyLink": "Privacy Policy",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up"
+    },
+    "CredentialForm": {
+      "orContinueWith": "Or continue with",
+      "email": {
+        "label": "Email",
+        "placeholder": "user@gmail.com"
+      },
+      "password": {
+        "label": "Password",
+        "forgotPassword": "Forgot password?"
+      },
+      "submit": "Sign in",
+      "submitting": "Signing in..."
+    },
+    "MagicLinkForm": {
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email"
+      },
+      "submit": "Send magic link",
+      "submitting": "Sending...",
+      "checkEmail": "Check your email",
+      "linkSent": "A login link has been sent to your email address."
+    },
+    "messages": {
+      "success": "Success",
+      "error": "Error",
+      "loginError": "Login error",
+      "providerError": "Error signing in with {provider}"
+    }
+  },
   "email": {
     "user": {
       "verify": {

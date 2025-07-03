@@ -1,11 +1,34 @@
 import {GalleryVerticalEnd} from 'lucide-react'
 import {redirect} from 'next/navigation'
+import {getTranslations, setRequestLocale} from 'next-intl/server'
 
 import {LoginForm} from '@/components/features/auth/forms/login'
 import {APP_NAME} from '@/lib/constants'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
-export default async function LoginPage() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+  const t = await getTranslations({locale, namespace: 'Auth.LoginPage'})
+
+  return {
+    title: t('metadata.title'),
+    description: t('metadata.description'),
+  }
+}
+
+export default async function LoginPage({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+
   const user = await getAuthUser()
   if (user) {
     redirect('/logout')
