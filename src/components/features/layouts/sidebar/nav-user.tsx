@@ -12,6 +12,7 @@ import {
   Sun,
 } from 'lucide-react'
 import Link from 'next/link'
+import {useTranslations} from 'next-intl'
 import {useTheme} from 'next-themes'
 
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
@@ -33,6 +34,7 @@ import {
 import {User} from '@/services/types/domain/user-types'
 
 export function NavUser({user}: {user?: User}) {
+  const t = useTranslations('NavUser')
   const {isMobile} = useSidebar()
   const {theme, setTheme} = useTheme()
   const toggleTheme = () => {
@@ -80,7 +82,7 @@ export function NavUser({user}: {user?: User}) {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
-                <Link href="/account/subscription">Upgrade to Pro</Link>
+                <Link href="/account/subscription">{t('upgradeToPro')}</Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -95,7 +97,7 @@ export function NavUser({user}: {user?: User}) {
                       className="h-[1.2rem] w-[1.2rem]"
                       suppressHydrationWarning
                     />
-                    Dark Mode
+                    {t('darkMode')}
                   </>
                 ) : (
                   <>
@@ -103,31 +105,31 @@ export function NavUser({user}: {user?: User}) {
                       className="h-[1.2rem] w-[1.2rem]"
                       suppressHydrationWarning
                     />
-                    Light Mode
+                    {t('lightMode')}
                   </>
                 )}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <BadgeCheck />
-                <Link href="/account">Account</Link>
+                <Link href="/account">{t('account')}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings />
-                <Link href="/account/settings">Settings</Link>
+                <Link href="/account/settings">{t('settings')}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <CreditCard />
-                <Link href="/account/subscription">Billing</Link>
+                <Link href="/account/subscription">{t('billing')}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
-                Notifications
+                {t('notifications')}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut />
-              <Link href="/logout">Log out</Link>
+              <Link href="/logout">{t('logout')}</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

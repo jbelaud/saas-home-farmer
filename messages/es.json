@@ -174,5 +174,15 @@
       "salesMarketing": "Ventas y Marketing",
       "travel": "Viajes"
     }
+  },
+  "NavUser": {
+    "upgradeToPro": "Actualizar a Pro",
+    "darkMode": "Modo oscuro",
+    "lightMode": "Modo claro",
+    "account": "Cuenta",
+    "settings": "Configuración",
+    "billing": "Facturación",
+    "notifications": "Notificaciones",
+    "logout": "Cerrar sesión"
   }
 }

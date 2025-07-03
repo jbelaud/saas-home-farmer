@@ -40,7 +40,7 @@ export function TeamSwitcher({
     teams.find((team) => team.id === currentOrganization?.id) || undefined
 
   const handleCreateOrganization = () => {
-    toast.error('Entreprise plan only')
+    toast.error('You cannot create an organization')
   }
 
   return (
