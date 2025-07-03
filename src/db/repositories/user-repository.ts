@@ -381,8 +381,6 @@ export const updateUserSettingsByUserIdDao = async (
 ): Promise<void> => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {userId: _, ...rest} = settings
-  console.log('rest', rest)
-  console.log('userId', userId)
   await db
     .update(userSettings)
     .set({...rest, updatedAt: new Date()})

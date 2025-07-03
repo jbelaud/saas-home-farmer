@@ -44,7 +44,7 @@ export function NavUser({user}: {user?: User}) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user?.image ?? ''} alt={user?.name ?? ''} />
@@ -79,12 +79,15 @@ export function NavUser({user}: {user?: User}) {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
-                Upgrade to Pro
+                <Link href="/account/subscription">Upgrade to Pro</Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={toggleTheme}>
+              <DropdownMenuItem
+                onClick={toggleTheme}
+                className="cursor-pointer"
+              >
                 {theme === 'light' ? (
                   <>
                     <Moon
@@ -105,11 +108,11 @@ export function NavUser({user}: {user?: User}) {
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <BadgeCheck />
-                Account
+                <Link href="/account">Account</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <CreditCard />
-                Billing
+                <Link href="/account/subscription">Billing</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
