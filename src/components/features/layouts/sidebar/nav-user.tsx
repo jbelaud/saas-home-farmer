@@ -7,6 +7,7 @@ import {
   CreditCard,
   LogOut,
   Moon,
+  Settings,
   Sparkles,
   Sun,
 } from 'lucide-react'
@@ -109,6 +110,10 @@ export function NavUser({user}: {user?: User}) {
               <DropdownMenuItem>
                 <BadgeCheck />
                 <Link href="/account">Account</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings />
+                <Link href="/account/settings">Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <CreditCard />

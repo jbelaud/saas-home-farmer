@@ -77,6 +77,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               url: '/account',
             },
             {
+              title: t('account.settings'),
+              url: '/account/settings',
+            },
+            {
               title: t('account.subscriptions'),
               url: '/account/subscription',
             },
@@ -87,10 +91,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             {
               title: t('account.invitations'),
               url: '/invitations',
-            },
-            {
-              title: t('account.settings'),
-              url: '#',
             },
           ],
         },
