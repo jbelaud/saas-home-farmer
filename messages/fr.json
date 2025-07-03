@@ -753,6 +753,51 @@
       }
     }
   },
+  "AuthActions": {
+    "login": {
+      "validationError": "Erreur de validation",
+      "userNotFound": "Aucun compte trouvé avec cet email",
+      "invalidCredentials": "Identifiants invalides",
+      "connectionError": "Une erreur est survenue lors de la connexion"
+    },
+    "magicLink": {
+      "validationError": "Erreur de validation",
+      "userNotFound": "Aucun compte trouvé avec cet email",
+      "sendError": "Erreur lors de l'envoi du magic link",
+      "unexpectedError": "Une erreur est survenue lors de l'envoi du magic link"
+    },
+    "register": {
+      "validationError": "Erreur de validation",
+      "emailAlreadyUsed": "Cet email est déjà utilisé",
+      "userCreationError": "Erreur lors de la création de l'utilisateur",
+      "invalidCredentials": "Identifiants invalides",
+      "accountCreationError": "Une erreur est survenue lors de la création du compte"
+    },
+    "registerMagicLink": {
+      "validationError": "Erreur de validation",
+      "emailAlreadyUsed": "Cet email est déjà utilisé",
+      "sendError": "Erreur lors de l'envoi du magic link",
+      "unexpectedError": "Une erreur est survenue lors de l'envoi du magic link",
+      "linkSent": "Un lien de connexion a été envoyé à votre adresse email"
+    },
+    "verifyBackupCode": {
+      "emptyCode": "Le code de sauvegarde ne peut pas être vide",
+      "invalidCode": "Code de sauvegarde invalide",
+      "verificationError": "Une erreur est survenue lors de la vérification du code"
+    },
+    "verifyOTP": {
+      "emptyCode": "Le code OTP ne peut pas être vide",
+      "invalidCode": "Code OTP invalide",
+      "verificationError": "Une erreur est survenue lors de la vérification OTP"
+    },
+    "loginProvider": {
+      "redirecting": "Redirection vers le provider...",
+      "connectionError": "Une erreur est survenue lors de la connexion au compte"
+    },
+    "registerProvider": {
+      "redirecting": "Redirection vers le provider..."
+    }
+  },
   "email": {
     "user": {
       "verify": {

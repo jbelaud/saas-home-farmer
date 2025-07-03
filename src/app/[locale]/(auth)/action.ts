@@ -3,6 +3,7 @@
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import {headers} from 'next/headers'
 import {redirect} from 'next/navigation'
+import {getTranslations} from 'next-intl/server'
 
 import {
   authLoginFormSchema,
@@ -71,6 +72,8 @@ export async function loginCredentialAction(
   prevState: LoginFormState,
   formData: FormData
 ): Promise<LoginFormState> {
+  const t = await getTranslations('AuthActions.login')
+
   try {
     // 1. Validation Server Zod des données du formulaire
     const validationResult = authLoginFormSchema.safeParse({
@@ -86,7 +89,7 @@ export async function loginCredentialAction(
         }))
       return {
         success: false,
-        message: 'Erreur de validation',
+        message: t('validationError'),
         errors: validationErrors,
       }
     }
@@ -99,7 +102,7 @@ export async function loginCredentialAction(
     if (!user) {
       return {
         success: false,
-        message: 'Aucun compte trouvé avec cet email',
+        message: t('userNotFound'),
       }
     }
 
@@ -120,7 +123,7 @@ export async function loginCredentialAction(
     if (!response.ok) {
       return {
         success: false,
-        message: 'Identifiants invalides',
+        message: t('invalidCredentials'),
       }
     }
 
@@ -157,7 +160,7 @@ export async function loginCredentialAction(
     console.log('loginCredentialAction error', error)
     return {
       success: false,
-      message: 'Une erreur est survenue lors de la connexion',
+      message: t('connectionError'),
     }
   }
 }
@@ -166,6 +169,8 @@ export async function loginMagicLinkAction(
   prevState: MagicLinkFormState,
   formData: FormData
 ): Promise<MagicLinkFormState> {
+  const t = await getTranslations('AuthActions.magicLink')
+
   try {
     // 1. Validation Server Zod des données du formulaire
     const validationResult = authMagicLinkFormSchema.safeParse({
@@ -180,7 +185,7 @@ export async function loginMagicLinkAction(
         }))
       return {
         success: false,
-        message: 'Erreur de validation',
+        message: t('validationError'),
         errors: validationErrors,
       }
     }
@@ -192,7 +197,7 @@ export async function loginMagicLinkAction(
     if (!user) {
       return {
         success: false,
-        message: 'Aucun compte trouvé avec cet email',
+        message: t('userNotFound'),
       }
     }
 
@@ -209,7 +214,7 @@ export async function loginMagicLinkAction(
     if (!response.status) {
       return {
         success: false,
-        message: "Erreur lors de l'envoi du magic link",
+        message: t('sendError'),
       }
     }
 
@@ -221,7 +226,7 @@ export async function loginMagicLinkAction(
 
     return {
       success: false,
-      message: "Une erreur est survenue lors de l'envoi du magic link",
+      message: t('unexpectedError'),
     }
   }
 }
@@ -233,6 +238,8 @@ export async function registerCredentialAction(
   prevState: RegisterFormState,
   formData: FormData
 ): Promise<RegisterFormState> {
+  const t = await getTranslations('AuthActions.register')
+
   // 1. Validation server  Zod des données du formulaire
   const validationResult = authRegisterFormSchema.safeParse({
     name: formData.get('name'),
@@ -249,7 +256,7 @@ export async function registerCredentialAction(
       }))
     return {
       success: false,
-      message: 'Erreur de validation',
+      message: t('validationError'),
       errors: validationErrors,
     }
   }
@@ -264,7 +271,7 @@ export async function registerCredentialAction(
       errors: [
         {
           field: 'email',
-          message: 'Cet email est déjà utilisé',
+          message: t('emailAlreadyUsed'),
         },
       ],
     }
@@ -283,7 +290,7 @@ export async function registerCredentialAction(
   if (!response.ok && response.status !== 302) {
     return {
       success: false,
-      message: "Erreur lors de la création de l'utilisateur",
+      message: t('userCreationError'),
     }
   }
 
@@ -315,7 +322,7 @@ export async function registerCredentialAction(
       if (!response.ok && response.status !== 302) {
         return {
           success: false,
-          message: 'Identifiants invalides',
+          message: t('invalidCredentials'),
         }
       }
       redirect(response.headers.get('Location') ?? '/404')
@@ -334,7 +341,7 @@ export async function registerCredentialAction(
       message:
         error instanceof Error
           ? `Error technique : ${error.message}`
-          : 'Une erreur est survenue lors de la création du compte',
+          : t('accountCreationError'),
       errors: [],
     }
   }
@@ -353,6 +360,7 @@ export async function loginProviderAction(
     | 'twitter'
     | 'linkedin'
 ): Promise<LoginFormState> {
+  const t = await getTranslations('AuthActions.loginProvider')
   console.log('registerProviderAction appelé', provider)
   try {
     const response = await auth.api.signInSocial({
@@ -367,7 +375,7 @@ export async function loginProviderAction(
     }
     return {
       success: true,
-      message: 'Redirection vers le provider...',
+      message: t('redirecting'),
     }
   } catch (error) {
     if (isRedirectError(error)) {
@@ -379,7 +387,7 @@ export async function loginProviderAction(
       message:
         error instanceof Error
           ? `Error technique : ${error.message}`
-          : 'Une erreur est survenue lors de la connexion au compte',
+          : t('connectionError'),
       errors: [],
     }
   }
@@ -392,6 +400,8 @@ export async function registerMagicLinkAction(
   prevState: MagicLinkFormState,
   formData: FormData
 ): Promise<MagicLinkFormState> {
+  const t = await getTranslations('AuthActions.registerMagicLink')
+
   // 1. Validation server  Zod des données du formulaire
   const validationResult = authMagicLinkFormSchema.safeParse({
     email: formData.get('email'),
@@ -405,7 +415,7 @@ export async function registerMagicLinkAction(
       }))
     return {
       success: false,
-      message: 'Erreur de validation',
+      message: t('validationError'),
       errors: validationErrors,
     }
   }
@@ -420,7 +430,7 @@ export async function registerMagicLinkAction(
       errors: [
         {
           field: 'email',
-          message: 'Cet email est déjà utilisé',
+          message: t('emailAlreadyUsed'),
         },
       ],
     }
@@ -437,7 +447,7 @@ export async function registerMagicLinkAction(
   if (!response.status) {
     return {
       success: false,
-      message: "Erreur lors de l'envoi du magic link",
+      message: t('sendError'),
     }
   }
 
@@ -451,12 +461,12 @@ export async function registerMagicLinkAction(
     }
     return {
       success: false,
-      message: "Une erreur est survenue lors de l'envoi du magic link",
+      message: t('unexpectedError'),
     }
   }
   return {
     success: true,
-    message: 'Un lien de connexion a été envoyé à votre adresse email',
+    message: t('linkSent'),
   }
 }
 
@@ -466,10 +476,11 @@ export async function registerMagicLinkAction(
 export async function registerProviderAction(
   provider: 'google' | 'apple'
 ): Promise<LoginFormState> {
+  const t = await getTranslations('AuthActions.registerProvider')
   console.log('registerProviderAction appelé', provider)
   return {
     success: true,
-    message: 'Redirection vers le provider...',
+    message: t('redirecting'),
   }
 }
 
@@ -484,6 +495,8 @@ export async function verifyBackupCodeAction(
   prevState: RecoveryFormState,
   formData: FormData
 ): Promise<RecoveryFormState> {
+  const t = await getTranslations('AuthActions.verifyBackupCode')
+
   try {
     const code = formData.get('code') as string
 
@@ -491,7 +504,7 @@ export async function verifyBackupCodeAction(
     if (!code || code.trim().length === 0) {
       return {
         success: false,
-        message: 'Le code de sauvegarde ne peut pas être vide',
+        message: t('emptyCode'),
       }
     }
 
@@ -512,7 +525,7 @@ export async function verifyBackupCodeAction(
 
     return {
       success: false,
-      message: 'Code de sauvegarde invalide',
+      message: t('invalidCode'),
     }
   } catch (error) {
     if (isRedirectError(error)) {
@@ -526,7 +539,7 @@ export async function verifyBackupCodeAction(
 
     return {
       success: false,
-      message: 'Une erreur est survenue lors de la vérification du code',
+      message: t('verificationError'),
     }
   }
 }
@@ -538,6 +551,8 @@ export async function verifyOTPAction(
   prevState: OtpFormState,
   formData: FormData
 ): Promise<OtpFormState> {
+  const t = await getTranslations('AuthActions.verifyOTP')
+
   try {
     const code = formData.get('code') as string
     console.log('verifyOTPAction - code reçu:', code)
@@ -546,7 +561,7 @@ export async function verifyOTPAction(
     if (!code || code.trim().length === 0) {
       return {
         success: false,
-        message: 'Le code OTP ne peut pas être vide',
+        message: t('emptyCode'),
       }
     }
 
@@ -586,7 +601,7 @@ export async function verifyOTPAction(
 
     return {
       success: false,
-      message: errorData.message || 'Code OTP invalide',
+      message: errorData.message || t('invalidCode'),
     }
   } catch (error) {
     if (isRedirectError(error)) {
@@ -597,7 +612,7 @@ export async function verifyOTPAction(
 
     return {
       success: false,
-      message: 'Une erreur est survenue lors de la vérification OTP',
+      message: t('verificationError'),
     }
   }
 }

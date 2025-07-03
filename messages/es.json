@@ -753,6 +753,51 @@
       }
     }
   },
+  "AuthActions": {
+    "login": {
+      "validationError": "Error de validación",
+      "userNotFound": "No se encontró ninguna cuenta con este email",
+      "invalidCredentials": "Credenciales inválidas",
+      "connectionError": "Ocurrió un error durante el inicio de sesión"
+    },
+    "magicLink": {
+      "validationError": "Error de validación",
+      "userNotFound": "No se encontró ninguna cuenta con este email",
+      "sendError": "Error al enviar el enlace mágico",
+      "unexpectedError": "Ocurrió un error al enviar el enlace mágico"
+    },
+    "register": {
+      "validationError": "Error de validación",
+      "emailAlreadyUsed": "Este email ya está en uso",
+      "userCreationError": "Error al crear el usuario",
+      "invalidCredentials": "Credenciales inválidas",
+      "accountCreationError": "Ocurrió un error durante la creación de la cuenta"
+    },
+    "registerMagicLink": {
+      "validationError": "Error de validación",
+      "emailAlreadyUsed": "Este email ya está en uso",
+      "sendError": "Error al enviar el enlace mágico",
+      "unexpectedError": "Ocurrió un error al enviar el enlace mágico",
+      "linkSent": "Se ha enviado un enlace de acceso a tu dirección de email"
+    },
+    "verifyBackupCode": {
+      "emptyCode": "El código de respaldo no puede estar vacío",
+      "invalidCode": "Código de respaldo inválido",
+      "verificationError": "Ocurrió un error durante la verificación del código"
+    },
+    "verifyOTP": {
+      "emptyCode": "El código OTP no puede estar vacío",
+      "invalidCode": "Código OTP inválido",
+      "verificationError": "Ocurrió un error durante la verificación OTP"
+    },
+    "loginProvider": {
+      "redirecting": "Redirigiendo al proveedor...",
+      "connectionError": "Ocurrió un error al conectar con la cuenta"
+    },
+    "registerProvider": {
+      "redirecting": "Redirigiendo al proveedor..."
+    }
+  },
   "email": {
     "user": {
       "verify": {

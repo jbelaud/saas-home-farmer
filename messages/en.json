@@ -753,6 +753,51 @@
       }
     }
   },
+  "AuthActions": {
+    "login": {
+      "validationError": "Validation error",
+      "userNotFound": "No account found with this email",
+      "invalidCredentials": "Invalid credentials",
+      "connectionError": "An error occurred during login"
+    },
+    "magicLink": {
+      "validationError": "Validation error",
+      "userNotFound": "No account found with this email",
+      "sendError": "Error sending magic link",
+      "unexpectedError": "An error occurred while sending the magic link"
+    },
+    "register": {
+      "validationError": "Validation error",
+      "emailAlreadyUsed": "This email is already in use",
+      "userCreationError": "Error creating user",
+      "invalidCredentials": "Invalid credentials",
+      "accountCreationError": "An error occurred during account creation"
+    },
+    "registerMagicLink": {
+      "validationError": "Validation error",
+      "emailAlreadyUsed": "This email is already in use",
+      "sendError": "Error sending magic link",
+      "unexpectedError": "An error occurred while sending the magic link",
+      "linkSent": "A login link has been sent to your email address"
+    },
+    "verifyBackupCode": {
+      "emptyCode": "Backup code cannot be empty",
+      "invalidCode": "Invalid backup code",
+      "verificationError": "An error occurred during code verification"
+    },
+    "verifyOTP": {
+      "emptyCode": "OTP code cannot be empty",
+      "invalidCode": "Invalid OTP code",
+      "verificationError": "An error occurred during OTP verification"
+    },
+    "loginProvider": {
+      "redirecting": "Redirecting to provider...",
+      "connectionError": "An error occurred while connecting to the account"
+    },
+    "registerProvider": {
+      "redirecting": "Redirecting to provider..."
+    }
+  },
   "email": {
     "user": {
       "verify": {
