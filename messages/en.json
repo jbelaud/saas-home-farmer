@@ -219,10 +219,15 @@
       "form": {
         "save": "Save",
         "updating": "Updating...",
-        "success": "Success",
-        "error": "Error",
+        "success": "Profile updated successfully",
+        "error": "Error updating profile",
         "undo": "Undo",
-        "ok": "OK"
+        "ok": "OK",
+        "validationFailed": "Validation error",
+        "userNotFound": "User not found",
+        "invalidData": "Invalid data",
+        "updateFailed": "Failed to update profile",
+        "nameValidationError": "Name must not contain two consecutive spaces"
       }
     },
     "UserSecuritySection": {

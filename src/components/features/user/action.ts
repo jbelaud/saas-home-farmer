@@ -2,6 +2,7 @@
 
 import {revalidatePath} from 'next/cache'
 import {headers} from 'next/headers'
+import {getTranslations} from 'next-intl/server'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
 import {auth} from '@/lib/better-auth/auth'
@@ -84,12 +85,15 @@ export async function updateUserAction(
   prevState?: FormState<UserFormSchemaType>,
   formData?: FormData
 ): Promise<FormState<UserFormSchemaType>> {
+  // Récupérer les traductions pour les messages d'erreur
+  const t = await getTranslations('AccountPage.EditUserProfileForm')
+
   const user = await requireActionAuth()
   if (!user) {
-    return {success: false, message: 'User not found'}
+    return {success: false, message: t('form.userNotFound')}
   }
   if (!formData) {
-    return {success: false, message: 'Invalid data'}
+    return {success: false, message: t('form.invalidData')}
   }
   // Extraire les données du FormData
   const userData: UpdateUser = {
@@ -116,7 +120,7 @@ export async function updateUserAction(
       }))
     return {
       success: false,
-      message: `Validation failed: ${errorMessages}`,
+      message: `${t('form.validationFailed')}: ${errorMessages}`,
       errors: validationErrors,
     }
   }
@@ -127,10 +131,10 @@ export async function updateUserAction(
       errors: [
         {
           field: 'name',
-          message: 'Custom server error : Name must not contain 2 spaces',
+          message: t('form.nameValidationError'),
         },
       ],
-      message: 'Server Error : Name must not contain 2 spaces',
+      message: t('form.nameValidationError'),
     }
   }
 
@@ -139,7 +143,7 @@ export async function updateUserAction(
   try {
     await updateUserService(validatedData)
     revalidatePath('/account')
-    return {success: true, message: 'Profile updated successfully'}
+    return {success: true, message: t('form.success')}
   } catch (error) {
     console.error(error)
     // Si l'erreur est une erreur de validation Zod au niveau Service
@@ -148,14 +152,14 @@ export async function updateUserAction(
     if (validationError) {
       return {
         success: false,
-        message: `Erreur de validation : ${error.message}`,
+        message: `${t('form.validationFailed')}: ${error.message}`,
         errors: error.zodErrorFields?.errors.map((err) => ({
           field: err.path[0] as keyof typeof userFormSchema._type,
           message: err.message,
         })),
       }
     }
-    return {success: false, message: 'Failed to update profile'}
+    return {success: false, message: t('form.updateFailed')}
   }
 }
 
@@ -163,17 +167,20 @@ export async function uploadProfileImageAction(
   prevState?: UploadImageState,
   formData?: FormData
 ): Promise<UploadImageState> {
+  // Récupérer les traductions pour les messages d'upload
+  const t = await getTranslations('AccountPage.EditUserProfileForm')
+
   const user = await requireActionAuth()
   if (!user) {
-    return {success: false, message: 'User not found'}
+    return {success: false, message: t('form.userNotFound')}
   }
   if (!formData) {
-    return {success: false, message: 'Invalid data'}
+    return {success: false, message: t('form.invalidData')}
   }
 
   const file = formData.get('file') as File
   if (!file || file.size === 0) {
-    return {success: false, message: 'No file provided'}
+    return {success: false, message: t('upload.errorRetry')}
   }
 
   try {
@@ -186,14 +193,14 @@ export async function uploadProfileImageAction(
 
     return {
       success: true,
-      message: 'Image uploadée avec succès',
+      message: t('upload.success'),
       imageUrl: result.url,
     }
   } catch (error) {
     console.error("Erreur lors de l'upload:", error)
     return {
       success: false,
-      message: "Impossible d'uploader l'image. Veuillez réessayer.",
+      message: t('upload.errorRetry'),
     }
   }
 }

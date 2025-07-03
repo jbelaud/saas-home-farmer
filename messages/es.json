@@ -219,10 +219,15 @@
       "form": {
         "save": "Guardar",
         "updating": "Actualizando...",
-        "success": "Éxito",
-        "error": "Error",
+        "success": "Perfil actualizado exitosamente",
+        "error": "Error al actualizar el perfil",
         "undo": "Deshacer",
-        "ok": "OK"
+        "ok": "OK",
+        "validationFailed": "Error de validación",
+        "userNotFound": "Usuario no encontrado",
+        "invalidData": "Datos inválidos",
+        "updateFailed": "Error al actualizar el perfil",
+        "nameValidationError": "El nombre no puede contener dos espacios consecutivos"
       }
     },
     "UserSecuritySection": {

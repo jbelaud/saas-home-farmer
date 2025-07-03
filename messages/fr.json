@@ -219,10 +219,15 @@
       "form": {
         "save": "Enregistrer",
         "updating": "Mise à jour...",
-        "success": "Succès",
-        "error": "Erreur",
+        "success": "Profil mis à jour avec succès",
+        "error": "Erreur lors de la mise à jour du profil",
         "undo": "Annuler",
-        "ok": "OK"
+        "ok": "OK",
+        "validationFailed": "Erreur de validation",
+        "userNotFound": "Utilisateur non trouvé",
+        "invalidData": "Données invalides",
+        "updateFailed": "Échec de la mise à jour du profil",
+        "nameValidationError": "Le nom ne peut pas contenir deux espaces consécutifs"
       }
     },
     "UserSecuritySection": {
