@@ -24,6 +24,7 @@ import {
 } from '@/services/types/domain/user-types'
 
 import {
+  createUserFormSchema,
   settingsFormSchema,
   SettingsFormSchemaType,
   userFormSchema,
@@ -104,25 +105,8 @@ export async function updateUserAction(
     visibility: formData.get('visibility') as 'public' | 'private',
   }
   // STEP 1 : Valider les données avec le schéma Zod coté back avec traductions
-  const validationResult = await userFormSchema.safeParseAsync(userData, {
-    errorMap(issue, ctx) {
-      console.log('errorMap', issue)
-      const path = issue.path.join('.')
-
-      const message = {
-        id: t('validation.uuid.invalid'),
-        name:
-          issue.code === 'too_small'
-            ? t('validation.name.min')
-            : t('validation.name.invalid'),
-        email: t('validation.email.invalid'),
-        image: t('validation.image.invalid'),
-        visibility: t('validation.visibility.invalid'),
-      }[path]
-      console.log('message', message)
-      return {message: message || ctx.defaultError}
-    },
-  })
+  const userFormSchemaServer = createUserFormSchema(t)
+  const validationResult = userFormSchemaServer.safeParse(userData)
 
   if (!validationResult.success) {
     // Récupérer les messages d'erreur traduits

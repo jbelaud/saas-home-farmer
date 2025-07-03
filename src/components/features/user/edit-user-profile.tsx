@@ -32,9 +32,7 @@ import {
 } from '@/components/ui/select'
 import {User} from '@/services/types/domain/user-types'
 
-import {userFormSchema} from '../admin/users/user-form-validation'
-
-type FormValues = z.infer<typeof userFormSchema>
+import {createUserFormSchema} from '../admin/users/user-form-validation'
 
 export function EditUserProfileForm({user}: {user: User}) {
   const t = useTranslations('AccountPage.EditUserProfileForm')
@@ -42,8 +40,12 @@ export function EditUserProfileForm({user}: {user: User}) {
   const [isUploading, setIsUploading] = useState(false)
   const [avatarImage, setAvatarImage] = useState(user.image ?? '')
 
+  // Créer le schéma avec messages traduits
+  const userFormSchemaClient = createUserFormSchema(t)
+  type FormValues = z.infer<typeof userFormSchemaClient>
+
   const form = useForm<FormValues>({
-    resolver: zodResolver(userFormSchema),
+    resolver: zodResolver(userFormSchemaClient),
     defaultValues: {
       id: user.id,
       name: user.name,

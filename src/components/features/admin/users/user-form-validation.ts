@@ -6,6 +6,16 @@ import {
   themeSchema,
 } from '@/services/validation/user-validation'
 
+export function createUserFormSchema(t: (key: string) => string) {
+  return z.object({
+    id: z.string().uuid(t(`validation.uuid.invalid`)).optional(),
+    name: z.string().min(2, t(`validation.name.min`)),
+    email: z.string().email(t(`validation.email.invalid`)),
+    image: z.string(),
+    visibility: z.enum(['public', 'private']),
+  })
+}
+
 export const userFormSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(2),
