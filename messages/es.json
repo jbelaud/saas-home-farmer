@@ -625,7 +625,13 @@
       "terms": "Al registrarte, aceptas nuestros",
       "termsLink": "Términos de Servicio",
       "and": "y nuestra",
-      "privacyLink": "Política de Privacidad"
+      "privacyLink": "Política de Privacidad",
+      "validation": {
+        "nameMin": "El nombre debe contener al menos 2 caracteres",
+        "passwordMin": "La contraseña debe contener al menos 8 caracteres",
+        "confirmPasswordMin": "La contraseña debe contener al menos 8 caracteres",
+        "passwordMismatch": "Las contraseñas no coinciden"
+      }
     },
     "RegisterMagicLinkForm": {
       "email": {

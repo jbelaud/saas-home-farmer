@@ -625,7 +625,13 @@
       "terms": "By signing up, you agree to our",
       "termsLink": "Terms of Service",
       "and": "and our",
-      "privacyLink": "Privacy Policy"
+      "privacyLink": "Privacy Policy",
+      "validation": {
+        "nameMin": "Name must be at least 2 characters",
+        "passwordMin": "Password must be at least 8 characters",
+        "confirmPasswordMin": "Password must be at least 8 characters",
+        "passwordMismatch": "Passwords do not match"
+      }
     },
     "RegisterMagicLinkForm": {
       "email": {

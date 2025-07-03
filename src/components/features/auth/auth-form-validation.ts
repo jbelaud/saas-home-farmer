@@ -11,6 +11,21 @@ export const authMagicLinkFormSchema = z.object({
   email: z.string().email('Adresse email invalide'),
 })
 
+// Fonction qui génère le schéma avec les traductions
+export const createAuthRegisterFormSchema = (t: (key: string) => string) => {
+  return authLoginFormSchema
+    .extend({
+      name: z.string().min(2, t('validation.nameMin')),
+      password: z.string().min(8, t('validation.passwordMin')),
+      confirmPassword: z.string().min(8, t('validation.confirmPasswordMin')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('validation.passwordMismatch'),
+      path: ['confirmPassword'],
+    })
+}
+
+// Schema par défaut pour la rétrocompatibilité (sans traductions)
 export const authRegisterFormSchema = authLoginFormSchema
   .extend({
     name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),

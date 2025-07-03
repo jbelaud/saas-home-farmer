@@ -625,7 +625,13 @@
       "terms": "En vous inscrivant, vous acceptez nos",
       "termsLink": "Conditions d'utilisation",
       "and": "et notre",
-      "privacyLink": "Politique de confidentialité"
+      "privacyLink": "Politique de confidentialité",
+      "validation": {
+        "nameMin": "Le nom doit contenir au moins 2 caractères",
+        "passwordMin": "Le mot de passe doit contenir au moins 8 caractères",
+        "confirmPasswordMin": "Le mot de passe doit contenir au moins 8 caractères",
+        "passwordMismatch": "Les mots de passe ne correspondent pas"
+      }
     },
     "RegisterMagicLinkForm": {
       "email": {

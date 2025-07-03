@@ -12,7 +12,7 @@ import {
   registerCredentialAction,
   registerProviderAction,
 } from '@/app/[locale]/(auth)/action'
-import {authRegisterFormSchema} from '@/components/features/auth/auth-form-validation'
+import {createAuthRegisterFormSchema} from '@/components/features/auth/auth-form-validation'
 import {Alert, AlertDescription} from '@/components/ui/alert'
 import {Button} from '@/components/ui/button'
 import {
@@ -64,6 +64,9 @@ export function RegisterForm({
   const [isMagicLink, setIsMagicLink] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+
+  // Créer le schéma avec les traductions
+  const authRegisterFormSchema = createAuthRegisterFormSchema(t)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(authRegisterFormSchema),
