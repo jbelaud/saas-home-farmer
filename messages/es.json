@@ -634,6 +634,46 @@
       },
       "submit": "Enviar enlace de registro",
       "submitting": "Enviando..."
+    },
+    "ResetPasswordPage": {
+      "title": "Restablecer Contraseña",
+      "metadata": {
+        "title": "Restablecer Contraseña - Next SaaS Boilerplate",
+        "description": "Restablece tu contraseña"
+      }
+    },
+    "ResetPasswordForm": {
+      "requestTitle": "Restablecer Contraseña",
+      "requestDescription": "Ingresa tu email para recibir un enlace de restablecimiento",
+      "resetTitle": "Nueva Contraseña",
+      "resetDescription": "Ingresa tu nueva contraseña",
+      "email": {
+        "label": "Email",
+        "placeholder": "ejemplo@email.com"
+      },
+      "password": {
+        "label": "Nueva contraseña"
+      },
+      "confirmPassword": {
+        "label": "Confirmar contraseña"
+      },
+      "sendLink": "Enviar enlace",
+      "sendingLink": "Enviando...",
+      "resetPassword": "Restablecer contraseña",
+      "resetting": "Restableciendo...",
+      "backToLogin": "Volver al inicio de sesión",
+      "emailSent": "Email de restablecimiento enviado",
+      "passwordResetSuccess": "Contraseña restablecida exitosamente",
+      "errorOccurred": "Ocurrió un error",
+      "terms": "Al continuar, aceptas nuestros",
+      "termsLink": "Términos de Servicio",
+      "and": "y nuestra",
+      "privacyLink": "Política de Privacidad",
+      "validation": {
+        "passwordMin": "La contraseña debe tener al menos 8 caracteres",
+        "passwordMax": "La contraseña no debe exceder 100 caracteres",
+        "passwordsMismatch": "Las contraseñas no coinciden"
+      }
     }
   },
   "email": {

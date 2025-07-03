@@ -31,7 +31,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
-import {authClient} from '@/lib/better-auth/auth-client'
 import {cn} from '@/lib/utils'
 
 import {RegisterMagicLinkForm} from './register-magic-link-form'

@@ -3,6 +3,7 @@
 import {zodResolver} from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import {useRouter, useSearchParams} from 'next/navigation'
+import {useTranslations} from 'next-intl'
 import React, {Suspense, useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -27,27 +28,30 @@ import {
 import {Input} from '@/components/ui/input'
 import {authClient} from '@/lib/better-auth/auth-client'
 
-const resetPasswordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
-      .max(100, 'Le mot de passe ne doit pas dépasser 100 caractères'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Les mots de passe ne correspondent pas',
-    path: ['confirmPassword'],
-  })
-
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
-
 export default function ResetPasswordPage() {
+  const t = useTranslations('Auth.ResetPasswordForm')
+
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
   const token = searchParams.get('token') ?? ''
   const router = useRouter()
+
+  // Schéma de validation avec traductions
+  const resetPasswordSchema = z
+    .object({
+      password: z
+        .string()
+        .min(8, t('validation.passwordMin'))
+        .max(100, t('validation.passwordMax')),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('validation.passwordsMismatch'),
+      path: ['confirmPassword'],
+    })
+
+  type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -72,12 +76,12 @@ export default function ResetPasswordPage() {
         return
       }
 
-      toast.success('Email de réinitialisation envoyé')
+      toast.success(t('emailSent'))
       setTimeout(() => {
         router.push('/verify-request')
       }, 2000)
     } catch {
-      toast.error('Une erreur est survenue')
+      toast.error(t('errorOccurred'))
     } finally {
       setIsLoading(false)
     }
@@ -96,13 +100,13 @@ export default function ResetPasswordPage() {
         return
       }
 
-      toast.success('Mot de passe réinitialisé avec succès')
+      toast.success(t('passwordResetSuccess'))
       // Rediriger vers la page de connexion après 2 secondes
       setTimeout(() => {
         router.push('/login')
       }, 2000)
     } catch {
-      toast.error('Une erreur est survenue')
+      toast.error(t('errorOccurred'))
     } finally {
       setIsLoading(false)
     }
@@ -113,30 +117,26 @@ export default function ResetPasswordPage() {
       <div className="flex flex-col gap-6">
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">
-              Réinitialisation du mot de passe
-            </CardTitle>
-            <CardDescription>
-              Entrez votre email pour recevoir un lien de réinitialisation
-            </CardDescription>
+            <CardTitle className="text-xl">{t('requestTitle')}</CardTitle>
+            <CardDescription>{t('requestDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
-                  Email
+                  {t('email.label')}
                 </label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="exemple@email.com"
+                  placeholder={t('email.placeholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Envoi en cours...' : 'Envoyer le lien'}
+                {isLoading ? t('sendingLink') : t('sendLink')}
               </Button>
             </form>
             <div className="mt-4 text-center">
@@ -144,15 +144,14 @@ export default function ResetPasswordPage() {
                 href="/login"
                 className="text-muted-foreground hover:text-primary text-sm"
               >
-                Retour à la connexion
+                {t('backToLogin')}
               </Link>
             </div>
           </CardContent>
         </Card>
         <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-          En cliquant sur continuer, vous acceptez nos{' '}
-          <Link href="/terms">Conditions d&apos;utilisation</Link> et notre{' '}
-          <Link href="/privacy">Politique de confidentialité</Link>.
+          {t('terms')} <Link href="/terms">{t('termsLink')}</Link> {t('and')}{' '}
+          <Link href="/privacy">{t('privacyLink')}</Link>.
         </div>
       </div>
     )
@@ -163,8 +162,8 @@ export default function ResetPasswordPage() {
       <div className="flex flex-col gap-6">
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Nouveau mot de passe</CardTitle>
-            <CardDescription>Entrez votre nouveau mot de passe</CardDescription>
+            <CardTitle className="text-xl">{t('resetTitle')}</CardTitle>
+            <CardDescription>{t('resetDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -177,7 +176,7 @@ export default function ResetPasswordPage() {
                   name="password"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel>Nouveau mot de passe</FormLabel>
+                      <FormLabel>{t('password.label')}</FormLabel>
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
@@ -190,7 +189,7 @@ export default function ResetPasswordPage() {
                   name="confirmPassword"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel>Confirmer le mot de passe</FormLabel>
+                      <FormLabel>{t('confirmPassword.label')}</FormLabel>
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
@@ -199,9 +198,7 @@ export default function ResetPasswordPage() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading
-                    ? 'Réinitialisation en cours...'
-                    : 'Réinitialiser le mot de passe'}
+                  {isLoading ? t('resetting') : t('resetPassword')}
                 </Button>
               </form>
             </Form>
@@ -210,7 +207,7 @@ export default function ResetPasswordPage() {
                 href="/login"
                 className="text-muted-foreground hover:text-primary text-sm"
               >
-                Retour à la connexion
+                {t('backToLogin')}
               </Link>
             </div>
           </CardContent>

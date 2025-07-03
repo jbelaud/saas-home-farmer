@@ -634,6 +634,46 @@
       },
       "submit": "Send registration link",
       "submitting": "Sending..."
+    },
+    "ResetPasswordPage": {
+      "title": "Password Reset",
+      "metadata": {
+        "title": "Password Reset - Next SaaS Boilerplate",
+        "description": "Reset your password"
+      }
+    },
+    "ResetPasswordForm": {
+      "requestTitle": "Password Reset",
+      "requestDescription": "Enter your email to receive a reset link",
+      "resetTitle": "New Password",
+      "resetDescription": "Enter your new password",
+      "email": {
+        "label": "Email",
+        "placeholder": "example@email.com"
+      },
+      "password": {
+        "label": "New password"
+      },
+      "confirmPassword": {
+        "label": "Confirm password"
+      },
+      "sendLink": "Send reset link",
+      "sendingLink": "Sending...",
+      "resetPassword": "Reset password",
+      "resetting": "Resetting...",
+      "backToLogin": "Back to login",
+      "emailSent": "Reset email sent",
+      "passwordResetSuccess": "Password reset successfully",
+      "errorOccurred": "An error occurred",
+      "terms": "By continuing, you agree to our",
+      "termsLink": "Terms of Service",
+      "and": "and our",
+      "privacyLink": "Privacy Policy",
+      "validation": {
+        "passwordMin": "Password must be at least 8 characters",
+        "passwordMax": "Password must not exceed 100 characters",
+        "passwordsMismatch": "Passwords do not match"
+      }
     }
   },
   "email": {
