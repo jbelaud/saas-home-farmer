@@ -100,7 +100,7 @@ export async function updateUserAction(
   const userData: UpdateUser = {
     id: formData.get('id') as string,
     name: formData.get('name') as string,
-    email: '', //formData.get('email') as string,
+    email: formData.get('email') as string,
     image: formData.get('image') as string,
     visibility: formData.get('visibility') as 'public' | 'private',
   }

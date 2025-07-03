@@ -6,23 +6,28 @@ import {
   themeSchema,
 } from '@/services/validation/user-validation'
 
+export const userFormSchema = z.object({
+  id: z.string().uuid('Invalid UUID').optional(),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  image: z.string().url('Invalid URL').optional().or(z.literal('')),
+  visibility: z.enum(['public', 'private']),
+})
+
 export function createUserFormSchema(t: (key: string) => string) {
-  return z.object({
+  return userFormSchema.extend({
     id: z.string().uuid(t(`validation.uuid.invalid`)).optional(),
     name: z.string().min(2, t(`validation.name.min`)),
     email: z.string().email(t(`validation.email.invalid`)),
-    image: z.string(),
+    image: z
+      .string()
+      .url(t(`validation.image.invalid`))
+      .optional()
+      .or(z.literal('')),
     visibility: z.enum(['public', 'private']),
   })
 }
 
-export const userFormSchema = z.object({
-  id: z.string().uuid().optional(),
-  name: z.string().min(2),
-  email: z.string().email(),
-  image: z.string(), //.url('Invalid URL').optional().or(z.literal('')),
-  visibility: z.enum(['public', 'private']),
-})
 export type UserFormSchemaType = z.infer<typeof userFormSchema>
 
 export const settingsFormSchema = z.object({
