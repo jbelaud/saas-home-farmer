@@ -3,6 +3,7 @@ import {zodResolver} from '@hookform/resolvers/zod'
 import {AlertCircle, Mail} from 'lucide-react'
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import Link from 'next/link'
+import {useTranslations} from 'next-intl'
 import React, {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -57,15 +58,13 @@ export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const t = useTranslations('Auth.RegisterForm')
+  const tMessages = useTranslations('Auth.messages')
+
   const [showForm, setShowForm] = useState(false)
   const [isMagicLink, setIsMagicLink] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
-
-  // eslint-disable-next-line promise/catch-or-return, promise/always-return
-  authClient.listSessions().then((res) => {
-    console.log('listSessions', res)
-  })
 
   const form = useForm<FormValues>({
     resolver: zodResolver(authRegisterFormSchema),
@@ -107,12 +106,9 @@ export function RegisterForm({
 
       if (result && !result?.success) {
         // Afficher le message d'erreur général
-        setFormError(
-          result.message || "Une erreur est survenue lors de l'inscription"
-        )
-        toast.error('Erreur', {
-          description:
-            result.message || "Une erreur est survenue lors de l'inscription",
+        setFormError(result.message || t('form.generalError'))
+        toast.error(tMessages('error'), {
+          description: result.message || t('form.generalError'),
         })
 
         // Gérer les erreurs par champs
@@ -130,9 +126,9 @@ export function RegisterForm({
         throw error
       }
 
-      const errorMessage = "Une erreur est survenue lors de l'inscription"
+      const errorMessage = t('form.generalError')
       setFormError(errorMessage)
-      toast.error('Erreur', {
+      toast.error(tMessages('error'), {
         description: errorMessage,
       })
     } finally {
@@ -144,11 +140,9 @@ export function RegisterForm({
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Créer un compte</CardTitle>
+          <CardTitle className="text-xl">{t('title')}</CardTitle>
           <CardDescription>
-            {showForm
-              ? 'Inscrivez-vous pour accéder à votre espace personnel'
-              : "Choisissez votre méthode d'inscription"}
+            {showForm ? t('description') : t('descriptionChoose')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -164,7 +158,7 @@ export function RegisterForm({
                   fill="currentColor"
                 />
               </svg>
-              S&apos;inscrire avec Apple
+              {t('providers.apple')}
             </Button>
 
             <Button
@@ -178,7 +172,7 @@ export function RegisterForm({
                   fill="currentColor"
                 />
               </svg>
-              S&apos;inscrire avec Google
+              {t('providers.google')}
             </Button>
 
             <Button
@@ -187,12 +181,12 @@ export function RegisterForm({
               onClick={() => setIsMagicLink(true)}
             >
               <Mail className="mr-2 h-4 w-4" />
-              S&apos;inscrire avec Magic Link
+              {t('providers.magicLink')}
             </Button>
 
             <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
               <span className="bg-background text-muted-foreground relative z-10 px-2">
-                Ou
+                {t('or')}
               </span>
             </div>
 
@@ -205,7 +199,7 @@ export function RegisterForm({
                     className="text-sm"
                     onClick={() => setIsMagicLink(false)}
                   >
-                    Retour aux options d&apos;inscription
+                    {t('backToOptions')}
                   </Button>
                 </div>
               </div>
@@ -215,7 +209,7 @@ export function RegisterForm({
                 className="w-full"
                 onClick={() => setShowForm(true)}
               >
-                Créer un compte avec email
+                {t('createWithEmail')}
               </Button>
             ) : (
               <Form {...form}>
@@ -235,9 +229,12 @@ export function RegisterForm({
                     name="name"
                     render={({field}) => (
                       <FormItem>
-                        <FormLabel>Nom complet</FormLabel>
+                        <FormLabel>{t('form.fullName.label')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Jean Dupont" {...field} />
+                          <Input
+                            placeholder={t('form.fullName.placeholder')}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -249,11 +246,11 @@ export function RegisterForm({
                     name="email"
                     render={({field}) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>{t('form.email.label')}</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="jean@example.com"
+                            placeholder={t('form.email.placeholder')}
                             {...field}
                           />
                         </FormControl>
@@ -267,7 +264,7 @@ export function RegisterForm({
                     name="password"
                     render={({field}) => (
                       <FormItem>
-                        <FormLabel>Mot de passe</FormLabel>
+                        <FormLabel>{t('form.password.label')}</FormLabel>
                         <FormControl>
                           <Input type="password" {...field} />
                         </FormControl>
@@ -281,7 +278,7 @@ export function RegisterForm({
                     name="confirmPassword"
                     render={({field}) => (
                       <FormItem>
-                        <FormLabel>Confirmer le mot de passe</FormLabel>
+                        <FormLabel>{t('form.confirmPassword.label')}</FormLabel>
                         <FormControl>
                           <Input type="password" {...field} />
                         </FormControl>
@@ -295,16 +292,16 @@ export function RegisterForm({
                     className="w-full"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Inscription en cours...' : "S'inscrire"}
+                    {isSubmitting ? t('form.submitting') : t('form.submit')}
                   </Button>
 
                   <div className="text-center text-sm">
-                    Vous avez déjà un compte?{' '}
+                    {t('alreadyAccount')}{' '}
                     <Link
                       href="/login"
                       className="underline underline-offset-4"
                     >
-                      Se connecter
+                      {t('loginLink')}
                     </Link>
                   </div>
                 </form>
@@ -314,9 +311,8 @@ export function RegisterForm({
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        En vous inscrivant, vous acceptez nos{' '}
-        <Link href="/terms">Conditions d&apos;utilisation</Link> et notre{' '}
-        <Link href="/privacy">Politique de confidentialité</Link>.
+        {t('terms')} <Link href="/terms">{t('termsLink')}</Link> {t('and')}{' '}
+        <Link href="/privacy">{t('privacyLink')}</Link>.
       </div>
     </div>
   )

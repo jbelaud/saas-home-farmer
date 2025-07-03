@@ -581,6 +581,59 @@
       "loggingOut": "Logging out...",
       "backToDashboard": "Have an account?",
       "dashboardLink": "Dashboard"
+    },
+    "RegisterPage": {
+      "title": "Register",
+      "metadata": {
+        "title": "Register - Next SaaS Boilerplate",
+        "description": "Create your account"
+      }
+    },
+    "RegisterForm": {
+      "title": "Create an account",
+      "description": "Sign up to access your personal space",
+      "descriptionChoose": "Choose your registration method",
+      "providers": {
+        "apple": "Sign up with Apple",
+        "google": "Sign up with Google",
+        "magicLink": "Sign up with Magic Link"
+      },
+      "or": "Or",
+      "createWithEmail": "Create account with email",
+      "backToOptions": "Back to registration options",
+      "form": {
+        "fullName": {
+          "label": "Full name",
+          "placeholder": "John Doe"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "john@example.com"
+        },
+        "password": {
+          "label": "Password"
+        },
+        "confirmPassword": {
+          "label": "Confirm password"
+        },
+        "submit": "Sign up",
+        "submitting": "Signing up...",
+        "generalError": "An error occurred during registration"
+      },
+      "alreadyAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "terms": "By signing up, you agree to our",
+      "termsLink": "Terms of Service",
+      "and": "and our",
+      "privacyLink": "Privacy Policy"
+    },
+    "RegisterMagicLinkForm": {
+      "email": {
+        "label": "Email",
+        "placeholder": "john@example.com"
+      },
+      "submit": "Send registration link",
+      "submitting": "Sending..."
     }
   },
   "email": {

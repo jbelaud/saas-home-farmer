@@ -1,4 +1,5 @@
 'use client'
+import {useTranslations} from 'next-intl'
 import React from 'react'
 import {useActionState} from 'react'
 import {useFormStatus} from 'react-dom'
@@ -20,6 +21,8 @@ type MagicLinkFormState = {
 }
 
 export function RegisterMagicLinkForm() {
+  const t = useTranslations('Auth.RegisterMagicLinkForm')
+
   const [state, formAction] = useActionState<MagicLinkFormState, FormData>(
     registerMagicLinkAction,
     {
@@ -47,12 +50,12 @@ export function RegisterMagicLinkForm() {
       {success && <div className="mb-4 text-sm text-green-500">{success}</div>}
       <div className="grid gap-6">
         <div className="grid gap-3">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t('email.label')}</Label>
           <Input
             id="email"
             name="email"
             type="email"
-            placeholder="jean@example.com"
+            placeholder={t('email.placeholder')}
             required
             className={emailError ? 'border-red-500' : ''}
           />
@@ -67,11 +70,12 @@ export function RegisterMagicLinkForm() {
 }
 
 function SubmitButton() {
+  const t = useTranslations('Auth.RegisterMagicLinkForm')
   const {pending} = useFormStatus()
 
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Envoi en cours...' : "Envoyer le lien d'inscription"}
+      {pending ? t('submitting') : t('submit')}
     </Button>
   )
 }

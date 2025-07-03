@@ -1,10 +1,33 @@
 import {GalleryVerticalEnd} from 'lucide-react'
+import {getTranslations, setRequestLocale} from 'next-intl/server'
 import React from 'react'
 
 import {RegisterForm} from '@/components/features/auth/forms/register-form'
 import {APP_NAME} from '@/lib/constants'
 
-export default function RegisterPage() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+  const t = await getTranslations({locale, namespace: 'Auth.RegisterPage'})
+
+  return {
+    title: t('metadata.title'),
+    description: t('metadata.description'),
+  }
+}
+
+export default async function RegisterPage({
+  params,
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params
+  setRequestLocale(locale)
+
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">

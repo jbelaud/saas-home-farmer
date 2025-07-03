@@ -581,6 +581,59 @@
       "loggingOut": "Cerrando sesión...",
       "backToDashboard": "¿Tienes una cuenta?",
       "dashboardLink": "Panel de Control"
+    },
+    "RegisterPage": {
+      "title": "Registrarse",
+      "metadata": {
+        "title": "Registrarse - Next SaaS Boilerplate",
+        "description": "Crea tu cuenta"
+      }
+    },
+    "RegisterForm": {
+      "title": "Crear una cuenta",
+      "description": "Regístrate para acceder a tu espacio personal",
+      "descriptionChoose": "Elige tu método de registro",
+      "providers": {
+        "apple": "Registrarse con Apple",
+        "google": "Registrarse con Google",
+        "magicLink": "Registrarse con enlace mágico"
+      },
+      "or": "O",
+      "createWithEmail": "Crear cuenta con email",
+      "backToOptions": "Volver a las opciones de registro",
+      "form": {
+        "fullName": {
+          "label": "Nombre completo",
+          "placeholder": "Juan Pérez"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "juan@example.com"
+        },
+        "password": {
+          "label": "Contraseña"
+        },
+        "confirmPassword": {
+          "label": "Confirmar contraseña"
+        },
+        "submit": "Registrarse",
+        "submitting": "Registrando...",
+        "generalError": "Ocurrió un error durante el registro"
+      },
+      "alreadyAccount": "¿Ya tienes una cuenta?",
+      "loginLink": "Iniciar sesión",
+      "terms": "Al registrarte, aceptas nuestros",
+      "termsLink": "Términos de Servicio",
+      "and": "y nuestra",
+      "privacyLink": "Política de Privacidad"
+    },
+    "RegisterMagicLinkForm": {
+      "email": {
+        "label": "Email",
+        "placeholder": "juan@example.com"
+      },
+      "submit": "Enviar enlace de registro",
+      "submitting": "Enviando..."
     }
   },
   "email": {
