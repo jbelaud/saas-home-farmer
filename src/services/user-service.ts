@@ -150,7 +150,7 @@ export const createOrganizationForUserService = async (email: string) => {
 
   // Créer les données de l'organisation basées sur l'email de l'utilisateur
   const organizationData: CreateOrganization = {
-    name: `${user.name} organization`,
+    name: `${user.name || user.email.split('@')[0]} organization`,
     slug,
     description: `Organization for ${user.email}`,
   }

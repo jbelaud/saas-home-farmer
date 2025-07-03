@@ -29,12 +29,21 @@ export function RegisterMagicLinkForm() {
     }
   )
 
-  const error = state && !state.success ? state.message : null
+  // Gestion des erreurs : message général + erreurs par champ
+  const generalError =
+    state && !state.success && !state.errors?.length ? state.message : null
   const success = state?.success ? state.message : null
+
+  // Trouver l'erreur spécifique pour le champ email
+  const emailError = state?.errors?.find(
+    (error) => error.field === 'email'
+  )?.message
 
   return (
     <form action={formAction}>
-      {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
+      {generalError && (
+        <div className="mb-4 text-sm text-red-500">{generalError}</div>
+      )}
       {success && <div className="mb-4 text-sm text-green-500">{success}</div>}
       <div className="grid gap-6">
         <div className="grid gap-3">
@@ -45,7 +54,11 @@ export function RegisterMagicLinkForm() {
             type="email"
             placeholder="jean@example.com"
             required
+            className={emailError ? 'border-red-500' : ''}
           />
+          {emailError && (
+            <div className="text-sm text-red-500">{emailError}</div>
+          )}
         </div>
         <SubmitButton />
       </div>
