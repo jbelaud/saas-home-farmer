@@ -44,6 +44,9 @@ export const betterAuthPlans: StripePlan[] = [
   },
 ]
 
+// Pour le dev, on met 3 seats pour le free plan pour test
+export const freePlanSeats = process.env.NODE_ENV === 'development' ? 3 : 1
+
 // A fake plan with free limit
 export const freeStripePlan: StripePlan = {
   name: 'free',

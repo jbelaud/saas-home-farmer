@@ -2,6 +2,7 @@
 
 import {Plus} from 'lucide-react'
 import * as React from 'react'
+import {toast} from 'sonner'
 
 import {useOrganization} from '@/components/context/organizarion-provider'
 import {
@@ -37,6 +38,10 @@ export function TeamSwitcher({
   // Trouver l'équipe active basée sur l'organisation courante du contexte
   const activeTeam =
     teams.find((team) => team.id === currentOrganization?.id) || undefined
+
+  const handleCreateOrganization = () => {
+    toast.error('Entreprise plan only')
+  }
 
   return (
     <SidebarMenu>
@@ -89,7 +94,10 @@ export function TeamSwitcher({
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
+            <DropdownMenuItem
+              className="gap-2 p-2"
+              onClick={() => handleCreateOrganization()}
+            >
               <div className="bg-background flex size-6 items-center justify-center rounded-md border">
                 <Plus className="size-4" />
               </div>

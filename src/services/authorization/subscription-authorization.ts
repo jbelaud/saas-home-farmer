@@ -1,7 +1,7 @@
 import {logger} from 'better-auth'
 
 import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
-import {freeStripePlan} from '@/lib/stripe/stripe-plans'
+import {freePlanSeats, freeStripePlan} from '@/lib/stripe/stripe-plans'
 
 import {
   getActiveSubscriptions,
@@ -100,9 +100,9 @@ export const checkSubscriptionLimit = async (
       priceId: freeStripePlan.priceId,
       plan: freeStripePlan.name,
       status: 'active',
-      seats: 1,
-      stripeCustomerId: 'free',
-      stripeSubscriptionId: 'free',
+      seats: freePlanSeats,
+      stripeCustomerId: PlanConst.FREE,
+      stripeSubscriptionId: PlanConst.FREE,
     })
   }
   if (subscription.length > 1) {
