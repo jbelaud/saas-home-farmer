@@ -1,6 +1,7 @@
 'use client'
 
 import {zodResolver} from '@hookform/resolvers/zod'
+import {useTranslations} from 'next-intl'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -31,6 +32,7 @@ import {changePasswordFormSchema} from './user-form-validation'
 type FormValues = z.infer<typeof changePasswordFormSchema>
 
 export function ChangePasswordForm() {
+  const t = useTranslations('AccountPage.UserSecuritySection.changePassword')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showModal, setShowModal] = useState(false)
 
@@ -56,7 +58,7 @@ export function ChangePasswordForm() {
     setIsSubmitting(false)
 
     if (result.success) {
-      toast('Succès', {
+      toast(t('success'), {
         description: result.message,
       })
 
@@ -70,7 +72,7 @@ export function ChangePasswordForm() {
           message: error.message,
         })
       }
-      toast('Erreur', {
+      toast(t('error'), {
         description: result.message,
       })
     }
@@ -84,21 +86,19 @@ export function ChangePasswordForm() {
   return (
     <>
       <div className="space-y-4">
-        <h4 className="text-sm font-medium">Changement de mot de passe</h4>
+        <h4 className="text-sm font-medium">{t('title')}</h4>
 
         <div className="flex items-center justify-between rounded-lg border p-4">
           <div className="space-y-0.5">
-            <p className="text-sm font-medium">Sécurité du mot de passe</p>
-            <p className="text-muted-foreground text-sm">
-              Changez votre mot de passe pour sécuriser votre compte
-            </p>
+            <p className="text-sm font-medium">{t('title')}</p>
+            <p className="text-muted-foreground text-sm">{t('description')}</p>
           </div>
           <Button
             variant="outline"
             onClick={() => setShowModal(true)}
             disabled={isSubmitting}
           >
-            Changer le mot de passe
+            {t('submit')}
           </Button>
         </div>
       </div>
@@ -107,11 +107,8 @@ export function ChangePasswordForm() {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Changer le mot de passe</DialogTitle>
-            <DialogDescription>
-              Pour changer votre mot de passe, veuillez saisir votre mot de
-              passe actuel et votre nouveau mot de passe.
-            </DialogDescription>
+            <DialogTitle>{t('title')}</DialogTitle>
+            <DialogDescription>{t('description')}</DialogDescription>
           </DialogHeader>
 
           <Form {...form}>
@@ -121,11 +118,11 @@ export function ChangePasswordForm() {
                 name="currentPassword"
                 render={({field}) => (
                   <FormItem>
-                    <FormLabel>Mot de passe actuel</FormLabel>
+                    <FormLabel>{t('currentPassword')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Entrez votre mot de passe actuel"
+                        placeholder={t('currentPassword')}
                         {...field}
                       />
                     </FormControl>
@@ -139,11 +136,11 @@ export function ChangePasswordForm() {
                 name="newPassword"
                 render={({field}) => (
                   <FormItem>
-                    <FormLabel>Nouveau mot de passe</FormLabel>
+                    <FormLabel>{t('newPassword')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Entrez votre nouveau mot de passe"
+                        placeholder={t('newPassword')}
                         {...field}
                       />
                     </FormControl>
@@ -157,11 +154,11 @@ export function ChangePasswordForm() {
                 name="confirmPassword"
                 render={({field}) => (
                   <FormItem>
-                    <FormLabel>Confirmer le nouveau mot de passe</FormLabel>
+                    <FormLabel>{t('confirmPassword')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Confirmez votre nouveau mot de passe"
+                        placeholder={t('confirmPassword')}
                         {...field}
                       />
                     </FormControl>
@@ -175,9 +172,7 @@ export function ChangePasswordForm() {
                   Annuler
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting
-                    ? 'Changement en cours...'
-                    : 'Changer le mot de passe'}
+                  {isSubmitting ? t('updating') : t('submit')}
                 </Button>
               </DialogFooter>
             </form>

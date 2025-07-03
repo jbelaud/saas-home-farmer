@@ -1,3 +1,5 @@
+import {useTranslations} from 'next-intl'
+
 import {AuthClientAppConfig} from '@/lib/better-auth/auth-client'
 import {User} from '@/services/types/domain/user-types'
 
@@ -7,14 +9,14 @@ import {ListTokensSection} from './list-tokens-section'
 import {TwoFactorForm} from './two-factor-form'
 
 export function UserSecurityFactorSection({user}: {user: User}) {
+  const t = useTranslations('AccountPage')
+
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Sécurité</h3>
+        <h3 className="text-lg font-medium">{t('security.title')}</h3>
         <p className="text-muted-foreground text-sm">
-          Gérez les paramètres de sécurité de votre compte, y compris
-          l&apos;authentification à deux facteurs, le changement de mot de passe
-          et d&apos;email.
+          {t('security.description')}
         </p>
       </div>
 

@@ -184,5 +184,196 @@
     "billing": "Billing",
     "notifications": "Notifications",
     "logout": "Log out"
+  },
+  "AccountPage": {
+    "title": "My Account",
+    "profile": {
+      "title": "Profile",
+      "description": "Manage your personal information"
+    },
+    "security": {
+      "title": "Security",
+      "description": "Manage your account security settings, including two-factor authentication, password and email changes."
+    },
+    "EditUserProfileForm": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Your name"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Your email"
+      },
+      "visibility": {
+        "label": "Profile Visibility",
+        "placeholder": "Select visibility",
+        "public": "Public",
+        "private": "Private"
+      },
+      "upload": {
+        "inProgress": "Upload in progress...",
+        "success": "Image uploaded successfully",
+        "error": "Upload error",
+        "errorRetry": "Unable to upload image. Please try again."
+      },
+      "form": {
+        "save": "Save",
+        "updating": "Updating...",
+        "success": "Success",
+        "error": "Error",
+        "undo": "Undo",
+        "ok": "OK"
+      }
+    },
+    "UserSecuritySection": {
+      "changePassword": {
+        "title": "Change Password",
+        "description": "Update your password to secure your account",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "submit": "Change Password",
+        "updating": "Updating...",
+        "success": "Password updated successfully",
+        "error": "Error changing password"
+      },
+      "changeEmail": {
+        "title": "Change Email Address",
+        "description": "Update your primary email address",
+        "currentEmail": "Current Email",
+        "newEmail": "New Email",
+        "submit": "Change Email",
+        "updating": "Updating...",
+        "success": "Email updated successfully",
+        "error": "Error changing email"
+      },
+      "twoFactor": {
+        "title": "Two-Factor Authentication",
+        "description": "Add an extra layer of security to your account",
+        "enable": "Enable 2FA",
+        "disable": "Disable 2FA",
+        "status": {
+          "enabled": "Two-factor authentication enabled",
+          "disabled": "Two-factor authentication disabled"
+        },
+        "typeSelection": {
+          "title": "Authentication Type",
+          "description": "Choose your preferred method for two-factor authentication",
+          "totp": "TOTP",
+          "otp": "OTP",
+          "updating": "Updating...",
+          "help": "TOTP: Authentication app (Google Auth, Authy) | OTP: Codes sent by email",
+          "error": "You must first enable two-factor authentication",
+          "successTotp": "2FA type changed to TOTP",
+          "successOtp": "2FA type changed to OTP"
+        },
+        "modal": {
+          "enableTitle": "Enable Two-Factor Authentication",
+          "disableTitle": "Disable Two-Factor Authentication",
+          "enableDescription": "To enable two-factor authentication, please confirm your password.",
+          "disableDescription": "To disable two-factor authentication, please confirm your password.",
+          "password": "Password",
+          "passwordPlaceholder": "Enter your password",
+          "cancel": "Cancel",
+          "enable": "Enable 2FA",
+          "disable": "Disable 2FA",
+          "processing": "Processing..."
+        },
+        "setup": {
+          "title": "2FA Setup Successful",
+          "description": "Your two-factor authentication has been enabled. Scan the QR code and note your backup codes.",
+          "qrCode": "QR Code",
+          "qrDescription": "Scan this QR code with your authentication app (Google Authenticator, Authy, etc.)",
+          "backupCodes": "Backup Codes",
+          "backupDescription": "Keep these codes safe. They will allow you to access your account if you lose your device.",
+          "totpUri": "TOTP URI (optional)",
+          "totpDescription": "If the QR code doesn't work, you can use this URI manually:",
+          "validate": "Validate Configuration",
+          "configured": "I've configured my app"
+        },
+        "validation": {
+          "title": "Validate 2FA Configuration",
+          "description": "Enter the first backup code to validate that your authentication app works correctly.",
+          "codeLabel": "Validation Code",
+          "codePlaceholder": "Enter the first backup code",
+          "codeHelper": "Use the first code from the list:",
+          "cancel": "Cancel",
+          "validate": "Validate",
+          "validating": "Validating...",
+          "error": "Please enter a validation code",
+          "errorGeneral": "Error validating the code."
+        },
+        "success": "Success",
+        "error": "Error"
+      },
+      "sessions": {
+        "title": "Active Sessions",
+        "description": "Manage your login sessions",
+        "current": "Current Session",
+        "revoke": "Revoke",
+        "revokeAll": "Revoke All Other Sessions"
+      }
+    }
+  },
+  "AccountSettingsPage": {
+    "title": "Settings",
+    "settings": {
+      "title": "Settings",
+      "description": "Configure your application preferences"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "theme": {
+        "label": "Theme",
+        "placeholder": "Select a theme",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "language": {
+        "label": "Language",
+        "placeholder": "Select a language",
+        "fr": "Français",
+        "en": "English",
+        "es": "Español",
+        "de": "Deutsch"
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "channel": {
+        "label": "Notification channel",
+        "placeholder": "Select a channel",
+        "email": "Email only",
+        "push": "Push notifications only",
+        "both": "Both",
+        "none": "No notifications"
+      },
+      "emailNotifications": {
+        "title": "Email notifications",
+        "description": "Receive important notifications via email"
+      },
+      "pushNotifications": {
+        "title": "Push notifications",
+        "description": "Receive real-time notifications"
+      },
+      "emailDigest": {
+        "title": "Daily email digest",
+        "description": "Receive a daily summary of your activities"
+      }
+    },
+    "marketing": {
+      "title": "Marketing",
+      "marketingEmails": {
+        "title": "Marketing emails",
+        "description": "Receive special offers and updates"
+      }
+    },
+    "form": {
+      "updating": "Updating...",
+      "updateSettings": "Update settings",
+      "success": "Success",
+      "error": "Error"
+    }
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import {zodResolver} from '@hookform/resolvers/zod'
+import {useTranslations} from 'next-intl'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -44,6 +45,7 @@ const settingsFormSchema = z.object({
 type FormValues = z.infer<typeof settingsFormSchema>
 
 export function EditUserSettingsForm({user}: {user: User}) {
+  const t = useTranslations('AccountSettingsPage')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<FormValues>({
@@ -74,7 +76,7 @@ export function EditUserSettingsForm({user}: {user: User}) {
     setIsSubmitting(false)
 
     if (result.success) {
-      toast('Succès', {
+      toast(t('form.success'), {
         description: result.message,
       })
     } else {
@@ -84,7 +86,7 @@ export function EditUserSettingsForm({user}: {user: User}) {
           message: error.message,
         })
       }
-      toast('Erreur', {
+      toast(t('form.error'), {
         description: result.message,
       })
     }
@@ -95,26 +97,34 @@ export function EditUserSettingsForm({user}: {user: User}) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         {/* Apparence */}
         <div className="space-y-4">
-          <h4 className="text-sm font-medium">Apparence</h4>
+          <h4 className="text-sm font-medium">{t('appearance.title')}</h4>
           <FormField
             control={form.control}
             name="theme"
             render={({field}) => (
               <FormItem>
-                <FormLabel>Thème</FormLabel>
+                <FormLabel>{t('appearance.theme.label')}</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un thème" />
+                      <SelectValue
+                        placeholder={t('appearance.theme.placeholder')}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="light">Clair</SelectItem>
-                    <SelectItem value="dark">Sombre</SelectItem>
-                    <SelectItem value="system">Système</SelectItem>
+                    <SelectItem value="light">
+                      {t('appearance.theme.light')}
+                    </SelectItem>
+                    <SelectItem value="dark">
+                      {t('appearance.theme.dark')}
+                    </SelectItem>
+                    <SelectItem value="system">
+                      {t('appearance.theme.system')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -127,21 +137,31 @@ export function EditUserSettingsForm({user}: {user: User}) {
             name="language"
             render={({field}) => (
               <FormItem>
-                <FormLabel>Langue</FormLabel>
+                <FormLabel>{t('appearance.language.label')}</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner une langue" />
+                      <SelectValue
+                        placeholder={t('appearance.language.placeholder')}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Español</SelectItem>
-                    <SelectItem value="de">Deutsch</SelectItem>
+                    <SelectItem value="fr">
+                      {t('appearance.language.fr')}
+                    </SelectItem>
+                    <SelectItem value="en">
+                      {t('appearance.language.en')}
+                    </SelectItem>
+                    <SelectItem value="es">
+                      {t('appearance.language.es')}
+                    </SelectItem>
+                    <SelectItem value="de">
+                      {t('appearance.language.de')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -152,29 +172,37 @@ export function EditUserSettingsForm({user}: {user: User}) {
 
         {/* Notifications */}
         <div className="space-y-4">
-          <h4 className="text-sm font-medium">Notifications</h4>
+          <h4 className="text-sm font-medium">{t('notifications.title')}</h4>
           <FormField
             control={form.control}
             name="notificationChannel"
             render={({field}) => (
               <FormItem>
-                <FormLabel>Canal de notification</FormLabel>
+                <FormLabel>{t('notifications.channel.label')}</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un canal" />
+                      <SelectValue
+                        placeholder={t('notifications.channel.placeholder')}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="email">Email uniquement</SelectItem>
-                    <SelectItem value="push">
-                      Notifications push uniquement
+                    <SelectItem value="email">
+                      {t('notifications.channel.email')}
                     </SelectItem>
-                    <SelectItem value="both">Les deux</SelectItem>
-                    <SelectItem value="none">Aucune notification</SelectItem>
+                    <SelectItem value="push">
+                      {t('notifications.channel.push')}
+                    </SelectItem>
+                    <SelectItem value="both">
+                      {t('notifications.channel.both')}
+                    </SelectItem>
+                    <SelectItem value="none">
+                      {t('notifications.channel.none')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -189,10 +217,10 @@ export function EditUserSettingsForm({user}: {user: User}) {
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">
-                    Notifications par email
+                    {t('notifications.emailNotifications.title')}
                   </FormLabel>
                   <FormDescription>
-                    Recevez des notifications importantes par email
+                    {t('notifications.emailNotifications.description')}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -212,10 +240,10 @@ export function EditUserSettingsForm({user}: {user: User}) {
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">
-                    Notifications push
+                    {t('notifications.pushNotifications.title')}
                   </FormLabel>
                   <FormDescription>
-                    Recevez des notifications en temps réel
+                    {t('notifications.pushNotifications.description')}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -235,10 +263,10 @@ export function EditUserSettingsForm({user}: {user: User}) {
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">
-                    Résumé quotidien par email
+                    {t('notifications.emailDigest.title')}
                   </FormLabel>
                   <FormDescription>
-                    Recevez un résumé quotidien de vos activités
+                    {t('notifications.emailDigest.description')}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -254,16 +282,18 @@ export function EditUserSettingsForm({user}: {user: User}) {
 
         {/* Marketing */}
         <div className="space-y-4">
-          <h4 className="text-sm font-medium">Marketing</h4>
+          <h4 className="text-sm font-medium">{t('marketing.title')}</h4>
           <FormField
             control={form.control}
             name="marketingEmails"
             render={({field}) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">Emails marketing</FormLabel>
+                  <FormLabel className="text-base">
+                    {t('marketing.marketingEmails.title')}
+                  </FormLabel>
                   <FormDescription>
-                    Recevez des offres spéciales et des mises à jour
+                    {t('marketing.marketingEmails.description')}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -278,7 +308,7 @@ export function EditUserSettingsForm({user}: {user: User}) {
         </div>
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Mise à jour...' : 'Mettre à jour les paramètres'}
+          {isSubmitting ? t('form.updating') : t('form.updateSettings')}
         </Button>
       </form>
     </Form>

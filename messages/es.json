@@ -184,5 +184,196 @@
     "billing": "Facturación",
     "notifications": "Notificaciones",
     "logout": "Cerrar sesión"
+  },
+  "AccountPage": {
+    "title": "Mi Cuenta",
+    "profile": {
+      "title": "Perfil",
+      "description": "Gestiona tu información personal"
+    },
+    "security": {
+      "title": "Seguridad",
+      "description": "Gestiona la configuración de seguridad de tu cuenta, incluyendo autenticación de dos factores, cambio de contraseña y email."
+    },
+    "EditUserProfileForm": {
+      "name": {
+        "label": "Nombre",
+        "placeholder": "Tu nombre"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Tu email"
+      },
+      "visibility": {
+        "label": "Visibilidad del perfil",
+        "placeholder": "Seleccionar visibilidad",
+        "public": "Público",
+        "private": "Privado"
+      },
+      "upload": {
+        "inProgress": "Subida en progreso...",
+        "success": "Imagen subida exitosamente",
+        "error": "Error en la subida",
+        "errorRetry": "No se pudo subir la imagen. Por favor intenta de nuevo."
+      },
+      "form": {
+        "save": "Guardar",
+        "updating": "Actualizando...",
+        "success": "Éxito",
+        "error": "Error",
+        "undo": "Deshacer",
+        "ok": "OK"
+      }
+    },
+    "UserSecuritySection": {
+      "changePassword": {
+        "title": "Cambiar Contraseña",
+        "description": "Actualiza tu contraseña para asegurar tu cuenta",
+        "currentPassword": "Contraseña Actual",
+        "newPassword": "Nueva Contraseña",
+        "confirmPassword": "Confirmar Contraseña",
+        "submit": "Cambiar Contraseña",
+        "updating": "Actualizando...",
+        "success": "Contraseña actualizada exitosamente",
+        "error": "Error al cambiar la contraseña"
+      },
+      "changeEmail": {
+        "title": "Cambiar Dirección de Email",
+        "description": "Actualiza tu dirección de email principal",
+        "currentEmail": "Email Actual",
+        "newEmail": "Nuevo Email",
+        "submit": "Cambiar Email",
+        "updating": "Actualizando...",
+        "success": "Email actualizado exitosamente",
+        "error": "Error al cambiar el email"
+      },
+      "twoFactor": {
+        "title": "Autenticación de Dos Factores",
+        "description": "Añade una capa extra de seguridad a tu cuenta",
+        "enable": "Activar 2FA",
+        "disable": "Desactivar 2FA",
+        "status": {
+          "enabled": "Autenticación de dos factores activada",
+          "disabled": "Autenticación de dos factores desactivada"
+        },
+        "typeSelection": {
+          "title": "Tipo de Autenticación",
+          "description": "Elige tu método preferido para la autenticación de dos factores",
+          "totp": "TOTP",
+          "otp": "OTP",
+          "updating": "Actualizando...",
+          "help": "TOTP: App de autenticación (Google Auth, Authy) | OTP: Códigos enviados por email",
+          "error": "Primero debes activar la autenticación de dos factores",
+          "successTotp": "Tipo de 2FA cambiado a TOTP",
+          "successOtp": "Tipo de 2FA cambiado a OTP"
+        },
+        "modal": {
+          "enableTitle": "Activar Autenticación de Dos Factores",
+          "disableTitle": "Desactivar Autenticación de Dos Factores",
+          "enableDescription": "Para activar la autenticación de dos factores, por favor confirma tu contraseña.",
+          "disableDescription": "Para desactivar la autenticación de dos factores, por favor confirma tu contraseña.",
+          "password": "Contraseña",
+          "passwordPlaceholder": "Ingresa tu contraseña",
+          "cancel": "Cancelar",
+          "enable": "Activar 2FA",
+          "disable": "Desactivar 2FA",
+          "processing": "Procesando..."
+        },
+        "setup": {
+          "title": "Configuración 2FA Exitosa",
+          "description": "Tu autenticación de dos factores ha sido activada. Escanea el código QR y anota tus códigos de respaldo.",
+          "qrCode": "Código QR",
+          "qrDescription": "Escanea este código QR con tu app de autenticación (Google Authenticator, Authy, etc.)",
+          "backupCodes": "Códigos de Respaldo",
+          "backupDescription": "Mantén estos códigos seguros. Te permitirán acceder a tu cuenta si pierdes tu dispositivo.",
+          "totpUri": "URI TOTP (opcional)",
+          "totpDescription": "Si el código QR no funciona, puedes usar esta URI manualmente:",
+          "validate": "Validar Configuración",
+          "configured": "He configurado mi aplicación"
+        },
+        "validation": {
+          "title": "Validar Configuración 2FA",
+          "description": "Ingresa el primer código de respaldo para validar que tu app de autenticación funciona correctamente.",
+          "codeLabel": "Código de Validación",
+          "codePlaceholder": "Ingresa el primer código de respaldo",
+          "codeHelper": "Usa el primer código de la lista:",
+          "cancel": "Cancelar",
+          "validate": "Validar",
+          "validating": "Validando...",
+          "error": "Por favor ingresa un código de validación",
+          "errorGeneral": "Error al validar el código."
+        },
+        "success": "Éxito",
+        "error": "Error"
+      },
+      "sessions": {
+        "title": "Sesiones Activas",
+        "description": "Gestiona tus sesiones de inicio de sesión",
+        "current": "Sesión Actual",
+        "revoke": "Revocar",
+        "revokeAll": "Revocar Todas las Otras Sesiones"
+      }
+    }
+  },
+  "AccountSettingsPage": {
+    "title": "Configuración",
+    "settings": {
+      "title": "Configuración",
+      "description": "Configura tus preferencias de aplicación"
+    },
+    "appearance": {
+      "title": "Apariencia",
+      "theme": {
+        "label": "Tema",
+        "placeholder": "Seleccionar un tema",
+        "light": "Claro",
+        "dark": "Oscuro",
+        "system": "Sistema"
+      },
+      "language": {
+        "label": "Idioma",
+        "placeholder": "Seleccionar un idioma",
+        "fr": "Français",
+        "en": "English",
+        "es": "Español",
+        "de": "Deutsch"
+      }
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "channel": {
+        "label": "Canal de notificación",
+        "placeholder": "Seleccionar un canal",
+        "email": "Solo email",
+        "push": "Solo notificaciones push",
+        "both": "Ambos",
+        "none": "Sin notificaciones"
+      },
+      "emailNotifications": {
+        "title": "Notificaciones por email",
+        "description": "Recibe notificaciones importantes por email"
+      },
+      "pushNotifications": {
+        "title": "Notificaciones push",
+        "description": "Recibe notificaciones en tiempo real"
+      },
+      "emailDigest": {
+        "title": "Resumen diario por email",
+        "description": "Recibe un resumen diario de tus actividades"
+      }
+    },
+    "marketing": {
+      "title": "Marketing",
+      "marketingEmails": {
+        "title": "Emails de marketing",
+        "description": "Recibe ofertas especiales y actualizaciones"
+      }
+    },
+    "form": {
+      "updating": "Actualizando...",
+      "updateSettings": "Actualizar configuración",
+      "success": "Éxito",
+      "error": "Error"
+    }
   }
 }

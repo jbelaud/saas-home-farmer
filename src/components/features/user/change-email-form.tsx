@@ -1,6 +1,7 @@
 'use client'
 
 import {zodResolver} from '@hookform/resolvers/zod'
+import {useTranslations} from 'next-intl'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -32,6 +33,7 @@ import {changeEmailFormSchema} from './user-form-validation'
 type FormValues = z.infer<typeof changeEmailFormSchema>
 
 export function ChangeEmailForm({user}: {user: User}) {
+  const t = useTranslations('AccountPage.UserSecuritySection.changeEmail')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showModal, setShowModal] = useState(false)
 
@@ -55,7 +57,7 @@ export function ChangeEmailForm({user}: {user: User}) {
     setIsSubmitting(false)
 
     if (result.success) {
-      toast('Succès', {
+      toast(t('success'), {
         description: result.message,
       })
 
@@ -69,7 +71,7 @@ export function ChangeEmailForm({user}: {user: User}) {
           message: error.message,
         })
       }
-      toast('Erreur', {
+      toast(t('error'), {
         description: result.message,
       })
     }
@@ -83,11 +85,11 @@ export function ChangeEmailForm({user}: {user: User}) {
   return (
     <>
       <div className="space-y-4">
-        <h4 className="text-sm font-medium">Changement d&apos;email</h4>
+        <h4 className="text-sm font-medium">{t('title')}</h4>
 
         <div className="flex items-center justify-between rounded-lg border p-4">
           <div className="space-y-0.5">
-            <p className="text-sm font-medium">Adresse email actuelle</p>
+            <p className="text-sm font-medium">{t('currentEmail')}</p>
             <p className="text-muted-foreground text-sm">{user.email}</p>
           </div>
           <Button
@@ -95,7 +97,7 @@ export function ChangeEmailForm({user}: {user: User}) {
             onClick={() => setShowModal(true)}
             disabled={isSubmitting}
           >
-            Changer l&apos;email
+            {t('submit')}
           </Button>
         </div>
       </div>
@@ -104,12 +106,8 @@ export function ChangeEmailForm({user}: {user: User}) {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Changer l&apos;adresse email</DialogTitle>
-            <DialogDescription>
-              Pour changer votre adresse email, veuillez saisir votre nouvelle
-              adresse email. Un email de vérification sera envoyé à votre
-              adresse actuelle.
-            </DialogDescription>
+            <DialogTitle>{t('title')}</DialogTitle>
+            <DialogDescription>{t('description')}</DialogDescription>
           </DialogHeader>
 
           <Form {...form}>
@@ -119,7 +117,7 @@ export function ChangeEmailForm({user}: {user: User}) {
                 name="newEmail"
                 render={({field}) => (
                   <FormItem>
-                    <FormLabel>Nouvelle adresse email</FormLabel>
+                    <FormLabel>{t('newEmail')}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
@@ -137,7 +135,7 @@ export function ChangeEmailForm({user}: {user: User}) {
                   Annuler
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Changement en cours...' : "Changer l'email"}
+                  {isSubmitting ? t('updating') : t('submit')}
                 </Button>
               </DialogFooter>
             </form>

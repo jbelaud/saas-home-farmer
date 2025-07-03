@@ -184,5 +184,196 @@
     "billing": "Facturation",
     "notifications": "Notifications",
     "logout": "Se déconnecter"
+  },
+  "AccountPage": {
+    "title": "Mon Compte",
+    "profile": {
+      "title": "Profil",
+      "description": "Gérez vos informations personnelles"
+    },
+    "security": {
+      "title": "Sécurité",
+      "description": "Gérez les paramètres de sécurité de votre compte, y compris l'authentification à deux facteurs, le changement de mot de passe et d'email."
+    },
+    "EditUserProfileForm": {
+      "name": {
+        "label": "Nom",
+        "placeholder": "Votre nom"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Votre email"
+      },
+      "visibility": {
+        "label": "Visibilité du profil",
+        "placeholder": "Sélectionner la visibilité",
+        "public": "Public",
+        "private": "Privé"
+      },
+      "upload": {
+        "inProgress": "Upload en cours...",
+        "success": "Image uploadée avec succès",
+        "error": "Erreur lors de l'upload",
+        "errorRetry": "Impossible d'uploader l'image. Veuillez réessayer."
+      },
+      "form": {
+        "save": "Enregistrer",
+        "updating": "Mise à jour...",
+        "success": "Succès",
+        "error": "Erreur",
+        "undo": "Annuler",
+        "ok": "OK"
+      }
+    },
+    "UserSecuritySection": {
+      "changePassword": {
+        "title": "Changer le mot de passe",
+        "description": "Pour changer votre mot de passe, veuillez saisir votre mot de passe actuel et votre nouveau mot de passe.",
+        "currentPassword": "Mot de passe actuel",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le nouveau mot de passe",
+        "submit": "Changer le mot de passe",
+        "updating": "Changement en cours...",
+        "success": "Mot de passe mis à jour avec succès",
+        "error": "Erreur lors du changement de mot de passe"
+      },
+      "changeEmail": {
+        "title": "Changer l'adresse email",
+        "description": "Pour changer votre adresse email, veuillez saisir votre nouvelle adresse email. Un email de vérification sera envoyé à votre adresse actuelle.",
+        "currentEmail": "Adresse email actuelle",
+        "newEmail": "Nouvelle adresse email",
+        "submit": "Changer l'email",
+        "updating": "Changement en cours...",
+        "success": "Email mis à jour avec succès",
+        "error": "Erreur lors du changement d'email"
+      },
+      "twoFactor": {
+        "title": "Authentification à deux facteurs",
+        "description": "Ajoutez une couche de sécurité supplémentaire à votre compte",
+        "enable": "Activer l'A2F",
+        "disable": "Désactiver l'A2F",
+        "status": {
+          "enabled": "Authentification à deux facteurs activée",
+          "disabled": "Authentification à deux facteurs désactivée"
+        },
+        "typeSelection": {
+          "title": "Type d'authentification",
+          "description": "Choisissez votre méthode préférée pour l'authentification à deux facteurs",
+          "totp": "TOTP",
+          "otp": "OTP",
+          "updating": "Mise à jour...",
+          "help": "TOTP : Application d'authentification (Google Auth, Authy) | OTP : Codes envoyés par email",
+          "error": "Vous devez d'abord activer l'authentification à deux facteurs",
+          "successTotp": "Type de 2FA changé vers TOTP",
+          "successOtp": "Type de 2FA changé vers OTP"
+        },
+        "modal": {
+          "enableTitle": "Activer l'authentification à deux facteurs",
+          "disableTitle": "Désactiver l'authentification à deux facteurs",
+          "enableDescription": "Pour activer l'authentification à deux facteurs, veuillez confirmer votre mot de passe.",
+          "disableDescription": "Pour désactiver l'authentification à deux facteurs, veuillez confirmer votre mot de passe.",
+          "password": "Mot de passe",
+          "passwordPlaceholder": "Entrez votre mot de passe",
+          "cancel": "Annuler",
+          "enable": "Activer 2FA",
+          "disable": "Désactiver 2FA",
+          "processing": "Traitement..."
+        },
+        "setup": {
+          "title": "Configuration 2FA réussie",
+          "description": "Votre authentification à deux facteurs a été activée. Scannez le QR code et notez vos codes de sauvegarde.",
+          "qrCode": "QR Code",
+          "qrDescription": "Scannez ce QR code avec votre application d'authentification (Google Authenticator, Authy, etc.)",
+          "backupCodes": "Codes de sauvegarde",
+          "backupDescription": "Conservez ces codes en lieu sûr. Ils vous permettront d'accéder à votre compte si vous perdez votre appareil.",
+          "totpUri": "URI TOTP (optionnel)",
+          "totpDescription": "Si le QR code ne fonctionne pas, vous pouvez utiliser cette URI manuellement :",
+          "validate": "Valider la configuration",
+          "configured": "J'ai configuré mon application"
+        },
+        "validation": {
+          "title": "Valider la configuration 2FA",
+          "description": "Saisissez le premier code de sauvegarde pour valider que votre application d'authentification fonctionne correctement.",
+          "codeLabel": "Code de validation",
+          "codePlaceholder": "Saisissez le premier code de sauvegarde",
+          "codeHelper": "Utilisez le premier code de la liste :",
+          "cancel": "Annuler",
+          "validate": "Valider",
+          "validating": "Validation...",
+          "error": "Veuillez saisir un code de validation",
+          "errorGeneral": "Erreur lors de la validation du code."
+        },
+        "success": "Succès",
+        "error": "Erreur"
+      },
+      "sessions": {
+        "title": "Sessions actives",
+        "description": "Gérez vos sessions de connexion",
+        "current": "Session actuelle",
+        "revoke": "Révoquer",
+        "revokeAll": "Révoquer toutes les autres sessions"
+      }
+    }
+  },
+  "AccountSettingsPage": {
+    "title": "Paramètres",
+    "settings": {
+      "title": "Paramètres",
+      "description": "Configurez vos préférences d'application"
+    },
+    "appearance": {
+      "title": "Apparence",
+      "theme": {
+        "label": "Thème",
+        "placeholder": "Sélectionner un thème",
+        "light": "Clair",
+        "dark": "Sombre",
+        "system": "Système"
+      },
+      "language": {
+        "label": "Langue",
+        "placeholder": "Sélectionner une langue",
+        "fr": "Français",
+        "en": "English",
+        "es": "Español",
+        "de": "Deutsch"
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "channel": {
+        "label": "Canal de notification",
+        "placeholder": "Sélectionner un canal",
+        "email": "Email uniquement",
+        "push": "Notifications push uniquement",
+        "both": "Les deux",
+        "none": "Aucune notification"
+      },
+      "emailNotifications": {
+        "title": "Notifications par email",
+        "description": "Recevez des notifications importantes par email"
+      },
+      "pushNotifications": {
+        "title": "Notifications push",
+        "description": "Recevez des notifications en temps réel"
+      },
+      "emailDigest": {
+        "title": "Résumé quotidien par email",
+        "description": "Recevez un résumé quotidien de vos activités"
+      }
+    },
+    "marketing": {
+      "title": "Marketing",
+      "marketingEmails": {
+        "title": "Emails marketing",
+        "description": "Recevez des offres spéciales et des mises à jour"
+      }
+    },
+    "form": {
+      "updating": "Mise à jour...",
+      "updateSettings": "Mettre à jour les paramètres",
+      "success": "Succès",
+      "error": "Erreur"
+    }
   }
 }

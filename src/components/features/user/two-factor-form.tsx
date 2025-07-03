@@ -2,6 +2,7 @@
 
 import {zodResolver} from '@hookform/resolvers/zod'
 import Image from 'next/image'
+import {useTranslations} from 'next-intl'
 import QRCode from 'qrcode'
 import {useEffect, useState} from 'react'
 import {useForm} from 'react-hook-form'
@@ -40,6 +41,7 @@ import {twoFactorFormSchema} from './user-form-validation'
 type FormValues = z.infer<typeof twoFactorFormSchema>
 
 export function TwoFactorForm({user}: {user: User}) {
+  const t = useTranslations('AccountPage.UserSecuritySection.twoFactor')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [showBackupCodes, setShowBackupCodes] = useState(false)
@@ -95,7 +97,7 @@ export function TwoFactorForm({user}: {user: User}) {
     setIsSubmitting(false)
 
     if (result.success) {
-      toast('Succès', {
+      toast(t('success'), {
         description: result.message,
       })
 
@@ -118,7 +120,7 @@ export function TwoFactorForm({user}: {user: User}) {
           message: error.message,
         })
       }
-      toast('Erreur', {
+      toast(t('error'), {
         description: result.message,
       })
     }

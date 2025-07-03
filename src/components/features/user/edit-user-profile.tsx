@@ -1,6 +1,7 @@
 'use client'
 
 import {zodResolver} from '@hookform/resolvers/zod'
+import {useTranslations} from 'next-intl'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -36,6 +37,7 @@ import {userFormSchema} from '../admin/users/user-form-validation'
 type FormValues = z.infer<typeof userFormSchema>
 
 export function EditUserProfileForm({user}: {user: User}) {
+  const t = useTranslations('AccountPage.EditUserProfileForm')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [avatarImage, setAvatarImage] = useState(user.image ?? '')
@@ -64,10 +66,10 @@ export function EditUserProfileForm({user}: {user: User}) {
     setIsSubmitting(false)
 
     if (result.success) {
-      toast('Success', {
+      toast(t('form.success'), {
         description: result.message,
         action: {
-          label: 'Undo',
+          label: t('form.undo'),
           onClick: () => console.log('Undo'),
         },
       })
@@ -75,10 +77,10 @@ export function EditUserProfileForm({user}: {user: User}) {
       for (const error of result?.errors ?? []) {
         form.setError(error.field, {type: 'manual', message: error.message})
       }
-      toast('Error', {
+      toast(t('form.error'), {
         description: result.message,
         action: {
-          label: 'OK',
+          label: t('form.ok'),
           onClick: () => console.log('Undo'),
         },
       })
@@ -102,18 +104,18 @@ export function EditUserProfileForm({user}: {user: User}) {
         form.setValue('image', result.imageUrl)
         setAvatarImage(result.imageUrl)
 
-        toast('Succès', {
+        toast(t('upload.success'), {
           description: result.message,
         })
       } else {
-        toast('Erreur', {
-          description: result.message || "Erreur lors de l'upload",
+        toast(t('upload.error'), {
+          description: result.message || t('upload.error'),
         })
       }
     } catch (error) {
       console.error("Erreur lors de l'upload:", error)
-      toast('Erreur', {
-        description: "Impossible d'uploader l'image. Veuillez réessayer.",
+      toast(t('upload.error'), {
+        description: t('upload.errorRetry'),
       })
     } finally {
       setIsUploading(false)
@@ -139,7 +141,9 @@ export function EditUserProfileForm({user}: {user: User}) {
             isUploading={isUploading}
           />
           {isUploading && (
-            <p className="text-muted-foreground text-sm">Upload en cours...</p>
+            <p className="text-muted-foreground text-sm">
+              {t('upload.inProgress')}
+            </p>
           )}
         </div>
         <FormField
@@ -147,9 +151,9 @@ export function EditUserProfileForm({user}: {user: User}) {
           name="name"
           render={({field}) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>{t('name.label')}</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input placeholder={t('name.placeholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -160,9 +164,13 @@ export function EditUserProfileForm({user}: {user: User}) {
           name="email"
           render={({field}) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t('email.label')}</FormLabel>
               <FormControl>
-                <Input placeholder="Your email" {...field} disabled={true} />
+                <Input
+                  placeholder={t('email.placeholder')}
+                  {...field}
+                  disabled={true}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -174,16 +182,20 @@ export function EditUserProfileForm({user}: {user: User}) {
           name="visibility"
           render={({field}) => (
             <FormItem>
-              <FormLabel>Profile Visibility</FormLabel>
+              <FormLabel>{t('visibility.label')}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select visibility" />
+                    <SelectValue placeholder={t('visibility.placeholder')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="public">Public</SelectItem>
-                  <SelectItem value="private">Private</SelectItem>
+                  <SelectItem value="public">
+                    {t('visibility.public')}
+                  </SelectItem>
+                  <SelectItem value="private">
+                    {t('visibility.private')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -192,7 +204,7 @@ export function EditUserProfileForm({user}: {user: User}) {
         />
 
         <Button type="submit" disabled={isSubmitting} className="mb-8">
-          {isSubmitting ? 'Updating...' : 'Enregistrer'}
+          {isSubmitting ? t('form.updating') : t('form.save')}
         </Button>
       </form>
     </Form>
