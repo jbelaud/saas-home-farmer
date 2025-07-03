@@ -1,5 +1,6 @@
 import {cache} from 'react'
 
+import {organizationDTO} from '@/lib/helper/organization-helper'
 import {
   canCreateOrganization,
   canDeleteOrganization,
@@ -10,6 +11,7 @@ import {
 import {
   getAllOrganizationsWithPaginationService,
   getMembersAndInvitationsService,
+  getOrganizationByIdService,
   getOrganizationBySlugService,
   getOrganizationMembersService,
   getUserInvitationsService,
@@ -99,23 +101,16 @@ export async function getOrganizationPermissions(organizationId?: string) {
 }
 
 export const getOrganizationBySlugDal = cache(
-  async (slug: string): Promise<OrganizationDTO | null> => {
+  async (slug: string): Promise<OrganizationDTO | undefined> => {
     const organization = await getOrganizationBySlugService(slug)
+    return organizationDTO(organization)
+  }
+)
 
-    if (!organization) {
-      return null
-    }
-
-    return {
-      id: organization.id,
-      name: organization.name,
-      slug: organization.slug ?? '',
-      description: organization.description ?? null,
-      logo: organization.logo ?? null,
-      createdAt: organization.createdAt ?? null,
-      updatedAt: organization.updatedAt ?? null,
-      metadata: organization.metadata ?? null,
-    }
+export const getOrganizationByIdDal = cache(
+  async (id: string): Promise<OrganizationDTO | undefined> => {
+    const organization = await getOrganizationByIdService(id)
+    return organizationDTO(organization)
   }
 )
 

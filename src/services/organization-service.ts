@@ -112,7 +112,7 @@ export const getOrganizationBySlugService = async (slug: string) => {
 
   const organization = await getOrganizationBySlugDao(slugSanitized)
   if (!organization) {
-    return null
+    return
   }
 
   const granted = await canReadOrganization(organization.id)

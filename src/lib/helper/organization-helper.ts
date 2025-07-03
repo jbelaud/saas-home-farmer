@@ -1,4 +1,6 @@
+import {OrganizationDTO} from '@/app/dal/organization-dal'
 import {UserOrganizationRoleConst} from '@/services/types/domain/auth-types'
+import {Organization} from '@/services/types/domain/organization-types'
 
 /**
  * Trie les organisations par rôle : OWNER en premier, puis ADMIN, puis les autres
@@ -20,4 +22,21 @@ export function sortOrganizationsByRole<T extends {id: string; role: string}>(
 
     return aOrder - bOrder
   })
+}
+
+export function organizationDTO(
+  organization?: Organization
+): OrganizationDTO | undefined {
+  if (!organization) return
+
+  return {
+    id: organization.id,
+    name: organization.name,
+    slug: organization.slug ?? '',
+    description: organization.description ?? null,
+    logo: organization.logo ?? null,
+    createdAt: organization.createdAt ?? null,
+    updatedAt: organization.updatedAt ?? null,
+    metadata: organization.metadata ?? null,
+  }
 }
