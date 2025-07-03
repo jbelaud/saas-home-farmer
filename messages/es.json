@@ -510,5 +510,67 @@
         }
       }
     }
+  },
+  "email": {
+    "user": {
+      "verify": {
+        "subject": "Verifica tu dirección de email",
+        "preview": "Has solicitado un enlace mágico para conectar tu cuenta.",
+        "title": "Iniciar sesión",
+        "clickToConnect": "Haz clic aquí para conectarte",
+        "ignoreMessage": "Si no solicitaste este enlace, por favor ignora este email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "resetPassword": {
+        "subject": "Restablece tu contraseña",
+        "preview": "Has solicitado restablecer tu contraseña.",
+        "title": "Restablecimiento de contraseña",
+        "clickToReset": "Haz clic aquí para restablecer tu contraseña",
+        "ignoreMessage": "Si no solicitaste este restablecimiento, por favor ignora este email.",
+        "expirationWarning": "Este enlace expirará en 24 horas.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "welcome": {
+        "subject": "Bienvenido a {appName}",
+        "preview": "¡Bienvenido! Tu cuenta ha sido creada exitosamente.",
+        "title": "¡Bienvenido!",
+        "welcomeMessage": "Gracias por registrarte en {appName}. Tu cuenta ha sido creada exitosamente.",
+        "getStarted": "Comenzar",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "emailChange": {
+        "subject": "Confirmación de cambio de email",
+        "preview": "Has solicitado cambiar tu dirección de email.",
+        "title": "Confirmación de cambio de email",
+        "clickToConfirm": "Haz clic aquí para confirmar tu nueva dirección de email",
+        "ignoreMessage": "Si no solicitaste este cambio, por favor ignora este email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      }
+    },
+    "admin": {
+      "userCreated": {
+        "subject": "Nuevo usuario creado",
+        "preview": "Un nuevo usuario se ha registrado en la plataforma.",
+        "title": "Nuevo Usuario",
+        "userInfo": "Un nuevo usuario se ha registrado:",
+        "viewUser": "Ver Usuario",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "userDeleted": {
+        "subject": "Usuario eliminado",
+        "preview": "Un usuario ha sido eliminado de la plataforma.",
+        "title": "Usuario Eliminado",
+        "userInfo": "El siguiente usuario ha sido eliminado:",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "systemAlert": {
+        "subject": "Alerta del sistema",
+        "preview": "Se ha activado una alerta del sistema.",
+        "title": "Alerta del Sistema",
+        "alertMessage": "Se ha activado una alerta del sistema:",
+        "viewDetails": "Ver Detalles",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      }
+    }
   }
 }

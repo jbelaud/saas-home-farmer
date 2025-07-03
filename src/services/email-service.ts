@@ -1,3 +1,4 @@
+import {getTranslations} from 'next-intl/server'
 import {
   type CreateEmailOptions,
   type CreateEmailRequestOptions,
@@ -88,14 +89,14 @@ export const sendMagicLinkEmailService = async ({
   email: string
   url: string
 }) => {
+  const t = await getTranslations('email.user.verify')
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
-  // const linkUrl = `${url}?token=${token}`
-  // console.log('linkUrl', linkUrl)
+
   await sendEmailService({
     to: email,
-    subject: 'Connexion au SaaS Mike Codeur Stripe',
+    subject: t('subject'),
     from: fromEmail,
-    text: 'Connexion au SaaS Mike Codeur Stripe',
+    text: t('preview'),
     react: MagicLinkMail({url}),
   })
 }
@@ -125,13 +126,14 @@ export const sendResetPasswordLinkEmailService = async ({
   email: string
   url: string
 }) => {
+  const t = await getTranslations('email.user.resetPassword')
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
-    subject: 'Réinitialisation de votre mot de passe',
+    subject: t('subject'),
     from: fromEmail,
-    text: 'Réinitialisation de votre mot de passe',
+    text: t('preview'),
     react: ResetPasswordEmail({url}),
   })
 }

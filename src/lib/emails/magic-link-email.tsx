@@ -9,6 +9,7 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components'
+import {getTranslations} from 'next-intl/server'
 import {Fragment} from 'react'
 
 MagicLinkMail.PreviewProps = {
@@ -18,33 +19,36 @@ MagicLinkMail.PreviewProps = {
 type MagicLinkMailProps = {
   url: string
 }
-export default function MagicLinkMail({url}: MagicLinkMailProps) {
+
+export default async function MagicLinkMail({url}: MagicLinkMailProps) {
+  // Récupération des traductions côté serveur directement avec next-intl
+  const t = await getTranslations('email.user.verify')
   return (
     <Html>
       <Head />
       <Tailwind>
         <Fragment>
-          <Preview>
-            Vous avez demander un lien magique pour connecter votre compte.
-          </Preview>
+          <Preview>{t('preview')}</Preview>
           <Body className="mx-auto my-auto bg-white px-2 font-sans">
             <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-8">
-              <Text className="text-2xl font-bold text-black">Connexion</Text>
+              <Text className="text-2xl font-bold text-black">
+                {t('title')}
+              </Text>
               <Section className="my-4">
                 <Text className="text-base">
                   <Link
                     className="text-sky-500 hover:cursor-pointer hover:underline"
                     href={url}
                   >
-                    Cliquez ici pour vous connectez
+                    {t('clickToConnect')}
                   </Link>
                 </Text>
                 <Text className="text-base text-gray-500">
-                  Si vous avez pas demandé ce lien, veuillez ignorer cet email.
+                  {t('ignoreMessage')}
                 </Text>
               </Section>
               <Text className="text-base leading-6 text-gray-500">
-                SaaS Mike Codeur Stripe Boilerplate
+                {t('footer')}
               </Text>
             </Container>
           </Body>

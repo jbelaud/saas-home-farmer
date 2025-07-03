@@ -510,5 +510,67 @@
         }
       }
     }
+  },
+  "email": {
+    "user": {
+      "verify": {
+        "subject": "Vérifiez votre adresse email",
+        "preview": "Vous avez demandé un lien magique pour connecter votre compte.",
+        "title": "Connexion",
+        "clickToConnect": "Cliquez ici pour vous connecter",
+        "ignoreMessage": "Si vous n'avez pas demandé ce lien, veuillez ignorer cet email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "resetPassword": {
+        "subject": "Réinitialisation de votre mot de passe",
+        "preview": "Vous avez demandé la réinitialisation de votre mot de passe.",
+        "title": "Réinitialisation du mot de passe",
+        "clickToReset": "Cliquez ici pour réinitialiser votre mot de passe",
+        "ignoreMessage": "Si vous n'avez pas demandé cette réinitialisation, veuillez ignorer cet email.",
+        "expirationWarning": "Ce lien expirera dans 24 heures.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "welcome": {
+        "subject": "Bienvenue sur {appName}",
+        "preview": "Bienvenue ! Votre compte a été créé avec succès.",
+        "title": "Bienvenue !",
+        "welcomeMessage": "Merci de vous être inscrit sur {appName}. Votre compte a été créé avec succès.",
+        "getStarted": "Commencer",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "emailChange": {
+        "subject": "Confirmation de changement d'email",
+        "preview": "Vous avez demandé un changement d'adresse email.",
+        "title": "Confirmation de changement d'email",
+        "clickToConfirm": "Cliquez ici pour confirmer votre nouvelle adresse email",
+        "ignoreMessage": "Si vous n'avez pas demandé ce changement, veuillez ignorer cet email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      }
+    },
+    "admin": {
+      "userCreated": {
+        "subject": "Nouvel utilisateur créé",
+        "preview": "Un nouvel utilisateur s'est inscrit sur la plateforme.",
+        "title": "Nouvel utilisateur",
+        "userInfo": "Un nouvel utilisateur s'est inscrit :",
+        "viewUser": "Voir l'utilisateur",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "userDeleted": {
+        "subject": "Utilisateur supprimé",
+        "preview": "Un utilisateur a été supprimé de la plateforme.",
+        "title": "Utilisateur supprimé",
+        "userInfo": "L'utilisateur suivant a été supprimé :",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "systemAlert": {
+        "subject": "Alerte système",
+        "preview": "Une alerte système a été déclenchée.",
+        "title": "Alerte système",
+        "alertMessage": "Une alerte système a été déclenchée :",
+        "viewDetails": "Voir les détails",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      }
+    }
   }
 }
