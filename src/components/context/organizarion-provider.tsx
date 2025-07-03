@@ -50,10 +50,8 @@ export function OrganizationProvider({
   children,
   initialOrganization = null,
 }: OrganizationProviderProps) {
-  //const router = useRouter()
   const {user} = useAuth()
-  // console.log('OrganizationProvider initialOrganization', initialOrganization)
-  // console.log('OrganizationProvider user', user)
+
   const [currentOrganization, setCurrentOrganization] =
     useState<Organization | null>(initialOrganization)
   const {data: activeOrganization} = authClient.useActiveOrganization()
@@ -61,12 +59,9 @@ export function OrganizationProvider({
     getReferenceIdByBillingMode(user?.id, initialOrganization?.id)
   )
 
-  // Fonction utilitaire pour définir l'organisation active
-  const setActiveOrganization = async (organization: Organization) => {
-    await authClient.organization.setActive({
-      organizationId: organization.id,
-    })
-  }
+  useEffect(() => {
+    setCurrentOrganization(initialOrganization)
+  }, [initialOrganization])
 
   // Dérivation des organisations depuis l'utilisateur
   const organizations = useMemo(() => user?.organizations || [], [user])
@@ -77,24 +72,19 @@ export function OrganizationProvider({
       (org) => org.organization?.id === currentOrganization?.id
     ) || null
 
+  // Fonction utilitaire pour définir l'organisation active
+  const setActiveOrganization = async (organization: Organization) => {
+    await authClient.organization.setActive({
+      organizationId: organization.id,
+    })
+  }
+
   // Fonction pour changer d'organisation avec redirection
   const handleSetCurrentOrganization = async (organizationId: string) => {
-    const member = organizations.find(
-      (org) => org.organization?.id === organizationId
-    )
-    if (
-      member &&
-      member.organization &&
-      member.organization.id !== currentOrganization?.id
-    ) {
-      await setActiveOrganization(member.organization)
-      setCurrentOrganization(member.organization)
-      setReferenceId(
-        getReferenceIdByBillingMode(user?.id, member.organization.id)
-      )
-      // Rediriger vers la page de l'équipe
-      // router.push(`/team/${member.organization.slug}`)
-    }
+    await handleSetCurrentOrganizationWithoutRedirect(organizationId)
+    // Rediriger vers la page de l'équipe
+    // desactiver dans notre cas
+    // router.push(`/team/${member.organization.slug}`)
   }
 
   // Fonction pour changer d'organisation sans redirection

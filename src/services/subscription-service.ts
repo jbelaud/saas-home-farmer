@@ -484,7 +484,6 @@ export const checkSubscriptionLimitService = async (
       effectiveLimit =
         (subscription.limits?.[limitType] || 1) * (subscription.seats || 1)
     } else {
-      console.log('subscription.limits', subscription)
       effectiveLimit = subscription.limits?.[limitType] || 0
     }
   }

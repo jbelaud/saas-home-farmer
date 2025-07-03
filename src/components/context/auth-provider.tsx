@@ -1,7 +1,7 @@
 'use client'
 
 import type {Session} from 'better-auth'
-import React, {createContext, useContext, useState} from 'react'
+import React, {createContext, useContext, useEffect, useState} from 'react'
 
 import {RoleConst} from '@/services/types/domain/auth-types'
 import {User} from '@/services/types/domain/user-types'
@@ -9,8 +9,8 @@ import {User} from '@/services/types/domain/user-types'
 interface AuthContextType {
   user: User | null
   session: Session | null
-  setUser: (user: User | null) => void
-  setSession: (session: Session | null) => void
+  //setUser: (user: User | null) => void
+  //setSession: (session: Session | null) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -29,11 +29,20 @@ export default function AuthProvider({
   const [user, setUser] = useState<User | null>(initialUser)
   const [session, setSession] = useState<Session | null>(initialSession)
 
+  // Synchroniser avec les props quand elles changent
+  useEffect(() => {
+    setUser(initialUser)
+  }, [initialUser])
+
+  useEffect(() => {
+    setSession(initialSession)
+  }, [initialSession])
+
   const value: AuthContextType = {
     user,
     session,
-    setUser,
-    setSession,
+    // setUser,
+    // setSession,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
