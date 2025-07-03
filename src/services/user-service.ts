@@ -38,10 +38,10 @@ import {
 } from './types/domain/user-types'
 import {
   baseUserServiceSchema,
+  createUpdateUserServiceSchema,
   createUserFromStripeServiceSchema,
   createUserServiceSchema,
   createUserSettingsServiceSchema,
-  updateUserServiceSchema,
   updateUserSettingsServiceSchema,
   userSettingsUuidSchema,
   userUuidSchema,
@@ -88,7 +88,10 @@ export const updateUserService = async (userParams: UpdateUser) => {
     throw new AuthorizationError()
   }
   userParams.updatedAt = new Date()
-  const parsed = updateUserServiceSchema.safeParse(userParams)
+
+  const translatedSchema = await createUpdateUserServiceSchema()
+  const parsed = translatedSchema.safeParse(userParams)
+  //const parsed = updateUserServiceSchema.safeParse(userParams)
   if (!parsed.success) {
     throw new ValidationParsedZodError(parsed.error)
   }
@@ -97,6 +100,31 @@ export const updateUserService = async (userParams: UpdateUser) => {
 
   await updateUserSafeByUidDao(userParamsSanitized, resourceUid)
 }
+
+// // Version avec traductions pour les messages d'erreur
+// export const updateUserServiceWithTranslations = async (
+//   userParams: UpdateUser
+// ) => {
+//   const t = await getTranslations('Service.User')
+//   const resourceUid = userParams.id
+//   const granted = await canUpdateUser(resourceUid)
+
+//   if (!granted) {
+//     throw new AuthorizationError()
+//   }
+//   userParams.updatedAt = new Date()
+
+//   // Utiliser le schéma avec traductions
+//   const translatedSchema = await createUpdateUserServiceSchema()
+//   const parsed = translatedSchema.safeParse(userParams)
+//   if (!parsed.success) {
+//     throw new ValidationParsedZodError(parsed.error)
+//   }
+
+//   const userParamsSanitized = parsed.data
+
+//   await updateUserSafeByUidDao(userParamsSanitized, resourceUid)
+// }
 
 /**
  * Crée un utilisateur et une organisation

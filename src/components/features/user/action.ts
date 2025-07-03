@@ -143,6 +143,7 @@ export async function updateUserAction(
   const validatedData = validationResult.data as UpdateUser
 
   try {
+    // Utiliser la version avec traductions pour les messages d'erreur côté service
     await updateUserService(validatedData)
     revalidatePath('/account')
     return {success: true, message: t('form.success')}

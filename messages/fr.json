@@ -468,5 +468,47 @@
         "modified": "modifié le {date}"
       }
     }
+  },
+  "Service": {
+    "User": {
+      "validation": {
+        "name": {
+          "min": "Le nom doit contenir au moins 3 caractères",
+          "max": "Le nom ne doit pas contenir plus de 30 caractères",
+          "required": "Le nom est requis",
+          "invalid": "Nom invalide"
+        },
+        "email": {
+          "invalid": "L'email n'est pas valide",
+          "required": "L'email est requis",
+          "format": "Format d'email invalide"
+        },
+        "uuid": {
+          "invalid": "L'identifiant n'est pas valide"
+        }
+      }
+    }
+  },
+  "services": {
+    "domain": {
+      "user": {
+        "validation": {
+          "name": {
+            "min": "Le nom doit contenir au moins 3 caractères",
+            "max": "Le nom ne doit pas contenir plus de 30 caractères",
+            "required": "Le nom est requis",
+            "invalid": "Nom invalide"
+          },
+          "email": {
+            "invalid": "L'email n'est pas valide",
+            "required": "L'email est requis",
+            "format": "Format d'email invalide"
+          },
+          "uuid": {
+            "invalid": "L'identifiant n'est pas valide"
+          }
+        }
+      }
+    }
   }
 }

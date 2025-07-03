@@ -1,3 +1,4 @@
+import {getTranslations} from 'next-intl/server'
 import {z} from 'zod'
 
 import {
@@ -58,6 +59,24 @@ export const updateUserServiceSchema = createUserServiceSchema.extend({
   createdAt: z.date().optional(),
   updatedAt: z.date(),
 }) satisfies z.Schema<UpdateUser>
+
+// Fonction qui crée un schéma avec messages traduits pour updateUserService
+export async function createUpdateUserServiceSchema() {
+  const t = await getTranslations('Service.User')
+  return updateUserServiceSchema.extend({
+    name: z
+      .string()
+      .min(3, {
+        message: t('validation.name.min'),
+      })
+      .max(30, {
+        message: t('validation.name.max'),
+      }),
+    email: z.string().email({
+      message: t('validation.email.invalid'),
+    }),
+  })
+}
 
 export const userUuidSchema = z.string().uuid({
   message: "L'identifiant n'est pas valide.",

@@ -468,5 +468,47 @@
         "modified": "modified {date}"
       }
     }
+  },
+  "Service": {
+    "User": {
+      "validation": {
+        "name": {
+          "min": "Name must be at least 3 characters",
+          "max": "Name must not contain more than 30 characters",
+          "required": "Name is required",
+          "invalid": "Invalid name"
+        },
+        "email": {
+          "invalid": "Email is not valid",
+          "required": "Email is required",
+          "format": "Invalid email format"
+        },
+        "uuid": {
+          "invalid": "Identifier is not valid"
+        }
+      }
+    }
+  },
+  "services": {
+    "domain": {
+      "user": {
+        "validation": {
+          "name": {
+            "min": "Name must be at least 3 characters",
+            "max": "Name must not contain more than 30 characters",
+            "required": "Name is required",
+            "invalid": "Invalid name"
+          },
+          "email": {
+            "invalid": "Email is not valid",
+            "required": "Email is required",
+            "format": "Invalid email format"
+          },
+          "uuid": {
+            "invalid": "Identifier is not valid"
+          }
+        }
+      }
+    }
   }
 }
