@@ -3,6 +3,7 @@
 import {zodResolver} from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import {useRouter} from 'next/navigation'
+import {useTranslations} from 'next-intl'
 import React, {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -27,19 +28,21 @@ import {
 import {Input} from '@/components/ui/input'
 import {authClient} from '@/lib/better-auth/auth-client'
 
-const totpSchema = z.object({
-  code: z
-    .string()
-    .min(6, 'Le code doit contenir 6 chiffres')
-    .max(6, 'Le code doit contenir 6 chiffres')
-    .regex(/^\d{6}$/, 'Le code doit contenir uniquement des chiffres'),
-})
-
-type TotpFormValues = z.infer<typeof totpSchema>
-
 export default function TotpVerificationPage() {
+  const t = useTranslations('Auth.TotpVerificationPage')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  // Schéma de validation avec traductions
+  const totpSchema = z.object({
+    code: z
+      .string()
+      .min(6, t('validation.codeRequired'))
+      .max(6, t('validation.codeRequired'))
+      .regex(/^\d{6}$/, t('validation.codeFormat')),
+  })
+
+  type TotpFormValues = z.infer<typeof totpSchema>
 
   const form = useForm<TotpFormValues>({
     resolver: zodResolver(totpSchema),
@@ -59,17 +62,17 @@ export default function TotpVerificationPage() {
       const {error} = await verifyTotp(data.code)
 
       if (error) {
-        toast.error(error.message || 'Code de vérification invalide')
+        toast.error(error.message || t('messages.verificationError'))
         return
       }
 
-      toast.success('Vérification réussie')
+      toast.success(t('messages.verificationSuccess'))
       // Rediriger vers le dashboard après 2 secondes
       setTimeout(() => {
         router.push('/dashboard')
       }, 2000)
     } catch {
-      toast.error('Une erreur est survenue lors de la vérification')
+      toast.error(t('messages.generalError'))
     } finally {
       setIsLoading(false)
     }
@@ -80,13 +83,8 @@ export default function TotpVerificationPage() {
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">
-              Vérification à deux facteurs
-            </CardTitle>
-            <CardDescription>
-              Entrez le code de vérification de votre application
-              d&apos;authentification
-            </CardDescription>
+            <CardTitle className="text-xl">{t('title')}</CardTitle>
+            <CardDescription>{t('description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -99,11 +97,11 @@ export default function TotpVerificationPage() {
                   name="code"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel>Code de vérification</FormLabel>
+                      <FormLabel>{t('codeLabel')}</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="123456"
+                          placeholder={t('codePlaceholder')}
                           maxLength={6}
                           className="text-center text-lg tracking-widest"
                           {...field}
@@ -114,7 +112,7 @@ export default function TotpVerificationPage() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Vérification...' : 'Vérifier le code'}
+                  {isLoading ? t('submitting') : t('submitButton')}
                 </Button>
               </form>
             </Form>
@@ -124,7 +122,7 @@ export default function TotpVerificationPage() {
                   href="/login"
                   className="text-muted-foreground hover:text-primary text-sm"
                 >
-                  Retour à la connexion
+                  {t('backToLogin')}
                 </Link>
               </div>
               <div>
@@ -132,16 +130,15 @@ export default function TotpVerificationPage() {
                   href="/verify-request/recovery"
                   className="text-muted-foreground hover:text-primary text-sm underline underline-offset-4"
                 >
-                  Utiliser un code de sauvegarde
+                  {t('useBackupCode')}
                 </Link>
               </div>
             </div>
           </CardContent>
         </Card>
         <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-          En cliquant sur continuer, vous acceptez nos{' '}
-          <Link href="/terms">Conditions d&apos;utilisation</Link> et notre{' '}
-          <Link href="/privacy">Politique de confidentialité</Link>.
+          {t('terms')} <Link href="/terms">{t('termsLink')}</Link> {t('and')}{' '}
+          <Link href="/privacy">{t('privacyLink')}</Link>.
         </div>
       </div>
     </div>

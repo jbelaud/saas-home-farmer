@@ -674,6 +674,83 @@
         "passwordMax": "Le mot de passe ne doit pas dépasser 100 caractères",
         "passwordsMismatch": "Les mots de passe ne correspondent pas"
       }
+    },
+    "VerifyRequestPage": {
+      "title": "Dernière étape",
+      "description": "Un email de verification a été envoyé à votre adresse email. Vous trouvez un lien de notre part. Cliquez dessus pour continuer."
+    },
+    "OtpVerificationPage": {
+      "title": "Vérification OTP",
+      "description": "Entrez le code OTP à 6 chiffres envoyé par email",
+      "descriptionAutomatic": "Vérification automatique du code...",
+      "descriptionSending": "Envoi du code OTP...",
+      "codeLabel": "Code OTP",
+      "codePlaceholder": "123456",
+      "submitButton": "Vérifier le code OTP",
+      "submitting": "Vérification...",
+      "backToLogin": "Retour à la connexion",
+      "useBackupCode": "Utiliser un code de sauvegarde",
+      "validation": {
+        "codeRequired": "Le code doit contenir 6 chiffres",
+        "codeFormat": "Le code doit contenir uniquement des chiffres"
+      },
+      "messages": {
+        "otpSent": "Code OTP envoyé par email",
+        "otpSendError": "Erreur lors de l'envoi du code OTP",
+        "verificationSuccess": "Vérification OTP réussie",
+        "verificationError": "Une erreur est survenue lors de la vérification OTP",
+        "redirecting": "Redirection vers le dashboard ..."
+      },
+      "terms": "En cliquant sur continuer, vous acceptez nos",
+      "termsLink": "Conditions d'utilisation",
+      "and": "et notre",
+      "privacyLink": "Politique de confidentialité"
+    },
+    "TotpVerificationPage": {
+      "title": "Vérification à deux facteurs",
+      "description": "Entrez le code de vérification de votre application d'authentification",
+      "codeLabel": "Code de vérification",
+      "codePlaceholder": "123456",
+      "submitButton": "Vérifier le code",
+      "submitting": "Vérification...",
+      "backToLogin": "Retour à la connexion",
+      "useBackupCode": "Utiliser un code de sauvegarde",
+      "validation": {
+        "codeRequired": "Le code doit contenir 6 chiffres",
+        "codeFormat": "Le code doit contenir uniquement des chiffres"
+      },
+      "messages": {
+        "verificationSuccess": "Vérification réussie",
+        "verificationError": "Code de vérification invalide",
+        "generalError": "Une erreur est survenue lors de la vérification"
+      },
+      "terms": "En cliquant sur continuer, vous acceptez nos",
+      "termsLink": "Conditions d'utilisation",
+      "and": "et notre",
+      "privacyLink": "Politique de confidentialité"
+    },
+    "RecoveryCodePage": {
+      "title": "Code de sauvegarde",
+      "description": "Entrez l'un de vos codes de sauvegarde pour accéder à votre compte"
+    },
+    "RecoveryCodeForm": {
+      "title": "Récupération de compte",
+      "description": "Entrez l'un de vos codes de sauvegarde pour accéder à votre compte",
+      "alertDescription": "Les codes de sauvegarde sont générés lors de l'activation de l'authentification à deux facteurs. Chaque code ne peut être utilisé qu'une seule fois.",
+      "codeLabel": "Code de sauvegarde",
+      "codePlaceholder": "Ex: ABC123DEF456",
+      "submitButton": "Accéder au compte",
+      "submitting": "Vérification...",
+      "noCodeMessage": "Vous n'avez pas de code de sauvegarde ?",
+      "backToLogin": "Retour à la connexion",
+      "validation": {
+        "codeRequired": "Le code de sauvegarde est requis",
+        "codeFormat": "Le code ne doit contenir que des lettres, chiffres ou tirets"
+      },
+      "messages": {
+        "success": "Succès",
+        "error": "Erreur"
+      }
     }
   },
   "email": {

@@ -674,6 +674,83 @@
         "passwordMax": "La contraseña no debe exceder 100 caracteres",
         "passwordsMismatch": "Las contraseñas no coinciden"
       }
+    },
+    "VerifyRequestPage": {
+      "title": "Último paso",
+      "description": "Se ha enviado un email de verificación a tu dirección de correo. Encontrarás un enlace nuestro. Haz clic en él para continuar."
+    },
+    "OtpVerificationPage": {
+      "title": "Verificación OTP",
+      "description": "Introduce el código OTP de 6 dígitos enviado a tu email",
+      "descriptionAutomatic": "Verificación automática del código...",
+      "descriptionSending": "Enviando código OTP...",
+      "codeLabel": "Código OTP",
+      "codePlaceholder": "123456",
+      "submitButton": "Verificar código OTP",
+      "submitting": "Verificando...",
+      "backToLogin": "Volver al inicio de sesión",
+      "useBackupCode": "Usar un código de respaldo",
+      "validation": {
+        "codeRequired": "El código debe contener 6 dígitos",
+        "codeFormat": "El código debe contener solo dígitos"
+      },
+      "messages": {
+        "otpSent": "Código OTP enviado por email",
+        "otpSendError": "Error al enviar el código OTP",
+        "verificationSuccess": "Verificación OTP exitosa",
+        "verificationError": "Ocurrió un error durante la verificación OTP",
+        "redirecting": "Redirigiendo al panel..."
+      },
+      "terms": "Al continuar, aceptas nuestros",
+      "termsLink": "Términos de Servicio",
+      "and": "y nuestra",
+      "privacyLink": "Política de Privacidad"
+    },
+    "TotpVerificationPage": {
+      "title": "Autenticación de dos factores",
+      "description": "Introduce el código de verificación de tu aplicación de autenticación",
+      "codeLabel": "Código de verificación",
+      "codePlaceholder": "123456",
+      "submitButton": "Verificar código",
+      "submitting": "Verificando...",
+      "backToLogin": "Volver al inicio de sesión",
+      "useBackupCode": "Usar un código de respaldo",
+      "validation": {
+        "codeRequired": "El código debe contener 6 dígitos",
+        "codeFormat": "El código debe contener solo dígitos"
+      },
+      "messages": {
+        "verificationSuccess": "Verificación exitosa",
+        "verificationError": "Código de verificación inválido",
+        "generalError": "Ocurrió un error durante la verificación"
+      },
+      "terms": "Al continuar, aceptas nuestros",
+      "termsLink": "Términos de Servicio",
+      "and": "y nuestra",
+      "privacyLink": "Política de Privacidad"
+    },
+    "RecoveryCodePage": {
+      "title": "Código de respaldo",
+      "description": "Introduce uno de tus códigos de respaldo para acceder a tu cuenta"
+    },
+    "RecoveryCodeForm": {
+      "title": "Recuperación de cuenta",
+      "description": "Introduce uno de tus códigos de respaldo para acceder a tu cuenta",
+      "alertDescription": "Los códigos de respaldo se generan cuando se activa la autenticación de dos factores. Cada código solo puede usarse una vez.",
+      "codeLabel": "Código de respaldo",
+      "codePlaceholder": "ej., ABC123DEF456",
+      "submitButton": "Acceder a la cuenta",
+      "submitting": "Verificando...",
+      "noCodeMessage": "¿No tienes un código de respaldo?",
+      "backToLogin": "Volver al inicio de sesión",
+      "validation": {
+        "codeRequired": "El código de respaldo es requerido",
+        "codeFormat": "El código debe contener solo letras, números o guiones"
+      },
+      "messages": {
+        "success": "Éxito",
+        "error": "Error"
+      }
     }
   },
   "email": {

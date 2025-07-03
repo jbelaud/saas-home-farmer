@@ -674,6 +674,83 @@
         "passwordMax": "Password must not exceed 100 characters",
         "passwordsMismatch": "Passwords do not match"
       }
+    },
+    "VerifyRequestPage": {
+      "title": "Last step",
+      "description": "A verification email has been sent to your email address. You will find a link from us. Click on it to continue."
+    },
+    "OtpVerificationPage": {
+      "title": "OTP Verification",
+      "description": "Enter the 6-digit OTP code sent to your email",
+      "descriptionAutomatic": "Automatic code verification...",
+      "descriptionSending": "Sending OTP code...",
+      "codeLabel": "OTP Code",
+      "codePlaceholder": "123456",
+      "submitButton": "Verify OTP code",
+      "submitting": "Verifying...",
+      "backToLogin": "Back to login",
+      "useBackupCode": "Use a backup code",
+      "validation": {
+        "codeRequired": "Code must contain 6 digits",
+        "codeFormat": "Code must contain only digits"
+      },
+      "messages": {
+        "otpSent": "OTP code sent to email",
+        "otpSendError": "Error sending OTP code",
+        "verificationSuccess": "OTP verification successful",
+        "verificationError": "An error occurred during OTP verification",
+        "redirecting": "Redirecting to dashboard..."
+      },
+      "terms": "By continuing, you agree to our",
+      "termsLink": "Terms of Service",
+      "and": "and our",
+      "privacyLink": "Privacy Policy"
+    },
+    "TotpVerificationPage": {
+      "title": "Two-factor authentication",
+      "description": "Enter the verification code from your authentication app",
+      "codeLabel": "Verification code",
+      "codePlaceholder": "123456",
+      "submitButton": "Verify code",
+      "submitting": "Verifying...",
+      "backToLogin": "Back to login",
+      "useBackupCode": "Use a backup code",
+      "validation": {
+        "codeRequired": "Code must contain 6 digits",
+        "codeFormat": "Code must contain only digits"
+      },
+      "messages": {
+        "verificationSuccess": "Verification successful",
+        "verificationError": "Invalid verification code",
+        "generalError": "An error occurred during verification"
+      },
+      "terms": "By continuing, you agree to our",
+      "termsLink": "Terms of Service",
+      "and": "and our",
+      "privacyLink": "Privacy Policy"
+    },
+    "RecoveryCodePage": {
+      "title": "Backup code",
+      "description": "Enter one of your backup codes to access your account"
+    },
+    "RecoveryCodeForm": {
+      "title": "Account recovery",
+      "description": "Enter one of your backup codes to access your account",
+      "alertDescription": "Backup codes are generated when two-factor authentication is enabled. Each code can only be used once.",
+      "codeLabel": "Backup code",
+      "codePlaceholder": "e.g., ABC123DEF456",
+      "submitButton": "Access account",
+      "submitting": "Verifying...",
+      "noCodeMessage": "Don't have a backup code?",
+      "backToLogin": "Back to login",
+      "validation": {
+        "codeRequired": "Backup code is required",
+        "codeFormat": "Code must contain only letters, numbers, or hyphens"
+      },
+      "messages": {
+        "success": "Success",
+        "error": "Error"
+      }
     }
   },
   "email": {

@@ -3,6 +3,7 @@
 import {zodResolver} from '@hookform/resolvers/zod'
 import {Key, Shield} from 'lucide-react'
 import Link from 'next/link'
+import {useTranslations} from 'next-intl'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -28,20 +29,19 @@ import {
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
 
-const recoveryCodeSchema = z.object({
-  code: z
-    .string()
-    .min(1, 'Le code de sauvegarde est requis')
-    .regex(
-      /^[0-9A-Za-z-]+$/,
-      'Le code ne doit contenir que des lettres, chiffres ou tirets'
-    ),
-})
-
-type RecoveryCodeFormValues = z.infer<typeof recoveryCodeSchema>
-
 export function RecoveryCodeForm() {
+  const t = useTranslations('Auth.RecoveryCodeForm')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Schéma de validation avec traductions
+  const recoveryCodeSchema = z.object({
+    code: z
+      .string()
+      .min(1, t('validation.codeRequired'))
+      .regex(/^[0-9A-Za-z-]+$/, t('validation.codeFormat')),
+  })
+
+  type RecoveryCodeFormValues = z.infer<typeof recoveryCodeSchema>
 
   const form = useForm<RecoveryCodeFormValues>({
     resolver: zodResolver(recoveryCodeSchema),
@@ -59,11 +59,11 @@ export function RecoveryCodeForm() {
     setIsSubmitting(false)
 
     if (result.success) {
-      toast('Succès', {
+      toast(t('messages.success'), {
         description: result.message,
       })
     } else {
-      toast('Erreur', {
+      toast(t('messages.error'), {
         description: result.message,
       })
     }
@@ -74,21 +74,14 @@ export function RecoveryCodeForm() {
       <CardHeader className="space-y-1">
         <div className="flex items-center space-x-2">
           <Shield className="text-primary h-5 w-5" />
-          <CardTitle className="text-xl">Récupération de compte</CardTitle>
+          <CardTitle className="text-xl">{t('title')}</CardTitle>
         </div>
-        <CardDescription>
-          Entrez l&apos;un de vos codes de sauvegarde pour accéder à votre
-          compte
-        </CardDescription>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Alert>
           <Key className="h-4 w-4" />
-          <AlertDescription>
-            Les codes de sauvegarde sont générés lors de l&apos;activation de
-            l&apos;authentification à deux facteurs. Chaque code ne peut être
-            utilisé qu&apos;une seule fois.
-          </AlertDescription>
+          <AlertDescription>{t('alertDescription')}</AlertDescription>
         </Alert>
 
         <Form {...form}>
@@ -98,12 +91,12 @@ export function RecoveryCodeForm() {
               name="code"
               render={({field}) => (
                 <FormItem>
-                  <FormLabel>Code de sauvegarde</FormLabel>
+                  <FormLabel>{t('codeLabel')}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       type="text"
-                      placeholder="Ex: ABC123DEF456"
+                      placeholder={t('codePlaceholder')}
                       className="text-center font-mono text-lg tracking-wider"
                       maxLength={12}
                       autoComplete="off"
@@ -116,19 +109,19 @@ export function RecoveryCodeForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Vérification...' : 'Accéder au compte'}
+              {isSubmitting ? t('submitting') : t('submitButton')}
             </Button>
           </form>
         </Form>
 
         <div className="text-muted-foreground text-center text-sm">
           <p>
-            Vous n&apos;avez pas de code de sauvegarde ?{' '}
+            {t('noCodeMessage')}{' '}
             <Link
               href="/login"
               className="hover:text-primary underline underline-offset-4"
             >
-              Retour à la connexion
+              {t('backToLogin')}
             </Link>
           </p>
         </div>

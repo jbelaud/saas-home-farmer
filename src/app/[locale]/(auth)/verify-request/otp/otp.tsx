@@ -4,6 +4,7 @@ import {zodResolver} from '@hookform/resolvers/zod'
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import Link from 'next/link'
 import {useRouter, useSearchParams} from 'next/navigation'
+import {useTranslations} from 'next-intl'
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -29,17 +30,8 @@ import {
 import {Input} from '@/components/ui/input'
 import {authClient} from '@/lib/better-auth/auth-client'
 
-const otpSchema = z.object({
-  code: z
-    .string()
-    .min(6, 'Le code doit contenir 6 chiffres')
-    .max(6, 'Le code doit contenir 6 chiffres')
-    .regex(/^\d{6}$/, 'Le code doit contenir uniquement des chiffres'),
-})
-
-type OtpFormValues = z.infer<typeof otpSchema>
-
 export default function OtpVerificationPage() {
+  const t = useTranslations('Auth.OtpVerificationPage')
   const [isLoading, setIsLoading] = useState(false)
   const [isSendingOtp, setIsSendingOtp] = useState(false)
   const hasSentOtp = useRef(false)
@@ -47,12 +39,49 @@ export default function OtpVerificationPage() {
   const searchParams = useSearchParams()
   const codeFromUrl = searchParams.get('code') ?? ''
 
+  // Schéma de validation avec traductions
+  const otpSchema = z.object({
+    code: z
+      .string()
+      .min(6, t('validation.codeRequired'))
+      .max(6, t('validation.codeRequired'))
+      .regex(/^\d{6}$/, t('validation.codeFormat')),
+  })
+
+  type OtpFormValues = z.infer<typeof otpSchema>
+
   const form = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
     defaultValues: {
       code: codeFromUrl,
     },
   })
+
+  const sendOtp = useCallback(async () => {
+    // Éviter le double envoi en mode DEV
+    if (hasSentOtp.current) {
+      return
+    }
+
+    try {
+      setIsSendingOtp(true)
+      hasSentOtp.current = true // Marquer comme envoyé immédiatement
+
+      const {error} = await authClient.twoFactor.sendOtp()
+
+      if (error) {
+        toast.error(t('messages.otpSendError'))
+        console.error('sendOtp error:', error)
+      } else {
+        toast.success(t('messages.otpSent'))
+      }
+    } catch (error) {
+      toast.error(t('messages.otpSendError'))
+      console.error('sendOtp error:', error)
+    } finally {
+      setIsSendingOtp(false)
+    }
+  }, [t])
 
   const handleVerifyCode = useCallback(
     async (code: string) => {
@@ -68,25 +97,25 @@ export default function OtpVerificationPage() {
         console.log('result', result)
 
         if (result.success) {
-          toast.success('Vérification OTP réussie')
+          toast.success(t('messages.verificationSuccess'))
           // Rediriger vers le dashboard après 2 secondes
           setTimeout(() => {
             router.push('/dashboard')
           }, 2000)
         } else {
-          toast.error(result.message || 'Code OTP invalide')
+          toast.error(result.message || t('messages.verificationError'))
         }
       } catch (error) {
         if (isRedirectError(error)) {
-          toast.success('Redirection vers le dashboard ...')
+          toast.success(t('messages.redirecting'))
         } else {
-          toast.error('Une erreur est survenue lors de la vérification OTP')
+          toast.error(t('messages.verificationError'))
         }
       } finally {
         setIsLoading(false)
       }
     },
-    [router]
+    [router, t]
   )
 
   // Si on a un code dans l'URL, on le vérifie automatiquement
@@ -101,33 +130,7 @@ export default function OtpVerificationPage() {
     if (!codeFromUrl && !hasSentOtp.current) {
       sendOtp()
     }
-  }, [codeFromUrl])
-
-  const sendOtp = async () => {
-    // Éviter le double envoi en mode DEV
-    if (hasSentOtp.current) {
-      return
-    }
-
-    try {
-      setIsSendingOtp(true)
-      hasSentOtp.current = true // Marquer comme envoyé immédiatement
-
-      const {error} = await authClient.twoFactor.sendOtp()
-
-      if (error) {
-        toast.error("Erreur lors de l'envoi du code OTP")
-        console.error('sendOtp error:', error)
-      } else {
-        toast.success('Code OTP envoyé par email')
-      }
-    } catch (error) {
-      toast.error("Erreur lors de l'envoi du code OTP")
-      console.error('sendOtp error:', error)
-    } finally {
-      setIsSendingOtp(false)
-    }
-  }
+  }, [codeFromUrl, sendOtp])
 
   const onSubmit = async (data: OtpFormValues) => {
     await handleVerifyCode(data.code)
@@ -138,13 +141,13 @@ export default function OtpVerificationPage() {
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Vérification OTP</CardTitle>
+            <CardTitle className="text-xl">{t('title')}</CardTitle>
             <CardDescription>
               {codeFromUrl
-                ? 'Vérification automatique du code...'
+                ? t('descriptionAutomatic')
                 : isSendingOtp
-                  ? 'Envoi du code OTP...'
-                  : 'Entrez le code OTP à 6 chiffres envoyé par email'}
+                  ? t('descriptionSending')
+                  : t('description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -158,11 +161,11 @@ export default function OtpVerificationPage() {
                   name="code"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel>Code OTP</FormLabel>
+                      <FormLabel>{t('codeLabel')}</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="123456"
+                          placeholder={t('codePlaceholder')}
                           maxLength={6}
                           className="text-center text-lg tracking-widest"
                           disabled={isLoading || isSendingOtp || !!codeFromUrl}
@@ -178,7 +181,7 @@ export default function OtpVerificationPage() {
                   className="w-full"
                   disabled={isLoading || isSendingOtp || !!codeFromUrl}
                 >
-                  {isLoading ? 'Vérification...' : 'Vérifier le code OTP'}
+                  {isLoading ? t('submitting') : t('submitButton')}
                 </Button>
               </form>
             </Form>
@@ -188,7 +191,7 @@ export default function OtpVerificationPage() {
                   href="/login"
                   className="text-muted-foreground hover:text-primary text-sm"
                 >
-                  Retour à la connexion
+                  {t('backToLogin')}
                 </Link>
               </div>
               <div>
@@ -196,16 +199,15 @@ export default function OtpVerificationPage() {
                   href="/verify-request/recovery"
                   className="text-muted-foreground hover:text-primary text-sm underline underline-offset-4"
                 >
-                  Utiliser un code de sauvegarde
+                  {t('useBackupCode')}
                 </Link>
               </div>
             </div>
           </CardContent>
         </Card>
         <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-          En cliquant sur continuer, vous acceptez nos{' '}
-          <Link href="/terms">Conditions d&apos;utilisation</Link> et notre{' '}
-          <Link href="/privacy">Politique de confidentialité</Link>.
+          {t('terms')} <Link href="/terms">{t('termsLink')}</Link> {t('and')}{' '}
+          <Link href="/privacy">{t('privacyLink')}</Link>.
         </div>
       </div>
     </div>
