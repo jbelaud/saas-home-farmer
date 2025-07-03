@@ -99,25 +99,43 @@ export async function updateUserAction(
   const userData: UpdateUser = {
     id: formData.get('id') as string,
     name: formData.get('name') as string,
-    email: formData.get('email') as string,
+    email: '', //formData.get('email') as string,
     image: formData.get('image') as string,
     visibility: formData.get('visibility') as 'public' | 'private',
   }
+  // STEP 1 : Valider les données avec le schéma Zod coté back avec traductions
+  const validationResult = await userFormSchema.safeParseAsync(userData, {
+    errorMap(issue, ctx) {
+      console.log('errorMap', issue)
+      const path = issue.path.join('.')
 
-  // STEP 1 : Valider les données avec le schéma Zod coté back
-  const validationResult = userFormSchema.safeParse(userData)
+      const message = {
+        id: t('validation.uuid.invalid'),
+        name:
+          issue.code === 'too_small'
+            ? t('validation.name.min')
+            : t('validation.name.invalid'),
+        email: t('validation.email.invalid'),
+        image: t('validation.image.invalid'),
+        visibility: t('validation.visibility.invalid'),
+      }[path]
+      console.log('message', message)
+      return {message: message || ctx.defaultError}
+    },
+  })
 
   if (!validationResult.success) {
-    // Récupérer les messages d'erreur a plat
+    // Récupérer les messages d'erreur traduits
     const errorMessages = validationResult.error.errors
       .map((err) => `${err.path.join('.')}: ${err.message}`)
       .join(', ')
-    // Récupérer les messages d'erreur pour chaque champs (normalement déjà fait par le front RHF)
+    console.log('errorMessages', errorMessages)
     const validationErrors: ValidationError[] =
       validationResult.error.errors.map((err) => ({
         field: err.path[0] as keyof UserFormSchemaType,
-        message: `zod server error ${err.message}`,
+        message: err.message, // Message déjà traduit par errorMap
       }))
+
     return {
       success: false,
       message: `${t('form.validationFailed')}: ${errorMessages}`,

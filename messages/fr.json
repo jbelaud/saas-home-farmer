@@ -228,6 +228,31 @@
         "invalidData": "Données invalides",
         "updateFailed": "Échec de la mise à jour du profil",
         "nameValidationError": "Le nom ne peut pas contenir deux espaces consécutifs"
+      },
+      "validation": {
+        "name": {
+          "required": "Le nom est requis",
+          "min": "Le nom doit contenir au moins 2 caractères",
+          "invalid": "Nom invalide"
+        },
+        "email": {
+          "required": "L'email est requis",
+          "invalid": "Adresse email invalide",
+          "format": "Format d'email invalide"
+        },
+        "image": {
+          "invalid": "URL d'image invalide"
+        },
+        "visibility": {
+          "required": "La visibilité est requise",
+          "invalid": "Valeur de visibilité invalide"
+        },
+        "uuid": {
+          "invalid": "UUID invalide"
+        },
+        "id": {
+          "invalid": "UUID invalide"
+        }
       }
     },
     "UserSecuritySection": {

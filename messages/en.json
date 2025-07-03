@@ -228,6 +228,31 @@
         "invalidData": "Invalid data",
         "updateFailed": "Failed to update profile",
         "nameValidationError": "Name must not contain two consecutive spaces"
+      },
+      "validation": {
+        "name": {
+          "required": "Name is required",
+          "min": "Name must be at least 2 characters",
+          "invalid": "Invalid name"
+        },
+        "email": {
+          "required": "Email is required",
+          "invalid": "Invalid email address",
+          "format": "Invalid email format"
+        },
+        "image": {
+          "invalid": "Invalid image URL"
+        },
+        "visibility": {
+          "required": "Visibility is required",
+          "invalid": "Invalid visibility value"
+        },
+        "uuid": {
+          "invalid": "Invalid UUID"
+        },
+        "id": {
+          "invalid": "Invalid UUID"
+        }
       }
     },
     "UserSecuritySection": {
