@@ -253,6 +253,7 @@
         "enable": "Activer l'A2F",
         "disable": "Désactiver l'A2F",
         "status": {
+          "title": "Statut actuel",
           "enabled": "Authentification à deux facteurs activée",
           "disabled": "Authentification à deux facteurs désactivée"
         },
@@ -312,6 +313,40 @@
         "current": "Session actuelle",
         "revoke": "Révoquer",
         "revokeAll": "Révoquer toutes les autres sessions"
+      },
+      "listTokens": {
+        "title": "Sessions actives",
+        "description": "Gérez vos sessions et tokens d'accès. Vous pouvez révoquer les sessions suspectes ou inutilisées.",
+        "loading": "Chargement des sessions...",
+        "noSessions": "Aucune session active trouvée",
+        "table": {
+          "device": "Appareil",
+          "ipAddress": "Adresse IP",
+          "token": "Token",
+          "lastActivity": "Dernière activité",
+          "actions": "Actions",
+          "notAvailable": "Non disponible"
+        },
+        "actions": {
+          "copyToken": "Copier le token",
+          "copyFullToken": "Copier le token complet",
+          "revoke": "Révoquer",
+          "revoking": "Révocation...",
+          "refresh": "Actualiser"
+        },
+        "success": {
+          "sessionRevoked": "Session révoquée avec succès",
+          "tokenCopied": "Token copié dans le presse-papiers"
+        },
+        "errors": {
+          "loadSessions": "Impossible de charger les sessions",
+          "revokeSession": "Impossible de révoquer la session",
+          "copyToken": "Impossible de copier le token"
+        },
+        "device": {
+          "unknown": "Navigateur inconnu"
+        },
+        "sessionCount": "{count, plural, =0 {Aucune session active} one {# session active} other {# sessions actives}}"
       }
     }
   },
@@ -374,6 +409,34 @@
       "updateSettings": "Mettre à jour les paramètres",
       "success": "Succès",
       "error": "Erreur"
+    }
+  },
+  "ui": {
+    "fileUpload": {
+      "title": {
+        "uploading": "Téléchargement...",
+        "image": "Télécharger une image",
+        "file": "Télécharger un fichier"
+      },
+      "description": {
+        "uploading": "Veuillez patienter pendant le téléchargement de vos fichiers",
+        "image": {
+          "single": "Glissez-déposez votre image ici ou cliquez pour télécharger (WebP, JPEG, PNG)",
+          "multiple": "Glissez-déposez vos images ici ou cliquez pour télécharger (WebP, JPEG, PNG)"
+        },
+        "file": {
+          "single": "Glissez-déposez votre fichier ici ou cliquez pour télécharger",
+          "multiple": "Glissez-déposez vos fichiers ici ou cliquez pour télécharger"
+        }
+      },
+      "dropIt": "Déposez-le",
+      "errors": {
+        "imageOnly": "Seules les images sont autorisées (WebP, JPEG, JPG, PNG)",
+        "fileTooLarge": "Le fichier est trop volumineux. Taille maximale: {maxSize} MB"
+      },
+      "fileInfo": {
+        "modified": "modifié le {date}"
+      }
     }
   }
 }

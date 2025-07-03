@@ -1,8 +1,11 @@
+'use client'
+
 import {cn} from '@/lib/utils'
 import React, {useRef, useState} from 'react'
 import {motion} from 'framer-motion'
 import {IconUpload} from '@tabler/icons-react'
 import {useDropzone} from 'react-dropzone'
+import {useTranslations} from 'next-intl'
 import {ALLOWED_IMAGE_MIME_TYPES} from '@/services/types/domain/file-types'
 
 const mainVariant = {
@@ -39,19 +42,22 @@ export const FileUpload = ({
   isUploading?: boolean
   maxSize?: number
 }) => {
+  const t = useTranslations('ui.fileUpload')
   const [files, setFiles] = useState<File[]>([])
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isValidFile = (file: File): boolean => {
     if (onlyimage && !ALLOWED_IMAGE_MIME_TYPES.includes(file.type as any)) {
-      setError('Seules les images sont autorisées (WebP, JPEG, JPG, PNG)')
+      setError(t('errors.imageOnly'))
       return false
     }
 
     if (file.size > maxSize) {
       setError(
-        `Le fichier est trop volumineux. Taille maximale: ${(maxSize / (1024 * 1024)).toFixed(2)} MB`
+        t('errors.fileTooLarge', {
+          maxSize: (maxSize / (1024 * 1024)).toFixed(2),
+        })
       )
       return false
     }
@@ -101,7 +107,7 @@ export const FileUpload = ({
     onDropRejected: (rejectedFiles) => {
       console.warn('Fichiers rejetés:', rejectedFiles)
       if (onlyimage) {
-        setError('Seules les images sont autorisées (WebP, JPEG, JPG, PNG)')
+        setError(t('errors.imageOnly'))
       }
     },
   })
@@ -133,20 +139,24 @@ export const FileUpload = ({
         <div className="flex flex-col items-center justify-center">
           <p className="relative z-20 font-sans text-base font-bold text-neutral-700 dark:text-neutral-300">
             {isUploading
-              ? 'Uploading...'
+              ? t('title.uploading')
               : onlyimage
-                ? 'Upload image'
-                : 'Upload file'}
+                ? t('title.image')
+                : t('title.file')}
           </p>
           <div className="relative z-20 mt-2 font-sans text-base font-normal text-neutral-400 dark:text-neutral-400">
             {error ? (
               <span className="text-red-500">{error}</span>
             ) : isUploading ? (
-              'Please wait while your files are being uploaded'
+              t('description.uploading')
             ) : onlyimage ? (
-              `Drag or drop ${multi ? 'your images' : 'your image'} here or click to upload (WebP, JPEG, PNG)`
+              t(
+                multi
+                  ? 'description.image.multiple'
+                  : 'description.image.single'
+              )
             ) : (
-              `Drag or drop ${multi ? 'your files' : 'your file'} here or click to upload`
+              t(multi ? 'description.file.multiple' : 'description.file.single')
             )}
           </div>
           <div className="relative mx-auto mt-10 w-full max-w-xl">
@@ -210,8 +220,12 @@ export const FileUpload = ({
                       className={cn(isUploading && 'text-blue-500')}
                     >
                       {isUploading
-                        ? 'Uploading...'
-                        : `modified ${new Date(file.lastModified).toLocaleDateString()}`}
+                        ? t('title.uploading')
+                        : t('fileInfo.modified', {
+                            date: new Date(
+                              file.lastModified
+                            ).toLocaleDateString(),
+                          })}
                     </motion.p>
                   </div>
                 </motion.div>
@@ -243,7 +257,7 @@ export const FileUpload = ({
                     animate={{opacity: 1}}
                     className="flex flex-col items-center text-neutral-600"
                   >
-                    Drop it
+                    {t('dropIt')}
                     <IconUpload className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
                   </motion.p>
                 ) : (

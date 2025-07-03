@@ -4,6 +4,7 @@ import {Session} from 'better-auth'
 import {formatDistanceToNow} from 'date-fns'
 import {fr} from 'date-fns/locale'
 import {Copy, Monitor, Smartphone, Trash2} from 'lucide-react'
+import {useTranslations} from 'next-intl'
 import {useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
@@ -26,6 +27,7 @@ import {
 import {authClient} from '@/lib/better-auth/auth-client'
 
 export function ListTokensSection() {
+  const t = useTranslations('AccountPage.UserSecuritySection.listTokens')
   const [sessions, setSessions] = useState<Session[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
@@ -37,21 +39,27 @@ export function ListTokensSection() {
       setSessions(data || [])
     } catch (error) {
       console.error('Erreur lors du chargement des sessions:', error)
-      toast.error('Impossible de charger les sessions')
+      toast.error(t('errors.loadSessions'))
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleRevokeSession = async (sessionId: string) => {
+  const handleRevokeSession = async (token: string) => {
     try {
-      setIsDeleting(sessionId)
-      await authClient.revokeSession({token: sessionId})
-      toast.success('Session révoquée avec succès')
+      setIsDeleting(token)
+      const {error} = await authClient.revokeSession({token})
+      if (error) {
+        toast.error(t('errors.revokeSession'), {
+          description: error.message,
+        })
+        return
+      }
+      toast.success(t('success.sessionRevoked'))
       await loadSessions() // Recharger la liste
     } catch (error) {
       console.error('Erreur lors de la révocation:', error)
-      toast.error('Impossible de révoquer la session')
+      toast.error(t('errors.revokeSession'))
     } finally {
       setIsDeleting(null)
     }
@@ -60,10 +68,10 @@ export function ListTokensSection() {
   const handleCopyToken = async (token: string) => {
     try {
       await navigator.clipboard.writeText(token)
-      toast.success('Token copié dans le presse-papiers')
+      toast.success(t('success.tokenCopied'))
     } catch (error) {
       console.error('Erreur lors de la copie:', error)
-      toast.error('Impossible de copier le token')
+      toast.error(t('errors.copyToken'))
     }
   }
 
@@ -79,7 +87,7 @@ export function ListTokensSection() {
   }
 
   const getDeviceInfo = (userAgent?: string) => {
-    if (!userAgent) return 'Navigateur inconnu'
+    if (!userAgent) return t('device.unknown')
 
     // Extraction simplifiée du navigateur
     if (userAgent.includes('Chrome')) return 'Chrome'
@@ -87,24 +95,23 @@ export function ListTokensSection() {
     if (userAgent.includes('Safari')) return 'Safari'
     if (userAgent.includes('Edge')) return 'Edge'
 
-    return 'Navigateur inconnu'
+    return t('device.unknown')
   }
 
   useEffect(() => {
     loadSessions()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Sessions actives</CardTitle>
-          <CardDescription>
-            Gérez vos sessions et tokens d&apos;accès
-          </CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('description')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="py-6 text-center">Chargement des sessions...</div>
+          <div className="py-6 text-center">{t('loading')}</div>
         </CardContent>
       </Card>
     )
@@ -113,31 +120,30 @@ export function ListTokensSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sessions actives</CardTitle>
-        <CardDescription>
-          Gérez vos sessions et tokens d&apos;accès. Vous pouvez révoquer les
-          sessions suspectes ou inutilisées.
-        </CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         {sessions.length === 0 ? (
           <div className="text-muted-foreground py-6 text-center">
-            Aucune session active trouvée
+            {t('noSessions')}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Appareil</TableHead>
+                  <TableHead>{t('table.device')}</TableHead>
                   <TableHead className="hidden md:table-cell">
-                    Adresse IP
+                    {t('table.ipAddress')}
                   </TableHead>
-                  <TableHead className="hidden lg:table-cell">Token</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t('table.token')}
+                  </TableHead>
                   <TableHead className="hidden md:table-cell">
-                    Dernière activité
+                    {t('table.lastActivity')}
                   </TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t('table.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -150,13 +156,15 @@ export function ListTokensSection() {
                           {getDeviceInfo(session.userAgent ?? undefined)}
                         </div>
                         <div className="text-muted-foreground flex items-center gap-2 text-sm md:hidden">
-                          <span>{session.ipAddress ?? 'Non disponible'}</span>
+                          <span>
+                            {session.ipAddress ?? t('table.notAvailable')}
+                          </span>
                           <Button
                             variant="ghost"
                             size="sm"
                             className="h-5 w-5 p-0 lg:hidden"
                             onClick={() => handleCopyToken(session.token)}
-                            title="Copier le token"
+                            title={t('actions.copyToken')}
                           >
                             <Copy className="h-3 w-3" />
                           </Button>
@@ -165,7 +173,7 @@ export function ListTokensSection() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <code className="bg-muted rounded px-1 py-0.5 text-sm">
-                        {session.ipAddress || 'Non disponible'}
+                        {session.ipAddress || t('table.notAvailable')}
                       </code>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
@@ -178,7 +186,7 @@ export function ListTokensSection() {
                           size="sm"
                           className="h-6 w-6 p-0"
                           onClick={() => handleCopyToken(session.token)}
-                          title="Copier le token complet"
+                          title={t('actions.copyFullToken')}
                         >
                           <Copy className="h-3 w-3" />
                         </Button>
@@ -194,13 +202,13 @@ export function ListTokensSection() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleRevokeSession(session.id)}
+                        onClick={() => handleRevokeSession(session.token)}
                         disabled={isDeleting === session.id}
                       >
                         <Trash2 className="mr-1 h-4 w-4" />
                         {isDeleting === session.id
-                          ? 'Révocation...'
-                          : 'Révoquer'}
+                          ? t('actions.revoking')
+                          : t('actions.revoke')}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -212,10 +220,10 @@ export function ListTokensSection() {
 
         <div className="mt-4 flex items-center justify-between">
           <Button variant="outline" onClick={loadSessions} disabled={isLoading}>
-            Actualiser
+            {t('actions.refresh')}
           </Button>
           <p className="text-muted-foreground text-xs">
-            {sessions.length} session(s) active(s)
+            {t('sessionCount', {count: sessions.length})}
           </p>
         </div>
       </CardContent>

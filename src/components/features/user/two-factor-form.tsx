@@ -129,9 +129,8 @@ export function TwoFactorForm({user}: {user: User}) {
   // Nouvelle fonction pour changer le type de 2FA
   const handleChangeTwoFactorType = async (type: 'otp' | 'totp') => {
     if (!user.twoFactorEnabled) {
-      toast('Erreur', {
-        description:
-          "Vous devez d'abord activer l'authentification à deux facteurs",
+      toast(t('error'), {
+        description: t('typeSelection.error'),
       })
       return
     }
@@ -144,11 +143,14 @@ export function TwoFactorForm({user}: {user: User}) {
     setIsUpdatingType(false)
 
     if (result.success) {
-      toast('Succès', {
-        description: `Type de 2FA changé vers ${type.toUpperCase()}`,
+      toast(t('success'), {
+        description:
+          type === 'totp'
+            ? t('typeSelection.successTotp')
+            : t('typeSelection.successOtp'),
       })
     } else {
-      toast('Erreur', {
+      toast(t('error'), {
         description: result.message,
       })
     }
@@ -176,8 +178,8 @@ export function TwoFactorForm({user}: {user: User}) {
 
   const handleValidateCode = async () => {
     if (!validationCode.trim()) {
-      toast('Erreur', {
-        description: 'Veuillez saisir un code de validation',
+      toast(t('error'), {
+        description: t('validation.error'),
       })
       return
     }
@@ -192,7 +194,7 @@ export function TwoFactorForm({user}: {user: User}) {
       const result = await verifyTotpAction(undefined, formData)
 
       if (result.success) {
-        toast('Succès', {
+        toast(t('success'), {
           description: result.message,
         })
         setShowValidationModal(false)
@@ -200,13 +202,13 @@ export function TwoFactorForm({user}: {user: User}) {
         // Optionnel : fermer aussi la modal des codes de sauvegarde
         handleBackupCodesClose()
       } else {
-        toast('Erreur', {
+        toast(t('error'), {
           description: result.message,
         })
       }
     } catch {
-      toast('Erreur', {
-        description: 'Erreur lors de la validation du code.',
+      toast(t('error'), {
+        description: t('validation.errorGeneral'),
       })
     } finally {
       setIsValidating(false)
@@ -216,18 +218,16 @@ export function TwoFactorForm({user}: {user: User}) {
   return (
     <>
       <div className="space-y-4">
-        <h4 className="text-sm font-medium">
-          Authentification à deux facteurs
-        </h4>
+        <h4 className="text-sm font-medium">{t('title')}</h4>
 
         {/* Statut actuel avec switch */}
         <div className="flex items-center justify-between rounded-lg border p-4">
           <div className="space-y-0.5">
-            <p className="text-sm font-medium">Statut actuel</p>
+            <p className="text-sm font-medium">{t('status.title')}</p>
             <p className="text-muted-foreground text-sm">
               {user.twoFactorEnabled
-                ? 'Authentification à deux facteurs activée'
-                : 'Authentification à deux facteurs désactivée'}
+                ? t('status.enabled')
+                : t('status.disabled')}
             </p>
           </div>
           <Switch
@@ -243,11 +243,10 @@ export function TwoFactorForm({user}: {user: User}) {
             <div className="space-y-3">
               <div>
                 <h5 className="text-sm font-medium">
-                  Type d&apos;authentification
+                  {t('typeSelection.title')}
                 </h5>
                 <p className="text-muted-foreground text-sm">
-                  Choisissez votre méthode préférée pour l&apos;authentification
-                  à deux facteurs
+                  {t('typeSelection.description')}
                 </p>
               </div>
 
@@ -263,8 +262,8 @@ export function TwoFactorForm({user}: {user: User}) {
                   disabled={isUpdatingType}
                 >
                   {isUpdatingType && user.settings?.twoFactorType === 'totp'
-                    ? 'Mise à jour...'
-                    : 'TOTP'}
+                    ? t('typeSelection.updating')
+                    : t('typeSelection.totp')}
                 </Button>
 
                 <Button
@@ -278,14 +277,13 @@ export function TwoFactorForm({user}: {user: User}) {
                   disabled={isUpdatingType}
                 >
                   {isUpdatingType && user.settings?.twoFactorType === 'otp'
-                    ? 'Mise à jour...'
-                    : 'OTP'}
+                    ? t('typeSelection.updating')
+                    : t('typeSelection.otp')}
                 </Button>
               </div>
 
               <p className="text-muted-foreground text-xs">
-                TOTP : Application d&apos;authentification (Google Auth, Authy)
-                | OTP : Codes envoyés par email
+                {t('typeSelection.help')}
               </p>
             </div>
           </div>
@@ -297,13 +295,14 @@ export function TwoFactorForm({user}: {user: User}) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedAction === 'enable' ? 'Activer' : 'Désactiver'}{' '}
-              l&apos;authentification à deux facteurs
+              {selectedAction === 'enable'
+                ? t('modal.enableTitle')
+                : t('modal.disableTitle')}
             </DialogTitle>
             <DialogDescription>
               {selectedAction === 'enable'
-                ? 'Pour activer l&apos;authentification à deux facteurs, veuillez confirmer votre mot de passe.'
-                : 'Pour désactiver l&apos;authentification à deux facteurs, veuillez confirmer votre mot de passe.'}
+                ? t('modal.enableDescription')
+                : t('modal.disableDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -314,11 +313,11 @@ export function TwoFactorForm({user}: {user: User}) {
                 name="password"
                 render={({field}) => (
                   <FormItem>
-                    <FormLabel>Mot de passe</FormLabel>
+                    <FormLabel>{t('modal.password')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Entrez votre mot de passe"
+                        placeholder={t('modal.passwordPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -329,14 +328,14 @@ export function TwoFactorForm({user}: {user: User}) {
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={handleCancel}>
-                  Annuler
+                  {t('modal.cancel')}
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting
-                    ? 'Traitement...'
+                    ? t('modal.processing')
                     : selectedAction === 'enable'
-                      ? 'Activer 2FA'
-                      : 'Désactiver 2FA'}
+                      ? t('modal.enable')
+                      : t('modal.disable')}
                 </Button>
               </DialogFooter>
             </form>
@@ -348,21 +347,19 @@ export function TwoFactorForm({user}: {user: User}) {
       <Dialog open={showBackupCodes} onOpenChange={setShowBackupCodes}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Configuration 2FA réussie</DialogTitle>
-            <DialogDescription>
-              Votre authentification à deux facteurs a été activée. Scannez le
-              QR code et notez vos codes de sauvegarde.
-            </DialogDescription>
+            <DialogTitle>{t('setup.title')}</DialogTitle>
+            <DialogDescription>{t('setup.description')}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6">
             {/* QR Code */}
             {qrCodeDataUrl && (
               <div className="text-center">
-                <h4 className="mb-3 text-sm font-medium">QR Code</h4>
+                <h4 className="mb-3 text-sm font-medium">
+                  {t('setup.qrCode')}
+                </h4>
                 <p className="text-muted-foreground mb-3 text-sm">
-                  Scannez ce QR code avec votre application
-                  d&apos;authentification (Google Authenticator, Authy, etc.)
+                  {t('setup.qrDescription')}
                 </p>
                 <div className="flex justify-center">
                   <Image
@@ -378,10 +375,11 @@ export function TwoFactorForm({user}: {user: User}) {
 
             {/* Codes de sauvegarde */}
             <div>
-              <h4 className="mb-2 text-sm font-medium">Codes de sauvegarde</h4>
+              <h4 className="mb-2 text-sm font-medium">
+                {t('setup.backupCodes')}
+              </h4>
               <p className="text-muted-foreground mb-3 text-sm">
-                Conservez ces codes en lieu sûr. Ils vous permettront
-                d&apos;accéder à votre compte si vous perdez votre appareil.
+                {t('setup.backupDescription')}
               </p>
               <div className="bg-muted grid grid-cols-2 gap-2 rounded-lg p-3">
                 {backupCodes.map((code, index) => (
@@ -399,11 +397,10 @@ export function TwoFactorForm({user}: {user: User}) {
             {totpURI && (
               <div>
                 <h4 className="mb-2 text-sm font-medium">
-                  URI TOTP (optionnel)
+                  {t('setup.totpUri')}
                 </h4>
                 <p className="text-muted-foreground mb-2 text-sm">
-                  Si le QR code ne fonctionne pas, vous pouvez utiliser cette
-                  URI manuellement :
+                  {t('setup.totpDescription')}
                 </p>
                 <div className="bg-muted rounded p-2 font-mono text-xs break-all">
                   {totpURI}
@@ -419,14 +416,14 @@ export function TwoFactorForm({user}: {user: User}) {
                 onClick={() => setShowValidationModal(true)}
                 className="w-full sm:w-auto"
               >
-                Valider la configuration
+                {t('setup.validate')}
               </Button>
             )}
             <Button
               onClick={handleBackupCodesClose}
               className="w-full sm:w-auto"
             >
-              J&apos;ai configuré mon application
+              {t('setup.configured')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -436,27 +433,24 @@ export function TwoFactorForm({user}: {user: User}) {
       <Dialog open={showValidationModal} onOpenChange={setShowValidationModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Valider la configuration 2FA</DialogTitle>
-            <DialogDescription>
-              Saisissez le premier code de sauvegarde pour valider que votre
-              application d&apos;authentification fonctionne correctement.
-            </DialogDescription>
+            <DialogTitle>{t('validation.title')}</DialogTitle>
+            <DialogDescription>{t('validation.description')}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
               <label className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Code de validation
+                {t('validation.codeLabel')}
               </label>
               <Input
                 type="text"
-                placeholder="Saisissez le premier code de sauvegarde"
+                placeholder={t('validation.codePlaceholder')}
                 value={validationCode}
                 onChange={(e) => setValidationCode(e.target.value)}
                 className="mt-2 text-center font-mono text-lg tracking-wider"
               />
               <p className="text-muted-foreground mt-2 text-sm">
-                Utilisez le premier code de la liste :{' '}
+                {t('validation.codeHelper')}{' '}
                 <span className="font-mono">{backupCodes[0]}</span>
               </p>
             </div>
@@ -471,13 +465,15 @@ export function TwoFactorForm({user}: {user: User}) {
                 setValidationCode('')
               }}
             >
-              Annuler
+              {t('validation.cancel')}
             </Button>
             <Button
               onClick={handleValidateCode}
               disabled={isValidating || !validationCode.trim()}
             >
-              {isValidating ? 'Validation...' : 'Valider'}
+              {isValidating
+                ? t('validation.validating')
+                : t('validation.validate')}
             </Button>
           </DialogFooter>
         </DialogContent>

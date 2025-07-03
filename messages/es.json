@@ -253,6 +253,7 @@
         "enable": "Activar 2FA",
         "disable": "Desactivar 2FA",
         "status": {
+          "title": "Estado actual",
           "enabled": "Autenticación de dos factores activada",
           "disabled": "Autenticación de dos factores desactivada"
         },
@@ -312,6 +313,40 @@
         "current": "Sesión Actual",
         "revoke": "Revocar",
         "revokeAll": "Revocar Todas las Otras Sesiones"
+      },
+      "listTokens": {
+        "title": "Sesiones Activas",
+        "description": "Gestiona tus sesiones y tokens de acceso. Puedes revocar sesiones sospechosas o no utilizadas.",
+        "loading": "Cargando sesiones...",
+        "noSessions": "No se encontraron sesiones activas",
+        "table": {
+          "device": "Dispositivo",
+          "ipAddress": "Dirección IP",
+          "token": "Token",
+          "lastActivity": "Última Actividad",
+          "actions": "Acciones",
+          "notAvailable": "No disponible"
+        },
+        "actions": {
+          "copyToken": "Copiar token",
+          "copyFullToken": "Copiar token completo",
+          "revoke": "Revocar",
+          "revoking": "Revocando...",
+          "refresh": "Actualizar"
+        },
+        "success": {
+          "sessionRevoked": "Sesión revocada exitosamente",
+          "tokenCopied": "Token copiado al portapapeles"
+        },
+        "errors": {
+          "loadSessions": "No se pudieron cargar las sesiones",
+          "revokeSession": "No se pudo revocar la sesión",
+          "copyToken": "No se pudo copiar el token"
+        },
+        "device": {
+          "unknown": "Navegador desconocido"
+        },
+        "sessionCount": "{count, plural, =0 {No hay sesiones activas} one {# sesión activa} other {# sesiones activas}}"
       }
     }
   },
@@ -374,6 +409,34 @@
       "updateSettings": "Actualizar configuración",
       "success": "Éxito",
       "error": "Error"
+    }
+  },
+  "ui": {
+    "fileUpload": {
+      "title": {
+        "uploading": "Subiendo...",
+        "image": "Subir imagen",
+        "file": "Subir archivo"
+      },
+      "description": {
+        "uploading": "Por favor espera mientras se suben tus archivos",
+        "image": {
+          "single": "Arrastra y suelta tu imagen aquí o haz clic para subir (WebP, JPEG, PNG)",
+          "multiple": "Arrastra y suelta tus imágenes aquí o haz clic para subir (WebP, JPEG, PNG)"
+        },
+        "file": {
+          "single": "Arrastra y suelta tu archivo aquí o haz clic para subir",
+          "multiple": "Arrastra y suelta tus archivos aquí o haz clic para subir"
+        }
+      },
+      "dropIt": "Suéltalo",
+      "errors": {
+        "imageOnly": "Solo se permiten imágenes (WebP, JPEG, JPG, PNG)",
+        "fileTooLarge": "El archivo es demasiado grande. Tamaño máximo: {maxSize} MB"
+      },
+      "fileInfo": {
+        "modified": "modificado el {date}"
+      }
     }
   }
 }

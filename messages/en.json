@@ -253,6 +253,7 @@
         "enable": "Enable 2FA",
         "disable": "Disable 2FA",
         "status": {
+          "title": "Current Status",
           "enabled": "Two-factor authentication enabled",
           "disabled": "Two-factor authentication disabled"
         },
@@ -312,6 +313,40 @@
         "current": "Current Session",
         "revoke": "Revoke",
         "revokeAll": "Revoke All Other Sessions"
+      },
+      "listTokens": {
+        "title": "Active Sessions",
+        "description": "Manage your sessions and access tokens. You can revoke suspicious or unused sessions.",
+        "loading": "Loading sessions...",
+        "noSessions": "No active sessions found",
+        "table": {
+          "device": "Device",
+          "ipAddress": "IP Address",
+          "token": "Token",
+          "lastActivity": "Last Activity",
+          "actions": "Actions",
+          "notAvailable": "Not available"
+        },
+        "actions": {
+          "copyToken": "Copy token",
+          "copyFullToken": "Copy full token",
+          "revoke": "Revoke",
+          "revoking": "Revoking...",
+          "refresh": "Refresh"
+        },
+        "success": {
+          "sessionRevoked": "Session revoked successfully",
+          "tokenCopied": "Token copied to clipboard"
+        },
+        "errors": {
+          "loadSessions": "Unable to load sessions",
+          "revokeSession": "Unable to revoke session",
+          "copyToken": "Unable to copy token"
+        },
+        "device": {
+          "unknown": "Unknown browser"
+        },
+        "sessionCount": "{count, plural, =0 {No active sessions} one {# active session} other {# active sessions}}"
       }
     }
   },
@@ -374,6 +409,34 @@
       "updateSettings": "Update settings",
       "success": "Success",
       "error": "Error"
+    }
+  },
+  "ui": {
+    "fileUpload": {
+      "title": {
+        "uploading": "Uploading...",
+        "image": "Upload image",
+        "file": "Upload file"
+      },
+      "description": {
+        "uploading": "Please wait while your files are being uploaded",
+        "image": {
+          "single": "Drag or drop your image here or click to upload (WebP, JPEG, PNG)",
+          "multiple": "Drag or drop your images here or click to upload (WebP, JPEG, PNG)"
+        },
+        "file": {
+          "single": "Drag or drop your file here or click to upload",
+          "multiple": "Drag or drop your files here or click to upload"
+        }
+      },
+      "dropIt": "Drop it",
+      "errors": {
+        "imageOnly": "Only images are allowed (WebP, JPEG, JPG, PNG)",
+        "fileTooLarge": "File is too large. Maximum size: {maxSize} MB"
+      },
+      "fileInfo": {
+        "modified": "modified {date}"
+      }
     }
   }
 }
