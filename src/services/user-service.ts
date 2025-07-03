@@ -90,7 +90,7 @@ export const updateUserService = async (userParams: UpdateUser) => {
   userParams.updatedAt = new Date()
   const parsed = updateUserServiceSchema.safeParse(userParams)
   if (!parsed.success) {
-    throw new ValidationError(parsed.error.message)
+    throw new ValidationParsedZodError(parsed.error)
   }
 
   const userParamsSanitized = parsed.data

@@ -10,7 +10,6 @@ import {
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
 import {auth, AuthAppConfig} from '@/lib/better-auth/auth' // path to your Better Auth server instance
-import {isValidationParsedZodError} from '@/services/errors/validation-error'
 import {
   createOrganizationForUserService,
   getUserByEmailService,
@@ -328,19 +327,7 @@ export async function registerCredentialAction(
     if (isRedirectError(error)) {
       throw error
     }
-    // Si l'erreur est une erreur de validation Zod au niveau Service
-    const validationError = isValidationParsedZodError(error)
 
-    if (validationError) {
-      return {
-        success: false,
-        message: `Erreur de validation : ${error.message}`,
-        errors: error.zodErrorFields?.errors.map((err) => ({
-          field: err.path[0] as keyof typeof authRegisterFormSchema._type,
-          message: err.message,
-        })),
-      }
-    }
     // Si l'erreur est une erreur technique generique
     return {
       success: false,

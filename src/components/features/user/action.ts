@@ -6,6 +6,7 @@ import {headers} from 'next/headers'
 import {requireActionAuth} from '@/app/dal/user-dal'
 import {auth} from '@/lib/better-auth/auth'
 import {APP_NAME} from '@/lib/constants'
+import {isValidationParsedZodError} from '@/services/errors/validation-error'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {updateUserSettingsService} from '@/services/facades/user-service-facade'
@@ -141,6 +142,19 @@ export async function updateUserAction(
     return {success: true, message: 'Profile updated successfully'}
   } catch (error) {
     console.error(error)
+    // Si l'erreur est une erreur de validation Zod au niveau Service
+    const validationError = isValidationParsedZodError(error)
+    console.log('validationError', validationError)
+    if (validationError) {
+      return {
+        success: false,
+        message: `Erreur de validation : ${error.message}`,
+        errors: error.zodErrorFields?.errors.map((err) => ({
+          field: err.path[0] as keyof typeof userFormSchema._type,
+          message: err.message,
+        })),
+      }
+    }
     return {success: false, message: 'Failed to update profile'}
   }
 }
