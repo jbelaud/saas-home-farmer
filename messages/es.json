@@ -565,6 +565,22 @@
       "error": "Error",
       "loginError": "Error de inicio de sesión",
       "providerError": "Error al iniciar sesión con {provider}"
+    },
+    "LogoutPage": {
+      "title": "Cerrar Sesión",
+      "metadata": {
+        "title": "Cerrar Sesión - Next SaaS Boilerplate",
+        "description": "Salir de tu cuenta"
+      }
+    },
+    "LogoutForm": {
+      "title": "Cerrar Sesión",
+      "description": "Salir de {appName}",
+      "confirmLogout": "¿Estás seguro de que quieres cerrar sesión?",
+      "logoutButton": "Cerrar sesión",
+      "loggingOut": "Cerrando sesión...",
+      "backToDashboard": "¿Tienes una cuenta?",
+      "dashboardLink": "Panel de Control"
     }
   },
   "email": {

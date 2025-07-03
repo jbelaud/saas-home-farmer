@@ -565,6 +565,22 @@
       "error": "Error",
       "loginError": "Login error",
       "providerError": "Error signing in with {provider}"
+    },
+    "LogoutPage": {
+      "title": "Logout",
+      "metadata": {
+        "title": "Logout - Next SaaS Boilerplate",
+        "description": "Sign out of your account"
+      }
+    },
+    "LogoutForm": {
+      "title": "Logout",
+      "description": "Sign out of {appName}",
+      "confirmLogout": "Are you sure you want to log out?",
+      "logoutButton": "Log out",
+      "loggingOut": "Logging out...",
+      "backToDashboard": "Have an account?",
+      "dashboardLink": "Dashboard"
     }
   },
   "email": {

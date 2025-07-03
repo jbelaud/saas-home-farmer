@@ -565,6 +565,22 @@
       "error": "Erreur",
       "loginError": "Erreur lors de la connexion",
       "providerError": "Erreur lors de la connexion avec {provider}"
+    },
+    "LogoutPage": {
+      "title": "Déconnexion",
+      "metadata": {
+        "title": "Déconnexion - Next SaaS Boilerplate",
+        "description": "Se déconnecter de votre compte"
+      }
+    },
+    "LogoutForm": {
+      "title": "Déconnexion",
+      "description": "Se déconnecter de {appName}",
+      "confirmLogout": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "logoutButton": "Se déconnecter",
+      "loggingOut": "Déconnexion en cours...",
+      "backToDashboard": "Avez-vous un compte ?",
+      "dashboardLink": "Tableau de bord"
     }
   },
   "email": {
