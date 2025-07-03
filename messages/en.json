@@ -135,5 +135,44 @@
     "title": "Page Not Found",
     "description": "Sorry, we couldn't find the page you're looking for.",
     "goBackHome": "Go Back Home"
+  },
+  "AppSidebar": {
+    "admin": {
+      "title": "Administration",
+      "dashboard": "Admin Dashboard",
+      "users": "Users",
+      "organizations": "Organizations"
+    },
+    "account": {
+      "title": "Account",
+      "accountAndSecurity": "Account & Security",
+      "subscriptions": "Subscriptions",
+      "organizations": "Organizations",
+      "invitations": "Invitations",
+      "settings": "Settings"
+    },
+    "projects": {
+      "title": "Projects",
+      "dashboard": "Dashboard",
+      "projects": "Projects"
+    },
+    "models": {
+      "title": "Models",
+      "genesis": "Genesis",
+      "explorer": "Explorer",
+      "quantum": "Quantum"
+    },
+    "documentation": {
+      "title": "Documentation",
+      "introduction": "Introduction",
+      "getStarted": "Get Started",
+      "tutorials": "Tutorials",
+      "changelog": "Changelog"
+    },
+    "projectsList": {
+      "designEngineering": "Design Engineering",
+      "salesMarketing": "Sales & Marketing",
+      "travel": "Travel"
+    }
   }
 }

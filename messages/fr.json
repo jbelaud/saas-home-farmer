@@ -135,5 +135,44 @@
     "title": "Page non trouvée",
     "description": "Désolé, nous n'avons pas trouvé la page que vous recherchez.",
     "goBackHome": "Retour à l'accueil"
+  },
+  "AppSidebar": {
+    "admin": {
+      "title": "Administration",
+      "dashboard": "Dashboard Admin",
+      "users": "Utilisateurs",
+      "organizations": "Organisations"
+    },
+    "account": {
+      "title": "Compte",
+      "accountAndSecurity": "Compte et Sécurité",
+      "subscriptions": "Abonnements",
+      "organizations": "Organisations",
+      "invitations": "Invitations",
+      "settings": "Paramètres"
+    },
+    "projects": {
+      "title": "Projets",
+      "dashboard": "Tableau de bord",
+      "projects": "Projets"
+    },
+    "models": {
+      "title": "Modèles",
+      "genesis": "Genesis",
+      "explorer": "Explorer",
+      "quantum": "Quantum"
+    },
+    "documentation": {
+      "title": "Documentation",
+      "introduction": "Introduction",
+      "getStarted": "Commencer",
+      "tutorials": "Tutoriels",
+      "changelog": "Journal des modifications"
+    },
+    "projectsList": {
+      "designEngineering": "Ingénierie de Design",
+      "salesMarketing": "Ventes & Marketing",
+      "travel": "Voyage"
+    }
   }
 }

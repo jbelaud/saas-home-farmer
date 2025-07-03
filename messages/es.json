@@ -135,5 +135,44 @@
     "title": "Página no encontrada",
     "description": "Lo sentimos, no pudimos encontrar la página que estás buscando.",
     "goBackHome": "Volver al inicio"
+  },
+  "AppSidebar": {
+    "admin": {
+      "title": "Administración",
+      "dashboard": "Panel de Administración",
+      "users": "Usuarios",
+      "organizations": "Organizaciones"
+    },
+    "account": {
+      "title": "Cuenta",
+      "accountAndSecurity": "Cuenta y Seguridad",
+      "subscriptions": "Suscripciones",
+      "organizations": "Organizaciones",
+      "invitations": "Invitaciones",
+      "settings": "Configuración"
+    },
+    "projects": {
+      "title": "Proyectos",
+      "dashboard": "Panel de Control",
+      "projects": "Proyectos"
+    },
+    "models": {
+      "title": "Modelos",
+      "genesis": "Genesis",
+      "explorer": "Explorer",
+      "quantum": "Quantum"
+    },
+    "documentation": {
+      "title": "Documentación",
+      "introduction": "Introducción",
+      "getStarted": "Comenzar",
+      "tutorials": "Tutoriales",
+      "changelog": "Registro de Cambios"
+    },
+    "projectsList": {
+      "designEngineering": "Ingeniería de Diseño",
+      "salesMarketing": "Ventas y Marketing",
+      "travel": "Viajes"
+    }
   }
 }

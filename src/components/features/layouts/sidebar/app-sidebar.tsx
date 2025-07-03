@@ -9,6 +9,7 @@ import {
   Settings2,
   SquareTerminal,
 } from 'lucide-react'
+import {useTranslations} from 'next-intl'
 import * as React from 'react'
 
 import {useAuth} from '@/components/context/auth-provider'
@@ -24,179 +25,14 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import {buildMenu, MenuData} from '@/lib/helper/menu-helper'
 import {isAdmin} from '@/services/authentication/auth-util'
 
-// Configuration simple et lisible du menu - comme à l'origine
-const menuData = {
-  adminNavMain: [
-    {
-      title: 'Administration',
-      url: '#',
-      icon: Settings2,
-      isActive: false,
-      items: [
-        {
-          title: 'Dashboard Admin',
-          url: '/admin',
-        },
-        {
-          title: 'Users',
-          url: '/admin/users',
-        },
-        {
-          title: 'Organizations',
-          url: '/admin/organizations',
-        },
-      ],
-    },
-  ],
-  navMain: [
-    {
-      title: 'Account',
-      url: '#',
-      icon: SquareTerminal,
-      isActive: false,
-      items: [
-        {
-          title: 'Account et Sécurité',
-          url: '/account',
-        },
-        {
-          title: 'Abonnements',
-          url: '/account/subscription',
-        },
-        {
-          title: 'Organizations',
-          url: '/organizations',
-        },
-        {
-          title: 'Invitations',
-          url: '/invitations',
-        },
-
-        {
-          title: 'Settings',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Projects',
-      url: '#',
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: 'Dashboard',
-          url: '/dashboard',
-        },
-
-        {
-          title: 'Projects',
-          url: '/team/{{orgSlug}}/projects',
-        },
-      ],
-    },
-    {
-      title: 'Models',
-      url: '#',
-      icon: Bot,
-      items: [
-        {
-          title: 'Genesis',
-          url: '#',
-        },
-        {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Documentation',
-      url: '#',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'Introduction',
-          url: '#',
-        },
-        {
-          title: 'Get Started',
-          url: '#',
-        },
-        {
-          title: 'Tutorials',
-          url: '#',
-        },
-        {
-          title: 'Changelog',
-          url: '#',
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: 'Design Engineering',
-      url: '#',
-      icon: Frame,
-    },
-    {
-      name: 'Sales & Marketing',
-      url: '#',
-      icon: PieChart,
-    },
-    {
-      name: 'Travel',
-      url: '#',
-      icon: Map,
-    },
-  ],
-}
-
-// Fonction simple pour remplacer les placeholders dans les URLs
-function replaceUrlPlaceholders(url: string, orgSlug: string): string {
-  return url.replace('{{orgSlug}}', orgSlug)
-}
-
-// Fonction pour créer une copie mutable d'un item avec remplacement d'URL
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createMenuItemWithUrls(item: any, orgSlug: string) {
-  return {
-    ...item,
-    url: replaceUrlPlaceholders(item.url, orgSlug),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    items: item.items?.map((subItem: any) => ({
-      ...subItem,
-      url: replaceUrlPlaceholders(subItem.url, orgSlug),
-    })),
-  }
-}
-
-// Fonction principale pour construire le menu - simple et claire
-function buildMenu(isAdminUser: boolean, orgSlug: string) {
-  // Créer une copie mutable du menu utilisateur avec URLs mises à jour
-  const userMenu = menuData.navMain.map((item) =>
-    createMenuItemWithUrls(item, orgSlug)
-  )
-
-  // Si admin, ajouter le menu admin au début
-  if (isAdminUser) {
-    const adminMenu = menuData.adminNavMain.map((item) => ({...item}))
-    return [...adminMenu, ...userMenu]
-  }
-
-  return userMenu
-}
-
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const t = useTranslations('AppSidebar')
   const {organizations, currentOrganization} = useOrganization()
   const {user} = useAuth()
+
   // États dérivés avec mémorisation
   const isAdminUser = React.useMemo(() => isAdmin(user) ?? false, [user])
   const currentOrgSlug = React.useMemo(
@@ -204,10 +40,144 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     [currentOrganization]
   )
 
+  // Génération du menu avec traductions
+  const translatedMenuData: MenuData = React.useMemo(
+    () => ({
+      adminNavMain: [
+        {
+          title: t('admin.title'),
+          url: '#',
+          icon: Settings2,
+          isActive: false,
+          items: [
+            {
+              title: t('admin.dashboard'),
+              url: '/admin',
+            },
+            {
+              title: t('admin.users'),
+              url: '/admin/users',
+            },
+            {
+              title: t('admin.organizations'),
+              url: '/admin/organizations',
+            },
+          ],
+        },
+      ],
+      navMain: [
+        {
+          title: t('account.title'),
+          url: '#',
+          icon: SquareTerminal,
+          isActive: false,
+          items: [
+            {
+              title: t('account.accountAndSecurity'),
+              url: '/account',
+            },
+            {
+              title: t('account.subscriptions'),
+              url: '/account/subscription',
+            },
+            {
+              title: t('account.organizations'),
+              url: '/organizations',
+            },
+            {
+              title: t('account.invitations'),
+              url: '/invitations',
+            },
+            {
+              title: t('account.settings'),
+              url: '#',
+            },
+          ],
+        },
+        {
+          title: t('projects.title'),
+          url: '#',
+          icon: SquareTerminal,
+          isActive: true,
+          items: [
+            {
+              title: t('projects.dashboard'),
+              url: '/dashboard',
+            },
+            {
+              title: t('projects.projects'),
+              url: '/team/{{orgSlug}}/projects',
+            },
+          ],
+        },
+        {
+          title: t('models.title'),
+          url: '#',
+          icon: Bot,
+          items: [
+            {
+              title: t('models.genesis'),
+              url: '#',
+            },
+            {
+              title: t('models.explorer'),
+              url: '#',
+            },
+            {
+              title: t('models.quantum'),
+              url: '#',
+            },
+          ],
+        },
+        {
+          title: t('documentation.title'),
+          url: '#',
+          icon: BookOpen,
+          items: [
+            {
+              title: t('documentation.introduction'),
+              url: '#',
+            },
+            {
+              title: t('documentation.getStarted'),
+              url: '#',
+            },
+            {
+              title: t('documentation.tutorials'),
+              url: '#',
+            },
+            {
+              title: t('documentation.changelog'),
+              url: '#',
+            },
+          ],
+        },
+      ],
+      projects: [
+        {
+          name: t('projectsList.designEngineering'),
+          url: '#',
+          icon: Frame,
+        },
+        {
+          name: t('projectsList.salesMarketing'),
+          url: '#',
+          icon: PieChart,
+        },
+        {
+          name: t('projectsList.travel'),
+          url: '#',
+          icon: Map,
+        },
+      ],
+    }),
+    [t]
+  )
+
   // Construction dynamique du menu avec mémorisation
   const menuItems = React.useMemo(
-    () => buildMenu(isAdminUser, currentOrgSlug),
-    [isAdminUser, currentOrgSlug]
+    () => buildMenu(translatedMenuData, isAdminUser, currentOrgSlug),
+    [isAdminUser, currentOrgSlug, translatedMenuData]
   )
 
   // Transformation des organisations en équipes
@@ -229,7 +199,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={menuItems} />
-        <NavProjects projects={menuData.projects} />
+        <NavProjects projects={translatedMenuData.projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user || undefined} />
