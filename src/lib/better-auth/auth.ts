@@ -112,7 +112,6 @@ const options = {
   },
   plugins: [
     bearer(),
-
     twoFactor({
       issuer: APP_ISSUER,
       skipVerificationOnEnable: AuthAppConfig.skipVerificationOnEnable,
@@ -160,34 +159,7 @@ const options = {
       subscription: {
         enabled: true,
         plans: betterAuthPlans,
-        authorizeReference: async ({user, referenceId, action}) => {
-          // Check if the user has permission to manage subscriptions for this reference
-
-          if (action === 'list-subscription') {
-            return true
-          }
-          if (
-            action === 'upgrade-subscription' ||
-            action === 'cancel-subscription' ||
-            action === 'restore-subscription'
-          ) {
-            // Mode USER : seul le propriétaire peut gérer
-            if (BILLING_MODE === BillingModes.USER) {
-              return user.id === referenceId
-            }
-
-            // Mode ORGANIZATION : vérifier le rôle dans l'org
-            if (BILLING_MODE === BillingModes.ORGANIZATION) {
-              const org = await getOrganizationMembersService(referenceId)
-              const member = org.find((m) => m.userId === user.id)
-              // Seuls owner et admin peuvent gérer les abonnements
-              return member?.role === 'owner' //|| member?.role === 'admin'
-            }
-            return false
-          }
-          return false
-        },
-
+        authorizeReference: createAuthorizeReference(),
         onSubscriptionComplete: async ({subscription}) => {
           await sendSubscriptionCompletedEmailService(subscription)
         },
@@ -252,6 +224,47 @@ function createDatabaseHooks() {
     },
   }
 }
+/**
+ * Crée la fonction d'autorisation pour les références d'abonnement
+ */
+function createAuthorizeReference() {
+  return async ({
+    user,
+    referenceId,
+    action,
+  }: {
+    user: User
+    referenceId: string
+    action: string
+  }) => {
+    // Check if the user has permission to manage subscriptions for this reference
+
+    if (action === 'list-subscription') {
+      return true
+    }
+    if (
+      action === 'upgrade-subscription' ||
+      action === 'cancel-subscription' ||
+      action === 'restore-subscription'
+    ) {
+      // Mode USER : seul le propriétaire peut gérer
+      if (BILLING_MODE === BillingModes.USER) {
+        return user.id === referenceId
+      }
+
+      // Mode ORGANIZATION : vérifier le rôle dans l'org
+      if (BILLING_MODE === BillingModes.ORGANIZATION) {
+        const org = await getOrganizationMembersService(referenceId)
+        const member = org.find((m) => m.userId === user.id)
+        // Seuls owner et admin peuvent gérer les abonnements
+        return member?.role === 'owner' //|| member?.role === 'admin'
+      }
+      return false
+    }
+    return false
+  }
+}
+
 /**
  * Middleware pour gérer les redirections après les actions d'authentification
  */
