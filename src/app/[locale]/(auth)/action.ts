@@ -12,7 +12,6 @@ import {
 } from '@/components/features/auth/auth-form-validation'
 import {auth, AuthAppConfig} from '@/lib/better-auth/auth' // path to your Better Auth server instance
 import {
-  createOrganizationForUserService,
   getUserByEmailService,
   isEmailAvailableService,
 } from '@/services/facades/user-service-facade'
@@ -294,20 +293,7 @@ export async function registerCredentialAction(
     }
   }
 
-  // 4. Créer son organisation dans la base de données
   try {
-    const userOrganization = await createOrganizationForUserService(email)
-    console.log('userOrganization', userOrganization)
-    // await auth.api.setActiveOrganization({
-    //   headers: response2.headers,
-    //   body: {
-    //     organizationId: userOrganization.organizationId,
-    //   },
-    // })
-    console.log(
-      'AuthAppConfig.requireEmailVerification',
-      AuthAppConfig.requireEmailVerification
-    )
     if (!AuthAppConfig.requireEmailVerification) {
       const response = await auth.api.signInEmail({
         headers: await headers(),

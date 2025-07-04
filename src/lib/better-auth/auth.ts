@@ -1,5 +1,5 @@
 import {stripe} from '@better-auth/stripe'
-import {betterAuth, BetterAuthOptions} from 'better-auth'
+import {betterAuth, BetterAuthOptions, User} from 'better-auth'
 import {drizzleAdapter} from 'better-auth/adapters/drizzle'
 import {createAuthMiddleware} from 'better-auth/api'
 import {nextCookies} from 'better-auth/next-js'
@@ -237,8 +237,10 @@ const options = {
     }),
   ],
   trustedOrigins: ['http://localhost:3000'],
-  hooks: {},
-  databaseHooks: {},
+  hooks: {
+    after: createAuthRedirectMiddleware(),
+  },
+  databaseHooks: createDatabaseHooks(),
 } satisfies BetterAuthOptions
 
 export const auth = betterAuth({
@@ -250,44 +252,53 @@ export const auth = betterAuth({
       const fullUser = await getUserByIdDao(session.userId)
       return {
         user: fullUser,
-        session, // activeOrganizationId est maintenant correctement typé
+        session,
       }
     }, options), // Passer les options pour l'inférence TypeScript
     nextCookies(), // TOUJOURS en dernier
   ],
-  hooks: {
-    after: createAuthRedirectMiddleware(),
-  },
 })
+
+/**
+ * Crée les hooks pour la base de données
+ * @returns
+ */
+function createDatabaseHooks() {
+  return {
+    user: {
+      create: {
+        before: async (user: User) => {
+          console.log('[databaseHooks before]', user)
+          return {
+            data: {
+              ...user,
+              name: user.name || user.email.split('@')[0],
+            },
+          }
+        },
+        after: async (user: User) => {
+          console.log('[better auth databaseHooks after] ')
+          await initializeRegisterUserDataService(user.email)
+        },
+      },
+    },
+  }
+}
 /**
  * Middleware pour gérer les redirections après les actions d'authentification
  */
 function createAuthRedirectMiddleware() {
   return createAuthMiddleware(async (ctx) => {
-    console.log('ctx.path', ctx.path)
+    //console.log('ctx.path', ctx.path)
     //console.log('ctx.context newSession', ctx.context.newSession)
 
     if (
-      ctx.path === '/magic-link/verify' &&
-      ctx.context.newSession &&
-      ctx.context.newSession.user.email
+      ctx.path.startsWith('/sign-up') ||
+      ctx.path === '/magic-link/verify' ||
+      ctx.path === '/callback/:id' ||
+      ctx.path.startsWith('/sign-in/') // pour SSO
     ) {
-      console.log('/magic-link/verify')
-      const result = await initializeRegisterUserDataService(
-        ctx.context?.newSession?.user.email ?? ''
-      )
-      if (result.organizationId) {
-        try {
-          await auth.api.setActiveOrganization({
-            headers: ctx.headers,
-            body: {
-              organizationId: result.organizationId,
-            },
-          })
-        } catch (error) {
-          console.warn('Error setting active organization', error)
-        }
-      }
+      //console.log('ctx.path', ctx.path)
     }
 
     // Redirection après connexion réussie
