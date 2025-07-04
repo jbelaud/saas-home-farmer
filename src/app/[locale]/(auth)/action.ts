@@ -361,7 +361,7 @@ export async function loginProviderAction(
     | 'linkedin'
 ): Promise<LoginFormState> {
   const t = await getTranslations('AuthActions.loginProvider')
-  console.log('registerProviderAction appelé', provider)
+  console.log('loginProviderAction appelé', provider)
   try {
     const response = await auth.api.signInSocial({
       headers: await headers(),
@@ -370,6 +370,7 @@ export async function loginProviderAction(
         callbackURL: '/dashboard',
       },
     })
+    console.log('response', response)
     if (response.url) {
       redirect(response.url)
     }
@@ -478,6 +479,7 @@ export async function registerProviderAction(
 ): Promise<LoginFormState> {
   const t = await getTranslations('AuthActions.registerProvider')
   console.log('registerProviderAction appelé', provider)
+  await loginProviderAction(provider)
   return {
     success: true,
     message: t('redirecting'),
