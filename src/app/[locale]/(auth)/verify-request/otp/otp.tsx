@@ -94,7 +94,6 @@ export default function OtpVerificationPage() {
           {success: false, message: ''},
           formData
         )
-        console.log('result', result)
 
         if (result.success) {
           toast.success(t('messages.verificationSuccess'))

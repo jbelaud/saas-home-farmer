@@ -106,7 +106,6 @@ export async function loginCredentialAction(
     }
 
     const twoFactorType = user.settings?.twoFactorType
-    console.log('twoFactorType', twoFactorType)
 
     // Login Credential
     const response = await auth.api.signInEmail({
@@ -117,7 +116,6 @@ export async function loginCredentialAction(
       },
       asResponse: true, // returns a response object instead of data
     })
-    console.log('response', response)
 
     if (!response.ok) {
       return {
@@ -131,24 +129,18 @@ export async function loginCredentialAction(
     try {
       responseData = await response.json()
       twoFactorRedirect = responseData.twoFactorRedirect
-      console.log('responseData', responseData)
     } catch {
       twoFactorRedirect = false
     }
 
     if (!twoFactorRedirect) {
       //CAS Sans 2FA
-      console.log('Login Sans 2FA')
       redirect(response.headers.get('Location') ?? responseData?.url ?? '/404') //callbackURL
     } else {
       //CAS Avec 2FA - Rediriger vers la page appropriée
       if (twoFactorType === 'otp') {
-        console.log('Login Avec 2FA OTP')
-        // Rediriger vers la page OTP - l'OTP sera envoyé depuis cette page
         redirect('/verify-request/otp')
       } else {
-        console.log('Login Avec 2FA TOTP')
-        //CAS 2FA TOTP
         redirect('/verify-request/totp')
       }
     }
@@ -156,7 +148,6 @@ export async function loginCredentialAction(
     if (isRedirectError(error)) {
       throw error
     }
-    console.log('loginCredentialAction error', error)
     return {
       success: false,
       message: t('connectionError'),
@@ -208,7 +199,6 @@ export async function loginMagicLinkAction(
         callbackURL: '/dashboard',
       },
     })
-    console.log('response', response)
 
     if (!response.status) {
       return {
@@ -316,7 +306,6 @@ export async function registerCredentialAction(
 
     redirect('/verify-request')
   } catch (error) {
-    console.log('error', error)
     if (isRedirectError(error)) {
       throw error
     }
@@ -347,7 +336,6 @@ export async function loginProviderAction(
     | 'linkedin'
 ): Promise<LoginFormState> {
   const t = await getTranslations('AuthActions.loginProvider')
-  console.log('loginProviderAction appelé', provider)
   try {
     const response = await auth.api.signInSocial({
       headers: await headers(),
@@ -356,7 +344,6 @@ export async function loginProviderAction(
         callbackURL: '/dashboard',
       },
     })
-    console.log('response', response)
     if (response.url) {
       redirect(response.url)
     }
@@ -368,7 +355,6 @@ export async function loginProviderAction(
     if (isRedirectError(error)) {
       throw error
     }
-    //console.log('error', error)
     return {
       success: false,
       message:
@@ -442,7 +428,6 @@ export async function registerMagicLinkAction(
   try {
     redirect('/verify-request')
   } catch (error) {
-    console.log('error', error)
     if (isRedirectError(error)) {
       throw error
     }
@@ -464,7 +449,6 @@ export async function registerProviderAction(
   provider: 'google' | 'apple'
 ): Promise<LoginFormState> {
   const t = await getTranslations('AuthActions.registerProvider')
-  console.log('registerProviderAction appelé', provider)
   await loginProviderAction(provider)
   return {
     success: true,
@@ -504,8 +488,6 @@ export async function verifyBackupCodeAction(
       },
     })
 
-    console.log('verifyBackupCode response', response)
-
     // Si la vérification réussit, rediriger vers le dashboard
     if (response.token) {
       redirect('/dashboard')
@@ -543,7 +525,6 @@ export async function verifyOTPAction(
 
   try {
     const code = formData.get('code') as string
-    console.log('verifyOTPAction - code reçu:', code)
 
     // Validation basique du code
     if (!code || code.trim().length === 0) {
@@ -555,12 +536,6 @@ export async function verifyOTPAction(
 
     // DEBUG: Vérifier les headers de session
     const currentHeaders = await headers()
-    const cookies = currentHeaders.get('cookie')
-    console.log('verifyOTPAction - cookies:', cookies)
-
-    // Vérifier si le cookie two_factor est présent
-    const hasTwoFactorCookie = cookies?.includes('better-auth.two_factor')
-    console.log('verifyOTPAction - hasTwoFactorCookie:', hasTwoFactorCookie)
 
     // Vérification du code OTP avec Better Auth
     const response = await auth.api.verifyTwoFactorOTP({
@@ -573,19 +548,12 @@ export async function verifyOTPAction(
       asResponse: true,
     })
 
-    console.log('verifyTwoFactorOTP response status:', response.status)
-    console.log('verifyTwoFactorOTP response ok:', response.ok)
-
     // Si la vérification réussit, rediriger vers le dashboard
     if (response.ok) {
-      console.log('verifyTwoFactorOTP - succès, redirection vers dashboard')
-
       redirect('/dashboard')
     }
-
     // Si la vérification échoue
     const errorData = await response.json()
-    console.log('verifyTwoFactorOTP - erreur data:', errorData)
 
     return {
       success: false,

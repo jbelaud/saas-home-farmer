@@ -24,7 +24,6 @@ export default async function NewProjectPage({params}: NewProjectPageProps) {
   const {slug} = await params
 
   const limits = await checkProjectCreationLimit()
-  console.log('limits', limits)
   if (!limits.allowed) {
     return <LimitReached limits={limits} />
   }

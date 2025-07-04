@@ -62,9 +62,7 @@ export default function CheckoutBetterAuth({
         seats: seats,
       })
 
-      console.log(error)
       if (error) {
-        console.log('🔧 error', error)
         toast.error('Error', {description: error.message || error.statusText})
         return
       }
@@ -90,9 +88,7 @@ export default function CheckoutBetterAuth({
         seats: seats,
       })
 
-      console.log(error)
       if (error) {
-        console.log('🔧 error', error)
         toast.error('Error', {description: error.message || error.statusText})
         return
       }

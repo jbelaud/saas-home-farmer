@@ -62,7 +62,6 @@ export default function InvitationsUsers({
       const {error} = await authClient.organization.acceptInvitation({
         invitationId: invitationToAction.id,
       })
-      console.log(error)
       if (error) {
         toast.error("Erreur lors de l'acceptation de l'invitation", {
           description:

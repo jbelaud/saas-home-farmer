@@ -26,7 +26,6 @@ export default async function AcceptInvitationPage({params}: PageProps) {
     )
   } catch (error) {
     if (error instanceof Error) {
-      console.log('error', error.message)
       throw new Error(error.message)
     }
     throw new Error(
