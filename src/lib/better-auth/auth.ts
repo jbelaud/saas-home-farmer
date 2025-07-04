@@ -27,6 +27,7 @@ import {
   sendOrganizationInvitationService,
   sendOTPEmailService,
   sendResetPasswordLinkEmailService,
+  sendSubscriptionCompletedEmailService,
   sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
 import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
@@ -135,6 +136,9 @@ const options = {
     }),
     admin(),
     organization({
+      invitationLimit: 10,
+      membershipLimit: 10,
+      allowUserToCreateOrganization: false,
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invitations/${data.id}`
         await sendOrganizationInvitationService({
@@ -183,21 +187,8 @@ const options = {
           return false
         },
 
-        onSubscriptionComplete: async ({
-          event,
-          subscription,
-          stripeSubscription,
-          plan,
-        }) => {
-          // Called when a subscription is successfully created
-          console.log(
-            'onSubscriptionComplete',
-            event,
-            subscription,
-            stripeSubscription,
-            plan
-          )
-          //await sendWelcomeEmail(subscription.referenceId, plan.name)
+        onSubscriptionComplete: async ({subscription}) => {
+          await sendSubscriptionCompletedEmailService(subscription)
         },
         onSubscriptionUpdate: async ({event, subscription}) => {
           // Called when a subscription is updated

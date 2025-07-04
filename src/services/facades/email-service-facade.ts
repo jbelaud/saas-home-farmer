@@ -15,3 +15,5 @@ export const sendResetPasswordLinkEmailService =
 export const sendOTPEmailService = emailServiceInterceptor.sendOTPEmailService
 export const sendEmailChangeEmailVerificationService =
   emailServiceInterceptor.sendEmailChangeEmailVerificationService
+export const sendSubscriptionCompletedEmailService =
+  emailServiceInterceptor.sendSubscriptionCompletedEmailService

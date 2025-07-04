@@ -1,3 +1,4 @@
+import {Subscription} from '@better-auth/stripe'
 import {getTranslations} from 'next-intl/server'
 import {
   type CreateEmailOptions,
@@ -5,11 +6,13 @@ import {
   Resend,
 } from 'resend'
 
+import {getUserByStripeCustomerIdDao} from '@/db/repositories/user-repository'
 import EmailChangeEmailVerification from '@/lib/emails/email-change-email-verification'
 import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization-link-email'
 import MagicLinkMail from '@/lib/emails/magic-link-email'
 import OtpEmail from '@/lib/emails/otp-email'
 import ResetPasswordEmail from '@/lib/emails/reset-password-email'
+import SubscriptionCompletedMail from '@/lib/emails/subscription-completed-email'
 import VerificationEmail from '@/lib/emails/verification-email'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -182,5 +185,52 @@ export const sendEmailChangeEmailVerificationService = async ({
     from: fromEmail,
     text: t('preview'),
     react: EmailChangeEmailVerification({url}),
+  })
+}
+
+export const sendSubscriptionCompletedEmailService = async (
+  subscription: Subscription
+) => {
+  const t = await getTranslations('email.user.subscriptionCompleted')
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  if (!subscription.stripeCustomerId) {
+    console.error('Pas de stripeCustomerId dans la subscription')
+    return
+  }
+
+  const user = await getUserByStripeCustomerIdDao(subscription.stripeCustomerId)
+  if (!user) {
+    console.error(
+      'Utilisateur non trouvé pour stripeCustomerId:',
+      subscription.stripeCustomerId
+    )
+    return
+  }
+
+  // Extraire les informations de la subscription
+  const planName = subscription.plan || 'Plan inconnu'
+  const status = subscription.status || 'actif'
+
+  // Calculer les dates
+  const periodEnd = subscription.periodEnd
+    ? new Date(subscription.periodEnd).toLocaleDateString('fr-FR')
+    : 'Non disponible'
+
+  const nextBilling = subscription.periodEnd
+    ? new Date(subscription.periodEnd).toLocaleDateString('fr-FR')
+    : 'Non disponible'
+
+  await sendEmailService({
+    to: user.email,
+    subject: t('subject', {planName}),
+    from: fromEmail,
+    text: t('preview', {planName}),
+    react: SubscriptionCompletedMail({
+      planName,
+      status,
+      nextBilling,
+      periodEnd,
+    }),
   })
 }

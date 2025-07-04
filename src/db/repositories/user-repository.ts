@@ -111,6 +111,35 @@ export const getUserByEmailDao = async (
   }
 }
 
+export const getUserByStripeCustomerIdDao = async (
+  stripeCustomerId: string
+): Promise<User | undefined> => {
+  const row = await db.query.user.findFirst({
+    where: (user, {eq}) => eq(user.stripeCustomerId, stripeCustomerId),
+    with: {
+      members: {
+        with: {
+          organization: true,
+        },
+      },
+      settings: true,
+    },
+  })
+
+  const organizations = row?.members ?? []
+
+  if (!row) {
+    return undefined
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {members, ...rest} = row
+  return {
+    ...rest,
+    organizations,
+  }
+}
+
 export const getPublicUsersWithPaginationDao = async (
   pagination: Pagination
 ): Promise<PaginatedResponse<UserModel>> => {

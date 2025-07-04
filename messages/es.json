@@ -838,6 +838,7 @@
         "preview": "Has solicitado cambiar tu dirección de email.",
         "title": "Confirmación de cambio de email",
         "clickToConfirm": "Haz clic aquí para confirmar tu nueva dirección de email",
+        "expirationWarning": "Este enlace expirará en 24 horas.",
         "ignoreMessage": "Si no solicitaste este cambio, por favor ignora este email.",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       },
@@ -860,6 +861,18 @@
         "verifyAutomatically": "Verificar automáticamente",
         "orCopyCode": "O copia el código de arriba en la aplicación",
         "ignoreMessage": "Si no solicitaste este código, puedes ignorar este email de forma segura.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "subscriptionCompleted": {
+        "subject": "¡Bienvenido! Tu suscripción {planName} está activa",
+        "preview": "¡Felicitaciones! Tu suscripción {planName} ha sido activada exitosamente.",
+        "title": "Suscripción Activada",
+        "welcomeMessage": "¡Felicitaciones! Tu suscripción {planName} ha sido activada exitosamente.",
+        "planDetails": "Detalles de tu suscripción:",
+        "planName": "Plan: {planName}",
+        "status": "Estado: {status}",
+        "nextBilling": "Próxima facturación: {nextBilling}",
+        "periodEnd": "Fin del período: {periodEnd}",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       }
     },

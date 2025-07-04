@@ -838,6 +838,7 @@
         "preview": "You have requested to change your email address.",
         "title": "Email Change Confirmation",
         "clickToConfirm": "Click here to confirm your new email address",
+        "expirationWarning": "This link will expire in 24 hours.",
         "ignoreMessage": "If you did not request this change, please ignore this email.",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       },
@@ -860,6 +861,18 @@
         "verifyAutomatically": "Verify automatically",
         "orCopyCode": "Or copy the code above into the application",
         "ignoreMessage": "If you did not request this code, you can safely ignore this email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "subscriptionCompleted": {
+        "subject": "Welcome! Your {planName} subscription is active",
+        "preview": "Congratulations! Your {planName} subscription has been successfully activated.",
+        "title": "Subscription Activated",
+        "welcomeMessage": "Congratulations! Your {planName} subscription has been successfully activated.",
+        "planDetails": "Your subscription details:",
+        "planName": "Plan: {planName}",
+        "status": "Status: {status}",
+        "nextBilling": "Next billing: {nextBilling}",
+        "periodEnd": "Period ends: {periodEnd}",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       }
     },
