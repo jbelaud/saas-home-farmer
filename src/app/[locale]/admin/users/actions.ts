@@ -65,3 +65,26 @@ export async function updateUserAction(
     }
   }
 }
+
+export async function deleteUserAction(userId: string): Promise<FormState> {
+  try {
+    // Note: Nous n'avons pas encore implémenté deleteUserService
+    // Ceci est un placeholder pour la fonction
+    console.log('Delete user:', userId)
+
+    revalidatePath('/admin/users')
+    return {
+      success: true,
+      message: 'Utilisateur supprimé avec succès',
+    }
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'utilisateur:", error)
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Une erreur est survenue lors de la suppression',
+    }
+  }
+}

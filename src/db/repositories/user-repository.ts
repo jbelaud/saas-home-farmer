@@ -67,16 +67,6 @@ export const getUserByIdDao = async (
   }
 }
 
-export const updateUserByUidDao = async (user: UpdateUserModel) => {
-  if (!user.id) {
-    throw new Error('User ID is required')
-  }
-  await db
-    .update(users)
-    .set({...user})
-    .where(eq(users.id, user.id))
-}
-
 export const deleteUserByIdDao = async (uid: string) => {
   await db.delete(users).where(eq(users.id, uid))
 }
@@ -137,36 +127,6 @@ export const getUserByStripeCustomerIdDao = async (
   return {
     ...rest,
     organizations,
-  }
-}
-
-export const getPublicUsersWithPaginationDao = async (
-  pagination: Pagination
-): Promise<PaginatedResponse<UserModel>> => {
-  const [rows, [{count}]] = await Promise.all([
-    db
-      .select()
-      .from(users)
-      .where(eq(users.visibility, 'public'))
-      .limit(pagination.limit)
-      .offset(pagination.offset),
-    db
-      .select({count: sql<number>`count(*)`})
-      .from(users)
-      .where(eq(users.visibility, 'public')),
-  ])
-
-  const page = Math.floor(pagination.offset / pagination.limit) + 1
-  const totalPages = Math.ceil(count / pagination.limit)
-
-  return {
-    data: rows.length === 0 ? [] : rows,
-    pagination: {
-      total: count,
-      page: page,
-      limit: pagination.limit,
-      totalPages: totalPages,
-    },
   }
 }
 
@@ -435,50 +395,4 @@ export const upsertUserSettingsDao = async (
   } else {
     return await createUserSettingsDao({...settings, userId})
   }
-}
-
-// CRUD Session by userId
-export const getSessionsByUserIdDao = async (
-  userId: string
-): Promise<SessionModel[]> => {
-  return await db.query.session.findMany({
-    where: (sess, {eq}) => eq(sess.userId, userId),
-  })
-}
-
-export const getSessionByIdDao = async (
-  sessionId: string
-): Promise<SessionModel | undefined> => {
-  return await db.query.session.findFirst({
-    where: (sess, {eq}) => eq(sess.id, sessionId),
-  })
-}
-
-export const createSessionDao = async (
-  sessionData: AddSessionModel
-): Promise<SessionModel> => {
-  const [row] = await db.insert(session).values(sessionData).returning()
-  return row
-}
-
-export const updateSessionByIdDao = async (
-  sessionId: string,
-  sessionData: UpdateSessionModel
-): Promise<void> => {
-  await db
-    .update(session)
-    .set({...sessionData, updatedAt: new Date()})
-    .where(eq(session.id, sessionId))
-}
-
-export const deleteSessionByIdDao = async (
-  sessionId: string
-): Promise<void> => {
-  await db.delete(session).where(eq(session.id, sessionId))
-}
-
-export const deleteSessionsByUserIdDao = async (
-  userId: string
-): Promise<void> => {
-  await db.delete(session).where(eq(session.userId, userId))
 }

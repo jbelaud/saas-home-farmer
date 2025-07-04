@@ -1,4 +1,4 @@
-import {and, desc, eq, lte, not, or, sql} from 'drizzle-orm'
+import {and, desc, eq, not, or} from 'drizzle-orm'
 
 import db from '../models/db'
 import type {
@@ -20,34 +20,6 @@ export const getSubscriptionByIdDao = async (id: string) => {
   return row
 }
 
-export const getSubscriptionByStripeCustomerIdDao = async (
-  stripeCustomerId: string
-) => {
-  const [row] = await db
-    .select()
-    .from(subscription)
-    .where(eq(subscription.stripeCustomerId, stripeCustomerId))
-  return row
-}
-
-export const getActiveSubscriptionByStripeCustomerIdDao = async (
-  stripeCustomerId: string
-) => {
-  const [row] = await db
-    .select()
-    .from(subscription)
-    .where(
-      and(
-        eq(subscription.stripeCustomerId, stripeCustomerId),
-        or(
-          eq(subscription.status, 'active'),
-          eq(subscription.status, 'trialing')
-        )
-      )
-    )
-  return row
-}
-
 export const updateSubscriptionDao = async (
   id: string,
   values: Partial<SubscriptionAddModel>
@@ -60,124 +32,6 @@ export const updateSubscriptionDao = async (
     })
     .where(eq(subscription.id, id))
     .returning()
-  return row
-}
-
-export const cancelSubscriptionDao = async (id: string) => {
-  const [row] = await db
-    .update(subscription)
-    .set({
-      status: 'canceled',
-      updatedAt: new Date(),
-    })
-    .where(eq(subscription.id, id))
-    .returning()
-  return row
-}
-
-export const getExpiringSubscriptionsDao = async (daysThreshold: number) => {
-  const thresholdDate = new Date()
-  thresholdDate.setDate(thresholdDate.getDate() + daysThreshold)
-
-  return db
-    .select()
-    .from(subscription)
-    .where(
-      and(
-        eq(subscription.status, 'active'),
-        lte(subscription.periodEnd, thresholdDate)
-      )
-    )
-}
-
-export const getSubscriptionsWithPaginationDao = async (pagination: {
-  limit: number
-  offset: number
-}) => {
-  const [rows, [{count}]] = await Promise.all([
-    db
-      .select()
-      .from(subscription)
-      .limit(pagination.limit)
-      .offset(pagination.offset),
-    db.select({count: sql<number>`count(*)`}).from(subscription),
-  ])
-
-  const page = Math.floor(pagination.offset / pagination.limit) + 1
-  const totalPages = Math.ceil(count / pagination.limit)
-
-  return {
-    data: rows,
-    pagination: {
-      total: count,
-      page: page,
-      limit: pagination.limit,
-      totalPages: totalPages,
-    },
-  }
-}
-
-export const getSubscriptionsByPlanDao = async (
-  plan: SubscriptionModel['plan'],
-  pagination: {limit: number; offset: number}
-) => {
-  const [rows, [{count}]] = await Promise.all([
-    db
-      .select()
-      .from(subscription)
-      .where(eq(subscription.plan, plan))
-      .limit(pagination.limit)
-      .offset(pagination.offset),
-    db
-      .select({count: sql<number>`count(*)`})
-      .from(subscription)
-      .where(eq(subscription.plan, plan)),
-  ])
-
-  const page = Math.floor(pagination.offset / pagination.limit) + 1
-  const totalPages = Math.ceil(count / pagination.limit)
-
-  return {
-    data: rows,
-    pagination: {
-      total: count,
-      page: page,
-      limit: pagination.limit,
-      totalPages: totalPages,
-    },
-  }
-}
-
-export const getSubscriptionByStripeCustomerIdAndPlanDao = async (
-  stripeCustomerId: string,
-  plan: SubscriptionModel['plan']
-) => {
-  const [row] = await db
-    .select()
-    .from(subscription)
-    .where(
-      and(
-        eq(subscription.stripeCustomerId, stripeCustomerId),
-        eq(subscription.plan, plan)
-      )
-    )
-  return row
-}
-
-export const getActiveSubscriptionByStripeCustomerIdAndPlanDao = async (
-  stripeCustomerId: string,
-  plan: SubscriptionModel['plan']
-) => {
-  const [row] = await db
-    .select()
-    .from(subscription)
-    .where(
-      and(
-        eq(subscription.stripeCustomerId, stripeCustomerId),
-        eq(subscription.plan, plan),
-        eq(subscription.status, 'active')
-      )
-    )
   return row
 }
 

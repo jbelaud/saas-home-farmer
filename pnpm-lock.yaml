@@ -355,6 +355,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.11
+      ts-unused-exports:
+        specifier: ^11.0.1
+        version: 11.0.1(typescript@5.8.3)
       tsx:
         specifier: ^4.20.3
         version: 4.20.3
@@ -6099,6 +6102,12 @@ packages:
 
   ts-easing@0.2.0:
     resolution: {integrity: sha512-Z86EW+fFFh/IFB1fqQ3/+7Zpf9t2ebOAxNI/V6Wo7r5gqiqtxmgTlQ1qbqQcjLKYeSHPTsEmvlJUDg/EuL0uHQ==}
+
+  ts-unused-exports@11.0.1:
+    resolution: {integrity: sha512-b1uIe0B8YfNZjeb+bx62LrB6qaO4CHT8SqMVBkwbwLj7Nh0xQ4J8uV0dS9E6AABId0U4LQ+3yB/HXZBMslGn2A==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=3.8.3'
 
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
@@ -12627,6 +12636,12 @@ snapshots:
       typescript: 5.8.3
 
   ts-easing@0.2.0: {}
+
+  ts-unused-exports@11.0.1(typescript@5.8.3):
+    dependencies:
+      chalk: 4.1.2
+      tsconfig-paths: 3.15.0
+      typescript: 5.8.3
 
   tsconfck@3.1.6(typescript@5.8.3):
     optionalDependencies:
