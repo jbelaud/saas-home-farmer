@@ -37,6 +37,8 @@
       "cta": "Try for free"
     },
     "features": {
+      "title": "Features",
+      "subtitle": "Discover what makes our platform unique",
       "automation": {
         "title": "Automation",
         "description": "Automate your repetitive tasks and save time daily."

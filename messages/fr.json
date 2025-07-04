@@ -37,6 +37,8 @@
       "cta": "Essayez gratuitement"
     },
     "features": {
+      "title": "Fonctionnalités",
+      "subtitle": "Découvrez ce qui rend notre plateforme unique",
       "automation": {
         "title": "Automatisation",
         "description": "Automatisez vos tâches répétitives et gagnez du temps au quotidien."

@@ -37,6 +37,8 @@
       "cta": "Prueba gratis"
     },
     "features": {
+      "title": "Características",
+      "subtitle": "Descubre lo que hace única nuestra plataforma",
       "automation": {
         "title": "Automatización",
         "description": "Automatiza tus tareas repetitivas y ahorra tiempo diariamente."

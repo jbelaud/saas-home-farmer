@@ -8,6 +8,7 @@ import ImageTheme from '@/components/image-theme'
 import {LangToggle} from '@/components/lang-toggle'
 import {ModeToggle} from '@/components/theme-toggle'
 import {Button} from '@/components/ui/button'
+import {Component} from '@/components/ui/vapour-text-effect'
 import {routing} from '@/i18n/routing'
 import {APP_NAME} from '@/lib/constants'
 
@@ -41,9 +42,8 @@ export default async function Home({
   return (
     <div className="bg-background text-foreground flex min-h-screen flex-col">
       {/* Header */}
-      <header className="border-border bg-background/80 relative flex w-full items-center border-b px-8 py-6 backdrop-blur">
+      <header className="border-border bg-background/80 relative flex w-full items-center border-b px-4 py-4 backdrop-blur sm:px-6 md:px-8">
         <div className="flex items-center gap-2">
-          {/* <Image src="/next.svg" alt="Logo" width={32} height={32} /> */}
           <ImageTheme
             className="relative z-10"
             src="/next.svg"
@@ -73,12 +73,13 @@ export default async function Home({
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="flex flex-col items-center justify-center px-4 py-16 text-center">
-        <h1 className="mx-auto mb-4 max-w-4xl text-4xl font-bold md:text-6xl">
+      {/* Hero Section */}
+      <section className="flex flex-col items-center justify-center px-4 py-12 text-center sm:px-6 md:px-8 lg:py-16">
+        <h1 className="mx-auto mb-6 max-w-4xl text-4xl leading-tight font-bold sm:text-5xl md:text-6xl">
           {t('hero.title')}
         </h1>
-        <p className="text-muted-foreground mb-8 max-w-xl text-lg">
+        <Component />
+        <p className="text-muted-foreground mb-8 max-w-2xl text-lg sm:text-xl">
           {t('hero.description')}
         </p>
         <Button size="lg" className="mb-8">
@@ -86,57 +87,68 @@ export default async function Home({
         </Button>
       </section>
 
-      {/* Image produit */}
-      <div className="mb-12 flex justify-center">
-        <div className="border-border bg-muted w-full max-w-3xl overflow-hidden rounded-xl border shadow-lg">
-          <Image
-            src="/images/product.avif" // Mets ici ton image produit
-            alt="Aperçu du produit"
-            width={1200}
-            height={600}
-            className="h-auto w-full"
-            priority
-          />
+      {/* Product Image */}
+      <section className="px-4 sm:px-6 md:px-8">
+        <div className="mx-auto mb-16 flex max-w-5xl justify-center">
+          <div className="border-border bg-muted w-full overflow-hidden rounded-xl border shadow-lg">
+            <Image
+              src="/images/product-2.avif"
+              alt="Aperçu du produit"
+              width={1200}
+              height={600}
+              className="h-auto w-full"
+              priority
+            />
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Features */}
-      <section
-        id="features"
-        className="mx-auto mb-16 flex max-w-5xl flex-col items-stretch justify-center gap-8 px-4 md:flex-row"
-      >
-        <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
-          <Zap className="text-primary mx-auto mb-4" size={40} />
-          <h3 className="mb-2 text-lg font-semibold">
-            {t('features.automation.title')}
-          </h3>
-          <p className="text-muted-foreground">
-            {t('features.automation.description')}
-          </p>
-        </div>
-        <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
-          <BarChart2 className="text-primary mx-auto mb-4" size={40} />
-          <h3 className="mb-2 text-lg font-semibold">
-            {t('features.analytics.title')}
-          </h3>
-          <p className="text-muted-foreground">
-            {t('features.analytics.description')}
-          </p>
-        </div>
-        <div className="bg-background border-border flex-1 rounded-xl border p-8 text-center shadow-sm">
-          <ShieldCheck className="text-primary mx-auto mb-4" size={40} />
-          <h3 className="mb-2 text-lg font-semibold">
-            {t('features.security.title')}
-          </h3>
-          <p className="text-muted-foreground">
-            {t('features.security.description')}
-          </p>
+      {/* Features Section */}
+      <section id="features" className="px-4 sm:px-6 md:px-8">
+        <div className="mx-auto mb-16 max-w-6xl">
+          <div className="mb-12 text-center">
+            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+              {t('features.title')}
+            </h2>
+            <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
+              {t('features.subtitle')}
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="bg-background border-border flex flex-col rounded-xl border p-6 text-center shadow-sm sm:p-8">
+              <Zap className="text-primary mx-auto mb-4" size={40} />
+              <h3 className="mb-3 text-lg font-semibold">
+                {t('features.automation.title')}
+              </h3>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                {t('features.automation.description')}
+              </p>
+            </div>
+            <div className="bg-background border-border flex flex-col rounded-xl border p-6 text-center shadow-sm sm:p-8">
+              <BarChart2 className="text-primary mx-auto mb-4" size={40} />
+              <h3 className="mb-3 text-lg font-semibold">
+                {t('features.analytics.title')}
+              </h3>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                {t('features.analytics.description')}
+              </p>
+            </div>
+            <div className="bg-background border-border flex flex-col rounded-xl border p-6 text-center shadow-sm sm:col-span-2 sm:p-8 lg:col-span-1">
+              <ShieldCheck className="text-primary mx-auto mb-4" size={40} />
+              <h3 className="mb-3 text-lg font-semibold">
+                {t('features.security.title')}
+              </h3>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                {t('features.security.description')}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-border bg-background/80 mt-auto w-full border-t px-4 py-12">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 text-left md:grid-cols-4">
+      <footer className="border-border bg-background/80 mt-auto w-full border-t px-4 py-12 sm:px-6 md:px-8">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 text-left sm:grid-cols-2 md:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-2">
               <ImageTheme
@@ -159,77 +171,80 @@ export default async function Home({
             </p>
           </div>
           <div>
-            <h4 className="mb-3 font-semibold">{t('footer.product.title')}</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="mb-4 font-semibold">{t('footer.product.title')}</h4>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="#features" className="hover:underline">
+                <Link
+                  href="#features"
+                  className="hover:text-primary transition"
+                >
                   {t('footer.product.features')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.product.pricing')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.product.demo')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.product.updates')}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 font-semibold">
+            <h4 className="mb-4 font-semibold">
               {t('footer.resources.title')}
             </h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.resources.documentation')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.resources.blog')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.resources.support')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.resources.api')}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 font-semibold">{t('footer.legal.title')}</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="mb-4 font-semibold">{t('footer.legal.title')}</h4>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.legal.terms')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.legal.privacy')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.legal.contact')}
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:underline">
+                <Link href="#" className="hover:text-primary transition">
                   {t('footer.legal.careers')}
                 </Link>
               </li>
