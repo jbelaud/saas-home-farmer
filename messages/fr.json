@@ -892,6 +892,38 @@
         "nextBilling": "Prochaine facturation : {nextBilling}",
         "periodEnd": "Fin de période : {periodEnd}",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "subscriptionCanceled": {
+        "subject": "Votre abonnement {planName} a été annulé",
+        "preview": "Votre abonnement {planName} a été annulé avec succès.",
+        "title": "Abonnement Annulé",
+        "message": "Votre abonnement {planName} a été annulé avec succès.",
+        "planDetails": "Détails de l'abonnement annulé :",
+        "planName": "Plan : {planName}",
+        "status": "Statut : {status}",
+        "seats": "Nombre de sièges : {seats}",
+        "price": "Prix : {price}",
+        "limits": "Limites : {limits}",
+        "canceledAt": "Annulé le : {canceledAt}",
+        "periodEnd": "Accès jusqu'au : {periodEnd}",
+        "reactivateInfo": "Vous pouvez réactiver votre abonnement à tout moment depuis votre tableau de bord.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "subscriptionDeleted": {
+        "subject": "Votre abonnement {planName} a été supprimé",
+        "preview": "Votre abonnement {planName} a été définitivement supprimé.",
+        "title": "Abonnement Supprimé",
+        "message": "Votre abonnement {planName} a été définitivement supprimé.",
+        "planDetails": "Détails de l'abonnement supprimé :",
+        "planName": "Plan : {planName}",
+        "status": "Statut : {status}",
+        "seats": "Nombre de sièges : {seats}",
+        "price": "Prix : {price}",
+        "limits": "Limites : {limits}",
+        "deletedAt": "Supprimé le : {deletedAt}",
+        "accessLost": "Votre accès aux fonctionnalités premium a été révoqué.",
+        "resubscribeInfo": "Vous pouvez vous réabonner à tout moment depuis votre tableau de bord.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
       }
     },
     "admin": {

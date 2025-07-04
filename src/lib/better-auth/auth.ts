@@ -27,7 +27,9 @@ import {
   sendOrganizationInvitationService,
   sendOTPEmailService,
   sendResetPasswordLinkEmailService,
+  sendSubscriptionCanceledEmailService,
   sendSubscriptionCompletedEmailService,
+  sendSubscriptionDeletedEmailService,
   sendSubscriptionUpdatedEmailService,
   sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
@@ -160,7 +162,6 @@ const options = {
         plans: betterAuthPlans,
         authorizeReference: async ({user, referenceId, action}) => {
           // Check if the user has permission to manage subscriptions for this reference
-          console.log('authorizeReference', referenceId, action)
 
           if (action === 'list-subscription') {
             return true
@@ -179,7 +180,6 @@ const options = {
             if (BILLING_MODE === BillingModes.ORGANIZATION) {
               const org = await getOrganizationMembersService(referenceId)
               const member = org.find((m) => m.userId === user.id)
-              console.log('authorizeReference member', member)
               // Seuls owner et admin peuvent gérer les abonnements
               return member?.role === 'owner' //|| member?.role === 'admin'
             }
@@ -191,49 +191,14 @@ const options = {
         onSubscriptionComplete: async ({subscription}) => {
           await sendSubscriptionCompletedEmailService(subscription)
         },
-        onSubscriptionUpdate: async ({event, subscription}) => {
-          // Called when a subscription is updated
-          console.log(`Subscription ${subscription.id} updated`, event)
-
-          try {
-            // Appeler le service email avec la subscription
-            await sendSubscriptionUpdatedEmailService(subscription)
-            console.log(
-              '✅ Email de mise à jour envoyé pour subscription:',
-              subscription.id
-            )
-          } catch (error) {
-            console.error('❌ Erreur envoi email mise à jour:', error)
-          }
+        onSubscriptionUpdate: async ({subscription}) => {
+          await sendSubscriptionUpdatedEmailService(subscription)
         },
-        onSubscriptionCancel: async ({
-          event,
-          subscription,
-          stripeSubscription,
-          cancellationDetails,
-        }) => {
-          // Called when a subscription is canceled
-          console.log(
-            'onSubscriptionCancel',
-            event,
-            subscription,
-            stripeSubscription,
-            cancellationDetails
-          )
-          //await sendCancellationEmail(subscription.referenceId)
+        onSubscriptionCancel: async ({subscription}) => {
+          await sendSubscriptionCanceledEmailService(subscription)
         },
-        onSubscriptionDeleted: async ({
-          event,
-          subscription,
-          stripeSubscription,
-        }) => {
-          // Called when a subscription is deleted
-          console.log(
-            `Subscription ${subscription.id} deleted`,
-            event,
-            subscription,
-            stripeSubscription
-          )
+        onSubscriptionDeleted: async ({subscription}) => {
+          await sendSubscriptionDeletedEmailService(subscription)
         },
       },
       onEvent: onStripeEvent,

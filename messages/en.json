@@ -892,6 +892,38 @@
         "nextBilling": "Next billing: {nextBilling}",
         "periodEnd": "Period ends: {periodEnd}",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "subscriptionCanceled": {
+        "subject": "Your {planName} subscription has been canceled",
+        "preview": "Your {planName} subscription has been successfully canceled.",
+        "title": "Subscription Canceled",
+        "message": "Your {planName} subscription has been successfully canceled.",
+        "planDetails": "Canceled subscription details:",
+        "planName": "Plan: {planName}",
+        "status": "Status: {status}",
+        "seats": "Seats: {seats}",
+        "price": "Price: {price}",
+        "limits": "Limits: {limits}",
+        "canceledAt": "Canceled on: {canceledAt}",
+        "periodEnd": "Access until: {periodEnd}",
+        "reactivateInfo": "You can reactivate your subscription anytime from your dashboard.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "subscriptionDeleted": {
+        "subject": "Your {planName} subscription has been deleted",
+        "preview": "Your {planName} subscription has been permanently deleted.",
+        "title": "Subscription Deleted",
+        "message": "Your {planName} subscription has been permanently deleted.",
+        "planDetails": "Deleted subscription details:",
+        "planName": "Plan: {planName}",
+        "status": "Status: {status}",
+        "seats": "Seats: {seats}",
+        "price": "Price: {price}",
+        "limits": "Limits: {limits}",
+        "deletedAt": "Deleted on: {deletedAt}",
+        "accessLost": "Your access to premium features has been revoked.",
+        "resubscribeInfo": "You can subscribe again anytime from your dashboard.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
       }
     },
     "admin": {

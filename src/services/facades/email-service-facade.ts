@@ -19,3 +19,7 @@ export const sendSubscriptionCompletedEmailService =
   emailServiceInterceptor.sendSubscriptionCompletedEmailService
 export const sendSubscriptionUpdatedEmailService =
   emailServiceInterceptor.sendSubscriptionUpdatedEmailService
+export const sendSubscriptionCanceledEmailService =
+  emailServiceInterceptor.sendSubscriptionCanceledEmailService
+export const sendSubscriptionDeletedEmailService =
+  emailServiceInterceptor.sendSubscriptionDeletedEmailService

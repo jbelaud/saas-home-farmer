@@ -12,7 +12,9 @@ import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization
 import MagicLinkMail from '@/lib/emails/magic-link-email'
 import OtpEmail from '@/lib/emails/otp-email'
 import ResetPasswordEmail from '@/lib/emails/reset-password-email'
+import SubscriptionCanceledMail from '@/lib/emails/subscription-canceled-email'
 import SubscriptionCompletedMail from '@/lib/emails/subscription-completed-email'
+import SubscriptionDeletedMail from '@/lib/emails/subscription-deleted-email'
 import SubscriptionUpdatedMail from '@/lib/emails/subscription-updated-email'
 import VerificationEmail from '@/lib/emails/verification-email'
 import {getPlanByPriceId} from '@/lib/stripe/stripe-plans'
@@ -320,6 +322,127 @@ export const sendSubscriptionUpdatedEmailService = async (
       limits,
       nextBilling,
       periodEnd,
+    }),
+  })
+}
+
+export const sendSubscriptionCanceledEmailService = async (
+  subscription: Subscription
+) => {
+  const t = await getTranslations('email.user.subscriptionCanceled')
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  if (!subscription.stripeCustomerId) {
+    console.error('Pas de stripeCustomerId dans la subscription')
+    return
+  }
+
+  const stripeSubscriptionCanceled = await getSubscriptionDetails(
+    subscription.stripeSubscriptionId ?? ''
+  )
+  const plan = getPlanByPriceId(
+    stripeSubscriptionCanceled?.items.data[0].price.id ?? ''
+  )
+  const user = await getUserByStripeCustomerIdDao(subscription.stripeCustomerId)
+  if (!user) {
+    console.error(
+      'Utilisateur non trouvé pour stripeCustomerId:',
+      subscription.stripeCustomerId
+    )
+    return
+  }
+
+  // Extraire les informations de la subscription
+  const planName = subscription.plan || plan?.planName || 'Plan inconnu'
+  const status = subscription.status || 'annulé'
+
+  // Informations du plan
+  const seats = subscription.seats ? `${subscription.seats}` : 'Non défini'
+  const price = getFormattedPriceFromSubscription(stripeSubscriptionCanceled)
+  const limits = plan?.limits
+    ? Object.entries(plan.limits)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(', ')
+    : 'Non défini'
+
+  // Calculer les dates
+  const canceledAt = new Date().toLocaleDateString('fr-FR')
+
+  const periodEnd = subscription.periodEnd
+    ? new Date(subscription.periodEnd).toLocaleDateString('fr-FR')
+    : 'Non disponible'
+
+  await sendEmailService({
+    to: user.email,
+    subject: t('subject', {planName}),
+    from: fromEmail,
+    text: t('preview', {planName}),
+    react: SubscriptionCanceledMail({
+      planName,
+      status,
+      seats,
+      price,
+      limits,
+      canceledAt,
+      periodEnd,
+    }),
+  })
+}
+
+export const sendSubscriptionDeletedEmailService = async (
+  subscription: Subscription
+) => {
+  const t = await getTranslations('email.user.subscriptionDeleted')
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  if (!subscription.stripeCustomerId) {
+    console.error('Pas de stripeCustomerId dans la subscription')
+    return
+  }
+
+  const stripeSubscriptionDeleted = await getSubscriptionDetails(
+    subscription.stripeSubscriptionId ?? ''
+  )
+  const plan = getPlanByPriceId(
+    stripeSubscriptionDeleted?.items.data[0].price.id ?? ''
+  )
+  const user = await getUserByStripeCustomerIdDao(subscription.stripeCustomerId)
+  if (!user) {
+    console.error(
+      'Utilisateur non trouvé pour stripeCustomerId:',
+      subscription.stripeCustomerId
+    )
+    return
+  }
+
+  // Extraire les informations de la subscription
+  const planName = subscription.plan || plan?.planName || 'Plan inconnu'
+  const status = subscription.status || 'supprimé'
+
+  // Informations du plan
+  const seats = subscription.seats ? `${subscription.seats}` : 'Non défini'
+  const price = getFormattedPriceFromSubscription(stripeSubscriptionDeleted)
+  const limits = plan?.limits
+    ? Object.entries(plan.limits)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(', ')
+    : 'Non défini'
+
+  // Date de suppression
+  const deletedAt = new Date().toLocaleDateString('fr-FR')
+
+  await sendEmailService({
+    to: user.email,
+    subject: t('subject', {planName}),
+    from: fromEmail,
+    text: t('preview', {planName}),
+    react: SubscriptionDeletedMail({
+      planName,
+      status,
+      seats,
+      price,
+      limits,
+      deletedAt,
     }),
   })
 }
