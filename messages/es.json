@@ -903,5 +903,47 @@
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       }
     }
+  },
+  "PrivacyPage": {
+    "title": "Política de Privacidad",
+    "description": "Página de política de privacidad",
+    "sections": {
+      "privacyPolicy": {
+        "title": "Política de Privacidad",
+        "description": "Su privacidad es importante para nosotros. Esta política de privacidad describe los tipos de información que [Nombre de la Empresa] (\"nosotros\", \"nuestro\", \"nos\") puede recopilar de usted o que usted nos proporciona cuando utiliza nuestro servicio, y cómo utilizamos, protegemos y divulgamos dicha información. Al utilizar el servicio, usted acepta la recopilación y uso de información de acuerdo con esta política."
+      },
+      "collectedInformation": {
+        "title": "Información Recopilada",
+        "description": "Podemos recopilar diferentes tipos de información cuando utiliza nuestro servicio, incluyendo:",
+        "contents": [
+          "Información de identificación personal como su nombre, dirección de correo electrónico, número de teléfono e información de facturación cuando se registra para usar nuestro servicio.",
+          "Información sobre su empresa, como el nombre de la empresa, dirección y otra información financiera necesaria para gestionar sus finanzas.",
+          "Información sobre su actividad deportiva, como los tipos de actividades realizadas, la duración e intensidad del ejercicio."
+        ]
+      },
+      "informationUsage": {
+        "title": "Uso de la Información",
+        "description": "Utilizamos la información que recopilamos para:",
+        "contents": [
+          "Proporcionar, mantener y mejorar nuestro servicio.",
+          "Personalizar su experiencia y responder a sus necesidades individuales.",
+          "Procesar sus transacciones financieras y proporcionarle un seguimiento de sus finanzas.",
+          "Rastrear y analizar las tendencias de uso y las preferencias de los usuarios.",
+          "Enviarle información administrativa, como alertas de cuenta, actualizaciones de servicios o comunicaciones relacionadas con el servicio."
+        ]
+      },
+      "informationProtection": {
+        "title": "Protección de la Información",
+        "description": "La seguridad de su información es importante para nosotros. Implementamos medidas de seguridad apropiadas para proteger la información contra acceso no autorizado, alteración, divulgación o destrucción."
+      },
+      "dataRetention": {
+        "title": "Retención de Datos",
+        "description": "Conservamos su información personal durante el tiempo necesario para los fines para los que fue recopilada y de acuerdo con los requisitos legales."
+      },
+      "policyChanges": {
+        "title": "Cambios en la Política de Privacidad",
+        "description": "Nos reservamos el derecho de actualizar o modificar esta política de privacidad en cualquier momento. Cualquier cambio se publicará en esta página con una fecha de revisión actualizada."
+      }
+    }
   }
 }
