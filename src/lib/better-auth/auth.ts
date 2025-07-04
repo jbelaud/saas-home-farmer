@@ -28,6 +28,7 @@ import {
   sendOTPEmailService,
   sendResetPasswordLinkEmailService,
   sendSubscriptionCompletedEmailService,
+  sendSubscriptionUpdatedEmailService,
   sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
 import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
@@ -193,6 +194,17 @@ const options = {
         onSubscriptionUpdate: async ({event, subscription}) => {
           // Called when a subscription is updated
           console.log(`Subscription ${subscription.id} updated`, event)
+
+          try {
+            // Appeler le service email avec la subscription
+            await sendSubscriptionUpdatedEmailService(subscription)
+            console.log(
+              '✅ Email de mise à jour envoyé pour subscription:',
+              subscription.id
+            )
+          } catch (error) {
+            console.error('❌ Erreur envoi email mise à jour:', error)
+          }
         },
         onSubscriptionCancel: async ({
           event,

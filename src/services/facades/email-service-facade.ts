@@ -17,3 +17,5 @@ export const sendEmailChangeEmailVerificationService =
   emailServiceInterceptor.sendEmailChangeEmailVerificationService
 export const sendSubscriptionCompletedEmailService =
   emailServiceInterceptor.sendSubscriptionCompletedEmailService
+export const sendSubscriptionUpdatedEmailService =
+  emailServiceInterceptor.sendSubscriptionUpdatedEmailService

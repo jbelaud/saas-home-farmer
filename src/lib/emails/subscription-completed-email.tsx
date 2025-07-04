@@ -14,6 +14,9 @@ import {Fragment} from 'react'
 export type SubscriptionCompletedMailProps = {
   planName: string
   status: string
+  seats: string
+  price: string
+  limits: string
   nextBilling: string
   periodEnd: string
 }
@@ -21,6 +24,9 @@ export type SubscriptionCompletedMailProps = {
 export default async function SubscriptionCompletedMail({
   planName,
   status,
+  seats,
+  price,
+  limits,
   nextBilling,
   periodEnd,
 }: SubscriptionCompletedMailProps) {
@@ -46,6 +52,9 @@ export default async function SubscriptionCompletedMail({
                 </Text>
                 <Text className="text-base">{t('planName', {planName})}</Text>
                 <Text className="text-base">{t('status', {status})}</Text>
+                <Text className="text-base">{t('seats', {seats})}</Text>
+                <Text className="text-base">{t('price', {price})}</Text>
+                <Text className="text-base">{t('limits', {limits})}</Text>
                 <Text className="text-base">
                   {t('nextBilling', {nextBilling})}
                 </Text>

@@ -13,7 +13,13 @@ import MagicLinkMail from '@/lib/emails/magic-link-email'
 import OtpEmail from '@/lib/emails/otp-email'
 import ResetPasswordEmail from '@/lib/emails/reset-password-email'
 import SubscriptionCompletedMail from '@/lib/emails/subscription-completed-email'
+import SubscriptionUpdatedMail from '@/lib/emails/subscription-updated-email'
 import VerificationEmail from '@/lib/emails/verification-email'
+import {getPlanByPriceId} from '@/lib/stripe/stripe-plans'
+import {
+  getFormattedPriceFromSubscription,
+  getSubscriptionDetails,
+} from '@/lib/stripe/stripe-utils'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -199,6 +205,12 @@ export const sendSubscriptionCompletedEmailService = async (
     return
   }
 
+  const stripeSubscriptionUpdated = await getSubscriptionDetails(
+    subscription.stripeSubscriptionId ?? ''
+  )
+  const plan = getPlanByPriceId(
+    stripeSubscriptionUpdated?.items.data[0].price.id ?? ''
+  )
   const user = await getUserByStripeCustomerIdDao(subscription.stripeCustomerId)
   if (!user) {
     console.error(
@@ -209,8 +221,17 @@ export const sendSubscriptionCompletedEmailService = async (
   }
 
   // Extraire les informations de la subscription
-  const planName = subscription.plan || 'Plan inconnu'
+  const planName = subscription.plan || plan?.planName || 'Plan inconnu'
   const status = subscription.status || 'actif'
+
+  // Informations du plan
+  const seats = subscription.seats ? `${subscription.seats}` : 'Non défini'
+  const price = getFormattedPriceFromSubscription(stripeSubscriptionUpdated)
+  const limits = plan?.limits
+    ? Object.entries(plan.limits)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(', ')
+    : 'Non défini'
 
   // Calculer les dates
   const periodEnd = subscription.periodEnd
@@ -229,6 +250,74 @@ export const sendSubscriptionCompletedEmailService = async (
     react: SubscriptionCompletedMail({
       planName,
       status,
+      seats,
+      price,
+      limits,
+      nextBilling,
+      periodEnd,
+    }),
+  })
+}
+
+export const sendSubscriptionUpdatedEmailService = async (
+  subscription: Subscription
+) => {
+  const t = await getTranslations('email.user.subscriptionUpdated')
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  if (!subscription.stripeCustomerId) {
+    console.error('Pas de stripeCustomerId dans la subscription')
+    return
+  }
+  const stripeSubscription = await getSubscriptionDetails(
+    subscription.stripeSubscriptionId ?? ''
+  )
+  const plan = getPlanByPriceId(
+    stripeSubscription?.items.data[0].price.id ?? ''
+  )
+
+  const user = await getUserByStripeCustomerIdDao(subscription.stripeCustomerId)
+  if (!user) {
+    console.error(
+      'Utilisateur non trouvé pour stripeCustomerId:',
+      subscription.stripeCustomerId
+    )
+    return
+  }
+
+  // Extraire les informations de la subscription
+  const planName = subscription.plan || plan?.planName || 'Plan inconnu'
+  const status = subscription.status || 'actif'
+
+  // Informations du plan
+  const seats = subscription.seats ? `${subscription.seats}` : 'Non défini'
+  const price = getFormattedPriceFromSubscription(stripeSubscription)
+  const limits = plan?.limits
+    ? Object.entries(plan.limits)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(', ')
+    : 'Non défini'
+
+  // Calculer les dates
+  const periodEnd = subscription.periodEnd
+    ? new Date(subscription.periodEnd).toLocaleDateString('fr-FR')
+    : 'Non disponible'
+
+  const nextBilling = subscription.periodEnd
+    ? new Date(subscription.periodEnd).toLocaleDateString('fr-FR')
+    : 'Non disponible'
+
+  await sendEmailService({
+    to: user.email,
+    subject: t('subject', {planName}),
+    from: fromEmail,
+    text: t('preview', {planName}),
+    react: SubscriptionUpdatedMail({
+      planName,
+      status,
+      seats,
+      price,
+      limits,
       nextBilling,
       periodEnd,
     }),
