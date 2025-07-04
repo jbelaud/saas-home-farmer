@@ -405,7 +405,6 @@ export const createUserFromStripeService = async (
       role: ['user'],
     },
   })
-  console.log('🔧 createdUser', response)
   await updateUserSafeByUidDao(
     {
       id: response.user.id ?? '',

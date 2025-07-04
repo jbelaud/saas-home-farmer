@@ -13,8 +13,6 @@ const winstonLogger = winston.createLogger({
         }),
         winston.format.colorize(),
         winston.format.printf(({timestamp, level, message, ...metadata}) => {
-          // console.log('🔧 [LOGGER] metadata', metadata)
-
           // Récupérer les arguments supplémentaires depuis Symbol(splat)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const splatArgs = (metadata as any)[Symbol.for('splat')] || []

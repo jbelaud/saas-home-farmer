@@ -208,7 +208,6 @@ function createDatabaseHooks() {
     user: {
       create: {
         before: async (user: User) => {
-          console.log('[databaseHooks before]', user)
           return {
             data: {
               ...user,
@@ -217,7 +216,6 @@ function createDatabaseHooks() {
           }
         },
         after: async (user: User) => {
-          console.log('[better auth databaseHooks after] ')
           await initializeRegisterUserDataService(user.email)
         },
       },
@@ -270,9 +268,6 @@ function createAuthorizeReference() {
  */
 function createAuthRedirectMiddleware() {
   return createAuthMiddleware(async (ctx) => {
-    //console.log('ctx.path', ctx.path)
-    //console.log('ctx.context newSession', ctx.context.newSession)
-
     if (
       ctx.path.startsWith('/sign-up') ||
       ctx.path === '/magic-link/verify' ||

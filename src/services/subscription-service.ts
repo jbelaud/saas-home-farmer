@@ -143,7 +143,7 @@ export const createSubscriptionFromStripeService = async (
   }
 
   if (!user.stripeCustomerId) {
-    const res = await updateUserSafeByUidDao(
+    await updateUserSafeByUidDao(
       {
         id: user.id,
         email: user.email,
@@ -152,7 +152,6 @@ export const createSubscriptionFromStripeService = async (
       },
       user.id
     )
-    console.log('🔧 updateUser stripeCustomerId ', res)
   }
 
   const subscription = await createSubscriptionDao({

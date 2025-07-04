@@ -207,7 +207,6 @@ export const getOrganizationsByUserIdService = async (userId?: string) => {
 }
 
 export const getOrganizationMembersService = async (organizationId: string) => {
-  console.log('getOrganizationMembersService', organizationId)
   const parsed = organizationUuidSchema.safeParse(organizationId)
   if (!parsed.success) {
     throw new ValidationError(parsed.error.message)

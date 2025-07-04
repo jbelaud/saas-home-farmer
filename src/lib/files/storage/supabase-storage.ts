@@ -14,7 +14,6 @@ export const createSupabaseStorage = (
   config: StorageConfig
 ): StorageOperations => {
   const upload = async (file: File, path: string): Promise<{path: string}> => {
-    console.log('upload', file, path)
     const fullPath = getFullPath(config, path)
     const {data, error} = await supabase.storage
       .from(config.bucket)

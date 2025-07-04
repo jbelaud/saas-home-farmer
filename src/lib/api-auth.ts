@@ -148,8 +148,6 @@ export function withAuthToken(
 
       let token: string | null = null
 
-      console.log('authHeader', authHeader)
-
       // Vérifier différents formats de token
       if (authHeader?.startsWith('Bearer ')) {
         token = authHeader.substring(7)
