@@ -1010,5 +1010,59 @@
         "description": "Nos reservamos el derecho de actualizar o modificar esta política de privacidad en cualquier momento. Cualquier cambio se publicará en esta página con una fecha de revisión actualizada."
       }
     }
+  },
+  "Tasks": {
+    "board": {
+      "title": "Tablero de Tareas",
+      "columns": {
+        "todo": "Por Hacer",
+        "in_progress": "En Progreso",
+        "done": "Completado"
+      },
+      "empty": "Sin tareas",
+      "loading": "Cargando tareas...",
+      "dragAndDrop": "Arrastra y suelta las tareas para cambiar su estado"
+    },
+    "card": {
+      "createdBy": "Creado por",
+      "assignedTo": "Asignado a",
+      "dueDate": "Fecha límite",
+      "createdAt": "Creado el",
+      "status": {
+        "todo": "Por Hacer",
+        "in_progress": "En Progreso",
+        "done": "Completado"
+      }
+    },
+    "actions": {
+      "create": "Nueva Tarea",
+      "edit": "Editar Tarea",
+      "delete": "Eliminar Tarea",
+      "assign": "Asignar",
+      "move": "Mover",
+      "updateOrder": "Orden de tareas actualizado",
+      "orderUpdateError": "Error al actualizar el orden de las tareas"
+    },
+    "form": {
+      "title": "Título de la Tarea",
+      "titlePlaceholder": "Ingrese el título de la tarea",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Ingrese una descripción (opcional)",
+      "status": "Estado",
+      "assignedTo": "Asignado a",
+      "dueDate": "Fecha límite",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "updating": "Actualizando..."
+    },
+    "messages": {
+      "createSuccess": "Tarea creada con éxito",
+      "updateSuccess": "Tarea actualizada con éxito",
+      "deleteSuccess": "Tarea eliminada con éxito",
+      "createError": "Error al crear la tarea",
+      "updateError": "Error al actualizar la tarea",
+      "deleteError": "Error al eliminar la tarea"
+    }
   }
 }

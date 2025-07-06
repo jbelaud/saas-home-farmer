@@ -218,7 +218,7 @@ export const getTasksByProjectIdDao = async (
     .select()
     .from(tasks)
     .where(eq(tasks.projectId, projectId))
-    .orderBy(tasks.createdAt)
+    .orderBy(tasks.order, tasks.createdAt)
 
   return rows
 }
@@ -261,7 +261,67 @@ export const getTasksByStatusDao = async (
     .select()
     .from(tasks)
     .where(and(...whereConditions))
-    .orderBy(tasks.createdAt)
+    .orderBy(tasks.order, tasks.createdAt)
 
   return rows
+}
+
+// ===== FONCTIONS POUR LE DRAG AND DROP =====
+
+export const updateTaskOrderDao = async (
+  taskId: string,
+  newOrder: number,
+  newStatus?: TaskStatusEnumModel
+): Promise<void> => {
+  const updateData: Partial<UpdateTaskModel> = {
+    order: newOrder,
+    updatedAt: new Date(),
+  }
+
+  if (newStatus) {
+    updateData.status = newStatus
+  }
+
+  await db.update(tasks).set(updateData).where(eq(tasks.id, taskId))
+}
+
+export const updateTasksOrderDao = async (
+  tasksUpdates: Array<{id: string; order: number; status?: TaskStatusEnumModel}>
+): Promise<void> => {
+  await db.transaction(async (tx) => {
+    for (const taskUpdate of tasksUpdates) {
+      const updateData: Partial<UpdateTaskModel> = {
+        order: taskUpdate.order,
+        updatedAt: new Date(),
+      }
+
+      if (taskUpdate.status) {
+        updateData.status = taskUpdate.status
+      }
+
+      await tx.update(tasks).set(updateData).where(eq(tasks.id, taskUpdate.id))
+    }
+  })
+}
+
+export const getTasksByProjectIdGroupedByStatusDao = async (
+  projectId: string
+): Promise<Record<TaskStatusEnumModel, TaskModel[]>> => {
+  const allTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId))
+    .orderBy(tasks.order, tasks.createdAt)
+
+  const groupedTasks: Record<TaskStatusEnumModel, TaskModel[]> = {
+    todo: [],
+    in_progress: [],
+    done: [],
+  }
+
+  allTasks.forEach((task) => {
+    groupedTasks[task.status].push(task)
+  })
+
+  return groupedTasks
 }

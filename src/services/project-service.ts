@@ -10,11 +10,14 @@ import {
   getTaskByIdDao,
   getTasksByOrganizationIdDao,
   getTasksByProjectIdDao,
+  getTasksByProjectIdGroupedByStatusDao,
   getTasksByStatusDao,
   getTasksByUserIdDao,
   getTasksWithPaginationDao,
   updateProjectByIdDao,
   updateTaskByIdDao,
+  updateTaskOrderDao,
+  updateTasksOrderDao,
 } from '@/db/repositories/project-repository'
 
 import {
@@ -434,4 +437,99 @@ export const getTasksByStatusService = async (
 
   // Récupération des tâches
   return await getTasksByStatusDao(validatedStatus, organizationId)
+}
+
+// ===== SERVICES POUR LE DRAG AND DROP =====
+
+/**
+ * Récupérer les tâches d'un projet groupées par statut
+ */
+export const getTasksByProjectGroupedByStatusService = async (
+  projectId: string
+) => {
+  // Validation de l'ID
+  const parsed = projectUuidSchema.safeParse(projectId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+  const validatedId = parsed.data
+
+  // Vérification des autorisations
+  const granted = await canReadTasksByProject(validatedId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  // Récupération des tâches groupées
+  return await getTasksByProjectIdGroupedByStatusDao(validatedId)
+}
+
+/**
+ * Mettre à jour l'ordre d'une tâche
+ */
+export const updateTaskOrderService = async (
+  taskId: string,
+  newOrder: number,
+  newStatus?: TaskStatus
+) => {
+  // Validation de l'ID de la tâche
+  const parsedTaskId = taskUuidSchema.safeParse(taskId)
+  if (!parsedTaskId.success) {
+    throw new ValidationError(parsedTaskId.error.message)
+  }
+  const validatedTaskId = parsedTaskId.data
+
+  // Validation du statut si fourni
+  if (newStatus) {
+    const parsedStatus = taskStatusSchema.safeParse(newStatus)
+    if (!parsedStatus.success) {
+      throw new ValidationError(parsedStatus.error.message)
+    }
+  }
+
+  // Vérification des autorisations
+  const granted = await canUpdateTask(validatedTaskId)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  // Mise à jour de l'ordre
+  await updateTaskOrderDao(validatedTaskId, newOrder, newStatus)
+}
+
+/**
+ * Mettre à jour l'ordre de plusieurs tâches
+ */
+export const updateTasksOrderService = async (
+  tasksUpdates: Array<{id: string; order: number; status?: TaskStatus}>
+) => {
+  // Validation des données
+  for (const taskUpdate of tasksUpdates) {
+    const parsedTaskId = taskUuidSchema.safeParse(taskUpdate.id)
+    if (!parsedTaskId.success) {
+      throw new ValidationError(
+        `ID de tâche invalide: ${parsedTaskId.error.message}`
+      )
+    }
+
+    if (taskUpdate.status) {
+      const parsedStatus = taskStatusSchema.safeParse(taskUpdate.status)
+      if (!parsedStatus.success) {
+        throw new ValidationError(
+          `Statut invalide: ${parsedStatus.error.message}`
+        )
+      }
+    }
+
+    // Vérification des autorisations pour chaque tâche
+    const granted = await canUpdateTask(taskUpdate.id)
+    if (!granted) {
+      throw new AuthorizationError(
+        `Autorisation refusée pour la tâche ${taskUpdate.id}`
+      )
+    }
+  }
+
+  // Mise à jour de l'ordre des tâches
+  await updateTasksOrderDao(tasksUpdates)
 }

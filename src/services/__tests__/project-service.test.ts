@@ -67,6 +67,8 @@ describe('[ADMIN] CRUD : Project Service', () => {
     createdBy: userTestAdmin.id,
     createdAt: new Date(),
     updatedAt: new Date(),
+    order: 0,
+    assignedTo: null,
   }
 
   beforeEach(() => {
@@ -223,6 +225,8 @@ describe('[ORGANIZATION OWNER] CRUD : Project Service', () => {
     createdBy: userTest.id,
     createdAt: new Date(),
     updatedAt: new Date(),
+    order: 0,
+    assignedTo: null,
   }
 
   beforeEach(() => {
@@ -361,6 +365,8 @@ describe('[ORGANIZATION ADMIN] CRUD : Project Service', () => {
     createdBy: userTest.id,
     createdAt: new Date(),
     updatedAt: new Date(),
+    order: 0,
+    assignedTo: null,
   }
 
   beforeEach(() => {
@@ -498,6 +504,8 @@ describe('[ORGANIZATION MEMBER] CRUD : Project Service', () => {
     createdBy: userTest.id,
     createdAt: new Date(),
     updatedAt: new Date(),
+    order: 0,
+    assignedTo: null,
   }
 
   beforeEach(() => {
@@ -616,6 +624,8 @@ describe('[USER NOT IN ORGANIZATION] CRUD : Project Service', () => {
     createdBy: faker.string.uuid(),
     createdAt: new Date(),
     updatedAt: new Date(),
+    order: 0,
+    assignedTo: null,
   }
 
   beforeEach(() => {

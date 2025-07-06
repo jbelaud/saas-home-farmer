@@ -30,3 +30,6 @@ export const deleteUserSettingsService =
   userServiceInterceptor.deleteUserSettingsService
 export const upsertUserSettingsService =
   userServiceInterceptor.upsertUserSettingsService
+
+export const getUsersByOrganizationService =
+  userServiceInterceptor.getUsersByOrganizationService

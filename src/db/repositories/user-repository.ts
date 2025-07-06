@@ -396,3 +396,34 @@ export const upsertUserSettingsDao = async (
     return await createUserSettingsDao({...settings, userId})
   }
 }
+
+/**
+ * Récupère tous les utilisateurs membres d'une organisation
+ */
+export const getUsersByOrganizationDao = async (
+  organizationId: string
+): Promise<UserModel[]> => {
+  const rows = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      emailVerified: users.emailVerified,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+      image: users.image,
+      role: users.role,
+      banned: users.banned,
+      banReason: users.banReason,
+      banExpires: users.banExpires,
+      visibility: users.visibility,
+      twoFactorEnabled: users.twoFactorEnabled,
+      stripeCustomerId: users.stripeCustomerId,
+    })
+    .from(users)
+    .innerJoin(member, eq(users.id, member.userId))
+    .where(eq(member.organizationId, organizationId))
+    .orderBy(users.name)
+
+  return rows
+}

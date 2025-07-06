@@ -6,7 +6,10 @@ import {getAuthUser} from '@/services/authentication/auth-service'
 import {hasRequiredRoles} from '@/services/authentication/auth-util'
 import {canManageUsers} from '@/services/authorization/user-authorization'
 import {AuthorizationError} from '@/services/errors/authorization-error'
-import {getAllUsersWithPaginationService} from '@/services/facades/user-service-facade'
+import {
+  getAllUsersWithPaginationService,
+  getUsersByOrganizationService,
+} from '@/services/facades/user-service-facade'
 import {
   RequireAuthOptions,
   Roles,
@@ -73,3 +76,9 @@ export const getUserPermissionsDal = cache(async () => {
     canManage,
   }
 })
+
+export const getUsersByOrganizationDal = cache(
+  async (organizationId: string) => {
+    return await getUsersByOrganizationService(organizationId)
+  }
+)

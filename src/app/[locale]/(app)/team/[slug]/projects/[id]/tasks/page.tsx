@@ -1,11 +1,10 @@
 import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 
-import {getProjectPermissions} from '@/app/dal/project-dal'
 import {getTasksByProjectGroupedByStatusDal} from '@/app/dal/task-dal'
 import {getUsersByOrganizationDal} from '@/app/dal/user-dal'
-import {EditProjectForm} from '@/components/features/projects/edit-project-form'
 import {TaskBoardComponent} from '@/components/features/tasks/task-board'
+import {Button} from '@/components/ui/button'
 import {getProjectByIdService} from '@/services/facades/project-service-facade'
 
 async function TaskBoard({projectId}: {projectId: string}) {
@@ -34,31 +33,45 @@ async function TaskBoard({projectId}: {projectId: string}) {
   return <TaskBoardComponent tasks={tasks} usersMap={usersMap} />
 }
 
-export default async function EditProjectPage({
+export default async function TasksPage({
   params,
 }: {
-  params: Promise<{id: string}>
+  params: Promise<{id: string; slug: string}>
 }) {
-  const {id} = await params
+  const {id, slug} = await params
   const project = await getProjectByIdService(id)
-  const {canEdit} = await getProjectPermissions(id)
 
   if (!project) {
     notFound()
   }
 
   return (
-    <div className="container mx-auto space-y-8 py-8">
-      <div>
-        <h1 className="mb-8 text-2xl font-bold">Modifier le projet</h1>
-        <EditProjectForm project={project} canEdit={canEdit} />
+    <div className="container mx-auto py-8">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">{project.name}</h1>
+          <p className="text-muted-foreground">Gestion des tâches</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <a href={`/team/${slug}/projects/${id}/edit`}>Modifier le projet</a>
+          </Button>
+          <Button>Nouvelle tâche</Button>
+        </div>
       </div>
-      <div>
-        <h2 className="mb-6 text-xl font-semibold">Tableau des tâches</h2>
-        <Suspense fallback={<div>Chargement des tâches...</div>}>
-          <TaskBoard projectId={id} />
-        </Suspense>
-      </div>
+
+      <Suspense
+        fallback={
+          <div className="flex h-64 items-center justify-center">
+            <div className="text-center">
+              <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+              <p className="text-muted-foreground">Chargement des tâches...</p>
+            </div>
+          </div>
+        }
+      >
+        <TaskBoard projectId={id} />
+      </Suspense>
     </div>
   )
 }

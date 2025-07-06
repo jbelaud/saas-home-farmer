@@ -1,5 +1,12 @@
 import {relations, sql} from 'drizzle-orm'
-import {pgEnum, pgTable, text, timestamp, uuid} from 'drizzle-orm/pg-core'
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core'
 
 import {organization, user} from './auth-model'
 
@@ -35,6 +42,7 @@ export const tasks = pgTable('task', {
   title: text('title').notNull(),
   description: text('description'),
   status: taskStatusEnum('status').default('todo').notNull(),
+  order: integer('order').default(0).notNull(),
   dueDate: timestamp('due_date', {mode: 'date'}),
   projectId: uuid('project_id')
     .notNull()
@@ -43,6 +51,9 @@ export const tasks = pgTable('task', {
     .notNull()
     .references(() => organization.id, {onDelete: 'cascade'}),
   createdBy: uuid('created_by').references(() => user.id, {
+    onDelete: 'set null',
+  }),
+  assignedTo: uuid('assigned_to').references(() => user.id, {
     onDelete: 'set null',
   }),
   createdAt: timestamp('createdat', {mode: 'date'}).defaultNow(),
@@ -74,6 +85,10 @@ export const tasksRelations = relations(tasks, ({one}) => ({
   }),
   createdBy: one(user, {
     fields: [tasks.createdBy],
+    references: [user.id],
+  }),
+  assignedTo: one(user, {
+    fields: [tasks.assignedTo],
     references: [user.id],
   }),
 }))

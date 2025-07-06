@@ -29,10 +29,12 @@ export type CreateTask = Pick<
   | 'title'
   | 'description'
   | 'status'
+  | 'order'
   | 'dueDate'
   | 'projectId'
   | 'organizationId'
   | 'createdBy'
+  | 'assignedTo'
 >
 
 // Types pour les opérations de mise à jour
@@ -62,10 +64,12 @@ export type TaskDTO = {
   title: string
   description?: string | null
   status: TaskStatus
+  order: number
   dueDate?: Date | null
   projectId: string
   organizationId: string
   createdBy?: string | null
+  assignedTo?: string | null
   createdAt?: Date | null
   updatedAt?: Date | null
 }
@@ -83,6 +87,7 @@ export type TaskData = TaskModel & {
   project?: ProjectModel
   organization?: OrganizationModel
   createdBy?: UserModel
+  assignedTo?: UserModel
 }
 
 // ===== TYPES POUR LES FILTRES ET REQUÊTES =====
@@ -98,5 +103,20 @@ export type TaskFilters = {
   projectId?: string
   createdBy?: string
   status?: TaskStatus
+  assignedTo?: string
   title?: string
+}
+
+// ===== TYPES POUR LE DRAG AND DROP =====
+
+export type TaskOrderUpdate = {
+  id: string
+  order: number
+  status?: TaskStatus
+}
+
+export type TaskBoard = {
+  todo: TaskDTO[]
+  in_progress: TaskDTO[]
+  done: TaskDTO[]
 }

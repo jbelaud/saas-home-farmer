@@ -1010,5 +1010,59 @@
         "description": "Nous nous réservons le droit de mettre à jour ou de modifier cette politique de confidentialité à tout moment. Toute modification sera publiée sur cette page avec une date de révision mise à jour."
       }
     }
+  },
+  "Tasks": {
+    "board": {
+      "title": "Tableau des tâches",
+      "columns": {
+        "todo": "À faire",
+        "in_progress": "En cours",
+        "done": "Terminé"
+      },
+      "empty": "Aucune tâche",
+      "loading": "Chargement des tâches...",
+      "dragAndDrop": "Glissez-déposez les tâches pour changer leur statut"
+    },
+    "card": {
+      "createdBy": "Créé par",
+      "assignedTo": "Assigné à",
+      "dueDate": "Échéance",
+      "createdAt": "Créé le",
+      "status": {
+        "todo": "À faire",
+        "in_progress": "En cours",
+        "done": "Terminé"
+      }
+    },
+    "actions": {
+      "create": "Nouvelle tâche",
+      "edit": "Modifier la tâche",
+      "delete": "Supprimer la tâche",
+      "assign": "Assigner",
+      "move": "Déplacer",
+      "updateOrder": "Ordre des tâches mis à jour",
+      "orderUpdateError": "Erreur lors de la mise à jour de l'ordre"
+    },
+    "form": {
+      "title": "Titre de la tâche",
+      "titlePlaceholder": "Entrez le titre de la tâche",
+      "description": "Description",
+      "descriptionPlaceholder": "Entrez une description (optionnel)",
+      "status": "Statut",
+      "assignedTo": "Assigné à",
+      "dueDate": "Date d'échéance",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "creating": "Création...",
+      "updating": "Mise à jour..."
+    },
+    "messages": {
+      "createSuccess": "Tâche créée avec succès",
+      "updateSuccess": "Tâche mise à jour avec succès",
+      "deleteSuccess": "Tâche supprimée avec succès",
+      "createError": "Erreur lors de la création de la tâche",
+      "updateError": "Erreur lors de la mise à jour de la tâche",
+      "deleteError": "Erreur lors de la suppression de la tâche"
+    }
   }
 }

@@ -8,6 +8,7 @@ import {
   getAllUsersWithPaginationDao,
   getUserByEmailDao,
   getUserByIdDao,
+  getUsersByOrganizationDao,
   getUserSettingsByUserIdDao,
   isEmailExistsDao,
   searchUsersDao,
@@ -425,4 +426,8 @@ export const createUserFromStripeService = async (
     user: response,
     isNewUser: true,
   }
+}
+
+export const getUsersByOrganizationService = async (organizationId: string) => {
+  return await getUsersByOrganizationDao(organizationId)
 }

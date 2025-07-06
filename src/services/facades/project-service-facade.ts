@@ -34,3 +34,11 @@ export const getTasksByUserService =
   projectServiceInterceptor.getTasksByUserService
 export const getTasksByStatusService =
   projectServiceInterceptor.getTasksByStatusService
+
+// ===== SERVICES POUR LE DRAG AND DROP =====
+export const getTasksByProjectGroupedByStatusService =
+  projectServiceInterceptor.getTasksByProjectGroupedByStatusService
+export const updateTaskOrderService =
+  projectServiceInterceptor.updateTaskOrderService
+export const updateTasksOrderService =
+  projectServiceInterceptor.updateTasksOrderService

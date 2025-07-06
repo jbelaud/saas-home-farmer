@@ -75,9 +75,25 @@ const baseTaskSchema = z.object({
     .optional()
     .nullable(),
   status: taskStatusSchema.optional(),
+  order: z
+    .number()
+    .int({
+      message: "L'ordre doit être un nombre entier.",
+    })
+    .min(0, {
+      message: "L'ordre doit être supérieur ou égal à 0.",
+    })
+    .optional(),
   dueDate: z
     .date({
       message: "La date d'échéance doit être une date valide.",
+    })
+    .optional()
+    .nullable(),
+  assignedTo: z
+    .string()
+    .uuid({
+      message: "L'ID de l'utilisateur assigné n'est pas valide.",
     })
     .optional()
     .nullable(),
@@ -140,6 +156,15 @@ export const updateTaskServiceSchema = z.object({
     .optional()
     .nullable(),
   status: taskStatusSchema.optional(),
+  order: z
+    .number()
+    .int({
+      message: "L'ordre doit être un nombre entier.",
+    })
+    .min(0, {
+      message: "L'ordre doit être supérieur ou égal à 0.",
+    })
+    .optional(),
   dueDate: z
     .date({
       message: "La date d'échéance doit être une date valide.",
@@ -149,6 +174,7 @@ export const updateTaskServiceSchema = z.object({
   projectId: projectUuidSchema.optional(),
   organizationId: organizationUuidSchema.optional(),
   createdBy: userUuidSchema.optional().nullable(),
+  assignedTo: userUuidSchema.optional().nullable(),
 }) satisfies z.Schema<UpdateTask>
 
 // ===== SCHÉMAS DE FILTRES =====
@@ -195,8 +221,42 @@ export const paginationSchema = z.object({
     .default(10),
 })
 
+// ===== SCHÉMAS DRAG AND DROP =====
+
+export const updateTaskOrderSchema = z.object({
+  taskId: taskUuidSchema,
+  newOrder: z
+    .number()
+    .int({
+      message: "L'ordre doit être un nombre entier.",
+    })
+    .min(0, {
+      message: "L'ordre doit être supérieur ou égal à 0.",
+    }),
+  newStatus: taskStatusSchema.optional(),
+})
+
+export const updateTasksOrderSchema = z.object({
+  tasksUpdates: z.array(
+    z.object({
+      id: taskUuidSchema,
+      order: z
+        .number()
+        .int({
+          message: "L'ordre doit être un nombre entier.",
+        })
+        .min(0, {
+          message: "L'ordre doit être supérieur ou égal à 0.",
+        }),
+      status: taskStatusSchema.optional(),
+    })
+  ),
+})
+
 // ===== TYPES EXTRAITS =====
 
 export type ProjectFiltersInput = z.infer<typeof projectFiltersSchema>
 export type TaskFiltersInput = z.infer<typeof taskFiltersSchema>
 export type PaginationInput = z.infer<typeof paginationSchema>
+export type UpdateTaskOrderInput = z.infer<typeof updateTaskOrderSchema>
+export type UpdateTasksOrderInput = z.infer<typeof updateTasksOrderSchema>

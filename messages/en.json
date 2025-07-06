@@ -1010,5 +1010,59 @@
         "description": "We reserve the right to update or modify this privacy policy at any time. Any changes will be posted on this page with an updated revision date."
       }
     }
+  },
+  "Tasks": {
+    "board": {
+      "title": "Task Board",
+      "columns": {
+        "todo": "To Do",
+        "in_progress": "In Progress",
+        "done": "Done"
+      },
+      "empty": "No tasks",
+      "loading": "Loading tasks...",
+      "dragAndDrop": "Drag and drop tasks to change their status"
+    },
+    "card": {
+      "createdBy": "Created by",
+      "assignedTo": "Assigned to",
+      "dueDate": "Due date",
+      "createdAt": "Created on",
+      "status": {
+        "todo": "To Do",
+        "in_progress": "In Progress",
+        "done": "Done"
+      }
+    },
+    "actions": {
+      "create": "New Task",
+      "edit": "Edit Task",
+      "delete": "Delete Task",
+      "assign": "Assign",
+      "move": "Move",
+      "updateOrder": "Task order updated",
+      "orderUpdateError": "Error updating task order"
+    },
+    "form": {
+      "title": "Task Title",
+      "titlePlaceholder": "Enter task title",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter description (optional)",
+      "status": "Status",
+      "assignedTo": "Assigned to",
+      "dueDate": "Due date",
+      "save": "Save",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "updating": "Updating..."
+    },
+    "messages": {
+      "createSuccess": "Task created successfully",
+      "updateSuccess": "Task updated successfully",
+      "deleteSuccess": "Task deleted successfully",
+      "createError": "Error creating task",
+      "updateError": "Error updating task",
+      "deleteError": "Error deleting task"
+    }
   }
 }
