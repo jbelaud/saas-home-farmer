@@ -24,6 +24,106 @@ const seed = async () => {
 
   const start = Date.now()
 
+  // 0. Insérer les plans de subscription
+  await client.query(`
+    INSERT INTO "subscription_plan" (
+      "name",
+      "price_id", 
+      "annual_discount_price_id",
+      "plan_name",
+      "description",
+      "limits",
+      "free_trial",
+      "features",
+      "price",
+      "yearly_price",
+      "currency",
+      "is_recurring",
+      "status",
+      "display_order",
+      "created_at",
+      "updated_at"
+    )
+    VALUES
+      -- Plan FREE
+      (
+        'free',
+        'free',
+        NULL,
+        'Free',
+        'Idéal pour débuter',
+        '{"projects": 1, "storage": 1}',
+        NULL,
+        '["1 utilisateur", "1 projet", "1 GB stockage", "Support communautaire"]',
+        0,
+        0,
+        'EUR',
+        true,
+        'active',
+        1,
+        NOW(),
+        NOW()
+      ),
+      -- Plan PRO
+      (
+        'pro',
+        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY || 'price_pro_monthly'}',
+        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY || 'price_pro_yearly'}',
+        'Pro',
+        'Parfait pour les équipes en croissance',
+        '{"projects": 2, "storage": 10}',
+        NULL,
+        '["Jusqu''à 5 utilisateurs", "2 projets", "10 GB stockage", "Support prioritaire", "Intégrations avancées"]',
+        29,
+        249,
+        'EUR',
+        true,
+        'active',
+        2,
+        NOW(),
+        NOW()
+      ),
+      -- Plan ENTREPRISE
+      (
+        'enterprise',
+        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_MONTHLY || 'price_enterprise_monthly'}',
+        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_YEARLY || 'price_enterprise_yearly'}',
+        'Enterprise',
+        'Pour les grandes organisations',
+        '{"projects": 3, "storage": 50}',
+        NULL,
+        '["Utilisateurs illimités", "3 projets", "50 GB stockage", "Support 24/7", "SSO & sécurité avancée"]',
+        99,
+        990,
+        'EUR',
+        true,
+        'active',
+        3,
+        NOW(),
+        NOW()
+      ),
+      -- Plan LIFETIME
+      (
+        'lifetime',
+        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME || 'price_lifetime'}',
+        NULL,
+        'Lifetime',
+        'Pour les longues durées',
+        '{"projects": 20, "storage": 50}',
+        '{"days": 14}',
+        '["Introduction Course / Components", "PRO: Complete Email Integration Guide", "PRO: All Features Access", "PRO: Code Review Sessions", "PRO: 100% Money Back Guarantee", "20 projets", "50 GB stockage"]',
+        70,
+        NULL,
+        'EUR',
+        false,
+        'active',
+        4,
+        NOW(),
+        NOW()
+      )
+    ON CONFLICT (name) DO NOTHING;
+  `)
+
   // 1. Insérer les utilisateurs avec leurs rôles directement
   await client.query(`
     INSERT INTO "user" (email, name, email_verified, image, visibility, role)
@@ -291,6 +391,14 @@ const seed = async () => {
   const end = Date.now()
 
   console.log('✅ Seed inserted in', end - start, 'ms')
+  console.log('')
+  console.log('💎 Plans de subscription créés :')
+  console.log('🔹 FREE : 1 projet, 1 GB stockage (€0)')
+  console.log('🔹 PRO : 2 projets, 10 GB stockage (€29/mois, €249/an)')
+  console.log('🔹 ENTERPRISE : 3 projets, 50 GB stockage (€99/mois, €990/an)')
+  console.log(
+    '🔹 LIFETIME : 20 projets, 50 GB stockage (€70 unique, 14j trial)'
+  )
   console.log('')
   console.log('📊 Jeu de test créé avec succès :')
   console.log(

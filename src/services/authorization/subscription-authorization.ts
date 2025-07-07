@@ -1,6 +1,7 @@
 import {logger} from 'better-auth'
 
 import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
+import {getPlanByIdDao} from '@/db/repositories/subscription-repository'
 import {freePlanSeats, freeStripePlan} from '@/lib/stripe/stripe-plans'
 
 import {
@@ -134,4 +135,106 @@ export const checkSubscriptionLimit = async (
     currentUsage,
     requestedAmount
   )
+}
+
+// ========================================
+// AUTORISATION POUR LES PLANS
+// ========================================
+
+/**
+ * Vérifie si l'utilisateur connecté peut lire un plan spécifique
+ * Les plans sont publics en lecture pour tous les utilisateurs connectés
+ * @param resourceId - ID du plan (optionnel)
+ * @returns true si l'accès est autorisé
+ */
+export const canReadPlan = async (resourceId?: string): Promise<boolean> => {
+  const authUser = await getAuthUser()
+
+  // Si pas d'ID de ressource spécifique, vérifier la permission générale
+  if (!resourceId) {
+    return userCan(authUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
+  }
+
+  // Vérification précoce : si l'utilisateur n'a pas la permission générale, pas besoin d'aller plus loin
+  if (!userCan(authUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)) {
+    return false
+  }
+
+  // Récupérer le plan pour vérifier qu'il existe
+  const plan = await getPlanByIdDao(resourceId)
+  if (!plan) return false
+
+  // Les plans sont publics en lecture pour tous les utilisateurs connectés
+  return true
+}
+
+/**
+ * Vérifie si l'utilisateur connecté peut créer un plan
+ * Seuls les ADMIN et SUPER_ADMIN peuvent créer des plans
+ * @returns true si l'accès est autorisé
+ */
+export const canCreatePlan = async (): Promise<boolean> => {
+  const authUser = await getAuthUser()
+
+  // Seuls les admins peuvent créer des plans (ressource système)
+  return userCan(authUser, ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
+}
+
+/**
+ * Vérifie si l'utilisateur connecté peut modifier un plan
+ * Seuls les ADMIN et SUPER_ADMIN peuvent modifier des plans
+ * @param resourceId - ID du plan
+ * @returns true si l'accès est autorisé
+ */
+export const canUpdatePlan = async (resourceId: string): Promise<boolean> => {
+  const authUser = await getAuthUser()
+
+  // Vérification précoce : seuls les admins peuvent modifier des plans
+  if (!userCan(authUser, ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION)) {
+    return false
+  }
+
+  // Récupérer le plan pour vérifier qu'il existe
+  const plan = await getPlanByIdDao(resourceId)
+  if (!plan) return false
+
+  // Permission accordée pour les admins
+  return true
+}
+
+/**
+ * Vérifie si l'utilisateur connecté peut supprimer un plan
+ * Seuls les SUPER_ADMIN peuvent supprimer des plans
+ * @param resourceId - ID du plan
+ * @returns true si l'accès est autorisé
+ */
+export const canDeletePlan = async (resourceId: string): Promise<boolean> => {
+  const authUser = await getAuthUser()
+
+  // Vérification précoce : seuls les super admins peuvent supprimer des plans
+  if (!userCan(authUser, ActionsConst.DELETE, SubjectsConst.SUBSCRIPTION)) {
+    return false
+  }
+
+  // Récupérer le plan pour vérifier qu'il existe
+  const plan = await getPlanByIdDao(resourceId)
+  if (!plan) return false
+
+  // Vérifier que le plan n'est pas utilisé par des subscriptions actives
+  // TODO: Ajouter vérification des subscriptions actives utilisant ce plan
+
+  // Permission accordée pour les super admins
+  return true
+}
+
+/**
+ * Vérifie si l'utilisateur connecté peut lister les plans
+ * Tous les utilisateurs connectés peuvent lister les plans actifs
+ * @returns true si l'accès est autorisé
+ */
+export const canListPlans = async (): Promise<boolean> => {
+  const authUser = await getAuthUser()
+
+  // Tous les utilisateurs connectés peuvent lister les plans
+  return userCan(authUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
 }

@@ -1,11 +1,60 @@
 import {
   SubscriptionAddModel,
   SubscriptionModel,
+  SubscriptionPlanAddModel,
+  SubscriptionPlanModel,
 } from '@/db/models/subscription-model'
 
 // Types de domaine découplés des types Drizzle - Aligned with Better Auth
 export type Subscription = SubscriptionModel
 export type SubscriptionPlan = 'pro' | 'enterprise' | 'lifetime' | 'free'
+
+// Types pour les plans de subscription - Compatible avec StripePlan
+export type Plan = SubscriptionPlanModel
+
+// Types JSON souples pour flexibilité maximale
+export type PlanLimits = Record<string, unknown> // Plus flexible que des types stricts
+export type PlanFreeTrial = Record<string, unknown> // Plus flexible que des types stricts
+
+// Types pour les opérations sur les plans
+export type CreatePlan = Pick<
+  SubscriptionPlanAddModel,
+  'name' | 'priceId' | 'planName'
+> & {
+  annualDiscountPriceId?: string
+  limits?: PlanLimits
+  freeTrial?: PlanFreeTrial
+  features?: unknown[] // Array JSON flexible
+  description?: string
+  price?: string // Décimal en string comme Drizzle
+  yearlyPrice?: string // Décimal en string comme Drizzle
+  currency?: string
+  isRecurring?: boolean
+  displayOrder?: number
+}
+
+export type UpdatePlan = {
+  id: string
+} & Partial<Omit<SubscriptionPlanAddModel, 'id'>>
+
+// DTO pour la présentation côté client
+export type PlanDTO = {
+  id: string
+  name: string
+  planName: string
+  priceId: string
+  annualDiscountPriceId?: string
+  limits?: PlanLimits
+  freeTrial?: PlanFreeTrial
+  features?: unknown[]
+  description?: string
+  price?: string // Décimal en string comme Drizzle
+  yearlyPrice?: string // Décimal en string comme Drizzle
+  currency: string
+  isRecurring: boolean
+  status: string
+  displayOrder: number
+}
 
 // Constantes pour les rôles globaux
 export const PlanConst = {

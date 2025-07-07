@@ -1,11 +1,15 @@
-import {and, desc, eq, not, or} from 'drizzle-orm'
+import {and, desc, eq, not, or, sql} from 'drizzle-orm'
+
+import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 
 import db from '../models/db'
 import type {
   SubscriptionAddModel,
   SubscriptionModel,
+  SubscriptionPlanAddModel,
+  SubscriptionPlanModel,
 } from '../models/subscription-model'
-import {subscription} from '../models/subscription-model'
+import {subscription, subscriptionPlan} from '../models/subscription-model'
 
 export const createSubscriptionDao = async (values: SubscriptionAddModel) => {
   const [row] = await db.insert(subscription).values(values).returning()
@@ -171,4 +175,168 @@ export const initSubscriptionDao = async (params: {
     .returning({id: subscription.id})
 
   return row.id
+}
+
+// ========================================
+// CRUD Repository pour les Plans
+// ========================================
+
+/**
+ * Créer un nouveau plan
+ */
+export const createPlanDao = async (
+  values: SubscriptionPlanAddModel
+): Promise<SubscriptionPlanModel> => {
+  const [row] = await db.insert(subscriptionPlan).values(values).returning()
+  return row
+}
+
+/**
+ * Obtenir un plan par ID
+ */
+export const getPlanByIdDao = async (
+  id: string
+): Promise<SubscriptionPlanModel | undefined> => {
+  const row = await db.query.subscriptionPlan.findFirst({
+    where: (plan, {eq}) => eq(plan.id, id),
+  })
+  return row
+}
+
+/**
+ * Obtenir un plan par nom (name)
+ */
+export const getPlanByNameDao = async (
+  name: string
+): Promise<SubscriptionPlanModel | undefined> => {
+  const row = await db.query.subscriptionPlan.findFirst({
+    where: (plan, {eq}) => eq(plan.name, name),
+  })
+  return row
+}
+
+/**
+ * Obtenir un plan par priceId
+ */
+export const getPlanByPriceIdDao = async (
+  priceId: string
+): Promise<SubscriptionPlanModel | undefined> => {
+  const row = await db.query.subscriptionPlan.findFirst({
+    where: (plan, {eq, or}) =>
+      or(eq(plan.priceId, priceId), eq(plan.annualDiscountPriceId, priceId)),
+  })
+  return row
+}
+
+/**
+ * Obtenir tous les plans actifs
+ */
+export const getActivePlansDao = async (): Promise<SubscriptionPlanModel[]> => {
+  const rows = await db
+    .select()
+    .from(subscriptionPlan)
+    .where(eq(subscriptionPlan.status, 'active'))
+    .orderBy(subscriptionPlan.displayOrder)
+
+  return rows
+}
+
+/**
+ * Obtenir tous les plans avec pagination
+ */
+export const getPlansWithPaginationDao = async (
+  pagination: Pagination
+): Promise<PaginatedResponse<SubscriptionPlanModel>> => {
+  const [rows, [{count}]] = await Promise.all([
+    db
+      .select()
+      .from(subscriptionPlan)
+      .orderBy(subscriptionPlan.displayOrder)
+      .limit(pagination.limit)
+      .offset(pagination.offset),
+    db.select({count: sql<number>`count(*)`}).from(subscriptionPlan),
+  ])
+
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
+  return {
+    data: rows.length === 0 ? [] : rows,
+    pagination: {
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
+    },
+  }
+}
+
+/**
+ * Mettre à jour un plan
+ */
+export const updatePlanDao = async (
+  id: string,
+  values: Partial<SubscriptionPlanAddModel>
+): Promise<SubscriptionPlanModel> => {
+  const [row] = await db
+    .update(subscriptionPlan)
+    .set({
+      ...values,
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptionPlan.id, id))
+    .returning()
+
+  return row
+}
+
+/**
+ * Supprimer un plan (soft delete en passant le statut à 'deprecated')
+ */
+export const softDeletePlanDao = async (id: string): Promise<void> => {
+  await db
+    .update(subscriptionPlan)
+    .set({
+      status: 'deprecated',
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptionPlan.id, id))
+}
+
+/**
+ * Supprimer définitivement un plan
+ */
+export const deletePlanDao = async (id: string): Promise<void> => {
+  await db.delete(subscriptionPlan).where(eq(subscriptionPlan.id, id))
+}
+
+/**
+ * Vérifier si un plan existe par nom
+ */
+export const isPlanNameExistDao = async (name: string): Promise<boolean> => {
+  const [row] = await db
+    .select({id: subscriptionPlan.id})
+    .from(subscriptionPlan)
+    .where(eq(subscriptionPlan.name, name))
+    .limit(1)
+
+  return Boolean(row)
+}
+
+/**
+ * Vérifier si un priceId existe déjà
+ */
+export const isPriceIdExistDao = async (priceId: string): Promise<boolean> => {
+  const [row] = await db
+    .select({id: subscriptionPlan.id})
+    .from(subscriptionPlan)
+    .where(
+      or(
+        eq(subscriptionPlan.priceId, priceId),
+        eq(subscriptionPlan.annualDiscountPriceId, priceId)
+      )
+    )
+    .limit(1)
+
+  return Boolean(row)
 }

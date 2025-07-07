@@ -1,13 +1,25 @@
 import {
+  // Plans repositories
+  createPlanDao,
   createSubscriptionDao,
+  deletePlanDao,
+  getActivePlansDao,
   getActiveSubscriptionsByStripeCustomerIdDao,
   getActiveSubscriptionsByUserIdDao,
+  getPlanByIdDao,
+  getPlanByNameDao,
+  getPlanByPriceIdDao,
+  getPlansWithPaginationDao,
   getSubscriptionByIdDao,
   getSubscriptionByUserIdDao,
   initSubscriptionDao,
   isActivePlanExistDao,
   isPlanAndStripeSubscriptionExistDao,
   isPlanExistDao,
+  isPlanNameExistDao,
+  isPriceIdExistDao,
+  softDeletePlanDao,
+  updatePlanDao,
   updateSubscriptionDao,
 } from '@/db/repositories/subscription-repository'
 import {
@@ -19,21 +31,38 @@ import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {logger} from '@/lib/logger'
 import {freeStripePlan} from '@/lib/stripe/stripe-plans'
 import {
+  canCreatePlan,
+  canDeletePlan,
+  canListPlans,
+  // Plans authorizations
+  canReadPlan,
   canReadSubscription,
+  canUpdatePlan,
   canUpdateSubscription,
 } from '@/services/authorization/subscription-authorization'
+import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {
   BillingModes,
+  // Plans types
+  type CreatePlan,
   type CreateSubscription,
   type LimitType,
   LimitTypeConst,
+  type Plan,
   PlanConst,
   type Subscription,
   type SubscriptionPlan,
+  type UpdatePlan,
   type UpdateSubscription,
 } from '@/services/types/domain/subscription-types'
 import {
+  // Plans validation schemas
+  createPlanServiceSchema,
   createSubscriptionServiceSchema,
+  planNameSchema,
+  planUuidSchema,
+  priceIdSchema,
+  updatePlanServiceSchema,
   updateSubscriptionServiceSchema,
 } from '@/services/validation/subscription-validation'
 
@@ -514,4 +543,338 @@ export const checkSubscriptionLimitService = async (
     limitType,
     plan: subscription.plan || freeStripePlan.name,
   }
+}
+
+// ========================================
+// SERVICES POUR LES PLANS
+// ========================================
+
+/**
+ * Créer un nouveau plan
+ */
+export const createPlanService = async (params: CreatePlan): Promise<Plan> => {
+  // 1. Validation des paramètres
+  const parsed = createPlanServiceSchema.safeParse(params)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canCreate = await canCreatePlan()
+  if (!canCreate) {
+    throw new AuthorizationError('Accès non autorisé pour créer un plan')
+  }
+
+  // 3. Vérification des contraintes métier
+  const nameExists = await isPlanNameExistDao(parsed.data.name)
+  if (nameExists) {
+    throw new ValidationError(
+      `Un plan avec le nom "${parsed.data.name}" existe déjà`
+    )
+  }
+
+  const priceIdExists = await isPriceIdExistDao(parsed.data.priceId)
+  if (priceIdExists) {
+    throw new ValidationError(
+      `Un plan avec le priceId "${parsed.data.priceId}" existe déjà`
+    )
+  }
+
+  // 4. Vérification du priceId annuel s'il est fourni
+  if (parsed.data.annualDiscountPriceId) {
+    const annualPriceIdExists = await isPriceIdExistDao(
+      parsed.data.annualDiscountPriceId
+    )
+    if (annualPriceIdExists) {
+      throw new ValidationError(
+        `Un plan avec le priceId annuel "${parsed.data.annualDiscountPriceId}" existe déjà`
+      )
+    }
+  }
+
+  // 5. Création du plan
+  const plan = await createPlanDao(parsed.data)
+  return plan
+}
+
+/**
+ * Obtenir un plan par ID
+ */
+export const getPlanByIdService = async (
+  id: string
+): Promise<Plan | undefined> => {
+  // 1. Validation de l'ID
+  const parsed = planUuidSchema.safeParse(id)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canRead = await canReadPlan(id)
+  if (!canRead) {
+    throw new AuthorizationError('Accès non autorisé pour lire ce plan')
+  }
+
+  // 3. Récupération du plan
+  const plan = await getPlanByIdDao(id)
+  return plan
+}
+
+/**
+ * Obtenir un plan par nom
+ */
+export const getPlanByNameService = async (
+  name: string
+): Promise<Plan | undefined> => {
+  // 1. Validation du nom
+  const parsed = planNameSchema.safeParse(name)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canRead = await canReadPlan()
+  if (!canRead) {
+    throw new AuthorizationError('Accès non autorisé pour lire les plans')
+  }
+
+  // 3. Récupération du plan
+  const plan = await getPlanByNameDao(name)
+  return plan
+}
+
+/**
+ * Obtenir un plan par priceId
+ */
+export const getPlanByPriceIdService = async (
+  priceId: string
+): Promise<Plan | undefined> => {
+  // 1. Validation du priceId
+  const parsed = priceIdSchema.safeParse(priceId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canRead = await canReadPlan()
+  if (!canRead) {
+    throw new AuthorizationError('Accès non autorisé pour lire les plans')
+  }
+
+  // 3. Récupération du plan
+  const plan = await getPlanByPriceIdDao(priceId)
+  return plan
+}
+
+/**
+ * Obtenir tous les plans actifs
+ */
+export const getActivePlansService = async (): Promise<Plan[]> => {
+  // 1. Vérification des autorisations
+  const canList = await canListPlans()
+  if (!canList) {
+    throw new AuthorizationError('Accès non autorisé pour lister les plans')
+  }
+
+  // 2. Récupération des plans actifs
+  const plans = await getActivePlansDao()
+  return plans
+}
+
+/**
+ * Obtenir tous les plans avec pagination
+ */
+export const getPlansWithPaginationService = async (
+  pagination: Pagination
+): Promise<PaginatedResponse<Plan>> => {
+  // 1. Vérification des autorisations
+  const canList = await canListPlans()
+  if (!canList) {
+    throw new AuthorizationError('Accès non autorisé pour lister les plans')
+  }
+
+  // 2. Récupération des plans avec pagination
+  const paginatedPlans = await getPlansWithPaginationDao(pagination)
+  return paginatedPlans
+}
+
+/**
+ * Mettre à jour un plan
+ */
+export const updatePlanService = async (params: UpdatePlan): Promise<Plan> => {
+  // 1. Validation des paramètres
+  const parsed = updatePlanServiceSchema.safeParse(params)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canUpdate = await canUpdatePlan(params.id)
+  if (!canUpdate) {
+    throw new AuthorizationError('Accès non autorisé pour modifier ce plan')
+  }
+
+  // 3. Vérification des contraintes métier
+  if (parsed.data.name) {
+    const nameExists = await isPlanNameExistDao(parsed.data.name)
+    if (nameExists) {
+      // Vérifier que ce n'est pas le même plan
+      const existingPlan = await getPlanByNameDao(parsed.data.name)
+      if (existingPlan && existingPlan.id !== params.id) {
+        throw new ValidationError(
+          `Un autre plan avec le nom "${parsed.data.name}" existe déjà`
+        )
+      }
+    }
+  }
+
+  if (parsed.data.priceId) {
+    const priceIdExists = await isPriceIdExistDao(parsed.data.priceId)
+    if (priceIdExists) {
+      // Vérifier que ce n'est pas le même plan
+      const existingPlan = await getPlanByPriceIdDao(parsed.data.priceId)
+      if (existingPlan && existingPlan.id !== params.id) {
+        throw new ValidationError(
+          `Un autre plan avec le priceId "${parsed.data.priceId}" existe déjà`
+        )
+      }
+    }
+  }
+
+  if (parsed.data.annualDiscountPriceId) {
+    const annualPriceIdExists = await isPriceIdExistDao(
+      parsed.data.annualDiscountPriceId
+    )
+    if (annualPriceIdExists) {
+      // Vérifier que ce n'est pas le même plan
+      const existingPlan = await getPlanByPriceIdDao(
+        parsed.data.annualDiscountPriceId
+      )
+      if (existingPlan && existingPlan.id !== params.id) {
+        throw new ValidationError(
+          `Un autre plan avec le priceId annuel "${parsed.data.annualDiscountPriceId}" existe déjà`
+        )
+      }
+    }
+  }
+
+  // 4. Mise à jour du plan
+  const updatedPlan = await updatePlanDao(params.id, parsed.data)
+  return updatedPlan
+}
+
+/**
+ * Supprimer un plan (soft delete)
+ */
+export const softDeletePlanService = async (id: string): Promise<void> => {
+  // 1. Validation de l'ID
+  const parsed = planUuidSchema.safeParse(id)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canDelete = await canDeletePlan(id)
+  if (!canDelete) {
+    throw new AuthorizationError('Accès non autorisé pour supprimer ce plan')
+  }
+
+  // 3. Vérification que le plan existe
+  const plan = await getPlanByIdDao(id)
+  if (!plan) {
+    throw new ValidationError('Plan non trouvé')
+  }
+
+  // 4. TODO: Vérifier qu'aucune subscription active n'utilise ce plan
+  // const activeSubscriptions = await getActiveSubscriptionsByPlanDao(id)
+  // if (activeSubscriptions.length > 0) {
+  //   throw new ValidationError('Impossible de supprimer un plan utilisé par des subscriptions actives')
+  // }
+
+  // 5. Suppression soft du plan
+  await softDeletePlanDao(id)
+}
+
+/**
+ * Supprimer définitivement un plan
+ */
+export const deletePlanService = async (id: string): Promise<void> => {
+  // 1. Validation de l'ID
+  const parsed = planUuidSchema.safeParse(id)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canDelete = await canDeletePlan(id)
+  if (!canDelete) {
+    throw new AuthorizationError(
+      'Accès non autorisé pour supprimer définitivement ce plan'
+    )
+  }
+
+  // 3. Vérification que le plan existe
+  const plan = await getPlanByIdDao(id)
+  if (!plan) {
+    throw new ValidationError('Plan non trouvé')
+  }
+
+  // 4. TODO: Vérifier qu'aucune subscription n'utilise ce plan
+  // const subscriptions = await getSubscriptionsByPlanDao(id)
+  // if (subscriptions.length > 0) {
+  //   throw new ValidationError('Impossible de supprimer définitivement un plan utilisé par des subscriptions')
+  // }
+
+  // 5. Suppression définitive du plan
+  await deletePlanDao(id)
+}
+
+/**
+ * Vérifier si un nom de plan existe
+ */
+export const isPlanNameExistService = async (
+  name: string
+): Promise<boolean> => {
+  // 1. Validation du nom
+  const parsed = planNameSchema.safeParse(name)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canRead = await canReadPlan()
+  if (!canRead) {
+    throw new AuthorizationError(
+      "Accès non autorisé pour vérifier l'existence des plans"
+    )
+  }
+
+  // 3. Vérification de l'existence
+  const exists = await isPlanNameExistDao(name)
+  return exists
+}
+
+/**
+ * Vérifier si un priceId existe
+ */
+export const isPriceIdExistService = async (
+  priceId: string
+): Promise<boolean> => {
+  // 1. Validation du priceId
+  const parsed = priceIdSchema.safeParse(priceId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // 2. Vérification des autorisations
+  const canRead = await canReadPlan()
+  if (!canRead) {
+    throw new AuthorizationError(
+      "Accès non autorisé pour vérifier l'existence des plans"
+    )
+  }
+
+  // 3. Vérification de l'existence
+  const exists = await isPriceIdExistDao(priceId)
+  return exists
 }
