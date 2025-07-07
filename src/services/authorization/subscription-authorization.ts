@@ -150,14 +150,15 @@ export const checkSubscriptionLimit = async (
 export const canReadPlan = async (resourceId?: string): Promise<boolean> => {
   const authUser = await getAuthUser()
 
-  // Si pas d'ID de ressource spécifique, vérifier la permission générale
-  if (!resourceId) {
-    return userCan(authUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
+  // Les plans sont publics pour tous les utilisateurs connectés
+  // On vérifie juste que l'utilisateur est connecté
+  if (!authUser?.id) {
+    return false
   }
 
-  // Vérification précoce : si l'utilisateur n'a pas la permission générale, pas besoin d'aller plus loin
-  if (!userCan(authUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)) {
-    return false
+  // Si pas d'ID de ressource spécifique, autoriser la lecture
+  if (!resourceId) {
+    return true
   }
 
   // Récupérer le plan pour vérifier qu'il existe
@@ -176,8 +177,8 @@ export const canReadPlan = async (resourceId?: string): Promise<boolean> => {
 export const canCreatePlan = async (): Promise<boolean> => {
   const authUser = await getAuthUser()
 
-  // Seuls les admins peuvent créer des plans (ressource système)
-  return userCan(authUser, ActionsConst.CREATE, SubjectsConst.SUBSCRIPTION)
+  // Seuls les admins peuvent créer des plans (ressource technique/système)
+  return userCan(authUser, ActionsConst.CREATE, SubjectsConst.TECHNICAL)
 }
 
 /**
@@ -189,8 +190,8 @@ export const canCreatePlan = async (): Promise<boolean> => {
 export const canUpdatePlan = async (resourceId: string): Promise<boolean> => {
   const authUser = await getAuthUser()
 
-  // Vérification précoce : seuls les admins peuvent modifier des plans
-  if (!userCan(authUser, ActionsConst.UPDATE, SubjectsConst.SUBSCRIPTION)) {
+  // Vérification précoce : seuls les admins peuvent modifier des plans (ressource technique)
+  if (!userCan(authUser, ActionsConst.UPDATE, SubjectsConst.TECHNICAL)) {
     return false
   }
 
@@ -211,8 +212,8 @@ export const canUpdatePlan = async (resourceId: string): Promise<boolean> => {
 export const canDeletePlan = async (resourceId: string): Promise<boolean> => {
   const authUser = await getAuthUser()
 
-  // Vérification précoce : seuls les super admins peuvent supprimer des plans
-  if (!userCan(authUser, ActionsConst.DELETE, SubjectsConst.SUBSCRIPTION)) {
+  // Vérification précoce : seuls les super admins peuvent supprimer des plans (ressource technique)
+  if (!userCan(authUser, ActionsConst.DELETE, SubjectsConst.TECHNICAL)) {
     return false
   }
 
@@ -236,5 +237,5 @@ export const canListPlans = async (): Promise<boolean> => {
   const authUser = await getAuthUser()
 
   // Tous les utilisateurs connectés peuvent lister les plans
-  return userCan(authUser, ActionsConst.READ, SubjectsConst.SUBSCRIPTION)
+  return !!authUser?.id
 }

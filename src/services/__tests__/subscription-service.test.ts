@@ -2,11 +2,23 @@ import {faker} from '@faker-js/faker'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {
+  // Plans repositories
+  createPlanDao,
   createSubscriptionDao,
+  deletePlanDao,
+  getActivePlansDao,
   getActiveSubscriptionsByUserIdDao,
+  getPlanByIdDao,
+  getPlanByNameDao,
+  getPlanByPriceIdDao,
+  getPlansWithPaginationDao,
   getSubscriptionByIdDao,
   isActivePlanExistDao,
   isPlanExistDao,
+  isPlanNameExistDao,
+  isPriceIdExistDao,
+  softDeletePlanDao,
+  updatePlanDao,
   updateSubscriptionDao,
 } from '@/db/repositories/subscription-repository'
 import {
@@ -16,13 +28,26 @@ import {
 
 import {AuthorizationError} from '../errors/authorization-error'
 import {
+  // Plans services
+  createPlanService,
   createSubscriptionFromStripeService,
   createSubscriptionService,
+  deletePlanService,
+  getActivePlansService,
   getActiveSubscriptionsByUserIdService,
+  getPlanByIdService,
+  getPlanByNameService,
+  getPlanByPriceIdService,
+  getPlansWithPaginationService,
   getSubscriptionByIdService,
+  isPlanNameExistService,
+  isPriceIdExistService,
+  softDeletePlanService,
+  updatePlanService,
   updateSubscriptionService,
 } from '../subscription-service'
-import {Subscription} from '../types/domain/subscription-types'
+import {PaginatedResponse} from '../types/common-type'
+import {Plan, Subscription} from '../types/domain/subscription-types'
 import {setupAuthUserMocked} from './helper-service-test'
 import {userTest, userTestAdmin} from './service-test-data'
 
@@ -36,6 +61,18 @@ vi.mock('@/db/repositories/subscription-repository', () => ({
   getActiveSubscriptionsByUserIdDao: vi.fn(),
   getSubscriptionByUserIdDao: vi.fn(),
   isPlanAndStripeSubscriptionExistDao: vi.fn(),
+  // Plans repositories
+  createPlanDao: vi.fn(),
+  getPlanByIdDao: vi.fn(),
+  getPlanByNameDao: vi.fn(),
+  getPlanByPriceIdDao: vi.fn(),
+  getActivePlansDao: vi.fn(),
+  getPlansWithPaginationDao: vi.fn(),
+  updatePlanDao: vi.fn(),
+  softDeletePlanDao: vi.fn(),
+  deletePlanDao: vi.fn(),
+  isPlanNameExistDao: vi.fn(),
+  isPriceIdExistDao: vi.fn(),
 }))
 
 vi.mock('@/db/repositories/user-repository', () => ({
@@ -393,5 +430,390 @@ describe('[USER] Active Subscriptions Service', () => {
 
     expect(result).toEqual([])
     expect(getActiveSubscriptionsByUserIdDao).toHaveBeenCalledWith(userTest.id)
+  })
+})
+
+// ========================================
+// TESTS POUR LES PLANS
+// ========================================
+
+describe('[ADMIN] CRUD : Plan Service', () => {
+  const planId = faker.string.uuid()
+  const planData: Plan = {
+    id: planId,
+    name: 'pro',
+    priceId: 'price_pro_monthly',
+    annualDiscountPriceId: 'price_pro_yearly',
+    planName: 'Pro',
+    description: 'Plan professionnel',
+    limits: {
+      projects: 2,
+      storage: 10,
+    },
+    freeTrial: {
+      days: 14,
+    },
+    features: ['Feature 1', 'Feature 2'],
+    price: '29.00',
+    yearlyPrice: '249.00',
+    currency: 'EUR',
+    isRecurring: true,
+    status: 'active',
+    version: 1,
+    isLegacy: false,
+    displayOrder: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const paginationData = {
+    limit: 10,
+    offset: 0,
+  }
+
+  const paginatedResponse: PaginatedResponse<Plan> = {
+    data: [planData],
+    pagination: {
+      total: 1,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    },
+  }
+
+  beforeEach(() => {
+    setupAuthUserMocked(userTestAdmin)
+    vi.clearAllMocks()
+    vi.mocked(createPlanDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByIdDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByNameDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByPriceIdDao).mockResolvedValue(planData)
+    vi.mocked(getActivePlansDao).mockResolvedValue([planData])
+    vi.mocked(getPlansWithPaginationDao).mockResolvedValue(paginatedResponse)
+    vi.mocked(updatePlanDao).mockResolvedValue(planData)
+    vi.mocked(softDeletePlanDao).mockResolvedValue()
+    vi.mocked(deletePlanDao).mockResolvedValue()
+    vi.mocked(isPlanNameExistDao).mockResolvedValue(false)
+    vi.mocked(isPriceIdExistDao).mockResolvedValue(false)
+  })
+
+  it('should create a new plan', async () => {
+    const createData = {
+      name: 'pro',
+      priceId: 'price_pro_monthly',
+      planName: 'Pro',
+    }
+    const result = await createPlanService(createData)
+
+    expect(result).toEqual(planData)
+    expect(createPlanDao).toHaveBeenCalledWith({
+      ...createData,
+      isRecurring: true, // Le schéma ajoute cette propriété par défaut
+    })
+  })
+
+  it('should get a plan by id', async () => {
+    const result = await getPlanByIdService(planId)
+
+    expect(result).toEqual(planData)
+    expect(getPlanByIdDao).toHaveBeenCalledWith(planId)
+  })
+
+  it('should get a plan by name', async () => {
+    const result = await getPlanByNameService('pro')
+
+    expect(result).toEqual(planData)
+    expect(getPlanByNameDao).toHaveBeenCalledWith('pro')
+  })
+
+  it('should get a plan by priceId', async () => {
+    const result = await getPlanByPriceIdService('price_pro_monthly')
+
+    expect(result).toEqual(planData)
+    expect(getPlanByPriceIdDao).toHaveBeenCalledWith('price_pro_monthly')
+  })
+
+  it('should get all active plans', async () => {
+    const result = await getActivePlansService()
+
+    expect(result).toEqual([planData])
+    expect(getActivePlansDao).toHaveBeenCalledWith()
+  })
+
+  it('should get plans with pagination', async () => {
+    const result = await getPlansWithPaginationService(paginationData)
+
+    expect(result).toEqual(paginatedResponse)
+    expect(getPlansWithPaginationDao).toHaveBeenCalledWith(paginationData)
+  })
+
+  it('should update a plan', async () => {
+    const updateData = {
+      id: planId,
+      planName: 'Pro Updated',
+      description: 'Updated description',
+    }
+    const result = await updatePlanService(updateData)
+
+    expect(result).toEqual(planData)
+    expect(updatePlanDao).toHaveBeenCalledWith(planId, updateData)
+  })
+
+  it('should soft delete a plan', async () => {
+    await softDeletePlanService(planId)
+
+    expect(softDeletePlanDao).toHaveBeenCalledWith(planId)
+  })
+
+  it('should delete a plan permanently', async () => {
+    await deletePlanService(planId)
+
+    expect(deletePlanDao).toHaveBeenCalledWith(planId)
+  })
+
+  it('should check if plan name exists', async () => {
+    const result = await isPlanNameExistService('pro')
+
+    expect(result).toBe(false)
+    expect(isPlanNameExistDao).toHaveBeenCalledWith('pro')
+  })
+
+  it('should check if priceId exists', async () => {
+    const result = await isPriceIdExistService('price_pro_monthly')
+
+    expect(result).toBe(false)
+    expect(isPriceIdExistDao).toHaveBeenCalledWith('price_pro_monthly')
+  })
+})
+
+describe('[USER] CRUD : Plan Service', () => {
+  const planId = faker.string.uuid()
+  const planData: Plan = {
+    id: planId,
+    name: 'pro',
+    priceId: 'price_pro_monthly',
+    annualDiscountPriceId: 'price_pro_yearly',
+    planName: 'Pro',
+    description: 'Plan professionnel',
+    limits: {
+      projects: 2,
+      storage: 10,
+    },
+    freeTrial: {
+      days: 14,
+    },
+    features: ['Feature 1', 'Feature 2'],
+    price: '29.00',
+    yearlyPrice: '249.00',
+    currency: 'EUR',
+    isRecurring: true,
+    status: 'active',
+    version: 1,
+    isLegacy: false,
+    displayOrder: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const paginationData = {
+    limit: 10,
+    offset: 0,
+  }
+
+  beforeEach(() => {
+    setupAuthUserMocked(userTest)
+    vi.clearAllMocks()
+    vi.mocked(getPlanByIdDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByNameDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByPriceIdDao).mockResolvedValue(planData)
+    vi.mocked(getActivePlansDao).mockResolvedValue([planData])
+    vi.mocked(getPlansWithPaginationDao).mockResolvedValue({
+      data: [planData],
+      pagination: {
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      },
+    })
+    vi.mocked(isPlanNameExistDao).mockResolvedValue(false)
+    vi.mocked(isPriceIdExistDao).mockResolvedValue(false)
+  })
+
+  it('should get a plan by id', async () => {
+    const result = await getPlanByIdService(planId)
+
+    expect(result).toEqual(planData)
+    expect(getPlanByIdDao).toHaveBeenCalledWith(planId)
+  })
+
+  it('should get a plan by name', async () => {
+    const result = await getPlanByNameService('pro')
+
+    expect(result).toEqual(planData)
+    expect(getPlanByNameDao).toHaveBeenCalledWith('pro')
+  })
+
+  it('should get a plan by priceId', async () => {
+    const result = await getPlanByPriceIdService('price_pro_monthly')
+
+    expect(result).toEqual(planData)
+    expect(getPlanByPriceIdDao).toHaveBeenCalledWith('price_pro_monthly')
+  })
+
+  it('should get all active plans', async () => {
+    const result = await getActivePlansService()
+
+    expect(result).toEqual([planData])
+    expect(getActivePlansDao).toHaveBeenCalledWith()
+  })
+
+  it('should get plans with pagination', async () => {
+    const result = await getPlansWithPaginationService(paginationData)
+
+    expect(result.data).toEqual([planData])
+    expect(getPlansWithPaginationDao).toHaveBeenCalledWith(paginationData)
+  })
+
+  it('should check if plan name exists', async () => {
+    const result = await isPlanNameExistService('pro')
+
+    expect(result).toBe(false)
+    expect(isPlanNameExistDao).toHaveBeenCalledWith('pro')
+  })
+
+  it('should check if priceId exists', async () => {
+    const result = await isPriceIdExistService('price_pro_monthly')
+
+    expect(result).toBe(false)
+    expect(isPriceIdExistDao).toHaveBeenCalledWith('price_pro_monthly')
+  })
+
+  it('should NOT create a plan', async () => {
+    const createData = {
+      name: 'pro',
+      priceId: 'price_pro_monthly',
+      planName: 'Pro',
+    }
+    await expect(createPlanService(createData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(createPlanDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT update a plan', async () => {
+    const updateData = {
+      id: planId,
+      planName: 'Pro Updated',
+    }
+    await expect(updatePlanService(updateData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(updatePlanDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT soft delete a plan', async () => {
+    await expect(softDeletePlanService(planId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(softDeletePlanDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT delete a plan permanently', async () => {
+    await expect(deletePlanService(planId)).rejects.toThrow(AuthorizationError)
+    expect(deletePlanDao).not.toHaveBeenCalled()
+  })
+})
+
+describe('[PUBLIC] CRUD : Plan Service', () => {
+  const planId = faker.string.uuid()
+  const paginationData = {
+    limit: 10,
+    offset: 0,
+  }
+
+  beforeEach(() => {
+    setupAuthUserMocked(undefined) // Pas d'utilisateur connecté
+    vi.clearAllMocks()
+  })
+
+  it('should NOT get all active plans', async () => {
+    await expect(getActivePlansService()).rejects.toThrow(AuthorizationError)
+    expect(getActivePlansDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT get plans with pagination', async () => {
+    await expect(getPlansWithPaginationService(paginationData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(getPlansWithPaginationDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT check if plan name exists', async () => {
+    await expect(isPlanNameExistService('pro')).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(isPlanNameExistDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT check if priceId exists', async () => {
+    await expect(isPriceIdExistService('price_pro_monthly')).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(isPriceIdExistDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT get a plan by id', async () => {
+    await expect(getPlanByIdService(planId)).rejects.toThrow(AuthorizationError)
+    expect(getPlanByIdDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT get a plan by name', async () => {
+    await expect(getPlanByNameService('pro')).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(getPlanByNameDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT get a plan by priceId', async () => {
+    await expect(getPlanByPriceIdService('price_pro_monthly')).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(getPlanByPriceIdDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT create a plan', async () => {
+    const createData = {
+      name: 'pro',
+      priceId: 'price_pro_monthly',
+      planName: 'Pro',
+    }
+    await expect(createPlanService(createData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(createPlanDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT update a plan', async () => {
+    const updateData = {
+      id: planId,
+      planName: 'Pro Updated',
+    }
+    await expect(updatePlanService(updateData)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(updatePlanDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT soft delete a plan', async () => {
+    await expect(softDeletePlanService(planId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(softDeletePlanDao).not.toHaveBeenCalled()
+  })
+
+  it('should NOT delete a plan permanently', async () => {
+    await expect(deletePlanService(planId)).rejects.toThrow(AuthorizationError)
+    expect(deletePlanDao).not.toHaveBeenCalled()
   })
 })

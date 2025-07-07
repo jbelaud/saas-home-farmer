@@ -19,10 +19,7 @@ import {
   UserSettingsModel,
 } from '@/db/models/user-model'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
-import {
-  RoleConst,
-  UserOrganizationRoleConst,
-} from '@/services/types/domain/auth-types'
+import {UserOrganizationRoleConst} from '@/services/types/domain/auth-types'
 import {User} from '@/services/types/domain/user-types'
 
 export type SessionModel = typeof session.$inferSelect
@@ -191,53 +188,6 @@ export const updateUserSafeByUidDao = async (
     .update(users)
     .set({...rest})
     .where(eq(users.id, uid))
-}
-
-export const createUserAndOrganizationTxnDao = async (
-  userData: AddUserModel,
-  organizationData: AddOrganizationModel
-): Promise<{user: User; organizationId: string}> => {
-  return await db.transaction(async (tx) => {
-    // 1. Créer l'utilisateur
-    const [newUser] = await tx
-      .insert(users)
-      .values({
-        email: userData.email,
-        name: userData.name,
-        role: RoleConst.USER,
-        visibility: userData.visibility,
-      })
-      .returning()
-
-    // 4. Créer l'organisation
-    const [newOrganization] = await tx
-      .insert(organization)
-      .values({
-        name: organizationData.name,
-        slug: organizationData.slug,
-        description: organizationData.description,
-        logo: organizationData.logo,
-      })
-      .returning()
-
-    // 5. Créer la relation user-organization avec le rôle OWNER
-    await tx.insert(member).values({
-      userId: newUser.id,
-      organizationId: newOrganization.id,
-      role: UserOrganizationRoleConst.OWNER,
-      createdAt: new Date(),
-    })
-
-    // 6. Retourner les données créées
-    return {
-      user: {
-        ...newUser,
-        roles: [RoleConst.USER],
-        organizations: [],
-      },
-      organizationId: newOrganization.id,
-    }
-  })
 }
 
 export const createUserRoleAndOrganizationTxnDao = async (

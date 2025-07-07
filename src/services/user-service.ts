@@ -1,6 +1,5 @@
 import {generateUniqueSlug} from '@/db/repositories/organization-repository'
 import {
-  createUserAndOrganizationTxnDao,
   createUserDao,
   createUserRoleAndOrganizationTxnDao,
   createUserSettingsDao,
@@ -16,7 +15,6 @@ import {
   upsertUserSettingsDao,
 } from '@/db/repositories/user-repository'
 import {auth} from '@/lib/better-auth/auth'
-import {hashPassword} from '@/lib/crypto'
 
 import {
   canManageUsers,
@@ -102,65 +100,6 @@ export const updateUserService = async (userParams: UpdateUser) => {
   await updateUserSafeByUidDao(userParamsSanitized, resourceUid)
 }
 
-// // Version avec traductions pour les messages d'erreur
-// export const updateUserServiceWithTranslations = async (
-//   userParams: UpdateUser
-// ) => {
-//   const t = await getTranslations('Service.User')
-//   const resourceUid = userParams.id
-//   const granted = await canUpdateUser(resourceUid)
-
-//   if (!granted) {
-//     throw new AuthorizationError()
-//   }
-//   userParams.updatedAt = new Date()
-
-//   // Utiliser le schéma avec traductions
-//   const translatedSchema = await createUpdateUserServiceSchema()
-//   const parsed = translatedSchema.safeParse(userParams)
-//   if (!parsed.success) {
-//     throw new ValidationParsedZodError(parsed.error)
-//   }
-
-//   const userParamsSanitized = parsed.data
-
-//   await updateUserSafeByUidDao(userParamsSanitized, resourceUid)
-// }
-
-/**
- * Crée un utilisateur et une organisation
- * @deprecated Utiliser createUserRoleAndOrganizationTxnDao
- * @param userParams
- * @returns
- */
-export const createUserOrganizationService = async (userParams: CreateUser) => {
-  const parsed = createUserServiceSchema.safeParse(userParams)
-  if (!parsed.success) {
-    throw new ValidationParsedZodError(parsed.error)
-  }
-  const userParamsSanitized = parsed.data
-
-  // Hasher le mot de passe avant de créer l'utilisateur
-  const hashedPassword = await hashPassword(userParamsSanitized.password ?? '')
-  userParamsSanitized.password = hashedPassword
-
-  const slug = await generateUniqueSlug(userParamsSanitized.email.split('@')[0])
-
-  // Créer les données de l'organisation basées sur l'email de l'utilisateur
-  const organizationData: CreateOrganization = {
-    name: `${userParamsSanitized.name} organization`,
-    slug,
-    description: `Organization for ${userParamsSanitized.email}`,
-  }
-
-  // Utiliser la fonction transactionnelle
-  const result = await createUserAndOrganizationTxnDao(
-    userParamsSanitized,
-    organizationData
-  )
-
-  return result
-}
 /**
  * Warn : No Auth
  * Crée une organisation pour un utilisateur
