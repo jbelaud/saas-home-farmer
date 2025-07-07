@@ -544,7 +544,10 @@ describe('[ADMIN] CRUD : Plan Service', () => {
     const result = await getPlansWithPaginationService(paginationData)
 
     expect(result).toEqual(paginatedResponse)
-    expect(getPlansWithPaginationDao).toHaveBeenCalledWith(paginationData)
+    expect(getPlansWithPaginationDao).toHaveBeenCalledWith(
+      paginationData,
+      undefined
+    )
   })
 
   it('should update a plan', async () => {
@@ -672,7 +675,10 @@ describe('[USER] CRUD : Plan Service', () => {
     const result = await getPlansWithPaginationService(paginationData)
 
     expect(result.data).toEqual([planData])
-    expect(getPlansWithPaginationDao).toHaveBeenCalledWith(paginationData)
+    expect(getPlansWithPaginationDao).toHaveBeenCalledWith(
+      paginationData,
+      undefined
+    )
   })
 
   it('should check if plan name exists', async () => {
@@ -766,24 +772,31 @@ describe('[PUBLIC] CRUD : Plan Service', () => {
     vi.mocked(getPlanByIdDao).mockResolvedValue(planData)
     vi.mocked(getPlanByCodeDao).mockResolvedValue(planData)
     vi.mocked(getPlanByPriceIdDao).mockResolvedValue(planData)
+    vi.mocked(getActivePlansDao).mockResolvedValue([planData])
+    vi.mocked(getPlansWithPaginationDao).mockResolvedValue({
+      data: [planData],
+      pagination: {limit: 10, page: 1, total: 1, totalPages: 1},
+    })
     vi.mocked(isPlanNameExistDao).mockResolvedValue(false)
     vi.mocked(isPriceIdExistDao).mockResolvedValue(false)
-    // Note: getActivePlansDao et getPlansWithPaginationDao ne sont plus mockés
-    // car ces fonctions échouent avant d'atteindre les DAOs
   })
 
   // ✅ OPÉRATIONS DE LECTURE - Maintenant autorisées pour PUBLIC
-  // ❌ EXCEPTION : canListPlans() reste restrictif
-  it('should NOT get all active plans', async () => {
-    await expect(getActivePlansService()).rejects.toThrow(AuthorizationError)
-    expect(getActivePlansDao).not.toHaveBeenCalled()
+  it('should get all active plans', async () => {
+    const result = await getActivePlansService()
+
+    expect(result).toEqual([planData])
+    expect(getActivePlansDao).toHaveBeenCalledWith()
   })
 
-  it('should NOT get plans with pagination', async () => {
-    await expect(getPlansWithPaginationService(paginationData)).rejects.toThrow(
-      AuthorizationError
+  it('should get plans with pagination', async () => {
+    const result = await getPlansWithPaginationService(paginationData)
+
+    expect(result.data).toEqual([planData])
+    expect(getPlansWithPaginationDao).toHaveBeenCalledWith(
+      paginationData,
+      undefined
     )
-    expect(getPlansWithPaginationDao).not.toHaveBeenCalled()
   })
 
   it('should check if plan name exists', async () => {

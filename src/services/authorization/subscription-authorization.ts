@@ -224,8 +224,5 @@ export const canDeletePlan = async (resourceId: string): Promise<boolean> => {
  * @returns true si l'accès est autorisé
  */
 export const canListPlans = async (): Promise<boolean> => {
-  const authUser = await getAuthUser()
-
-  // Tous les utilisateurs connectés peuvent lister les plans
-  return !!authUser?.id
+  return true
 }
