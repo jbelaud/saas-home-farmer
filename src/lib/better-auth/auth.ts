@@ -158,7 +158,7 @@ const options = {
       createCustomerOnSignUp: true,
       subscription: {
         enabled: true,
-        plans: await getActivePlansForBetterAuthService(),
+        plans: () => getActivePlansForBetterAuthService(),
         authorizeReference: createAuthorizeReference(),
         onSubscriptionComplete: async ({subscription}) => {
           await sendSubscriptionCompletedEmailService(subscription)

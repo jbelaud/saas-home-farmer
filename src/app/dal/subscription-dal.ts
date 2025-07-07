@@ -49,27 +49,27 @@ export const isYearlyPrice = cache(async (priceId?: string | null) => {
 /**
  * Obtenir le plan PRO
  */
-export const getProPlanService = async (): Promise<Plan | undefined> => {
+export const getProPlan = async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.PRO)
 }
 
 /**
  * Obtenir le plan FREE
  */
-export const getFreePlanService = async (): Promise<Plan | undefined> => {
+export const getFreePlan = async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.FREE)
 }
 
 /**
  * Obtenir le plan ENTREPRISE
  */
-export const getEntreprisePlanService = async (): Promise<Plan | undefined> => {
+export const getEntreprisePlan = async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.ENTREPRISE)
 }
 
 /**
  * Obtenir le plan LIFETIME
  */
-export const getLifetimePlanService = async (): Promise<Plan | undefined> => {
+export const getLifetimePlan = async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.LIFETIME)
 }

@@ -1,6 +1,6 @@
 'use client'
 import {motion} from 'framer-motion'
-import {Check, CreditCard, Crown, Zap} from 'lucide-react'
+import {Check} from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 
@@ -24,58 +24,7 @@ import {
 } from '@/components/ui/select'
 import {Switch} from '@/components/ui/switch'
 import {authClient} from '@/lib/better-auth/auth-client'
-import {
-  planEntreprise,
-  planFree,
-  planLifetime,
-  planPro,
-} from '@/lib/stripe/stripe-plans'
-
-const availablePlans = [
-  {
-    id: planFree.code,
-    name: 'Gratuit',
-    price: '€0/mois',
-    yearlyPrice: '€0/an',
-    description: 'Idéal pour débuter',
-    features: planFree.features,
-    icon: <Zap className="h-5 w-5" />,
-    color: 'bg-gray-500',
-    popular: false,
-  },
-  {
-    id: planPro.code,
-    name: 'Pro',
-    price: '€29/mois',
-    yearlyPrice: '€290/an',
-    description: 'Parfait pour les équipes en croissance',
-    features: planPro.features,
-    icon: <Crown className="h-5 w-5" />,
-    color: 'bg-blue-500',
-    popular: true,
-  },
-  {
-    id: planEntreprise.code,
-    name: 'Enterprise',
-    price: '€99/mois',
-    yearlyPrice: '€990/an',
-    description: 'Pour les grandes organisations',
-    features: planEntreprise.features,
-    icon: <CreditCard className="h-5 w-5" />,
-    color: 'bg-purple-500',
-    popular: false,
-  },
-  {
-    id: planLifetime.code,
-    name: 'Lifetime',
-    price: '€199/once',
-    description: 'Pour les longues durées',
-    features: planLifetime.features,
-    icon: <Zap className="h-5 w-5" />,
-    color: 'bg-gray-500',
-    popular: false,
-  },
-]
+import {AvailablePlan} from '@/lib/stripe/stripe-types'
 
 // Type pour les subscriptions venant de Better Auth
 type ActiveSubscription = {
@@ -91,6 +40,7 @@ export default function PricingPlans({
   priceEntrepriseMonthly,
   priceEntrepriseYearly,
   subscriptions,
+  availablePlans,
 }: {
   priceProMonthly?: PriceRecap
   priceProYearly?: PriceRecap
@@ -98,6 +48,7 @@ export default function PricingPlans({
   priceEntrepriseMonthly?: PriceRecap
   priceEntrepriseYearly?: PriceRecap
   subscriptions?: ActiveSubscription[]
+  availablePlans: AvailablePlan[]
 }) {
   const subscription = subscriptions?.[0]
   const currentPlan = subscription?.plan || 'free'

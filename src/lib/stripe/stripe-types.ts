@@ -1,3 +1,4 @@
+import React from 'react'
 import z from 'zod'
 
 import {Plan} from '@/services/types/domain/subscription-types'
@@ -15,6 +16,21 @@ export type AppPlan = Partial<Plan> &
       | 'features'
     >
   >
+
+export type AvailablePlan = {
+  id: string
+  name: string
+  price: number | null
+  yearlyPrice: number
+  priceDisplay: string
+  yearlyPriceDisplay: string
+  description: string
+  features: string[]
+  icon: React.ReactElement
+  color: string
+  popular: boolean
+}
+
 export const StripeCheckoutConst = {
   EMBEDED_FORM: 'EmbededForm',
   EXTERNAL_FORM: 'ExternalForm',
