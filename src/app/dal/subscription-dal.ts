@@ -8,8 +8,10 @@ import {checkSubscriptionLimit} from '@/services/authorization/subscription-auth
 import {
   getPlanByCodeService,
   getPlanByPriceIdService,
+  getPlansWithPaginationService,
   isYearlyPriceService,
 } from '@/services/facades/subscription-service-facade'
+import {Pagination} from '@/services/types/common-type'
 import {
   LimitType,
   Plan,
@@ -73,3 +75,29 @@ export const getEntreprisePlan = async (): Promise<Plan | undefined> => {
 export const getLifetimePlan = async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.LIFETIME)
 }
+
+// ========================================
+// DAL POUR LA GESTION ADMIN DES PLANS
+// ========================================
+
+/**
+ * Obtenir tous les plans avec pagination pour l'admin
+ */
+export const getPlansWithPaginationDal = cache(
+  async (pagination: Pagination) => {
+    return getPlansWithPaginationService(pagination)
+  }
+)
+
+/**
+ * Obtenir les permissions admin pour les plans
+ */
+export const getPlanAdminPermissionsDal = cache(async () => {
+  // Retourne les permissions disponibles pour l'admin
+  return {
+    canCreate: true,
+    canUpdate: true,
+    canDelete: true,
+    canView: true,
+  }
+})

@@ -236,6 +236,7 @@ export default AppLayout
 - Utilisez des états de chargement et d'erreur appropriés
 - Implémentez un design responsive avec Tailwind
 - Utilisez les composants Shadcn UI quand possible
+- Utilisez lucide-react pour les icônes
 
 ## Gestion des Formulaires
 - Utilisez React Hook Form pour les formulaires client

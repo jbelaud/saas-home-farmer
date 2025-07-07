@@ -38,6 +38,10 @@ const data = {
           title: 'Organizations',
           url: '/admin/organizations',
         },
+        {
+          title: 'Plans',
+          url: '/admin/plans',
+        },
       ],
     },
 
