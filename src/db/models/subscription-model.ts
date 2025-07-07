@@ -13,52 +13,32 @@ import {
 
 import {user} from './auth-model'
 
-// Define enums pour les plans
 export const planStatusEnum = pgEnum('plan_status', [
   'active',
   'inactive',
   'deprecated',
 ])
 
-// Define table schema pour les plans - Compatible avec StripePlan de better auth
 export const subscriptionPlan = pgTable('subscription_plan', {
   id: uuid('id')
     .default(sql`uuid_generate_v4()`)
     .primaryKey(),
-
-  // Champs principaux du StripePlan
-  name: text('name').notNull().unique(), // Correspond au 'name' de StripePlan (ex: 'pro', 'entreprise', 'lifetime')
-  priceId: text('price_id').notNull(), // Correspond au 'priceId' de StripePlan
-  annualDiscountPriceId: text('annual_discount_price_id'), // Correspond au 'annualDiscountPriceId' de StripePlan
-
-  // Limites sous forme d'objet JSON - Plus flexible
+  code: text('code').notNull().unique(),
+  planName: text('plan_name').notNull(),
+  priceId: text('price_id').notNull(),
+  annualDiscountPriceId: text('annual_discount_price_id'),
   limits: json('limits'),
-
-  // Trial sous forme d'objet JSON - Plus flexible
   freeTrial: json('free_trial'),
-
-  // Champs étendus pour l'application
-  planName: text('plan_name').notNull(), // Nom d'affichage ('Pro', 'Enterprise', 'Lifetime')
-  description: text('description'), // Description du plan
-  features: json('features'), // Liste des fonctionnalités (array JSON)
-
-  // Pricing pour affichage
-  price: decimal('price', {precision: 10, scale: 2}), // Prix mensuel en décimal
-  yearlyPrice: decimal('yearly_price', {precision: 10, scale: 2}), // Prix annuel en décimal
+  description: text('description'),
+  features: json('features'),
+  price: decimal('price', {precision: 10, scale: 2}),
+  yearlyPrice: decimal('yearly_price', {precision: 10, scale: 2}),
   currency: text('currency').default('EUR').notNull(),
-
-  // Méta-données du plan
   isRecurring: boolean('is_recurring').default(true).notNull(),
   status: planStatusEnum('status').default('active').notNull(),
-
-  // Versioning pour plans legacy
   version: integer('version').default(1).notNull(),
   isLegacy: boolean('is_legacy').default(false).notNull(),
-
-  // Ordre d'affichage
   displayOrder: integer('display_order').default(0).notNull(),
-
-  // Audit fields
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 })
@@ -103,7 +83,7 @@ export const subscriptionsRelations = relations(subscription, ({one}) => ({
   }),
   subscriptionPlan: one(subscriptionPlan, {
     fields: [subscription.plan],
-    references: [subscriptionPlan.name], // Relation basée sur le 'name' du plan
+    references: [subscriptionPlan.code], // Relation basée sur le 'name' du plan
   }),
 }))
 

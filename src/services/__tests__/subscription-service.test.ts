@@ -8,8 +8,8 @@ import {
   deletePlanDao,
   getActivePlansDao,
   getActiveSubscriptionsByUserIdDao,
+  getPlanByCodeDao,
   getPlanByIdDao,
-  getPlanByNameDao,
   getPlanByPriceIdDao,
   getPlansWithPaginationDao,
   getSubscriptionByIdDao,
@@ -35,8 +35,8 @@ import {
   deletePlanService,
   getActivePlansService,
   getActiveSubscriptionsByUserIdService,
+  getPlanByCodeService,
   getPlanByIdService,
-  getPlanByNameService,
   getPlanByPriceIdService,
   getPlansWithPaginationService,
   getSubscriptionByIdService,
@@ -64,7 +64,7 @@ vi.mock('@/db/repositories/subscription-repository', () => ({
   // Plans repositories
   createPlanDao: vi.fn(),
   getPlanByIdDao: vi.fn(),
-  getPlanByNameDao: vi.fn(),
+  getPlanByCodeDao: vi.fn(),
   getPlanByPriceIdDao: vi.fn(),
   getActivePlansDao: vi.fn(),
   getPlansWithPaginationDao: vi.fn(),
@@ -441,7 +441,7 @@ describe('[ADMIN] CRUD : Plan Service', () => {
   const planId = faker.string.uuid()
   const planData: Plan = {
     id: planId,
-    name: 'pro',
+    code: 'pro',
     priceId: 'price_pro_monthly',
     annualDiscountPriceId: 'price_pro_yearly',
     planName: 'Pro',
@@ -486,7 +486,7 @@ describe('[ADMIN] CRUD : Plan Service', () => {
     vi.clearAllMocks()
     vi.mocked(createPlanDao).mockResolvedValue(planData)
     vi.mocked(getPlanByIdDao).mockResolvedValue(planData)
-    vi.mocked(getPlanByNameDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByCodeDao).mockResolvedValue(planData)
     vi.mocked(getPlanByPriceIdDao).mockResolvedValue(planData)
     vi.mocked(getActivePlansDao).mockResolvedValue([planData])
     vi.mocked(getPlansWithPaginationDao).mockResolvedValue(paginatedResponse)
@@ -499,7 +499,7 @@ describe('[ADMIN] CRUD : Plan Service', () => {
 
   it('should create a new plan', async () => {
     const createData = {
-      name: 'pro',
+      code: 'pro',
       priceId: 'price_pro_monthly',
       planName: 'Pro',
     }
@@ -520,10 +520,10 @@ describe('[ADMIN] CRUD : Plan Service', () => {
   })
 
   it('should get a plan by name', async () => {
-    const result = await getPlanByNameService('pro')
+    const result = await getPlanByCodeService('pro')
 
     expect(result).toEqual(planData)
-    expect(getPlanByNameDao).toHaveBeenCalledWith('pro')
+    expect(getPlanByCodeDao).toHaveBeenCalledWith('pro')
   })
 
   it('should get a plan by priceId', async () => {
@@ -590,7 +590,7 @@ describe('[USER] CRUD : Plan Service', () => {
   const planId = faker.string.uuid()
   const planData: Plan = {
     id: planId,
-    name: 'pro',
+    code: 'pro',
     priceId: 'price_pro_monthly',
     annualDiscountPriceId: 'price_pro_yearly',
     planName: 'Pro',
@@ -624,7 +624,7 @@ describe('[USER] CRUD : Plan Service', () => {
     setupAuthUserMocked(userTest)
     vi.clearAllMocks()
     vi.mocked(getPlanByIdDao).mockResolvedValue(planData)
-    vi.mocked(getPlanByNameDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByCodeDao).mockResolvedValue(planData)
     vi.mocked(getPlanByPriceIdDao).mockResolvedValue(planData)
     vi.mocked(getActivePlansDao).mockResolvedValue([planData])
     vi.mocked(getPlansWithPaginationDao).mockResolvedValue({
@@ -648,10 +648,10 @@ describe('[USER] CRUD : Plan Service', () => {
   })
 
   it('should get a plan by name', async () => {
-    const result = await getPlanByNameService('pro')
+    const result = await getPlanByCodeService('pro')
 
     expect(result).toEqual(planData)
-    expect(getPlanByNameDao).toHaveBeenCalledWith('pro')
+    expect(getPlanByCodeDao).toHaveBeenCalledWith('pro')
   })
 
   it('should get a plan by priceId', async () => {
@@ -691,7 +691,7 @@ describe('[USER] CRUD : Plan Service', () => {
 
   it('should NOT create a plan', async () => {
     const createData = {
-      name: 'pro',
+      code: 'pro',
       priceId: 'price_pro_monthly',
       planName: 'Pro',
     }
@@ -769,10 +769,10 @@ describe('[PUBLIC] CRUD : Plan Service', () => {
   })
 
   it('should NOT get a plan by name', async () => {
-    await expect(getPlanByNameService('pro')).rejects.toThrow(
+    await expect(getPlanByCodeService('pro')).rejects.toThrow(
       AuthorizationError
     )
-    expect(getPlanByNameDao).not.toHaveBeenCalled()
+    expect(getPlanByCodeDao).not.toHaveBeenCalled()
   })
 
   it('should NOT get a plan by priceId', async () => {
@@ -784,7 +784,7 @@ describe('[PUBLIC] CRUD : Plan Service', () => {
 
   it('should NOT create a plan', async () => {
     const createData = {
-      name: 'pro',
+      code: 'pro',
       priceId: 'price_pro_monthly',
       planName: 'Pro',
     }

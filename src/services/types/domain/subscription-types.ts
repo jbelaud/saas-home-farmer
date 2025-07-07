@@ -19,7 +19,7 @@ export type PlanFreeTrial = Record<string, unknown> // Plus flexible que des typ
 // Types pour les opérations sur les plans
 export type CreatePlan = Pick<
   SubscriptionPlanAddModel,
-  'name' | 'priceId' | 'planName'
+  'code' | 'priceId' | 'planName'
 > & {
   annualDiscountPriceId?: string
   limits?: PlanLimits

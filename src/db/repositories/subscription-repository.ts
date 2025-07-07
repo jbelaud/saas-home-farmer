@@ -206,11 +206,11 @@ export const getPlanByIdDao = async (
 /**
  * Obtenir un plan par nom (name)
  */
-export const getPlanByNameDao = async (
+export const getPlanByCodeDao = async (
   name: string
 ): Promise<SubscriptionPlanModel | undefined> => {
   const row = await db.query.subscriptionPlan.findFirst({
-    where: (plan, {eq}) => eq(plan.name, name),
+    where: (plan, {eq}) => eq(plan.code, name),
   })
   return row
 }
@@ -317,7 +317,7 @@ export const isPlanNameExistDao = async (name: string): Promise<boolean> => {
   const [row] = await db
     .select({id: subscriptionPlan.id})
     .from(subscriptionPlan)
-    .where(eq(subscriptionPlan.name, name))
+    .where(eq(subscriptionPlan.code, name))
     .limit(1)
 
   return Boolean(row)

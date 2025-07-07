@@ -27,7 +27,7 @@ const seed = async () => {
   // 0. Insérer les plans de subscription
   await client.query(`
     INSERT INTO "subscription_plan" (
-      "name",
+      "code",
       "price_id", 
       "annual_discount_price_id",
       "plan_name",
@@ -121,7 +121,7 @@ const seed = async () => {
         NOW(),
         NOW()
       )
-    ON CONFLICT (name) DO NOTHING;
+    ON CONFLICT (code) DO NOTHING;
   `)
 
   // 1. Insérer les utilisateurs avec leurs rôles directement

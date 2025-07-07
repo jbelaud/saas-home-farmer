@@ -6,8 +6,8 @@ import {
   getActivePlansDao,
   getActiveSubscriptionsByStripeCustomerIdDao,
   getActiveSubscriptionsByUserIdDao,
+  getPlanByCodeDao,
   getPlanByIdDao,
-  getPlanByNameDao,
   getPlanByPriceIdDao,
   getPlansWithPaginationDao,
   getSubscriptionByIdDao,
@@ -566,10 +566,10 @@ export const createPlanService = async (params: CreatePlan): Promise<Plan> => {
   }
 
   // 3. Vérification des contraintes métier
-  const nameExists = await isPlanNameExistDao(parsed.data.name)
+  const nameExists = await isPlanNameExistDao(parsed.data.code)
   if (nameExists) {
     throw new ValidationError(
-      `Un plan avec le nom "${parsed.data.name}" existe déjà`
+      `Un plan avec le nom "${parsed.data.code}" existe déjà`
     )
   }
 
@@ -623,11 +623,11 @@ export const getPlanByIdService = async (
 /**
  * Obtenir un plan par nom
  */
-export const getPlanByNameService = async (
-  name: string
+export const getPlanByCodeService = async (
+  code: string
 ): Promise<Plan | undefined> => {
   // 1. Validation du nom
-  const parsed = planNameSchema.safeParse(name)
+  const parsed = planNameSchema.safeParse(code)
   if (!parsed.success) {
     throw new ValidationError(parsed.error.message)
   }
@@ -639,7 +639,7 @@ export const getPlanByNameService = async (
   }
 
   // 3. Récupération du plan
-  const plan = await getPlanByNameDao(name)
+  const plan = await getPlanByCodeDao(code)
   return plan
 }
 
@@ -719,7 +719,7 @@ export const updatePlanService = async (params: UpdatePlan): Promise<Plan> => {
     const nameExists = await isPlanNameExistDao(parsed.data.name)
     if (nameExists) {
       // Vérifier que ce n'est pas le même plan
-      const existingPlan = await getPlanByNameDao(parsed.data.name)
+      const existingPlan = await getPlanByCodeDao(parsed.data.name)
       if (existingPlan && existingPlan.id !== params.id) {
         throw new ValidationError(
           `Un autre plan avec le nom "${parsed.data.name}" existe déjà`

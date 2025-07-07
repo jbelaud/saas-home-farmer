@@ -17,6 +17,7 @@ Key Principles
 - You use PNPM over NPM as possible
 - Generate a concise Git commit message based on the staged diff.
 - Add new code and function at the end of the file.
+- Clean Code : Dont comment code, use function name and comments to explain the code.
 
 Layering and Dependencies
 - **Presentation Layer (`src/app/<route>`):**

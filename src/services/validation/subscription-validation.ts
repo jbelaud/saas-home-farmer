@@ -55,7 +55,7 @@ export const updateSubscriptionServiceSchema =
 // ========================================
 
 export const basePlanServiceSchema = z.object({
-  name: z
+  code: z
     .string({
       message: 'Le nom du plan est requis.',
     })
