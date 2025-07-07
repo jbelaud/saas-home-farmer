@@ -245,16 +245,32 @@ export const getActivePlansDao = async (): Promise<SubscriptionPlanModel[]> => {
  * Obtenir tous les plans avec pagination
  */
 export const getPlansWithPaginationDao = async (
-  pagination: Pagination
+  pagination: Pagination,
+  search?: string
 ): Promise<PaginatedResponse<SubscriptionPlanModel>> => {
+  // Construire la clause WHERE pour la recherche
+  let searchCondition = undefined
+  if (search && search.trim()) {
+    const searchTerm = search.trim()
+    searchCondition = or(
+      sql`${subscriptionPlan.planName} ILIKE ${`%${searchTerm}%`}`,
+      sql`${subscriptionPlan.code} ILIKE ${`%${searchTerm}%`}`,
+      sql`${subscriptionPlan.description} ILIKE ${`%${searchTerm}%`}`
+    )
+  }
+
   const [rows, [{count}]] = await Promise.all([
     db
       .select()
       .from(subscriptionPlan)
+      .where(searchCondition)
       .orderBy(subscriptionPlan.displayOrder)
       .limit(pagination.limit)
       .offset(pagination.offset),
-    db.select({count: sql<number>`count(*)`}).from(subscriptionPlan),
+    db
+      .select({count: sql<number>`count(*)`})
+      .from(subscriptionPlan)
+      .where(searchCondition),
   ])
 
   const page = Math.floor(pagination.offset / pagination.limit) + 1

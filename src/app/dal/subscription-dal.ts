@@ -84,8 +84,8 @@ export const getLifetimePlan = async (): Promise<Plan | undefined> => {
  * Obtenir tous les plans avec pagination pour l'admin
  */
 export const getPlansWithPaginationDal = cache(
-  async (pagination: Pagination) => {
-    return getPlansWithPaginationService(pagination)
+  async (pagination: Pagination, search?: string) => {
+    return getPlansWithPaginationService(pagination, search)
   }
 )
 

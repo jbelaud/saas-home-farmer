@@ -22,7 +22,7 @@ export default async function PlansContent({
   const offset = (page - 1) * limit
 
   const [plans, permissions] = await Promise.all([
-    getPlansWithPaginationDal({limit, offset}),
+    getPlansWithPaginationDal({limit, offset}, search),
     getPlanAdminPermissionsDal(),
   ])
 

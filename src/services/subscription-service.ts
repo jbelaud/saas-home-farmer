@@ -681,7 +681,8 @@ export const getActivePlansService = async (): Promise<Plan[]> => {
  * Obtenir tous les plans avec pagination
  */
 export const getPlansWithPaginationService = async (
-  pagination: Pagination
+  pagination: Pagination,
+  search?: string
 ): Promise<PaginatedResponse<Plan>> => {
   // 1. Vérification des autorisations
   const canList = await canListPlans()
@@ -689,8 +690,8 @@ export const getPlansWithPaginationService = async (
     throw new AuthorizationError('Accès non autorisé pour lister les plans')
   }
 
-  // 2. Récupération des plans avec pagination
-  const paginatedPlans = await getPlansWithPaginationDao(pagination)
+  // 2. Récupération des plans avec pagination et recherche
+  const paginatedPlans = await getPlansWithPaginationDao(pagination, search)
   return paginatedPlans
 }
 
