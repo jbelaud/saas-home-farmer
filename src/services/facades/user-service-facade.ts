@@ -8,8 +8,6 @@ export const getUserByEmailService =
 export const createUserService = userServiceInterceptor.createUserService
 export const createUserFromStripeService =
   userServiceInterceptor.createUserFromStripeService
-export const createUserOrganizationService =
-  userServiceInterceptor.createUserOrganizationService
 export const getAllUsersWithPaginationService =
   userServiceInterceptor.getAllUsersWithPaginationService
 export const isEmailAvailableService =
@@ -30,6 +28,5 @@ export const deleteUserSettingsService =
   userServiceInterceptor.deleteUserSettingsService
 export const upsertUserSettingsService =
   userServiceInterceptor.upsertUserSettingsService
-
 export const getUsersByOrganizationService =
   userServiceInterceptor.getUsersByOrganizationService

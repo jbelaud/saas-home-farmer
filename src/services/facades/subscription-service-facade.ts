@@ -1,7 +1,8 @@
-import {checkSubscriptionLimitService as _checkSubscriptionLimitService} from '../subscription-service'
 import subscriptionServiceInterceptor from './interceptors/subscription-service-logger-interceptor'
 
-//POST SERVICE
+// ========================================
+// SERVICES DE SUBSCRIPTION
+// ========================================
 export const createSubscriptionFromStripeService =
   subscriptionServiceInterceptor.createSubscriptionFromStripeService
 export const getSubscriptionByIdService =
@@ -21,5 +22,28 @@ export const updateSubscriptionForWebhookService =
 export const getBillingContext =
   subscriptionServiceInterceptor.getBillingContext
 
-// Export direct pour les fonctions pures sans interceptor nécessaire
-export const checkSubscriptionLimitService = _checkSubscriptionLimitService
+// ========================================
+// SERVICES DE PLANS
+// ========================================
+export const createPlanService =
+  subscriptionServiceInterceptor.createPlanService
+export const getPlanByIdService =
+  subscriptionServiceInterceptor.getPlanByIdService
+export const getPlanByNameService =
+  subscriptionServiceInterceptor.getPlanByNameService
+export const getPlanByPriceIdService =
+  subscriptionServiceInterceptor.getPlanByPriceIdService
+export const getActivePlansService =
+  subscriptionServiceInterceptor.getActivePlansService
+export const getPlansWithPaginationService =
+  subscriptionServiceInterceptor.getPlansWithPaginationService
+export const updatePlanService =
+  subscriptionServiceInterceptor.updatePlanService
+export const softDeletePlanService =
+  subscriptionServiceInterceptor.softDeletePlanService
+export const deletePlanService =
+  subscriptionServiceInterceptor.deletePlanService
+export const isPlanNameExistService =
+  subscriptionServiceInterceptor.isPlanNameExistService
+export const isPriceIdExistService =
+  subscriptionServiceInterceptor.isPriceIdExistService
