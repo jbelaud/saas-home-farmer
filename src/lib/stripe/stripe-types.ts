@@ -4,12 +4,12 @@ import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
 export type AppPlan = {
   priceId: string
-  planCode: SubscriptionPlan
+  code: SubscriptionPlan
   planName: string
   annualDiscountPriceId?: string
   price?: number // les prix peuvent etre calculé depuis 'getSubscriptionRecapInfo' mais pour plus de souplesse on peut les definir en dur
   yearlyPrice?: number
-  isReccuring: boolean
+  isRecurring: boolean
   features: string[]
   freeTrial?: number
   limits?: {

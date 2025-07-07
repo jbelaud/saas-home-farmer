@@ -40,7 +40,7 @@ import {getPriceIdFromSubscriptionIdAction} from './action'
 
 const availablePlans = [
   {
-    id: planFree.planCode,
+    id: planFree.code,
     name: 'Gratuit',
     price: planFree.price,
     yearlyPrice: planFree.yearlyPrice ?? 0,
@@ -53,7 +53,7 @@ const availablePlans = [
     popular: false,
   },
   {
-    id: planPro.planCode,
+    id: planPro.code,
     name: 'Pro',
     price: planPro.price,
     yearlyPrice: planPro.yearlyPrice ?? 0,
@@ -66,7 +66,7 @@ const availablePlans = [
     popular: true,
   },
   {
-    id: planEntreprise.planCode,
+    id: planEntreprise.code,
     name: 'Enterprise',
     price: planEntreprise.price,
     yearlyPrice: planEntreprise.yearlyPrice ?? 0,

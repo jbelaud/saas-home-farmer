@@ -438,7 +438,7 @@ const baseMetadata = {
   source: 'custom_checkout',
   checkoutType:
     'external' | 'embed' | 'react-stripe' | 'payment-link' | 'installments',
-  isReccuring: subscriptionData.plan.isReccuring ? 'true' : 'false',
+  isRecurring: subscriptionData.plan.isRecurring ? 'true' : 'false',
   seats: subscriptionData.seats.toString(),
   plan: subscriptionData.plan.planCode,
   interval: subscriptionData.isYearly ? 'year' : 'month',

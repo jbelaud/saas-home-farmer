@@ -2,12 +2,14 @@
 
 import {headers} from 'next/headers'
 
+import {getPlanByPriceId} from '@/app/dal/subscription-dal'
 import {logger} from '@/lib/logger'
 import {stripeClient} from '@/lib/stripe/stripe-client'
-import {getPlanByPriceId, isYearlyPrice} from '@/lib/stripe/stripe-plans'
+import {isYearlyPrice} from '@/lib/stripe/stripe-plans'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 import {getBillingContext} from '@/services/subscription-service'
+import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
 // Types communs importés
 import type {
@@ -40,14 +42,14 @@ export async function createEmbededCheckoutSession(
     })
 
     // Valider le plan
-    const plan = getPlanByPriceId(priceId)
+    const plan = await getPlanByPriceId(priceId)
     if (!plan) {
       logger.error('[EMBED-CHECKOUT] ❌ Plan non trouvé pour priceId:', priceId)
       throw new Error('Plan not found')
     }
     logger.debug('[EMBED-CHECKOUT] Plan récupéré:', {
-      planCode: plan.planCode,
-      isReccuring: plan.isReccuring,
+      planCode: plan.code,
+      isRecurring: plan.isRecurring,
     })
 
     // 1️⃣ Validation du mode
@@ -59,14 +61,17 @@ export async function createEmbededCheckoutSession(
     // 3️⃣ Initialisation subscription
     const subscriptionId = await initSubscription(
       customerInfo,
-      plan.planCode,
+      plan.code as SubscriptionPlan,
       seats
     )
     const isYearly = isYearlyPrice(plan.priceId)
     // 4️⃣ Préparation des données
     const subscriptionData: SubscriptionData = {
       subscriptionId,
-      plan,
+      plan: {
+        code: plan.code as SubscriptionPlan,
+        isRecurring: plan.isRecurring,
+      },
       seats,
       isYearly,
     }
@@ -146,7 +151,7 @@ async function initUserCustomer(
 // 3️⃣ Initialisation de la subscription
 async function initSubscription(
   customerInfo: CustomerInfo,
-  planCode: SubscriptionData['plan']['planCode'],
+  planCode: SubscriptionData['plan']['code'],
   seats: number
 ): Promise<string> {
   logger.info('[EMBED-CHECKOUT] 💾 Initialisation subscription en BDD')
@@ -202,7 +207,7 @@ async function createStripeSession(
         quantity: subscriptionData.seats,
       },
     ],
-    mode: subscriptionData.plan.isReccuring ? 'subscription' : 'payment',
+    mode: subscriptionData.plan.isRecurring ? 'subscription' : 'payment',
     return_url: `${origin}/checkout/success?redirect_status=succeeded&session_id={CHECKOUT_SESSION_ID}`,
     metadata,
     payment_method_types: ['card'],

@@ -2,14 +2,16 @@
 
 import Stripe from 'stripe'
 
+import {getPlanByPriceId} from '@/app/dal/subscription-dal'
 import {logger} from '@/lib/logger'
 import {stripeClient} from '@/lib/stripe/stripe-client'
-import {getPlanByPriceId, isYearlyPrice} from '@/lib/stripe/stripe-plans'
+import {isYearlyPrice} from '@/lib/stripe/stripe-plans'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
 import {createUserFromStripeService} from '@/services/facades/user-service-facade'
 import {getBillingContext} from '@/services/subscription-service'
+import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
 // Types communs importés
 import type {
@@ -47,14 +49,14 @@ export async function createCheckoutSession(
     })
 
     // Valider le plan
-    const plan = getPlanByPriceId(priceId)
+    const plan = await getPlanByPriceId(priceId)
     if (!plan) {
       logger.error('[REACT-STRIPE] ❌ Plan non trouvé pour priceId:', priceId)
       throw new Error('Plan not found')
     }
     logger.debug('[REACT-STRIPE] Plan récupéré:', {
-      planCode: plan.planCode,
-      isReccuring: plan.isReccuring,
+      planCode: plan.code,
+      isRecurring: plan.isRecurring,
     })
 
     // 1️⃣ Validation du mode (avec email requis pour guest)
@@ -66,14 +68,17 @@ export async function createCheckoutSession(
     // 3️⃣ Initialisation subscription
     const subscriptionId = await initSubscription(
       customerInfo,
-      plan.planCode,
+      plan.code as SubscriptionPlan,
       seats
     )
     const isYearly = isYearlyPrice(plan.priceId)
     // 4️⃣ Préparation des données
     const subscriptionData: SubscriptionData = {
       subscriptionId,
-      plan,
+      plan: {
+        code: plan.code as SubscriptionPlan,
+        isRecurring: plan.isRecurring,
+      },
       seats,
       isYearly,
     }
@@ -187,7 +192,7 @@ async function initReactStripeCustomer(
 // 2️⃣ Initialisation de la subscription
 async function initSubscription(
   customerInfo: CustomerInfo,
-  planCode: SubscriptionData['plan']['planCode'],
+  planCode: SubscriptionData['plan']['code'],
   seats: number
 ): Promise<string> {
   logger.info('[REACT-STRIPE] 💾 Initialisation subscription en BDD')
@@ -324,7 +329,7 @@ export async function confirmSubscription(setupIntentId: string) {
     logger.debug('[REACT-STRIPE] Métadonnées Setup Intent:', metadata)
 
     const seats = metadata?.seats ? parseInt(metadata.seats) : 1
-    const isReccuring = metadata?.isReccuring === 'true'
+    const isRecurring = metadata?.isRecurring === 'true'
     const isGuestCheckout = metadata?.guest_checkout === 'true'
 
     if (setupIntent.status !== 'succeeded') {
@@ -383,7 +388,7 @@ export async function confirmSubscription(setupIntentId: string) {
       customerEmail = user.email ?? ''
     }
 
-    if (isReccuring) {
+    if (isRecurring) {
       logger.info('[REACT-STRIPE] 🔧 Création abonnement Stripe')
 
       // Créer l'abonnement Stripe avec le payment method confirmé
@@ -413,7 +418,7 @@ export async function confirmSubscription(setupIntentId: string) {
     }
 
     // Récupérer les informations du plan depuis le priceId
-    const plan = getPlanByPriceId(metadata?.priceId || '')
+    const plan = await getPlanByPriceId(metadata?.priceId || '')
     if (!plan) {
       logger.error(
         '[REACT-STRIPE] ❌ Plan non trouvé pour ce priceId:',
@@ -425,7 +430,7 @@ export async function confirmSubscription(setupIntentId: string) {
     // Créer l'abonnement en base via le service
     await createSubscriptionFromStripeService(
       customerEmail,
-      plan.planCode,
+      plan.code as SubscriptionPlan,
       isYearly,
       stripeSubscription?.id ?? '',
       customerId,

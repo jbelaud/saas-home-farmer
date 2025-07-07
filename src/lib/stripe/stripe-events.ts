@@ -383,7 +383,7 @@ async function handleFullCheckoutSessionCompleted(event: Stripe.Event) {
     metadata.customerEmail ?? session.customer_details?.email
   const stripeCustomerId = session.customer ?? undefined
   const plan = metadata.plan as SubscriptionPlan
-  const isReccuring = metadata.isReccuring === 'true'
+  const isRecurring = metadata.isRecurring === 'true'
   const isYearly = metadata.interval === 'year'
   // const priceId = metadata.priceId as string
   // const payment_intent = session.payment_intent as string
@@ -397,7 +397,7 @@ async function handleFullCheckoutSessionCompleted(event: Stripe.Event) {
   logger.debug('🔧 plan', plan)
   logger.debug('🔧 isYearly', isYearly)
   logger.debug('🔧 subscription', subscriptionId)
-  logger.debug('🔧 isReccuring', isReccuring)
+  logger.debug('🔧 isRecurring', isRecurring)
   logger.debug('🔧 subscriptionUUID', subscriptionUUID)
 
   // Détecter le type de traitement nécessaire

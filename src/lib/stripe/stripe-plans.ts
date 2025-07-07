@@ -61,12 +61,12 @@ export const freeStripePlan: StripePlan = {
 export const planPro: AppPlan = {
   planName: 'Pro',
   priceId: betterAuthPlans[0].priceId ?? '',
-  planCode: betterAuthPlans[0].name as SubscriptionPlan,
+  code: betterAuthPlans[0].name as SubscriptionPlan,
   limits: betterAuthPlans[0].limits,
   annualDiscountPriceId: betterAuthPlans[0].annualDiscountPriceId,
   price: 29,
   yearlyPrice: 249,
-  isReccuring: true,
+  isRecurring: true,
   features: [
     "Jusqu'à 5 utilisateurs",
     `${betterAuthPlans[0].limits?.projects} projets`,
@@ -79,12 +79,12 @@ export const planPro: AppPlan = {
 export const planEntreprise: AppPlan = {
   planName: 'Entreprise',
   priceId: betterAuthPlans[1].priceId ?? '',
-  planCode: betterAuthPlans[1].name as SubscriptionPlan,
+  code: betterAuthPlans[1].name as SubscriptionPlan,
   limits: betterAuthPlans[1].limits,
   annualDiscountPriceId: betterAuthPlans[1].annualDiscountPriceId,
   price: 99,
   yearlyPrice: 990,
-  isReccuring: true,
+  isRecurring: true,
   features: [
     'Utilisateurs illimités',
     `${betterAuthPlans[1].limits?.projects} projets`,
@@ -96,9 +96,9 @@ export const planEntreprise: AppPlan = {
 
 export const planLifetime: AppPlan = {
   priceId: betterAuthPlans[2].priceId ?? '',
-  planCode: betterAuthPlans[2].name as SubscriptionPlan,
+  code: betterAuthPlans[2].name as SubscriptionPlan,
   planName: 'Lifetime',
-  isReccuring: false,
+  isRecurring: false,
   limits: betterAuthPlans[2].limits,
   price: 70,
   features: [
@@ -114,9 +114,9 @@ export const planLifetime: AppPlan = {
 
 export const planFree: AppPlan = {
   priceId: freeStripePlan.priceId ?? '',
-  planCode: freeStripePlan.name as SubscriptionPlan,
+  code: freeStripePlan.name as SubscriptionPlan,
   planName: 'Free',
-  isReccuring: true,
+  isRecurring: true,
   limits: freeStripePlan.limits,
   price: 0,
   yearlyPrice: 0,

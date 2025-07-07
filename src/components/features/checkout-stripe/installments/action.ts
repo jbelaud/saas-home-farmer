@@ -2,12 +2,14 @@
 
 import {headers} from 'next/headers'
 
+import {getPlanByPriceId} from '@/app/dal/subscription-dal'
 import {logger} from '@/lib/logger'
 import {stripeClient} from '@/lib/stripe/stripe-client'
-import {getPlanByPriceId, isYearlyPrice} from '@/lib/stripe/stripe-plans'
+import {isYearlyPrice} from '@/lib/stripe/stripe-plans'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 import {getBillingContext} from '@/services/subscription-service'
+import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
 // Types communs importés
 import type {
@@ -65,7 +67,7 @@ export async function createInstallmentCheckoutSession(
     })
 
     // Valider le plan
-    const plan = getPlanByPriceId(priceId)
+    const plan = await getPlanByPriceId(priceId)
     if (!plan) {
       logger.error(
         '[INSTALLMENT-CHECKOUT] ❌ Plan non trouvé pour priceId:',
@@ -77,33 +79,39 @@ export async function createInstallmentCheckoutSession(
       }
     }
     logger.debug('[INSTALLMENT-CHECKOUT] Plan récupéré:', {
-      planCode: plan.planCode,
-      isReccuring: plan.isReccuring,
+      planCode: plan.code,
+      isRecurring: plan.isRecurring,
     })
 
     // 1️⃣ Validation du mode
     const mode = validateCheckoutMode(guest, user, 'INSTALLMENT-CHECKOUT')
 
-    // 2️⃣ Validation plan compatibilité échéancier
-    validateInstallmentsPlan(plan)
+    // 2️⃣ Préparation structure plan pour validation
+    const planData = {
+      code: plan.code as SubscriptionPlan,
+      isRecurring: plan.isRecurring,
+    }
 
-    // 3️⃣ Validation type échéancier
+    // 3️⃣ Validation plan compatibilité échéancier
+    validateInstallmentsPlan(planData)
+
+    // 4️⃣ Validation type échéancier
     const installmentPlan = validateInstallmentType(installmentType)
 
-    // 4️⃣ Gestion customer
+    // 5️⃣ Gestion customer
     const customerInfo = await initInstallmentCustomer(mode, user)
 
-    // 5️⃣ Initialisation subscription
+    // 6️⃣ Initialisation subscription
     const subscriptionId = await initSubscription(
       customerInfo,
-      plan.planCode,
+      planData.code,
       seats
     )
     const isYearly = isYearlyPrice(plan.priceId)
-    // 6️⃣ Préparation des données
+    // 7️⃣ Préparation des données
     const subscriptionData: SubscriptionData = {
       subscriptionId,
-      plan,
+      plan: planData,
       seats,
       isYearly,
     }
@@ -243,7 +251,7 @@ async function initInstallmentCustomer(
 // 3️⃣ Initialisation de la subscription
 async function initSubscription(
   customerInfo: CustomerInfo,
-  planCode: SubscriptionData['plan']['planCode'],
+  planCode: SubscriptionData['plan']['code'],
   seats: number
 ): Promise<string> {
   logger.info('[INSTALLMENT-CHECKOUT] 💾 Initialisation subscription en BDD')

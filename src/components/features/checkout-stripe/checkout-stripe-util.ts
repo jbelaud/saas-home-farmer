@@ -17,8 +17,8 @@ export type CustomerInfo = {
 export type SubscriptionData = {
   subscriptionId: string
   plan: {
-    planCode: SubscriptionPlan
-    isReccuring: boolean
+    code: SubscriptionPlan
+    isRecurring: boolean
   }
   isYearly: boolean
   seats: number
@@ -57,7 +57,7 @@ export type ValidationResult = {
   user: User | undefined
   plan: {
     planCode: SubscriptionPlan
-    isReccuring: boolean
+    isRecurring: boolean
     isYearly: boolean
   }
   mode: CheckoutMode
@@ -138,7 +138,7 @@ export function validateInstallmentsPlan(
   plan: SubscriptionData['plan'],
   context: string = 'INSTALLMENTS-CHECKOUT'
 ): void {
-  if (plan.isReccuring) {
+  if (plan.isRecurring) {
     logger.error(`[${context}] ❌ Plan récurrent incompatible avec échéancier`)
     throw new Error(
       'Les paiements en plusieurs fois ne sont pas disponibles pour les abonnements récurrents'
@@ -168,9 +168,9 @@ export function createCheckoutMetadata(
     subscriptionId: subscriptionData.subscriptionId,
     source: 'custom_checkout',
     checkoutType,
-    isReccuring: subscriptionData.plan.isReccuring ? 'true' : 'false',
+    isRecurring: subscriptionData.plan.isRecurring ? 'true' : 'false',
     seats: subscriptionData.seats.toString(),
-    plan: subscriptionData.plan.planCode,
+    plan: subscriptionData.plan.code,
     interval: subscriptionData.isYearly ? 'year' : 'month',
   }
 

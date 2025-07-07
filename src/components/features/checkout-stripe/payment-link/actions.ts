@@ -2,11 +2,13 @@
 
 import {headers} from 'next/headers'
 
+import {getPlanByPriceId} from '@/app/dal/subscription-dal'
 import {logger} from '@/lib/logger'
 import {stripeClient} from '@/lib/stripe/stripe-client'
-import {getPlanByPriceId, isYearlyPrice} from '@/lib/stripe/stripe-plans'
+import {isYearlyPrice} from '@/lib/stripe/stripe-plans'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
+import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
 // Types communs importés
 import type {CheckoutResult, SubscriptionData} from '../checkout-stripe-util'
@@ -31,30 +33,36 @@ export async function createPaymentLink(
     })
 
     // Valider le plan
-    const plan = getPlanByPriceId(priceId)
+    const plan = await getPlanByPriceId(priceId)
     if (!plan) {
       logger.error('[PAYMENT-LINK] ❌ Plan non trouvé pour priceId:', priceId)
       throw new Error('Plan not found')
     }
     logger.debug('[PAYMENT-LINK] Plan récupéré:', {
-      planCode: plan.planCode,
-      isReccuring: plan.isReccuring,
+      planCode: plan.code,
+      isRecurring: plan.isRecurring,
     })
 
     // 1️⃣ Validation du mode (payment link = guest uniquement)
     validatePaymentLinkMode(guest, user)
 
-    // 2️⃣ Initialisation subscription si récurrent
+    // 2️⃣ Préparation structure plan
+    const planData = {
+      code: plan.code as SubscriptionPlan,
+      isRecurring: plan.isRecurring,
+    }
+
+    // 3️⃣ Initialisation subscription si récurrent
     const subscriptionId = await initSubscriptionForPaymentLink(
-      plan.planCode,
-      plan.isReccuring,
+      planData.code,
+      planData.isRecurring,
       seats
     )
     const isYearly = isYearlyPrice(plan.priceId)
-    // 3️⃣ Préparation des données
+    // 4️⃣ Préparation des données
     const subscriptionData: SubscriptionData = {
       subscriptionId,
-      plan,
+      plan: planData,
       seats,
       isYearly,
     }
@@ -103,12 +111,12 @@ function validatePaymentLinkMode(guest: boolean, user: unknown): void {
 
 // 2️⃣ Initialisation subscription pour payment link
 async function initSubscriptionForPaymentLink(
-  planCode: SubscriptionData['plan']['planCode'],
-  isReccuring: boolean,
+  planCode: SubscriptionData['plan']['code'],
+  isRecurring: boolean,
   seats: number
 ): Promise<string> {
   // Pour les plans non-récurrents, pas besoin de subscription en BDD
-  if (!isReccuring) {
+  if (!isRecurring) {
     logger.warn(
       "[PAYMENT-LINK] 💳 Plan one-time : pas d'initialisation subscription"
     )

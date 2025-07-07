@@ -33,7 +33,7 @@ import {
 
 const availablePlans = [
   {
-    id: planFree.planCode,
+    id: planFree.code,
     name: 'Gratuit',
     price: '€0/mois',
     yearlyPrice: '€0/an',
@@ -44,7 +44,7 @@ const availablePlans = [
     popular: false,
   },
   {
-    id: planPro.planCode,
+    id: planPro.code,
     name: 'Pro',
     price: '€29/mois',
     yearlyPrice: '€290/an',
@@ -55,7 +55,7 @@ const availablePlans = [
     popular: true,
   },
   {
-    id: planEntreprise.planCode,
+    id: planEntreprise.code,
     name: 'Enterprise',
     price: '€99/mois',
     yearlyPrice: '€990/an',
@@ -66,7 +66,7 @@ const availablePlans = [
     popular: false,
   },
   {
-    id: planLifetime.planCode,
+    id: planLifetime.code,
     name: 'Lifetime',
     price: '€199/once',
     description: 'Pour les longues durées',
