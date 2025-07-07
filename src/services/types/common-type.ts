@@ -11,3 +11,9 @@ export type PaginatedResponse<T> = {
     totalPages: number // ← Nombre total de pages
   }
 }
+
+export type ActionResponse<T = unknown> = {
+  success: boolean
+  message: string
+  data?: T
+}

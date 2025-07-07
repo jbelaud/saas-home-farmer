@@ -4,7 +4,6 @@ import {zodResolver} from '@hookform/resolvers/zod'
 import {Plus} from 'lucide-react'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
-import {z} from 'zod'
 
 import {Button} from '@/components/ui/button'
 import {
@@ -30,20 +29,7 @@ import {Switch} from '@/components/ui/switch'
 import {Textarea} from '@/components/ui/textarea'
 import {CreatePlan} from '@/services/types/domain/subscription-types'
 
-const createPlanSchema = z.object({
-  code: z.string().min(2, 'Le code doit contenir au moins 2 caractères'),
-  planName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  priceId: z.string().min(1, 'Le Price ID Stripe est requis'),
-  description: z.string().optional(),
-  price: z.string().optional(),
-  yearlyPrice: z.string().optional(),
-  annualDiscountPriceId: z.string().optional(),
-  currency: z.string().optional(),
-  isRecurring: z.boolean().optional(),
-  displayOrder: z.number().optional(),
-})
-
-type CreatePlanFormData = z.infer<typeof createPlanSchema>
+import {CreatePlanFormData, createPlanSchema} from './plan-form-validation'
 
 interface Props {
   onSave: (data: CreatePlan) => Promise<void>

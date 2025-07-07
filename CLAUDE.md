@@ -136,3 +136,7 @@ Required environment variables:
 ## Package Manager
 
 Always use `pnpm` over `npm` for this project.
+
+## CURSOR RULES
+
+Read the .cursor/rules folder for the rules to follow.
