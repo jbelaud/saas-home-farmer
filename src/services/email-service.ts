@@ -17,11 +17,12 @@ import SubscriptionCompletedMail from '@/lib/emails/subscription-completed-email
 import SubscriptionDeletedMail from '@/lib/emails/subscription-deleted-email'
 import SubscriptionUpdatedMail from '@/lib/emails/subscription-updated-email'
 import VerificationEmail from '@/lib/emails/verification-email'
-import {getPlanByPriceId} from '@/lib/stripe/stripe-plans'
 import {
   getFormattedPriceFromSubscription,
   getSubscriptionDetails,
 } from '@/lib/stripe/stripe-utils'
+
+import {getPlanByPriceIdService} from './subscription-service'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -210,7 +211,7 @@ export const sendSubscriptionCompletedEmailService = async (
   const stripeSubscriptionUpdated = await getSubscriptionDetails(
     subscription.stripeSubscriptionId ?? ''
   )
-  const plan = getPlanByPriceId(
+  const plan = await getPlanByPriceIdService(
     stripeSubscriptionUpdated?.items.data[0].price.id ?? ''
   )
   const user = await getUserByStripeCustomerIdDao(subscription.stripeCustomerId)
@@ -274,7 +275,7 @@ export const sendSubscriptionUpdatedEmailService = async (
   const stripeSubscription = await getSubscriptionDetails(
     subscription.stripeSubscriptionId ?? ''
   )
-  const plan = getPlanByPriceId(
+  const plan = await getPlanByPriceIdService(
     stripeSubscription?.items.data[0].price.id ?? ''
   )
 
@@ -340,7 +341,7 @@ export const sendSubscriptionCanceledEmailService = async (
   const stripeSubscriptionCanceled = await getSubscriptionDetails(
     subscription.stripeSubscriptionId ?? ''
   )
-  const plan = getPlanByPriceId(
+  const plan = await getPlanByPriceIdService(
     stripeSubscriptionCanceled?.items.data[0].price.id ?? ''
   )
   const user = await getUserByStripeCustomerIdDao(subscription.stripeCustomerId)
@@ -403,7 +404,7 @@ export const sendSubscriptionDeletedEmailService = async (
   const stripeSubscriptionDeleted = await getSubscriptionDetails(
     subscription.stripeSubscriptionId ?? ''
   )
-  const plan = getPlanByPriceId(
+  const plan = await getPlanByPriceIdService(
     stripeSubscriptionDeleted?.items.data[0].price.id ?? ''
   )
   const user = await getUserByStripeCustomerIdDao(subscription.stripeCustomerId)

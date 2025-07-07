@@ -1,23 +1,20 @@
 import z from 'zod'
 
-import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
+import {Plan} from '@/services/types/domain/subscription-types'
 
-export type AppPlan = {
-  priceId: string
-  code: SubscriptionPlan
-  planName: string
-  annualDiscountPriceId?: string
-  price?: number // les prix peuvent etre calculé depuis 'getSubscriptionRecapInfo' mais pour plus de souplesse on peut les definir en dur
-  yearlyPrice?: number
-  isRecurring: boolean
-  features: string[]
-  freeTrial?: number
-  limits?: {
-    users?: number
-    projects?: number
-    storage?: number
-  }
-}
+export type AppPlan = Partial<Plan> &
+  Required<
+    Pick<
+      Plan,
+      | 'priceId'
+      | 'code'
+      | 'planName'
+      | 'isRecurring'
+      | 'limits'
+      | 'price'
+      | 'features'
+    >
+  >
 export const StripeCheckoutConst = {
   EMBEDED_FORM: 'EmbededForm',
   EXTERNAL_FORM: 'ExternalForm',

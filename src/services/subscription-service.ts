@@ -31,7 +31,6 @@ import {
 } from '@/db/repositories/user-repository'
 import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {logger} from '@/lib/logger'
-import {freeStripePlan} from '@/lib/stripe/stripe-plans'
 import {
   canCreatePlan,
   canDeletePlan,
@@ -490,6 +489,7 @@ export const checkSubscriptionLimitService = async (
 ): Promise<SubscriptionLimit> => {
   if (!subscription) {
     logger.warn('[checkSubscriptionLimitService] no subscription')
+    const freeStripePlan = await getPlanByCodeService(PlanConst.FREE)
     return {
       allowed: false,
       limit: 0,
@@ -497,7 +497,7 @@ export const checkSubscriptionLimitService = async (
       remaining: 0,
       hasSubscription: false,
       limitType,
-      plan: freeStripePlan.name,
+      plan: freeStripePlan?.code as string,
     }
   }
 
@@ -531,7 +531,7 @@ export const checkSubscriptionLimitService = async (
         remaining: 1000000,
         hasSubscription: true,
         limitType,
-        plan: freeStripePlan.name,
+        plan: subscription.plan || '',
       }
     }
   }
@@ -543,7 +543,7 @@ export const checkSubscriptionLimitService = async (
     remaining,
     hasSubscription: true,
     limitType,
-    plan: subscription.plan || freeStripePlan.name,
+    plan: subscription.plan || '',
   }
 }
 
@@ -894,4 +894,14 @@ export const getActivePlansForBetterAuthService = async (): Promise<
   }))
 
   return stripePlans
+}
+
+export const isYearlyPriceService = async (
+  priceId?: string
+): Promise<boolean> => {
+  if (!priceId) {
+    return false
+  }
+  const plans = await getActivePlansDao()
+  return plans.some((plan) => plan.annualDiscountPriceId === priceId)
 }

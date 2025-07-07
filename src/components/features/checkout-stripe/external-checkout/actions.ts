@@ -2,10 +2,9 @@
 
 import {headers} from 'next/headers'
 
-import {getPlanByPriceId} from '@/app/dal/subscription-dal'
+import {getPlanByPriceId, isYearlyPrice} from '@/app/dal/subscription-dal'
 import {logger} from '@/lib/logger'
 import {stripeClient} from '@/lib/stripe/stripe-client'
-import {isYearlyPrice} from '@/lib/stripe/stripe-plans'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 import {getBillingContext} from '@/services/subscription-service'
@@ -67,7 +66,7 @@ export async function createCheckoutSession(
       plan.code as SubscriptionPlan,
       seats
     )
-    const isYearly = isYearlyPrice(plan.priceId)
+    const isYearly = await isYearlyPrice(plan.priceId)
     // 4️⃣ Préparation des données
     const subscriptionData: SubscriptionData = {
       subscriptionId,

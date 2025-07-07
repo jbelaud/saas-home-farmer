@@ -49,3 +49,5 @@ export const isPriceIdExistService =
   subscriptionServiceInterceptor.isPriceIdExistService
 export const getActivePlansForBetterAuthService =
   subscriptionServiceInterceptor.getActivePlansForBetterAuthService
+export const isYearlyPriceService =
+  subscriptionServiceInterceptor.isYearlyPriceService

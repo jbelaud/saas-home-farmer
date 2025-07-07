@@ -2,8 +2,8 @@
 
 import Stripe from 'stripe'
 
+import {getPlanByPriceId} from '@/app/dal/subscription-dal'
 import {stripeClient} from '@/lib/stripe/stripe-client'
-import {getPlanByPriceId} from '@/lib/stripe/stripe-plans'
 // Numéro : 4242 4242 4242 4242
 // Date d'expiration : N'importe quelle date future
 // CVC : N'importe quels 3 chiffres
@@ -43,7 +43,7 @@ export async function getSubscriptionRecapInfo(
   seats: number = 1
 ) {
   try {
-    const plan = getPlanByPriceId(priceId)
+    const plan = await getPlanByPriceId(priceId)
     // Récupérer les détails du prix
     const price = await stripeClient.prices.retrieve(priceId, {
       expand: ['product'], // Inclure les détails du produit associé

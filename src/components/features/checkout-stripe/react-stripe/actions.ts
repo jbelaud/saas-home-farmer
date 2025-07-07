@@ -2,10 +2,9 @@
 
 import Stripe from 'stripe'
 
-import {getPlanByPriceId} from '@/app/dal/subscription-dal'
+import {getPlanByPriceId, isYearlyPrice} from '@/app/dal/subscription-dal'
 import {logger} from '@/lib/logger'
 import {stripeClient} from '@/lib/stripe/stripe-client'
-import {isYearlyPrice} from '@/lib/stripe/stripe-plans'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {initSubscriptionService} from '@/services/facades/subscription-service-facade'
 import {createSubscriptionFromStripeService} from '@/services/facades/subscription-service-facade'
@@ -71,7 +70,7 @@ export async function createCheckoutSession(
       plan.code as SubscriptionPlan,
       seats
     )
-    const isYearly = isYearlyPrice(plan.priceId)
+    const isYearly = await isYearlyPrice(plan.priceId)
     // 4️⃣ Préparation des données
     const subscriptionData: SubscriptionData = {
       subscriptionId,
@@ -426,7 +425,7 @@ export async function confirmSubscription(setupIntentId: string) {
       )
       throw new Error('Plan non trouvé pour ce priceId')
     }
-    const isYearly = isYearlyPrice(plan.priceId)
+    const isYearly = await isYearlyPrice(plan.priceId)
     // Créer l'abonnement en base via le service
     await createSubscriptionFromStripeService(
       customerEmail,

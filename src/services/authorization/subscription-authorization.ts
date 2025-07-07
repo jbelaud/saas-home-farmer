@@ -2,7 +2,6 @@ import {logger} from 'better-auth'
 
 import {getSubscriptionByIdDao} from '@/db/repositories/subscription-repository'
 import {getPlanByIdDao} from '@/db/repositories/subscription-repository'
-import {freePlanSeats, freeStripePlan} from '@/lib/stripe/stripe-plans'
 
 import {
   getActiveSubscriptions,
@@ -11,7 +10,10 @@ import {
 } from '../authentication/auth-service'
 import {getMembersAndInvitationsService} from '../organization-service'
 import {getProjectsByOrganizationService} from '../project-service'
-import {checkSubscriptionLimitService} from '../subscription-service'
+import {
+  checkSubscriptionLimitService,
+  getPlanByCodeService,
+} from '../subscription-service'
 import {
   LimitType,
   LimitTypeConst,
@@ -94,14 +96,16 @@ export const checkSubscriptionLimit = async (
   const subscription = await getActiveSubscriptions(referenceId)
 
   if (subscription.length === 0) {
+    const freeStripePlan = await getPlanByCodeService(PlanConst.FREE)
+    const limitsUsers = JSON.parse(freeStripePlan?.limits as string).users ?? 1
     subscription.push({
       id: PlanConst.FREE,
       referenceId,
-      limits: freeStripePlan.limits,
-      priceId: freeStripePlan.priceId,
-      plan: freeStripePlan.name,
+      limits: freeStripePlan?.limits as Record<string, number>,
+      priceId: freeStripePlan?.priceId,
+      plan: freeStripePlan?.code as string,
       status: 'active',
-      seats: freePlanSeats,
+      seats: limitsUsers,
       stripeCustomerId: PlanConst.FREE,
       stripeSubscriptionId: PlanConst.FREE,
     })

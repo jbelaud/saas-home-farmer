@@ -10,6 +10,10 @@ vi.mock('@/db/repositories/user-repository', () => ({
   upsertUserSettingsDao: vi.fn(),
 }))
 
+vi.mock('@/services/facades/subscription-service-facade', () => ({
+  getActivePlansForBetterAuthService: vi.fn(),
+}))
+
 import * as userRepository from '@/db/repositories/user-repository'
 
 import {AuthorizationError} from '../errors/authorization-error'

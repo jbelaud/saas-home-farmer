@@ -727,6 +727,33 @@ describe('[USER] CRUD : Plan Service', () => {
 
 describe('[PUBLIC] CRUD : Plan Service', () => {
   const planId = faker.string.uuid()
+  const planData: Plan = {
+    id: planId,
+    code: 'pro',
+    priceId: 'price_pro_monthly',
+    annualDiscountPriceId: 'price_pro_yearly',
+    planName: 'Pro',
+    description: 'Plan professionnel',
+    limits: {
+      projects: 2,
+      storage: 10,
+    },
+    freeTrial: {
+      days: 14,
+    },
+    features: ['Feature 1', 'Feature 2'],
+    price: '29.00',
+    yearlyPrice: '249.00',
+    currency: 'EUR',
+    isRecurring: true,
+    status: 'active',
+    version: 1,
+    isLegacy: false,
+    displayOrder: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
   const paginationData = {
     limit: 10,
     offset: 0,
@@ -735,8 +762,18 @@ describe('[PUBLIC] CRUD : Plan Service', () => {
   beforeEach(() => {
     setupAuthUserMocked(undefined) // Pas d'utilisateur connecté
     vi.clearAllMocks()
+    // Mock des réponses pour les opérations de lecture autorisées
+    vi.mocked(getPlanByIdDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByCodeDao).mockResolvedValue(planData)
+    vi.mocked(getPlanByPriceIdDao).mockResolvedValue(planData)
+    vi.mocked(isPlanNameExistDao).mockResolvedValue(false)
+    vi.mocked(isPriceIdExistDao).mockResolvedValue(false)
+    // Note: getActivePlansDao et getPlansWithPaginationDao ne sont plus mockés
+    // car ces fonctions échouent avant d'atteindre les DAOs
   })
 
+  // ✅ OPÉRATIONS DE LECTURE - Maintenant autorisées pour PUBLIC
+  // ❌ EXCEPTION : canListPlans() reste restrictif
   it('should NOT get all active plans', async () => {
     await expect(getActivePlansService()).rejects.toThrow(AuthorizationError)
     expect(getActivePlansDao).not.toHaveBeenCalled()
@@ -749,39 +786,42 @@ describe('[PUBLIC] CRUD : Plan Service', () => {
     expect(getPlansWithPaginationDao).not.toHaveBeenCalled()
   })
 
-  it('should NOT check if plan name exists', async () => {
-    await expect(isPlanNameExistService('pro')).rejects.toThrow(
-      AuthorizationError
-    )
-    expect(isPlanNameExistDao).not.toHaveBeenCalled()
+  it('should check if plan name exists', async () => {
+    const result = await isPlanNameExistService('pro')
+
+    expect(result).toBe(false)
+    expect(isPlanNameExistDao).toHaveBeenCalledWith('pro')
   })
 
-  it('should NOT check if priceId exists', async () => {
-    await expect(isPriceIdExistService('price_pro_monthly')).rejects.toThrow(
-      AuthorizationError
-    )
-    expect(isPriceIdExistDao).not.toHaveBeenCalled()
+  it('should check if priceId exists', async () => {
+    const result = await isPriceIdExistService('price_pro_monthly')
+
+    expect(result).toBe(false)
+    expect(isPriceIdExistDao).toHaveBeenCalledWith('price_pro_monthly')
   })
 
-  it('should NOT get a plan by id', async () => {
-    await expect(getPlanByIdService(planId)).rejects.toThrow(AuthorizationError)
-    expect(getPlanByIdDao).not.toHaveBeenCalled()
+  it('should get a plan by id', async () => {
+    const result = await getPlanByIdService(planId)
+
+    expect(result).toEqual(planData)
+    expect(getPlanByIdDao).toHaveBeenCalledWith(planId)
   })
 
-  it('should NOT get a plan by name', async () => {
-    await expect(getPlanByCodeService('pro')).rejects.toThrow(
-      AuthorizationError
-    )
-    expect(getPlanByCodeDao).not.toHaveBeenCalled()
+  it('should get a plan by name', async () => {
+    const result = await getPlanByCodeService('pro')
+
+    expect(result).toEqual(planData)
+    expect(getPlanByCodeDao).toHaveBeenCalledWith('pro')
   })
 
-  it('should NOT get a plan by priceId', async () => {
-    await expect(getPlanByPriceIdService('price_pro_monthly')).rejects.toThrow(
-      AuthorizationError
-    )
-    expect(getPlanByPriceIdDao).not.toHaveBeenCalled()
+  it('should get a plan by priceId', async () => {
+    const result = await getPlanByPriceIdService('price_pro_monthly')
+
+    expect(result).toEqual(planData)
+    expect(getPlanByPriceIdDao).toHaveBeenCalledWith('price_pro_monthly')
   })
 
+  // ❌ OPÉRATIONS D'ÉCRITURE - Toujours interdites pour PUBLIC
   it('should NOT create a plan', async () => {
     const createData = {
       code: 'pro',

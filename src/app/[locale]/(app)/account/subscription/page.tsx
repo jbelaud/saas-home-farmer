@@ -5,6 +5,7 @@ import {Calendar, CheckCircle, CreditCard, Crown, Zap} from 'lucide-react'
 import React, {useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
+//import {isYearlyPrice} from '@/app/dal/subscription-dal'
 import {
   useOrganization,
   useOrganizationRole,
@@ -29,12 +30,7 @@ import {
 } from '@/components/ui/select'
 import {Switch} from '@/components/ui/switch'
 import {authClient} from '@/lib/better-auth/auth-client'
-import {
-  isYearlyPrice,
-  planEntreprise,
-  planFree,
-  planPro,
-} from '@/lib/stripe/stripe-plans'
+import {planEntreprise, planFree, planPro} from '@/lib/stripe/stripe-plans'
 
 import {getPriceIdFromSubscriptionIdAction} from './action'
 
@@ -114,6 +110,8 @@ export default function SubscriptionPage() {
         const priceId = await getPriceIdFromSubscriptionIdAction(
           activeSubscription.stripeSubscriptionId
         )
+        // const isYearly = await isYearlyPrice(priceId)
+        // setIsYearly(isYearly)
         setRealPriceId(priceId)
       } else {
         setRealPriceId(null)
@@ -150,8 +148,8 @@ export default function SubscriptionPage() {
 
       // Initialiser le toggle yearly/monthly basé sur le vrai priceId
       if (realPriceId) {
-        const isYearly = isYearlyPrice(realPriceId)
-        setIsYearly(isYearly)
+        //const isYearly = true // todo isYearlyPrice(realPriceId)
+        //setIsYearly(isYearly)
       }
     }
   }, [subscriptions, realPriceId])
@@ -465,7 +463,7 @@ export default function SubscriptionPage() {
 
   // Utiliser le vrai priceId récupéré via Stripe pour déterminer si l'abonnement est annuel
   const activeSubscriptionIsYearly = realPriceId
-    ? isYearlyPrice(realPriceId)
+    ? true // todo isYearlyPrice(realPriceId)
     : false
 
   return (
