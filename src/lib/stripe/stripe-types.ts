@@ -2,7 +2,7 @@ import z from 'zod'
 
 import {SubscriptionPlan} from '@/services/types/domain/subscription-types'
 
-export type Plan = {
+export type AppPlan = {
   priceId: string
   planCode: SubscriptionPlan
   planName: string

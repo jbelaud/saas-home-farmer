@@ -20,7 +20,6 @@ import {APP_ISSUER} from '@/lib/constants'
 import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {stripeClient} from '@/lib/stripe/stripe-client'
 import {onStripeEvent} from '@/lib/stripe/stripe-events'
-import {betterAuthPlans} from '@/lib/stripe/stripe-plans'
 import {
   sendEmailChangeEmailVerificationService,
   sendMagicLinkEmailService,
@@ -34,6 +33,7 @@ import {
   sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
 import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
+import {getActivePlansForBetterAuthService} from '@/services/facades/subscription-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
 import {BillingModes} from '@/services/types/domain/subscription-types'
 
@@ -158,7 +158,7 @@ const options = {
       createCustomerOnSignUp: true,
       subscription: {
         enabled: true,
-        plans: betterAuthPlans,
+        plans: await getActivePlansForBetterAuthService(),
         authorizeReference: createAuthorizeReference(),
         onSubscriptionComplete: async ({subscription}) => {
           await sendSubscriptionCompletedEmailService(subscription)

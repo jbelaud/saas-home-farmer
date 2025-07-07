@@ -1,3 +1,5 @@
+import {StripePlan} from '@better-auth/stripe'
+
 import {
   // Plans repositories
   createPlanDao,
@@ -643,25 +645,19 @@ export const getPlanByCodeService = async (
   return plan
 }
 
-/**
- * Obtenir un plan par priceId
- */
 export const getPlanByPriceIdService = async (
   priceId: string
 ): Promise<Plan | undefined> => {
-  // 1. Validation du priceId
   const parsed = priceIdSchema.safeParse(priceId)
   if (!parsed.success) {
     throw new ValidationError(parsed.error.message)
   }
 
-  // 2. Vérification des autorisations
   const canRead = await canReadPlan()
   if (!canRead) {
     throw new AuthorizationError('Accès non autorisé pour lire les plans')
   }
 
-  // 3. Récupération du plan
   const plan = await getPlanByPriceIdDao(priceId)
   return plan
 }
@@ -877,4 +873,25 @@ export const isPriceIdExistService = async (
   // 3. Vérification de l'existence
   const exists = await isPriceIdExistDao(priceId)
   return exists
+}
+
+/**
+ * Obtenir tous les plans actifs au format StripePlan[] pour Better Auth
+ */
+export const getActivePlansForBetterAuthService = async (): Promise<
+  StripePlan[]
+> => {
+  // 1. Récupération des plans actifs
+  const plans = await getActivePlansDao()
+
+  // 2. Transformation en format StripePlan pour Better Auth
+  const stripePlans: StripePlan[] = plans.map((plan) => ({
+    name: plan.code as SubscriptionPlan,
+    priceId: plan.priceId,
+    annualDiscountPriceId: plan.annualDiscountPriceId ?? undefined,
+    limits: plan.limits as Record<string, number>,
+    freeTrial: plan.freeTrial as {days: number} | undefined,
+  }))
+
+  return stripePlans
 }

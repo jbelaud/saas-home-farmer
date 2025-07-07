@@ -6,7 +6,7 @@ import {
   SubscriptionPlan,
 } from '@/services/types/domain/subscription-types'
 
-import {Plan} from './stripe-types'
+import {AppPlan} from './stripe-types'
 
 export const stripeCurrencyAccount = 'EUR'
 /**
@@ -58,7 +58,7 @@ export const freeStripePlan: StripePlan = {
 }
 
 // Plans extended to App
-export const planPro: Plan = {
+export const planPro: AppPlan = {
   planName: 'Pro',
   priceId: betterAuthPlans[0].priceId ?? '',
   planCode: betterAuthPlans[0].name as SubscriptionPlan,
@@ -76,7 +76,7 @@ export const planPro: Plan = {
   ],
 }
 
-export const planEntreprise: Plan = {
+export const planEntreprise: AppPlan = {
   planName: 'Entreprise',
   priceId: betterAuthPlans[1].priceId ?? '',
   planCode: betterAuthPlans[1].name as SubscriptionPlan,
@@ -94,7 +94,7 @@ export const planEntreprise: Plan = {
   ],
 }
 
-export const planLifetime: Plan = {
+export const planLifetime: AppPlan = {
   priceId: betterAuthPlans[2].priceId ?? '',
   planCode: betterAuthPlans[2].name as SubscriptionPlan,
   planName: 'Lifetime',
@@ -112,7 +112,7 @@ export const planLifetime: Plan = {
   ],
 }
 
-export const planFree: Plan = {
+export const planFree: AppPlan = {
   priceId: freeStripePlan.priceId ?? '',
   planCode: freeStripePlan.name as SubscriptionPlan,
   planName: 'Free',
@@ -137,11 +137,11 @@ export function isYearlyPrice(priceId?: string): boolean {
 
 export const plans = [planFree, planPro, planEntreprise, planLifetime]
 
-export function getPlanByPriceId(priceId?: string) {
-  if (!priceId) {
-    return
-  }
-  return plans.find(
-    (plan) => plan.priceId === priceId || plan.annualDiscountPriceId === priceId
-  )
-}
+// export function getPlanByPriceId(priceId?: string) {
+//   if (!priceId) {
+//     return
+//   }
+//   return plans.find(
+//     (plan) => plan.priceId === priceId || plan.annualDiscountPriceId === priceId
+//   )
+// }

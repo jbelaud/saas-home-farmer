@@ -29,8 +29,8 @@ export const createPlanService =
   subscriptionServiceInterceptor.createPlanService
 export const getPlanByIdService =
   subscriptionServiceInterceptor.getPlanByIdService
-export const getPlanByNameService =
-  subscriptionServiceInterceptor.getPlanByNameService
+export const getPlanByCodeService =
+  subscriptionServiceInterceptor.getPlanByCodeService
 export const getPlanByPriceIdService =
   subscriptionServiceInterceptor.getPlanByPriceIdService
 export const getActivePlansService =
@@ -47,3 +47,5 @@ export const isPlanNameExistService =
   subscriptionServiceInterceptor.isPlanNameExistService
 export const isPriceIdExistService =
   subscriptionServiceInterceptor.isPriceIdExistService
+export const getActivePlansForBetterAuthService =
+  subscriptionServiceInterceptor.getActivePlansForBetterAuthService

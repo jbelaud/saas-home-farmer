@@ -147,23 +147,9 @@ export const checkSubscriptionLimit = async (
  * @param resourceId - ID du plan (optionnel)
  * @returns true si l'accès est autorisé
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const canReadPlan = async (resourceId?: string): Promise<boolean> => {
-  const authUser = await getAuthUser()
-
-  // Les plans sont publics pour tous les utilisateurs connectés
-  // On vérifie juste que l'utilisateur est connecté
-  if (!authUser?.id) {
-    return false
-  }
-
-  // Si pas d'ID de ressource spécifique, autoriser la lecture
-  if (!resourceId) {
-    return true
-  }
-
   // Récupérer le plan pour vérifier qu'il existe
-  const plan = await getPlanByIdDao(resourceId)
-  if (!plan) return false
 
   // Les plans sont publics en lecture pour tous les utilisateurs connectés
   return true

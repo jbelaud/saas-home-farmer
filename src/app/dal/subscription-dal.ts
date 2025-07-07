@@ -5,6 +5,7 @@ import {
   getSessionReferenceId,
 } from '@/services/authentication/auth-service'
 import {checkSubscriptionLimit} from '@/services/authorization/subscription-authorization'
+import {getPlanByPriceIdService} from '@/services/facades/subscription-service-facade'
 import {LimitType} from '@/services/types/domain/subscription-types'
 
 export const getActiveSubscriptionsDal = cache(async () => {
@@ -21,3 +22,7 @@ export const checkSubscriptionLimitDal = cache(
     return checkSubscriptionLimit(limitType, requestedAmount)
   }
 )
+
+export const getPlanByPriceId = cache(async (priceId: string) => {
+  return getPlanByPriceIdService(priceId)
+})
