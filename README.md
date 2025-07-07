@@ -4,14 +4,14 @@ Un boilerplate moderne pour les applications SaaS utilisant Next.js 15, React 19
 
 ## Todo
 
-- Account
-- Supabase file or S3
-- Next-Intl
-- Organisation
 - homepage
-- Stripe
-- Cursor Rules
-- https://www.npmjs.com/package/@t3-oss/env-nextjs
+- admin - soucriptions
+- admin - API Keys
+- admin - Email Marketing
+- admin - Affilites
+- admin - Analytics
+- Notification
+- MCP
 
 ## Technologies
 
