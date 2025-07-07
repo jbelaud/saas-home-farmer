@@ -920,7 +920,7 @@ export const getSubscriptionsWithPaginationService = async (
   search?: string
 ): Promise<PaginatedResponse<Subscription>> => {
   // 1. Vérification des autorisations admin
-  const canList = await canListPlans() // Réutilise l'autorisation des plans pour l'admin
+  const canList = await canReadSubscription() // Réutilise l'autorisation des plans pour l'admin
   if (!canList) {
     throw new AuthorizationError(
       'Accès non autorisé pour lister les subscriptions'
@@ -942,7 +942,7 @@ export const cancelSubscriptionAdminService = async (
   subscriptionId: string
 ): Promise<void> => {
   // 1. Vérification des autorisations admin
-  const canManage = await canUpdatePlan(subscriptionId)
+  const canManage = await canUpdateSubscription(subscriptionId)
   if (!canManage) {
     throw new AuthorizationError(
       'Accès non autorisé pour gérer les subscriptions'
@@ -969,7 +969,7 @@ export const reactivateSubscriptionAdminService = async (
   subscriptionId: string
 ): Promise<void> => {
   // 1. Vérification des autorisations admin
-  const canManage = await canUpdatePlan(subscriptionId)
+  const canManage = await canUpdateSubscription(subscriptionId)
   if (!canManage) {
     throw new AuthorizationError(
       'Accès non autorisé pour gérer les subscriptions'
