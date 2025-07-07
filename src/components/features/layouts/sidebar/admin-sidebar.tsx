@@ -42,6 +42,10 @@ const data = {
           title: 'Plans',
           url: '/admin/plans',
         },
+        {
+          title: 'Abonnements',
+          url: '/admin/subscriptions',
+        },
       ],
     },
 

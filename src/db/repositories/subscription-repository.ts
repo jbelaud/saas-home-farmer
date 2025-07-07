@@ -356,3 +356,55 @@ export const isPriceIdExistDao = async (priceId: string): Promise<boolean> => {
 
   return Boolean(row)
 }
+
+// ========================================
+// FONCTIONS POUR LES SUBSCRIPTIONS ADMIN
+// ========================================
+
+/**
+ * Obtenir toutes les subscriptions avec pagination pour l'admin
+ */
+export const getSubscriptionsWithPaginationDao = async (
+  pagination: Pagination,
+  search?: string
+): Promise<PaginatedResponse<SubscriptionModel>> => {
+  // Construire la clause WHERE pour la recherche
+  let searchCondition = undefined
+  if (search && search.trim()) {
+    const searchTerm = search.trim()
+    // Recherche sur le plan, statut, email utilisateur
+    searchCondition = or(
+      sql`${subscription.plan} ILIKE ${`%${searchTerm}%`}`,
+      sql`${subscription.status} ILIKE ${`%${searchTerm}%`}`,
+      sql`${subscription.stripeCustomerId} ILIKE ${`%${searchTerm}%`}`,
+      sql`${subscription.referenceId} ILIKE ${`%${searchTerm}%`}`
+    )
+  }
+
+  const [rows, [{count}]] = await Promise.all([
+    db
+      .select()
+      .from(subscription)
+      .where(searchCondition)
+      .orderBy(desc(subscription.createdAt))
+      .limit(pagination.limit)
+      .offset(pagination.offset),
+    db
+      .select({count: sql<number>`count(*)`})
+      .from(subscription)
+      .where(searchCondition),
+  ])
+
+  const page = Math.floor(pagination.offset / pagination.limit) + 1
+  const totalPages = Math.ceil(count / pagination.limit)
+
+  return {
+    data: rows.length === 0 ? [] : rows,
+    pagination: {
+      total: count,
+      page: page,
+      limit: pagination.limit,
+      totalPages: totalPages,
+    },
+  }
+}

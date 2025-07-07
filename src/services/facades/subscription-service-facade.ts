@@ -51,3 +51,13 @@ export const getActivePlansForBetterAuthService =
   subscriptionServiceInterceptor.getActivePlansForBetterAuthService
 export const isYearlyPriceService =
   subscriptionServiceInterceptor.isYearlyPriceService
+
+// ========================================
+// SERVICES DE SUBSCRIPTIONS ADMIN
+// ========================================
+export const getSubscriptionsWithPaginationService =
+  subscriptionServiceInterceptor.getSubscriptionsWithPaginationService
+export const cancelSubscriptionAdminService =
+  subscriptionServiceInterceptor.cancelSubscriptionAdminService
+export const reactivateSubscriptionAdminService =
+  subscriptionServiceInterceptor.reactivateSubscriptionAdminService

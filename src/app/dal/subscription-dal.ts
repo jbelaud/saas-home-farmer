@@ -9,6 +9,7 @@ import {
   getPlanByCodeService,
   getPlanByPriceIdService,
   getPlansWithPaginationService,
+  getSubscriptionsWithPaginationService,
   isYearlyPriceService,
 } from '@/services/facades/subscription-service-facade'
 import {Pagination} from '@/services/types/common-type'
@@ -99,5 +100,30 @@ export const getPlanAdminPermissionsDal = cache(async () => {
     canUpdate: true,
     canDelete: true,
     canView: true,
+  }
+})
+
+// ========================================
+// DAL POUR LA GESTION ADMIN DES SUBSCRIPTIONS
+// ========================================
+
+/**
+ * Obtenir toutes les subscriptions avec pagination pour l'admin
+ */
+export const getSubscriptionsWithPaginationDal = cache(
+  async (pagination: Pagination, search?: string) => {
+    return getSubscriptionsWithPaginationService(pagination, search)
+  }
+)
+
+/**
+ * Obtenir les permissions admin pour les subscriptions
+ */
+export const getSubscriptionAdminPermissionsDal = cache(async () => {
+  // Retourne les permissions disponibles pour l'admin
+  return {
+    canView: true,
+    canCancel: true,
+    canReactivate: true,
   }
 })

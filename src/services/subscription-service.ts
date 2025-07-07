@@ -14,6 +14,7 @@ import {
   getPlansWithPaginationDao,
   getSubscriptionByIdDao,
   getSubscriptionByUserIdDao,
+  getSubscriptionsWithPaginationDao,
   initSubscriptionDao,
   isActivePlanExistDao,
   isPlanAndStripeSubscriptionExistDao,
@@ -905,4 +906,85 @@ export const isYearlyPriceService = async (
   }
   const plans = await getActivePlansDao()
   return plans.some((plan) => plan.annualDiscountPriceId === priceId)
+}
+
+// ========================================
+// SERVICES POUR LES SUBSCRIPTIONS ADMIN
+// ========================================
+
+/**
+ * Obtenir toutes les subscriptions avec pagination pour l'admin
+ */
+export const getSubscriptionsWithPaginationService = async (
+  pagination: Pagination,
+  search?: string
+): Promise<PaginatedResponse<Subscription>> => {
+  // 1. Vérification des autorisations admin
+  const canList = await canListPlans() // Réutilise l'autorisation des plans pour l'admin
+  if (!canList) {
+    throw new AuthorizationError(
+      'Accès non autorisé pour lister les subscriptions'
+    )
+  }
+
+  // 2. Récupération des subscriptions avec pagination et recherche
+  const paginatedSubscriptions = await getSubscriptionsWithPaginationDao(
+    pagination,
+    search
+  )
+  return paginatedSubscriptions
+}
+
+/**
+ * Annuler une subscription (action admin)
+ */
+export const cancelSubscriptionAdminService = async (
+  subscriptionId: string
+): Promise<void> => {
+  // 1. Vérification des autorisations admin
+  const canManage = await canUpdatePlan(subscriptionId)
+  if (!canManage) {
+    throw new AuthorizationError(
+      'Accès non autorisé pour gérer les subscriptions'
+    )
+  }
+
+  // 2. Vérifier que la subscription existe
+  const subscription = await getSubscriptionByIdDao(subscriptionId)
+  if (!subscription) {
+    throw new ValidationError('Subscription non trouvée')
+  }
+
+  // 3. Mettre à jour le statut
+  await updateSubscriptionDao(subscriptionId, {
+    status: 'canceled',
+    cancelAtPeriodEnd: true,
+  })
+}
+
+/**
+ * Réactiver une subscription (action admin)
+ */
+export const reactivateSubscriptionAdminService = async (
+  subscriptionId: string
+): Promise<void> => {
+  // 1. Vérification des autorisations admin
+  const canManage = await canUpdatePlan(subscriptionId)
+  if (!canManage) {
+    throw new AuthorizationError(
+      'Accès non autorisé pour gérer les subscriptions'
+    )
+  }
+
+  // 2. Vérifier que la subscription existe
+  const subscription = await getSubscriptionByIdDao(subscriptionId)
+  if (!subscription) {
+    throw new ValidationError('Subscription non trouvée')
+  }
+
+  // 3. Réactiver la subscription
+  await updateSubscriptionDao(subscriptionId, {
+    status: 'active',
+    cancelAtPeriodEnd: false,
+  })
 }
