@@ -105,6 +105,36 @@ export async function loginCredentialAction(
       }
     }
 
+    if (user.banned) {
+      let bannedMessage = t('userBanned.base')
+
+      // Ajouter la raison si elle existe
+      if (user.banReason) {
+        bannedMessage += ` ${t('userBanned.reason', {reason: user.banReason})}`
+      }
+
+      // Ajouter la date d'expiration si elle existe
+      if (user.banExpires) {
+        const expiryDate = new Date(user.banExpires)
+        const now = new Date()
+
+        if (expiryDate > now) {
+          bannedMessage += ` ${t('userBanned.expires', {
+            date: expiryDate.toLocaleDateString(),
+            time: expiryDate.toLocaleTimeString(),
+          })}`
+        }
+      } else {
+        // Ban permanent
+        bannedMessage += ` ${t('userBanned.permanent')}`
+      }
+
+      return {
+        success: false,
+        message: bannedMessage,
+      }
+    }
+
     const twoFactorType = user.settings?.twoFactorType
 
     // Login Credential

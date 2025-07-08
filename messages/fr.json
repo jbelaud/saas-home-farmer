@@ -766,7 +766,13 @@
       "validationError": "Erreur de validation",
       "userNotFound": "Aucun compte trouvé avec cet email",
       "invalidCredentials": "Identifiants invalides",
-      "connectionError": "Une erreur est survenue lors de la connexion"
+      "connectionError": "Une erreur est survenue lors de la connexion",
+      "userBanned": {
+        "base": "Votre compte a été suspendu.",
+        "reason": "Raison : {reason}",
+        "expires": "Suspension levée le {date} à {time}",
+        "permanent": "Cette suspension est permanente."
+      }
     },
     "magicLink": {
       "validationError": "Erreur de validation",
