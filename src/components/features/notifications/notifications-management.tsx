@@ -1,6 +1,6 @@
 'use client'
 
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 
 import {useUnreadNotifications} from '@/components/hooks/use-unread-notifications'
 import {Card} from '@/components/ui/card'
@@ -21,9 +21,16 @@ export default function NotificationsManagement({
   userId,
 }: NotificationsManagementProps) {
   const [data, setData] = useState(initialData)
-  const [filter, setFilter] = useState<'all' | 'unread'>('all')
+  const [filter, setFilter] = useState<'all' | 'unread'>('unread')
   const [loading, setLoading] = useState(false)
   const {updateUnreadCount, decrementUnreadCount} = useUnreadNotifications()
+
+  // Charger les notifications non lues au démarrage
+  useEffect(() => {
+    if (filter === 'unread') {
+      handleFilterChange('unread')
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFilterChange = async (newFilter: 'all' | 'unread') => {
     setFilter(newFilter)

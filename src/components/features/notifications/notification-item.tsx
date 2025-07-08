@@ -90,13 +90,20 @@ export default function NotificationItem({
     locale: fr,
   })
 
+  const handleCardClick = async () => {
+    if (!notification.read) {
+      await handleMarkAsRead()
+    }
+  }
+
   return (
     <Card
-      className={`transition-all hover:shadow-md ${
+      className={`cursor-pointer transition-all hover:shadow-md ${
         !notification.read
           ? 'border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
           : 'hover:bg-muted/50'
       }`}
+      onClick={handleCardClick}
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
@@ -133,6 +140,7 @@ export default function NotificationItem({
                   size="sm"
                   className="h-8 w-8 p-0"
                   disabled={loading}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <svg
                     className="h-4 w-4"
