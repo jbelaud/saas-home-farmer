@@ -2,6 +2,7 @@
 
 import {useState} from 'react'
 
+import {useUnreadNotifications} from '@/components/hooks/use-unread-notifications'
 import {Card} from '@/components/ui/card'
 import {PaginatedResponse} from '@/services/types/common-type'
 import {Notification} from '@/services/types/domain/notification-types'
@@ -22,6 +23,7 @@ export default function NotificationsManagement({
   const [data, setData] = useState(initialData)
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [loading, setLoading] = useState(false)
+  const {updateUnreadCount, decrementUnreadCount} = useUnreadNotifications()
 
   const handleFilterChange = async (newFilter: 'all' | 'unread') => {
     setFilter(newFilter)
@@ -68,6 +70,9 @@ export default function NotificationsManagement({
         if (filter === 'unread') {
           await handleFilterChange('unread')
         }
+
+        // Mettre à jour le compteur global
+        updateUnreadCount(0)
       } else {
         console.error('Failed to mark all as read:', result.error)
       }
@@ -104,6 +109,11 @@ export default function NotificationsManagement({
           total: prev.pagination.total - 1,
         },
       }))
+    }
+
+    // Mettre à jour le compteur global
+    if (read) {
+      decrementUnreadCount()
     }
   }
 

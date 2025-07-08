@@ -32,6 +32,7 @@ export const notificationsRelations = relations(notifications, ({one}) => ({
   user: one(user, {
     fields: [notifications.userId],
     references: [user.id],
+    relationName: 'userToNotifications',
   }),
 }))
 

@@ -15,7 +15,9 @@ import Link from 'next/link'
 import {useTranslations} from 'next-intl'
 import {useTheme} from 'next-themes'
 
+import {useUnreadNotifications} from '@/components/hooks/use-unread-notifications'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import {Badge} from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +39,8 @@ export function NavUser({user}: {user?: User}) {
   const t = useTranslations('NavUser')
   const {isMobile} = useSidebar()
   const {theme, setTheme} = useTheme()
+  const {unreadCount} = useUnreadNotifications()
+
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light')
   }
@@ -122,8 +126,20 @@ export function NavUser({user}: {user?: User}) {
                 <Link href="/account/subscription">{t('billing')}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Bell />
-                {t('notifications')}
+                <div className="flex items-center gap-2">
+                  <Bell />
+                  <Link href="/notifications" className="flex-1">
+                    {t('notifications')}
+                  </Link>
+                  {unreadCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="h-5 min-w-[1.25rem] px-1 text-xs"
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Badge>
+                  )}
+                </div>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
