@@ -13,6 +13,7 @@ import {
   UserSettingsModel,
 } from '@/db/models/user-model'
 
+import {Notification} from './notification-types'
 import {MemberData} from './organization-types'
 
 // ICI les TYPES DE DOMAIN sont EGAUX aux types drizzle
@@ -21,6 +22,7 @@ import {MemberData} from './organization-types'
 export type User = UserModel & {
   organizations?: MemberData[]
   settings?: UserSettings
+  notifications?: Notification[]
 }
 
 // Types pour les paramètres utilisateur

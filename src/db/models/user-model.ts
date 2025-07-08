@@ -9,6 +9,7 @@ import {
 } from 'drizzle-orm/pg-core'
 
 import {account, member, roleEnum, user} from './auth-model'
+import {notifications} from './notification-model'
 
 // Enums pour les paramètres utilisateur
 export const themeEnum = pgEnum('theme_type', ['light', 'dark', 'system'])
@@ -59,6 +60,9 @@ export const usersRelations = relations(user, ({one, many}) => ({
   settings: one(userSettings, {
     fields: [user.id],
     references: [userSettings.userId],
+  }),
+  notifications: many(notifications, {
+    relationName: 'userToNotifications',
   }),
   // userOrganizations: many(userOrganizations, {
   //   relationName: 'userToOrganizations',

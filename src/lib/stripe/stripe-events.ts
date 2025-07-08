@@ -712,9 +712,6 @@ async function createInstallmentSubscription(
     endDate.setMonth(endDate.getMonth() + installmentData.numberOfPayments)
 
     // Utiliser le service de création subscription existant
-    const {createSubscriptionFromStripeService} = await import(
-      '@/services/facades/subscription-service-facade'
-    )
 
     await createSubscriptionFromStripeService(
       installmentData.customerEmail,

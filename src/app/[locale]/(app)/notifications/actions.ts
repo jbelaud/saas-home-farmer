@@ -4,6 +4,8 @@ import {revalidatePath} from 'next/cache'
 
 import {
   deleteNotificationService,
+  getNotificationsByUserIdService,
+  getUnreadNotificationsByUserIdService,
   markAllNotificationsAsReadService,
   markNotificationAsReadService,
   updateNotificationService,
@@ -74,11 +76,6 @@ export async function getNotificationsByFilterAction(
   pagination: {page: number; limit: number}
 ) {
   try {
-    const {
-      getNotificationsByUserIdService,
-      getUnreadNotificationsByUserIdService,
-    } = await import('@/services/facades/notification-service-facade')
-
     const offset = (pagination.page - 1) * pagination.limit
     const paginationParams = {
       limit: pagination.limit,
