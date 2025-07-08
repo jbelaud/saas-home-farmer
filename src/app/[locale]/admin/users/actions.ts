@@ -3,8 +3,10 @@
 import {revalidatePath} from 'next/cache'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
+import {auth} from '@/lib/auth'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {RoleConst} from '@/services/types/domain/auth-types'
+import {Roles, UpdateUser} from '@/services/types/domain/user-types'
 
 export type FormState = {
   success: boolean
@@ -50,6 +52,104 @@ export async function updateUserAction(
     })
 
     revalidatePath('/admin/users')
+    return {
+      success: true,
+      message: 'Utilisateur mis à jour avec succès',
+    }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de l'utilisateur:", error)
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Une erreur est survenue lors de la mise à jour',
+    }
+  }
+}
+
+export async function updateUserDetailAction(
+  userId: string,
+  data: {
+    name: string
+    email: string
+    role: string
+    visibility: 'public' | 'private'
+    banned: boolean
+    banReason?: string
+    banExpiresIn?: number
+    twoFactorEnabled: boolean
+    emailVerified: boolean
+  }
+): Promise<FormState> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
+
+  try {
+    // Validation basique côté serveur
+    if (!data.name || !data.email) {
+      return {
+        success: false,
+        message: "Le nom et l'email sont requis",
+        errors: [
+          ...(data.name ? [] : [{field: 'name', message: 'Le nom est requis'}]),
+          ...(data.email
+            ? []
+            : [{field: 'email', message: "L'email est requis"}]),
+        ],
+      }
+    }
+
+    // Ne pas passer les données de ban - elles sont gérées par Better Auth
+    const updateData: UpdateUser = {
+      id: userId,
+      name: data.name,
+      email: data.email,
+      role: data.role as Roles,
+      visibility: data.visibility,
+      twoFactorEnabled: data.twoFactorEnabled,
+      emailVerified: data.emailVerified,
+      updatedAt: new Date(),
+    }
+
+    await updateUserService(updateData)
+
+    if (data.banned) {
+      const result = await auth.api.banUser({
+        body: {
+          userId,
+          banReason: data.banReason,
+          banExpiresIn: data.banExpiresIn,
+        },
+        asResponse: true,
+      })
+      console.log('result', result)
+      if (!result.ok) {
+        return {
+          success: false,
+          message: "Erreur lors du bannissement de l'utilisateur",
+        }
+      }
+    } else {
+      // Si l'utilisateur n'est plus banni, le débanner
+      const result = await auth.api.unbanUser({
+        body: {
+          userId,
+        },
+        asResponse: true,
+      })
+      console.log('result', result)
+      if (!result.ok) {
+        return {
+          success: false,
+          message: "Erreur lors du débannissement de l'utilisateur",
+        }
+      }
+    }
+
+    revalidatePath('/admin/users')
+    revalidatePath(`/admin/users/${userId}`)
     return {
       success: true,
       message: 'Utilisateur mis à jour avec succès',

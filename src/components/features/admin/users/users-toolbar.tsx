@@ -2,6 +2,7 @@
 
 import {Search, X} from 'lucide-react'
 import React, {useState} from 'react'
+import {useDebounce} from 'react-use'
 
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
@@ -30,19 +31,29 @@ export function UsersToolbar({
 }: UsersToolbarProps) {
   const [searchValue, setSearchValue] = useState(initialSearch)
 
+  useDebounce(
+    () => {
+      if (onSearch) {
+        onSearch(searchValue)
+      }
+    },
+    300,
+    [searchValue]
+  )
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearchValue(value)
-    if (onSearch) {
-      onSearch(value)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && onSearch) {
+      onSearch(searchValue)
     }
   }
 
   const handleClearSearch = () => {
     setSearchValue('')
-    if (onSearch) {
-      onSearch('')
-    }
   }
 
   return (
@@ -56,6 +67,7 @@ export function UsersToolbar({
               className="pr-8 pl-8"
               value={searchValue}
               onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
             />
             {searchValue && (
               <Button

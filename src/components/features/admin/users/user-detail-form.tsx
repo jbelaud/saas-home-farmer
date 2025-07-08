@@ -4,10 +4,12 @@ import {zodResolver} from '@hookform/resolvers/zod'
 import {ArrowLeft, Calendar, Shield, User} from 'lucide-react'
 import Link from 'next/link'
 import {useRouter} from 'next/navigation'
+import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
 import {z} from 'zod'
 
+import {updateUserDetailAction} from '@/app/[locale]/admin/users/actions'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {
@@ -67,6 +69,7 @@ export default function UserDetailForm({
   permissions,
 }: UserDetailFormProps) {
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<UserDetailFormData>({
     resolver: zodResolver(userDetailSchema),
@@ -85,14 +88,47 @@ export default function UserDetailForm({
     },
   })
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: UserDetailFormData) => {
+    setIsLoading(true)
     try {
-      // TODO: Implement user update service action
-      toast.success('Utilisateur mis à jour avec succès')
-      router.refresh()
+      // Mettre à jour toutes les informations incluant les données de ban
+      const updateData = {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        visibility: data.visibility,
+        banned: data.banned,
+        banReason: data.banReason,
+        banExpiresIn: data.banExpires
+          ? Math.floor(
+              (new Date(data.banExpires).getTime() - Date.now()) / 1000
+            )
+          : undefined,
+        twoFactorEnabled: data.twoFactorEnabled,
+        emailVerified: data.emailVerified,
+      }
+
+      const result = await updateUserDetailAction(user.id, updateData)
+
+      if (result.success) {
+        toast.success(result.message)
+        router.refresh()
+      } else {
+        toast.error(result.message)
+        // Gérer les erreurs de validation spécifiques
+        if (result.errors) {
+          result.errors.forEach((error) => {
+            form.setError(error.field as keyof UserDetailFormData, {
+              message: error.message,
+            })
+          })
+        }
+      }
     } catch (error) {
       toast.error('Erreur lors de la mise à jour de l&apos;utilisateur')
       console.error(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -369,13 +405,19 @@ export default function UserDetailForm({
 
                   {permissions.canEdit && (
                     <div className="flex gap-2">
-                      <Button type="submit" disabled={!form.formState.isDirty}>
-                        Enregistrer les modifications
+                      <Button
+                        type="submit"
+                        disabled={!form.formState.isDirty || isLoading}
+                      >
+                        {isLoading
+                          ? 'Enregistrement...'
+                          : 'Enregistrer les modifications'}
                       </Button>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => form.reset()}
+                        disabled={isLoading}
                       >
                         Annuler
                       </Button>

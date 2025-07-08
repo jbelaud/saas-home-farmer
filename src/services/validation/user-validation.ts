@@ -56,6 +56,15 @@ export const updateUserServiceSchema = createUserServiceSchema.extend({
   image: z.string().nullable().optional(),
   visibility: z.enum(['public', 'private']) satisfies z.Schema<UserVisibility>,
   password: z.string().optional(),
+  role: z
+    .enum(['public', 'user', 'redactor', 'moderator', 'admin', 'super_admin'])
+    .optional(),
+  banned: z.boolean().optional(),
+  banReason: z.string().nullable().optional(),
+  banExpires: z.date().nullable().optional(),
+  twoFactorEnabled: z.boolean().optional(),
+  emailVerified: z.boolean().optional(),
+  stripeCustomerId: z.string().nullable().optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date(),
 }) satisfies z.Schema<UpdateUser>
@@ -75,6 +84,15 @@ export async function createUpdateUserServiceSchema() {
     email: z.string().email({
       message: t('validation.email.invalid'),
     }),
+    role: z
+      .enum(['public', 'user', 'redactor', 'moderator', 'admin', 'super_admin'])
+      .optional(),
+    banned: z.boolean().optional(),
+    banReason: z.string().nullable().optional(),
+    banExpires: z.date().nullable().optional(),
+    twoFactorEnabled: z.boolean().optional(),
+    emailVerified: z.boolean().optional(),
+    stripeCustomerId: z.string().nullable().optional(),
   })
 }
 
