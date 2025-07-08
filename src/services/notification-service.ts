@@ -62,12 +62,7 @@ export const createNotificationService = async (
   // Vérifier que l'utilisateur cible existe
   const targetUser = await getUserByIdDao(parsed.data.userId)
   if (!targetUser) {
-    throw new ValidationError('Utilisateur introuvable', [
-      {
-        field: 'userId',
-        message: "L'utilisateur spécifié n'existe pas",
-      },
-    ])
+    throw new ValidationError("L'utilisateur spécifié n'existe pas")
   }
 
   return await createNotificationDao(parsed.data)
@@ -91,12 +86,7 @@ export const getNotificationByIdService = async (id: string) => {
   // Validation de l'ID
   const parsedId = uuidSchema.safeParse(id)
   if (!parsedId.success) {
-    throw new ValidationError('ID de notification invalide', [
-      {
-        field: 'id',
-        message: "L'ID doit être un UUID valide",
-      },
-    ])
+    throw new ValidationError("L'ID doit être un UUID valide")
   }
 
   // Vérification des autorisations
@@ -120,12 +110,7 @@ export const getNotificationsByUserIdService = async (
   // Validation de l'ID utilisateur
   const parsedUserId = uuidSchema.safeParse(userId)
   if (!parsedUserId.success) {
-    throw new ValidationError('ID utilisateur invalide', [
-      {
-        field: 'userId',
-        message: "L'ID utilisateur doit être un UUID valide",
-      },
-    ])
+    throw new ValidationError("L'ID utilisateur doit être un UUID valide")
   }
 
   // Vérification des autorisations
@@ -149,12 +134,7 @@ export const getUnreadNotificationsByUserIdService = async (
   // Validation de l'ID utilisateur
   const parsedUserId = uuidSchema.safeParse(userId)
   if (!parsedUserId.success) {
-    throw new ValidationError('ID utilisateur invalide', [
-      {
-        field: 'userId',
-        message: "L'ID utilisateur doit être un UUID valide",
-      },
-    ])
+    throw new ValidationError("L'ID utilisateur doit être un UUID valide")
   }
 
   // Vérification des autorisations
@@ -177,12 +157,7 @@ export const countUnreadNotificationsByUserIdService = async (
   // Validation de l'ID utilisateur
   const parsedUserId = uuidSchema.safeParse(userId)
   if (!parsedUserId.success) {
-    throw new ValidationError('ID utilisateur invalide', [
-      {
-        field: 'userId',
-        message: "L'ID utilisateur doit être un UUID valide",
-      },
-    ])
+    throw new ValidationError("L'ID utilisateur doit être un UUID valide")
   }
 
   // Vérification des autorisations
@@ -203,12 +178,7 @@ export const markNotificationAsReadService = async (id: string) => {
   // Validation des données
   const parsed = markAsReadNotificationServiceSchema.safeParse({id})
   if (!parsed.success) {
-    throw new ValidationError('ID de notification invalide', [
-      {
-        field: 'id',
-        message: "L'ID doit être un UUID valide",
-      },
-    ])
+    throw new ValidationError("L'ID doit être un UUID valide")
   }
 
   // Vérification des autorisations
@@ -229,12 +199,7 @@ export const markAllNotificationsAsReadService = async (userId: string) => {
   // Validation de l'ID utilisateur
   const parsedUserId = uuidSchema.safeParse(userId)
   if (!parsedUserId.success) {
-    throw new ValidationError('ID utilisateur invalide', [
-      {
-        field: 'userId',
-        message: "L'ID utilisateur doit être un UUID valide",
-      },
-    ])
+    throw new ValidationError("L'ID utilisateur doit être un UUID valide")
   }
 
   // Vérification des autorisations
@@ -279,12 +244,7 @@ export const deleteNotificationService = async (id: string) => {
   // Validation de l'ID
   const parsedId = uuidSchema.safeParse(id)
   if (!parsedId.success) {
-    throw new ValidationError('ID de notification invalide', [
-      {
-        field: 'id',
-        message: "L'ID doit être un UUID valide",
-      },
-    ])
+    throw new ValidationError("L'ID doit être un UUID valide")
   }
 
   // Vérification des autorisations
@@ -307,12 +267,7 @@ export const deleteReadNotificationsByUserIdService = async (
   // Validation de l'ID utilisateur
   const parsedUserId = uuidSchema.safeParse(userId)
   if (!parsedUserId.success) {
-    throw new ValidationError('ID utilisateur invalide', [
-      {
-        field: 'userId',
-        message: "L'ID utilisateur doit être un UUID valide",
-      },
-    ])
+    throw new ValidationError("L'ID utilisateur doit être un UUID valide")
   }
 
   // Vérification des autorisations
@@ -329,6 +284,7 @@ export const deleteReadNotificationsByUserIdService = async (
 /**
  * Fonction utilitaire pour les admins - gérer toutes les notifications
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getAllNotificationsService = async (_pagination: Pagination) => {
   // Vérification des autorisations admin
   const canManage = await canManageNotifications()

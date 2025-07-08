@@ -61,13 +61,16 @@ export const getNotificationsByUserIdDao = async (
 
   const total = totalResult.count
 
+  const page = Math.floor(offset / limit) + 1
+  const totalPages = Math.ceil(total / limit)
+
   return {
     data: rows,
     pagination: {
       total,
+      page,
       limit,
-      offset,
-      hasMore: offset + limit < total,
+      totalPages,
     },
   }
 }
@@ -98,13 +101,16 @@ export const getUnreadNotificationsByUserIdDao = async (
 
   const total = totalResult.count
 
+  const page = Math.floor(offset / limit) + 1
+  const totalPages = Math.ceil(total / limit)
+
   return {
     data: rows,
     pagination: {
       total,
+      page,
       limit,
-      offset,
-      hasMore: offset + limit < total,
+      totalPages,
     },
   }
 }

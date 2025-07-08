@@ -274,10 +274,12 @@ describe('[getNotificationsByUserIdService]', () => {
       notificationRepository.getNotificationsByUserIdDao
     ).mockResolvedValue({
       data: notifications,
-      total: 1,
-      page: 1,
-      limit: 10,
-      totalPages: 1,
+      pagination: {
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      },
     })
 
     const result = await getNotificationsByUserIdService(
@@ -305,10 +307,12 @@ describe('[getNotificationsByUserIdService]', () => {
       notificationRepository.getNotificationsByUserIdDao
     ).mockResolvedValue({
       data: notifications,
-      total: 1,
-      page: 1,
-      limit: 10,
-      totalPages: 1,
+      pagination: {
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      },
     })
 
     const result = await getNotificationsByUserIdService(
@@ -341,10 +345,12 @@ describe('[getUnreadNotificationsByUserIdService]', () => {
       notificationRepository.getUnreadNotificationsByUserIdDao
     ).mockResolvedValue({
       data: unreadNotifications,
-      total: 1,
-      page: 1,
-      limit: 10,
-      totalPages: 1,
+      pagination: {
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      },
     })
 
     const result = await getUnreadNotificationsByUserIdService(

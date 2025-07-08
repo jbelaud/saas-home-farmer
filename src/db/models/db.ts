@@ -2,6 +2,7 @@ import {drizzle} from 'drizzle-orm/node-postgres'
 import {Pool} from 'pg'
 
 import * as auth from './auth-model'
+import * as notification from './notification-model'
 import * as organization from './organization-model'
 import * as project from './project-model'
 import * as subscription from './subscription-model'
@@ -21,6 +22,7 @@ const db = drizzle(pool, {
     ...organization,
     ...project,
     ...subscription,
+    ...notification,
   },
 })
 
