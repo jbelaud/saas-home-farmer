@@ -1,0 +1,10 @@
+import {cache} from 'react'
+
+import {getNotificationsByUserIdService} from '@/services/facades/notification-service-facade'
+import {Pagination} from '@/services/types/common-type'
+
+export const getNotificationsForUser = cache(
+  async (userId: string, pagination: Pagination) => {
+    return await getNotificationsByUserIdService(userId, pagination)
+  }
+)
