@@ -388,6 +388,72 @@ const seed = async () => {
     ON CONFLICT DO NOTHING;
   `)
 
+  // 7. Insérer des notifications de test
+  await client.query(`
+    INSERT INTO "notifications" (
+      "user_id",
+      "type", 
+      "title",
+      "message",
+      "metadata",
+      "read",
+      "created_at"
+    )
+    SELECT 
+      u.id as "user_id",
+      notif_data.type,
+      notif_data.title,
+      notif_data.message,
+      notif_data.metadata::jsonb,
+      notif_data.read::boolean,
+      (NOW() - (notif_data.days_ago || ' days')::interval)::timestamp as "created_at"
+    FROM (
+      VALUES 
+        -- Notifications pour admin@mikecodeur.com (Mike Codeur)
+        ('admin@mikecodeur.com', 'system', 'Bienvenue sur la plateforme !', 'Votre compte administrateur a été configuré avec succès.', '{"source": "system_setup"}', 'false', '0'),
+        ('admin@mikecodeur.com', 'project_created', 'Nouveau projet créé', 'Le projet Plateforme E-commerce a été créé dans TechCorp Solutions.', '{"project_id": "uuid", "organization": "techcorp-solutions"}', 'true', '2'),
+        ('admin@mikecodeur.com', 'subscription_created', 'Abonnement activé', 'Votre abonnement Enterprise a été activé avec succès.', '{"plan": "enterprise", "amount": 99}', 'true', '5'),
+        
+        -- Notifications pour ons@mikecodeur.com (Ons)
+        ('ons@mikecodeur.com', 'organization_invitation', 'Invitation acceptée', 'Vous avez rejoint organisation TechCorp Solutions en tant administrateur.', '{"organization": "techcorp-solutions", "role": "admin"}', 'false', '1'),
+        ('ons@mikecodeur.com', 'project_updated', 'Tâche assignée', 'Une nouvelle tâche vous a été assignée dans le projet Plateforme E-commerce.', '{"task": "Intégration Stripe", "project": "Plateforme E-commerce"}', 'false', '0'),
+        
+        -- Notifications pour user@gmail.com (utilisateur multi-organisations)
+        ('user@gmail.com', 'organization_invitation', 'Nouvelle invitation', 'Vous avez été invité à rejoindre Evil Corp en tant que propriétaire.', '{"organization": "evil-corp", "role": "owner"}', 'true', '7'),
+        ('user@gmail.com', 'project_created', 'Projet Audit Sécurité', 'Votre projet Audit Sécurité a été créé dans Evil Corp.', '{"project_id": "uuid", "organization": "evil-corp"}', 'false', '3'),
+        ('user@gmail.com', 'security_alert', 'Connexion suspecte détectée', 'Une tentative de connexion depuis un nouvel appareil a été détectée.', '{"ip": "192.168.1.100", "device": "Chrome/Linux"}', 'false', '1'),
+        
+        -- Notifications pour admin@gmail.com (admin global)
+        ('admin@gmail.com', 'system_maintenance', 'Maintenance programmée', 'Une maintenance du système est programmée ce week-end.', '{"scheduled_date": "2024-11-16", "duration": "2 hours"}', 'true', '4'),
+        ('admin@gmail.com', 'user_banned', 'Utilisateur suspendu', 'Utilisateur test@spam.com a été suspendu pour violation des conditions.', '{"banned_user": "test@spam.com", "reason": "spam"}', 'true', '6'),
+        
+        -- Notifications pour user-admin@gmail.com 
+        ('user-admin@gmail.com', 'project_created', 'Campagne Digitale créée', 'Votre projet Campagne Digitale 2024 a été créé dans Marketing Pro.', '{"project_id": "uuid", "organization": "marketing-pro"}', 'false', '4'),
+        ('user-admin@gmail.com', 'subscription_updated', 'Plan mis à jour', 'Votre organisation a migré vers le plan Pro.', '{"old_plan": "free", "new_plan": "pro"}', 'true', '8'),
+        
+        -- Notifications pour user-owner@gmail.com
+        ('user-owner@gmail.com', 'payment_succeeded', 'Paiement confirmé', 'Votre paiement de 29€ pour le plan Pro a été traité avec succès.', '{"amount": 29, "currency": "EUR", "plan": "pro"}', 'true', '10'),
+        ('user-owner@gmail.com', 'subscription_created', 'Abonnement créé', 'Votre abonnement Pro a été activé pour TechCorp Solutions.', '{"plan": "pro", "organization": "techcorp-solutions"}', 'true', '10'),
+        
+        -- Notifications système pour superadmin@gmail.com
+        ('superadmin@gmail.com', 'system', 'Rapport hebdomadaire', 'Rapport activité de la plateforme - 45 nouveaux utilisateurs cette semaine.', '{"new_users": 45, "active_projects": 127, "revenue": 2340}', 'false', '1'),
+        ('superadmin@gmail.com', 'security_alert', 'Tentatives de piratage', 'Plusieurs tentatives de connexion suspectes détectées sur le système.', '{"attempts": 23, "blocked_ips": ["1.2.3.4", "5.6.7.8"]}', 'false', '2'),
+        
+        -- Notifications pour user-member@gmail.com
+        ('user-member@gmail.com', 'organization_invitation', 'Bienvenue dans Acme Corp', 'Vous avez rejoint Acme Corp en tant que membre.', '{"organization": "acme-corp", "role": "member"}', 'true', '15'),
+        
+        -- Notifications de paiement pour différents utilisateurs
+        ('admin-owner@gmail.com', 'payment_failed', 'Échec du paiement', 'Le paiement pour votre abonnement Enterprise a échoué. Veuillez mettre à jour votre carte.', '{"amount": 99, "currency": "EUR", "retry_date": "2024-11-20"}', 'false', '1'),
+        ('moderator-member@gmail.com', 'subscription_canceled', 'Abonnement annulé', 'Votre abonnement a été annulé. Vous garderez accès jusqu''au 30 novembre.', '{"plan": "pro", "access_until": "2024-11-30"}', 'false', '3'),
+        
+        -- Notifications anciennes (lues) pour tester l'historique
+        ('user@gmail.com', 'project_updated', 'Tâche terminée', 'La tâche Configuration Next.js a été marquée comme terminée.', '{"task": "Configuration Next.js", "project": "Plateforme E-commerce"}', 'true', '20'),
+        ('admin@mikecodeur.com', 'user_unbanned', 'Utilisateur réactivé', 'Utilisateur previously-banned@test.com a été réactivé.', '{"unbanned_user": "previously-banned@test.com"}', 'true', '30')
+    ) AS notif_data(user_email, type, title, message, metadata, read, days_ago)
+    JOIN "user" u ON u.email = notif_data.user_email
+    ON CONFLICT DO NOTHING;
+  `)
+
   const end = Date.now()
 
   console.log('✅ Seed inserted in', end - start, 'ms')
@@ -422,6 +488,17 @@ const seed = async () => {
   console.log('  └─ Audit Sécurité: Scan vulnérabilités 🔄')
   console.log('')
   console.log('📊 Statuts des tâches : ✅ Done | 🔄 In Progress | 📋 Todo')
+  console.log('')
+  console.log('🔔 Notifications de test créées :')
+  console.log('🔹 22 notifications réparties sur tous les utilisateurs')
+  console.log(
+    '🔹 Types : system, project_*, subscription_*, organization_*, payment_*, security_alert, user_*'
+  )
+  console.log('🔹 Métadonnées typées pour chaque type de notification')
+  console.log(
+    '🔹 Mix de notifications lues/non lues avec dates étalées (0 à 30 jours)'
+  )
+  console.log('🔹 Cas de test : notifications récentes, moyennes et anciennes')
   console.log('')
 
   process.exit(0)

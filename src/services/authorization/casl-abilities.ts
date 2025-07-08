@@ -22,6 +22,7 @@ export type Subjects =
   | 'File'
   | 'Technical'
   | 'Log'
+  | 'Notification'
   | 'all'
 
 // Constantes pour les actions et subjects
@@ -42,6 +43,7 @@ export const SubjectsConst = {
   FILE: 'File' as Subjects,
   TECHNICAL: 'Technical' as Subjects,
   LOG: 'Log' as Subjects,
+  NOTIFICATION: 'Notification' as Subjects,
   ALL: 'all' as Subjects,
 } as const
 /**
@@ -92,6 +94,9 @@ export function buildAdminAbilities(builder: AppAbilityBuilder) {
   // Peut gérer les aspects techniques et logs
   can(ActionsConst.MANAGE, SubjectsConst.TECHNICAL)
   can(ActionsConst.MANAGE, SubjectsConst.LOG)
+
+  // Peut gérer toutes les notifications (créer des notifications système)
+  can(ActionsConst.MANAGE, SubjectsConst.NOTIFICATION)
 }
 
 /**
@@ -154,6 +159,11 @@ export function buildBaseUserAbilities(builder: AppAbilityBuilder, user: User) {
   // Organizations - permissions de base
   can(ActionsConst.READ, SubjectsConst.ORGANIZATION) // Peut lire toutes les orgs (public info)
   can(ActionsConst.CREATE, SubjectsConst.ORGANIZATION) // Peut créer une organisation
+
+  // Notifications - peut lire et gérer ses propres notifications
+  can(ActionsConst.READ, SubjectsConst.NOTIFICATION, {userId: user.id})
+  can(ActionsConst.UPDATE, SubjectsConst.NOTIFICATION, {userId: user.id})
+  can(ActionsConst.DELETE, SubjectsConst.NOTIFICATION, {userId: user.id})
 
   // Files - peut gérer ses propres fichiers
   can(ActionsConst.MANAGE, SubjectsConst.FILE, {userId: user.id})
