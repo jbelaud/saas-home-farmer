@@ -28,8 +28,18 @@ export default function NotificationsManagement({
     setLoading(true)
 
     try {
-      // TODO: Implement filter logic
-      console.log('Filter changed to:', newFilter)
+      const {getNotificationsByFilterAction} = await import(
+        '../../../app/[locale]/(app)/notifications/actions'
+      )
+
+      const result = await getNotificationsByFilterAction(userId, newFilter, {
+        page: 1,
+        limit: data.pagination.limit,
+      })
+
+      if (result.success && result.data) {
+        setData(result.data)
+      }
     } catch (error) {
       console.error('Error filtering notifications:', error)
     } finally {
@@ -53,6 +63,13 @@ export default function NotificationsManagement({
             read: true,
           })),
         }))
+
+        // Si on est en mode "non lues", recharger les données pour refléter le filtre
+        if (filter === 'unread') {
+          await handleFilterChange('unread')
+        }
+      } else {
+        console.error('Failed to mark all as read:', result.error)
       }
     } catch (error) {
       console.error('Error marking all as read:', error)
@@ -61,7 +78,10 @@ export default function NotificationsManagement({
     }
   }
 
-  const handleNotificationUpdate = (notificationId: string, read: boolean) => {
+  const handleNotificationUpdate = async (
+    notificationId: string,
+    read: boolean
+  ) => {
     setData((prev) => ({
       ...prev,
       data: prev.data.map((notification) =>
@@ -70,6 +90,21 @@ export default function NotificationsManagement({
           : notification
       ),
     }))
+
+    // Si on est en mode "non lues" et qu'on marque comme lu,
+    // retirer la notification de la liste
+    if (filter === 'unread' && read) {
+      setData((prev) => ({
+        ...prev,
+        data: prev.data.filter(
+          (notification) => notification.id !== notificationId
+        ),
+        pagination: {
+          ...prev.pagination,
+          total: prev.pagination.total - 1,
+        },
+      }))
+    }
   }
 
   const handleNotificationDelete = (notificationId: string) => {

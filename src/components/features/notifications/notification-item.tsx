@@ -19,7 +19,7 @@ import NotificationIcon from './notification-icon'
 
 interface NotificationItemProps {
   notification: Notification
-  onUpdate: (notificationId: string, read: boolean) => void
+  onUpdate: (notificationId: string, read: boolean) => Promise<void>
   onDelete: (notificationId: string) => void
 }
 
@@ -40,7 +40,7 @@ export default function NotificationItem({
       )
       const result = await markNotificationAsReadAction(notification.id)
       if (result.success) {
-        onUpdate(notification.id, true)
+        await onUpdate(notification.id, true)
       }
     } catch (error) {
       console.error('Error marking as read:', error)
@@ -59,7 +59,7 @@ export default function NotificationItem({
       )
       const result = await markNotificationAsUnreadAction(notification.id)
       if (result.success) {
-        onUpdate(notification.id, false)
+        await onUpdate(notification.id, false)
       }
     } catch (error) {
       console.error('Error marking as unread:', error)

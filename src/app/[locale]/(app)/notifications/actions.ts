@@ -56,14 +56,47 @@ export async function deleteNotificationAction(notificationId: string) {
 
 export async function markAllNotificationsAsReadAction(userId: string) {
   try {
-    await markAllNotificationsAsReadService(userId)
+    const result = await markAllNotificationsAsReadService(userId)
     revalidatePath('/notifications')
-    return {success: true}
+    return {success: true, count: result}
   } catch (error) {
     console.error('Error marking all notifications as read:', error)
     return {
       success: false,
       error: 'Erreur lors du marquage de toutes les notifications comme lues',
+    }
+  }
+}
+
+export async function getNotificationsByFilterAction(
+  userId: string,
+  filter: 'all' | 'unread',
+  pagination: {page: number; limit: number}
+) {
+  try {
+    const {
+      getNotificationsByUserIdService,
+      getUnreadNotificationsByUserIdService,
+    } = await import('@/services/facades/notification-service-facade')
+
+    const offset = (pagination.page - 1) * pagination.limit
+    const paginationParams = {
+      limit: pagination.limit,
+      offset,
+    }
+
+    const result =
+      filter === 'unread'
+        ? await getUnreadNotificationsByUserIdService(userId, paginationParams)
+        : await getNotificationsByUserIdService(userId, paginationParams)
+
+    revalidatePath('/notifications')
+    return {success: true, data: result}
+  } catch (error) {
+    console.error('Error fetching notifications:', error)
+    return {
+      success: false,
+      error: 'Erreur lors de la récupération des notifications',
     }
   }
 }
