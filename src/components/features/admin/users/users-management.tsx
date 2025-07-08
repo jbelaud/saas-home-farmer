@@ -2,6 +2,8 @@
 
 import {formatDistanceToNow} from 'date-fns'
 import {fr} from 'date-fns/locale'
+import {Eye} from 'lucide-react'
+import Link from 'next/link'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {toast} from 'sonner'
 
@@ -11,6 +13,7 @@ import {
 } from '@/app/[locale]/admin/users/actions'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
+import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {
   Table,
@@ -20,6 +23,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import {User} from '@/services/types/domain/user-types'
 
 import {DeleteUserDialog} from './delete-user-dialog'
@@ -165,6 +174,20 @@ export default function UsersManagement({
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/admin/users/${user.id}`}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Voir les détails</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     {permissions.canEdit && (
                       <EditUserDialog
                         user={user}

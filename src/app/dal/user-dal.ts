@@ -8,6 +8,7 @@ import {canManageUsers} from '@/services/authorization/user-authorization'
 import {AuthorizationError} from '@/services/errors/authorization-error'
 import {
   getAllUsersWithPaginationService,
+  getUserByIdService,
   getUsersByOrganizationService,
 } from '@/services/facades/user-service-facade'
 import {
@@ -82,3 +83,7 @@ export const getUsersByOrganizationDal = cache(
     return await getUsersByOrganizationService(organizationId)
   }
 )
+
+export const getUserByIdDal = cache(async (userId: string) => {
+  return await getUserByIdService(userId)
+})
