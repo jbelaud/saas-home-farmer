@@ -1,6 +1,7 @@
 'use server'
 
 import {revalidatePath} from 'next/cache'
+import {headers} from 'next/headers'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
 import {auth} from '@/lib/auth'
@@ -108,12 +109,15 @@ export async function updateUserDetailAction(
       email: data.email,
       role: data.role as Roles,
       visibility: data.visibility,
-      twoFactorEnabled: data.twoFactorEnabled,
+      //twoFactorEnabled: data.twoFactorEnabled, // need use betterauth api
       emailVerified: data.emailVerified,
       updatedAt: new Date(),
     }
 
     await updateUserService(updateData)
+
+    // Récupérer les headers pour l'authentification
+    const currentHeaders = await headers()
 
     if (data.banned) {
       const result = await auth.api.banUser({
@@ -122,9 +126,10 @@ export async function updateUserDetailAction(
           banReason: data.banReason,
           banExpiresIn: data.banExpiresIn,
         },
+        headers: currentHeaders,
         asResponse: true,
       })
-      console.log('result', result)
+      console.log('Ban result:', result.status, await result.text())
       if (!result.ok) {
         return {
           success: false,
@@ -137,9 +142,10 @@ export async function updateUserDetailAction(
         body: {
           userId,
         },
+        headers: currentHeaders,
         asResponse: true,
       })
-      console.log('result', result)
+      console.log('Unban result:', result.status, await result.text())
       if (!result.ok) {
         return {
           success: false,
