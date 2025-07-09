@@ -168,31 +168,31 @@ export const createNotificationService = async (
         })
       } else if (
         parsed.data.type === 'subscription_created' &&
-        parsed.data.metadata?.subscription_created?.subscription
+        parsed.data.metadata?.subscription
       ) {
         await sendSubscriptionCompletedEmailService(
-          parsed.data.metadata.subscription_created.subscription
+          parsed.data.metadata.subscription
         )
       } else if (
         parsed.data.type === 'subscription_updated' &&
-        parsed.data.metadata?.subscription_updated?.subscription
+        parsed.data.metadata?.subscription
       ) {
         await sendSubscriptionUpdatedEmailService(
-          parsed.data.metadata.subscription_updated.subscription
+          parsed.data.metadata.subscription
         )
       } else if (
         parsed.data.type === 'subscription_canceled' &&
-        parsed.data.metadata?.subscription_canceled?.subscription
+        parsed.data.metadata?.subscription
       ) {
         await sendSubscriptionCanceledEmailService(
-          parsed.data.metadata.subscription_canceled.subscription
+          parsed.data.metadata.subscription
         )
       } else if (
         parsed.data.type === 'subscription_deleted' &&
-        parsed.data.metadata?.subscription_deleted?.subscription
+        parsed.data.metadata?.subscription
       ) {
         await sendSubscriptionDeletedEmailService(
-          parsed.data.metadata.subscription_deleted.subscription
+          parsed.data.metadata.subscription
         )
       } else {
         // Utiliser le service d'email générique pour les autres types
