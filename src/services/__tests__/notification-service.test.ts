@@ -20,6 +20,14 @@ vi.mock('@/db/repositories/user-repository', () => ({
 
 vi.mock('../email-service', () => ({
   sendNotificationEmailService: vi.fn(),
+  sendEmailService: vi.fn(),
+}))
+
+vi.mock('../facades/email-service-facade', () => ({
+  sendResetPasswordLinkEmailService: vi.fn(),
+  sendVerificationEmailService: vi.fn(),
+  sendMagicLinkEmailService: vi.fn(),
+  sendOTPEmailService: vi.fn(),
 }))
 
 import * as notificationRepository from '@/db/repositories/notification-repository'

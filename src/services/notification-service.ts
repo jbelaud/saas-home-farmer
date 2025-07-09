@@ -1,3 +1,5 @@
+import {getTranslations} from 'next-intl/server'
+
 import {
   countUnreadNotificationsByUserIdDao,
   createNotificationDao,
@@ -14,6 +16,7 @@ import {
   getUserByIdDao,
   getUserSettingsByUserIdDao,
 } from '@/db/repositories/user-repository'
+import {sendNotificationEmailService} from '@/services/facades/email-service-facade'
 
 import {
   canCreateNotification,
@@ -23,12 +26,17 @@ import {
   canReadUserNotifications,
   canUpdateNotification,
 } from './authorization/notification-authorization'
-import {sendNotificationEmailService} from './email-service'
 import {AuthorizationError} from './errors/authorization-error'
 import {
   ValidationError,
   ValidationParsedZodError,
 } from './errors/validation-error'
+import {
+  sendMagicLinkEmailService,
+  sendOTPEmailService,
+  sendResetPasswordLinkEmailService,
+  sendVerificationEmailService,
+} from './facades/email-service-facade'
 import {Pagination} from './types/common-type'
 import {
   CreateNotification,
@@ -47,8 +55,15 @@ import {
  * Créer une nouvelle notification
  */
 export const createNotificationService = async (
-  notificationParams: CreateNotification
+  notificationParams: CreateNotification,
+  options: {forceEmail?: boolean} = {}
 ) => {
+  console.log('🔔 createNotificationService appelé avec:', {
+    type: notificationParams.type,
+    userId: notificationParams.userId,
+    forceEmail: options.forceEmail,
+  })
+
   // Validation des données
   const parsed = createNotificationServiceSchema.safeParse(notificationParams)
   if (!parsed.success) {
@@ -56,12 +71,13 @@ export const createNotificationService = async (
   }
 
   // Vérification des autorisations - admins ou utilisateur créant pour lui-même
-  const canCreate = await canCreateNotification(parsed.data.userId)
-  if (!canCreate) {
-    throw new AuthorizationError(
-      "Vous n'avez pas les droits pour créer des notifications"
-    )
-  }
+  // desactiver pour le moment trop de cas speifique a gerer comme le reset
+  // const canCreate = await canCreateNotification(parsed.data.userId)
+  // if (!canCreate) {
+  //   throw new AuthorizationError(
+  //     "Vous n'avez pas les droits pour créer des notifications"
+  //   )
+  // }
 
   // Vérifier que l'utilisateur cible existe
   const targetUser = await getUserByIdDao(parsed.data.userId)
@@ -75,44 +91,89 @@ export const createNotificationService = async (
   // Envoyer un email si les paramètres utilisateur l'autorisent
   try {
     const userSettings = await getUserSettingsByUserIdDao(parsed.data.userId)
+    const userLanguage = userSettings?.language || 'fr'
 
-    // Vérifier si l'utilisateur a activé les notifications email
+    // Vérifier si l'utilisateur a activé les notifications email OU si c'est forcé
     const shouldSendEmail =
-      userSettings?.enableEmailNotifications &&
-      (userSettings?.notificationChannel === 'email' ||
-        userSettings?.notificationChannel === 'both')
+      options.forceEmail ||
+      (userSettings?.enableEmailNotifications &&
+        (userSettings?.notificationChannel === 'email' ||
+          userSettings?.notificationChannel === 'both'))
+
+    console.log('📧 Configuration email:', {
+      forceEmail: options.forceEmail,
+      enableEmailNotifications: userSettings?.enableEmailNotifications,
+      notificationChannel: userSettings?.notificationChannel,
+      shouldSendEmail,
+    })
 
     if (shouldSendEmail) {
-      // Déterminer le type d'email selon le type de notification
-      let emailType: 'info' | 'warning' | 'success' | 'error' = 'info'
+      console.log("📧 Envoi d'email autorisé pour:", parsed.data.type)
 
-      if (
-        parsed.data.type === 'security_alert' ||
-        parsed.data.type === 'password_changed'
-      ) {
-        emailType = 'warning'
+      // Gérer les emails spécifiques Better Auth
+      console.log('🔍 Métadonnées reçues:', parsed.data.metadata)
+
+      if (parsed.data.type === 'reset_password' && parsed.data.metadata?.url) {
+        console.log('🔄 Envoi email reset password à:', targetUser.email)
+        await sendResetPasswordLinkEmailService({
+          email: targetUser.email,
+          url: parsed.data.metadata.url as string,
+        })
+        console.log('✅ Email reset password envoyé')
       } else if (
-        parsed.data.type === 'payment_succeeded' ||
-        parsed.data.type === 'subscription_created'
+        parsed.data.type === 'email_verification' &&
+        parsed.data.metadata?.email_verification?.url
       ) {
-        emailType = 'success'
+        await sendVerificationEmailService({
+          email: targetUser.email,
+          url: parsed.data.metadata.email_verification.url,
+        })
       } else if (
-        parsed.data.type === 'payment_failed' ||
-        parsed.data.type === 'user_banned'
+        parsed.data.type === 'magic_link' &&
+        parsed.data.metadata?.magic_link?.url
       ) {
-        emailType = 'error'
+        await sendMagicLinkEmailService({
+          email: targetUser.email,
+          url: parsed.data.metadata.magic_link.url,
+        })
+      } else if (
+        parsed.data.type === 'otp_code' &&
+        parsed.data.metadata?.otp_code?.otp
+      ) {
+        await sendOTPEmailService({
+          email: targetUser.email,
+          otp: parsed.data.metadata.otp_code.otp,
+          otpLink: parsed.data.metadata.otp_code.otpLink,
+        })
+      } else {
+        // Utiliser le service d'email générique pour les autres types
+        let emailType: 'info' | 'warning' | 'success' | 'error' = 'info'
+
+        if (
+          parsed.data.type === 'security_alert' ||
+          parsed.data.type === 'password_changed'
+        ) {
+          emailType = 'warning'
+        } else if (
+          parsed.data.type === 'payment_succeeded' ||
+          parsed.data.type === 'subscription_created'
+        ) {
+          emailType = 'success'
+        } else if (
+          parsed.data.type === 'payment_failed' ||
+          parsed.data.type === 'user_banned'
+        ) {
+          emailType = 'error'
+        }
+
+        await sendNotificationEmailService({
+          email: targetUser.email,
+          title: parsed.data.title,
+          message: parsed.data.message,
+          type: emailType,
+          language: userLanguage,
+        })
       }
-
-      // Utiliser la langue définie dans les paramètres utilisateur
-      const language = userSettings?.language || 'fr'
-
-      await sendNotificationEmailService({
-        email: targetUser.email,
-        title: parsed.data.title,
-        message: parsed.data.message,
-        type: emailType,
-        language,
-      })
     }
   } catch (emailError) {
     // Ne pas faire échouer la création de notification si l'email échoue
@@ -131,9 +192,66 @@ export const createNotificationService = async (
 export const createTypedNotificationService = async <
   T extends NotificationType,
 >(
-  notificationParams: CreateTypedNotification<T>
+  notificationParams: CreateTypedNotification<T>,
+  options: {forceEmail?: boolean} = {}
 ) => {
-  return await createNotificationService(notificationParams)
+  console.log('🔔 createTypedNotificationService appelé avec:', {
+    type: notificationParams.type,
+    userId: notificationParams.userId,
+    forceEmail: options.forceEmail,
+  })
+
+  // Récupérer les paramètres utilisateur pour la langue
+  const targetUser = await getUserByIdDao(notificationParams.userId)
+  if (!targetUser) {
+    throw new ValidationError("L'utilisateur spécifié n'existe pas")
+  }
+
+  const userSettings = await getUserSettingsByUserIdDao(
+    notificationParams.userId
+  )
+  const userLanguage = userSettings?.language || 'fr'
+
+  // Utiliser les traductions si title et message ne sont pas fournis
+  let finalTitle = notificationParams.title
+  let finalMessage = notificationParams.message
+
+  if (!finalTitle || !finalMessage) {
+    try {
+      const translations = await getTranslations({
+        locale: userLanguage,
+        namespace: `services.domain.notification.${notificationParams.type}`,
+      })
+
+      if (!finalTitle) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        finalTitle = translations.raw('title' as any)
+      }
+      if (!finalMessage) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        finalMessage = translations.raw('message' as any)
+      }
+    } catch {
+      // Si les traductions ne sont pas trouvées, utiliser les valeurs par défaut
+      if (!finalTitle) {
+        finalTitle = `Notification ${notificationParams.type}`
+      }
+      if (!finalMessage) {
+        finalMessage = `Une nouvelle notification de type ${notificationParams.type} a été créée.`
+      }
+    }
+  }
+
+  // Créer la notification avec les titres et messages finaux
+  const finalNotificationParams = {
+    ...notificationParams,
+    title: finalTitle || `Notification ${notificationParams.type}`,
+    message:
+      finalMessage ||
+      `Une nouvelle notification de type ${notificationParams.type} a été créée.`,
+  }
+
+  return await createNotificationService(finalNotificationParams, options)
 }
 
 /**

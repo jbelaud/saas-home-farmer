@@ -506,6 +506,28 @@
             "invalid": "L'identifiant n'est pas valide"
           }
         }
+      },
+      "notification": {
+        "reset_password": {
+          "title": "Réinitialisation du mot de passe",
+          "message": "Une demande de réinitialisation de mot de passe a été effectuée pour votre compte."
+        },
+        "email_verification": {
+          "title": "Vérification de l'email",
+          "message": "Veuillez vérifier votre adresse email pour activer votre compte."
+        },
+        "magic_link": {
+          "title": "Lien de connexion magique",
+          "message": "Un lien de connexion magique a été envoyé à votre adresse email."
+        },
+        "otp_code": {
+          "title": "Code de vérification",
+          "message": "Votre code de vérification à usage unique pour l'authentification à deux facteurs."
+        },
+        "password_changed": {
+          "title": "Mot de passe modifié",
+          "message": "Votre mot de passe a été modifié avec succès."
+        }
       }
     }
   },

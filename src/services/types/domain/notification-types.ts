@@ -31,6 +31,10 @@ export type NotificationType =
   | 'system_maintenance'
   | 'security_alert'
   | 'password_changed'
+  | 'reset_password'
+  | 'email_verification'
+  | 'magic_link'
+  | 'otp_code'
 
 // Métadonnées spécifiques selon le type de notification
 export type NotificationMetadata = {
@@ -103,13 +107,39 @@ export type NotificationMetadata = {
     ipAddress?: string
     userAgent?: string
   }
+  reset_password?: {
+    url: string
+    expiresAt?: string
+    requestedAt: string
+    ipAddress?: string
+    userAgent?: string
+  }
+  email_verification?: {
+    url: string
+    expiresAt?: string
+    requestedAt: string
+  }
+  magic_link?: {
+    url: string
+    email: string
+    expiresAt?: string
+    requestedAt: string
+  }
+  otp_code?: {
+    otp: string
+    otpLink?: string
+    expiresAt?: string
+    requestedAt: string
+  }
 }
 
 // Type pour créer une notification avec métadonnées typées
 export type CreateTypedNotification<T extends NotificationType> = Omit<
   CreateNotification,
-  'type' | 'metadata'
+  'type' | 'metadata' | 'title' | 'message'
 > & {
   type: T
+  title?: string
+  message?: string
   metadata?: NotificationMetadata[T]
 }

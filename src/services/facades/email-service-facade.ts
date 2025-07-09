@@ -23,3 +23,5 @@ export const sendSubscriptionCanceledEmailService =
   emailServiceInterceptor.sendSubscriptionCanceledEmailService
 export const sendSubscriptionDeletedEmailService =
   emailServiceInterceptor.sendSubscriptionDeletedEmailService
+export const sendNotificationEmailService =
+  emailServiceInterceptor.sendNotificationEmailService

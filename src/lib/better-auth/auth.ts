@@ -25,13 +25,13 @@ import {
   sendMagicLinkEmailService,
   sendOrganizationInvitationService,
   sendOTPEmailService,
-  sendResetPasswordLinkEmailService,
   sendSubscriptionCanceledEmailService,
   sendSubscriptionCompletedEmailService,
   sendSubscriptionDeletedEmailService,
   sendSubscriptionUpdatedEmailService,
   sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
+import {createTypedNotificationService} from '@/services/facades/notification-service-facade'
 import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
 import {getActivePlansForBetterAuthService} from '@/services/facades/subscription-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
@@ -65,10 +65,17 @@ const options = {
     enabled: true,
     requireEmailVerification: AuthAppConfig.requireEmailVerification,
     sendResetPassword: async ({user, url}) => {
-      await sendResetPasswordLinkEmailService({
-        email: user.email,
-        url,
-      })
+      await createTypedNotificationService(
+        {
+          userId: user.id,
+          type: 'reset_password',
+          metadata: {
+            url,
+            requestedAt: new Date().toISOString(),
+          },
+        },
+        {forceEmail: true}
+      )
     },
   },
   account: {

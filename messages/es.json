@@ -506,6 +506,28 @@
             "invalid": "El identificador no es válido"
           }
         }
+      },
+      "notification": {
+        "reset_password": {
+          "title": "Restablecimiento de Contraseña",
+          "message": "Se ha realizado una solicitud de restablecimiento de contraseña para tu cuenta."
+        },
+        "email_verification": {
+          "title": "Verificación de Email",
+          "message": "Por favor verifica tu dirección de email para activar tu cuenta."
+        },
+        "magic_link": {
+          "title": "Enlace Mágico",
+          "message": "Un enlace mágico ha sido enviado a tu dirección de email."
+        },
+        "otp_code": {
+          "title": "Código de Verificación",
+          "message": "Tu código de verificación de un solo uso para la autenticación de dos factores."
+        },
+        "password_changed": {
+          "title": "Contraseña Cambiada",
+          "message": "Tu contraseña ha sido cambiada exitosamente."
+        }
       }
     }
   },

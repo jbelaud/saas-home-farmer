@@ -506,6 +506,28 @@
             "invalid": "Identifier is not valid"
           }
         }
+      },
+      "notification": {
+        "reset_password": {
+          "title": "Password Reset",
+          "message": "A password reset request has been made for your account."
+        },
+        "email_verification": {
+          "title": "Email Verification",
+          "message": "Please verify your email address to activate your account."
+        },
+        "magic_link": {
+          "title": "Magic Link",
+          "message": "A magic link has been sent to your email address."
+        },
+        "otp_code": {
+          "title": "Verification Code",
+          "message": "Your one-time verification code for two-factor authentication."
+        },
+        "password_changed": {
+          "title": "Password Changed",
+          "message": "Your password has been successfully changed."
+        }
       }
     }
   },
