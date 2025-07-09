@@ -31,7 +31,7 @@ import {Switch} from '@/components/ui/switch'
 import {authClient} from '@/lib/better-auth/auth-client'
 import {AvailablePlan} from '@/lib/stripe/stripe-types'
 
-import {getPriceIdFromSubscriptionIdAction} from './action'
+import {getPriceIdFromSubscriptionIdAction, isYearlyPrice} from './action'
 
 // Type pour les plans disponibles
 
@@ -75,11 +75,12 @@ export default function SubscriptionPage({
         const priceId = await getPriceIdFromSubscriptionIdAction(
           activeSubscription.stripeSubscriptionId
         )
-        // const isYearly = await isYearlyPrice(priceId)
-        // setIsYearly(isYearly)
+        const isYearly = await isYearlyPrice(priceId || '')
+        setIsYearly(isYearly)
         setRealPriceId(priceId)
       } else {
         setRealPriceId(null)
+        setIsYearly(false) // Réinitialiser à false si pas d'abonnement actif
       }
 
       setSubscriptions(data || [])
@@ -100,7 +101,22 @@ export default function SubscriptionPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [referenceId])
 
-  // Initialiser les seats et le mode de facturation avec l'abonnement actuel
+  // Update isYearly when realPriceId changes
+  useEffect(() => {
+    if (realPriceId) {
+      const updateIsYearly = async () => {
+        console.log('🔍 realPriceId', realPriceId)
+        const yearly = await isYearlyPrice(realPriceId)
+        console.log('🔍 isYearly', yearly)
+        setIsYearly(yearly)
+      }
+      updateIsYearly()
+    } else {
+      setIsYearly(false)
+    }
+  }, [realPriceId])
+
+  // Initialiser les seats avec l'abonnement actuel
   useEffect(() => {
     const activeSubscription = subscriptions.find(
       (sub) => sub.status === 'active' || sub.status === 'trialing'
@@ -110,14 +126,8 @@ export default function SubscriptionPage({
         ...prev,
         [activeSubscription.plan]: activeSubscription.seats || 1,
       }))
-
-      // Initialiser le toggle yearly/monthly basé sur le vrai priceId
-      if (realPriceId) {
-        //const isYearly = true // todo isYearlyPrice(realPriceId)
-        //setIsYearly(isYearly)
-      }
     }
-  }, [subscriptions, realPriceId])
+  }, [subscriptions])
 
   const handleUpgrade = async (planId: string, annual = false) => {
     try {
