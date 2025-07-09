@@ -33,6 +33,7 @@ export type NotificationType =
   | 'password_changed'
   | 'reset_password'
   | 'email_verification'
+  | 'change_email_verification'
   | 'magic_link'
   | 'otp_code'
 
@@ -53,6 +54,8 @@ export const NotificationTypeConst = {
   password_changed: 'password_changed' satisfies NotificationType,
   reset_password: 'reset_password' satisfies NotificationType,
   email_verification: 'email_verification' satisfies NotificationType,
+  change_email_verification:
+    'change_email_verification' satisfies NotificationType,
   magic_link: 'magic_link' satisfies NotificationType,
   otp_code: 'otp_code' satisfies NotificationType,
 } as const
@@ -137,6 +140,12 @@ export type NotificationMetadata = {
   }
   email_verification?: {
     url: string
+    expiresAt?: string
+    requestedAt?: string
+  }
+  change_email_verification?: {
+    url: string
+    newEmail?: string
     expiresAt?: string
     requestedAt?: string
   }

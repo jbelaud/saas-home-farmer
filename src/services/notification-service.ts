@@ -32,6 +32,7 @@ import {
   ValidationParsedZodError,
 } from './errors/validation-error'
 import {
+  sendEmailChangeEmailVerificationService,
   sendMagicLinkEmailService,
   sendOTPEmailService,
   sendResetPasswordLinkEmailService,
@@ -122,6 +123,14 @@ export const createNotificationService = async (
           url: parsed.data.metadata.email_verification.url,
         })
       } else if (
+        parsed.data.type === 'change_email_verification' &&
+        parsed.data.metadata?.change_email_verification?.url
+      ) {
+        await sendEmailChangeEmailVerificationService({
+          email: targetUser.email, // Send to current email for security
+          url: parsed.data.metadata.change_email_verification.url,
+        })
+      } else if (
         parsed.data.type === 'magic_link' &&
         parsed.data.metadata?.magic_link?.url
       ) {
@@ -195,6 +204,7 @@ const isCriticalNotification = (type: NotificationType): boolean => {
   const criticalTypes: NotificationType[] = [
     'reset_password',
     'email_verification',
+    'change_email_verification',
     'magic_link',
     'otp_code',
     'security_alert',

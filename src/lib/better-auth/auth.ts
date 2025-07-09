@@ -14,22 +14,21 @@ import {
 import {v4 as uuidv4} from 'uuid'
 
 import db from '@/db/models/db'
-import {getUserByIdDao} from '@/db/repositories/user-repository'
+import {
+  getUserByEmailDao,
+  getUserByIdDao,
+} from '@/db/repositories/user-repository'
 import {env} from '@/env'
 import {APP_ISSUER} from '@/lib/constants'
 import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {stripeClient} from '@/lib/stripe/stripe-client'
 import {onStripeEvent} from '@/lib/stripe/stripe-events'
 import {
-  sendEmailChangeEmailVerificationService,
-  sendMagicLinkEmailService,
   sendOrganizationInvitationService,
-  sendOTPEmailService,
   sendSubscriptionCanceledEmailService,
   sendSubscriptionCompletedEmailService,
   sendSubscriptionDeletedEmailService,
   sendSubscriptionUpdatedEmailService,
-  sendVerificationEmailService,
 } from '@/services/facades/email-service-facade'
 import {createTypedNotificationService} from '@/services/facades/notification-service-facade'
 import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
@@ -82,9 +81,12 @@ const options = {
   },
   emailVerification: {
     sendVerificationEmail: async ({user, url}) => {
-      await sendVerificationEmailService({
-        email: user.email,
-        url,
+      await createTypedNotificationService({
+        userId: user.id,
+        type: NotificationTypeConst.email_verification,
+        metadata: {
+          url,
+        },
       })
     },
     sendOnSignUp: true,
@@ -99,10 +101,14 @@ const options = {
   user: {
     changeEmail: {
       enabled: AuthAppConfig.changeEmail,
-      sendChangeEmailVerification: async ({user, url}) => {
-        await sendEmailChangeEmailVerificationService({
-          email: user.email,
-          url,
+      sendChangeEmailVerification: async ({user, newEmail, url}) => {
+        await createTypedNotificationService({
+          userId: user.id,
+          type: NotificationTypeConst.change_email_verification,
+          metadata: {
+            url,
+            newEmail: newEmail,
+          },
         })
       },
     },
@@ -124,20 +130,31 @@ const options = {
         period: 300, // 5 minutes d'expiration
         sendOTP: async ({user, otp}) => {
           const otpLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-request/otp?code=${otp}`
-          await sendOTPEmailService({
-            email: user.email,
-            otp,
-            otpLink,
+          await createTypedNotificationService({
+            userId: user.id,
+            type: NotificationTypeConst.otp_code,
+            metadata: {
+              otp,
+              otpLink,
+            },
           })
         },
       },
     }),
     magicLink({
       sendMagicLink: async ({email, url}) => {
-        await sendMagicLinkEmailService({
-          email,
-          url,
-        })
+        // Find user by email for notification service
+        const user = await getUserByEmailDao(email)
+        if (user) {
+          await createTypedNotificationService({
+            userId: user.id,
+            type: NotificationTypeConst.magic_link,
+            metadata: {
+              url,
+              email,
+            },
+          })
+        }
       },
     }),
     admin(),
