@@ -521,9 +521,6 @@ export async function changePasswordAction(
         await createTypedNotificationService({
           userId: user.id,
           type: 'password_changed',
-          title: 'Mot de passe modifié',
-          message:
-            "Votre mot de passe a été modifié avec succès. Si vous n'êtes pas à l'origine de cette modification, contactez immédiatement le support.",
           metadata: {
             changedAt: new Date().toISOString(),
             ipAddress,

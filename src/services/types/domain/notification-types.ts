@@ -110,26 +110,26 @@ export type NotificationMetadata = {
   reset_password?: {
     url: string
     expiresAt?: string
-    requestedAt: string
+    requestedAt?: string
     ipAddress?: string
     userAgent?: string
   }
   email_verification?: {
     url: string
     expiresAt?: string
-    requestedAt: string
+    requestedAt?: string
   }
   magic_link?: {
     url: string
     email: string
     expiresAt?: string
-    requestedAt: string
+    requestedAt?: string
   }
   otp_code?: {
     otp: string
     otpLink?: string
     expiresAt?: string
-    requestedAt: string
+    requestedAt?: string
   }
 }
 

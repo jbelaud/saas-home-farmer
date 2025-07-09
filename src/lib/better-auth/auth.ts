@@ -65,17 +65,13 @@ const options = {
     enabled: true,
     requireEmailVerification: AuthAppConfig.requireEmailVerification,
     sendResetPassword: async ({user, url}) => {
-      await createTypedNotificationService(
-        {
-          userId: user.id,
-          type: 'reset_password',
-          metadata: {
-            url,
-            requestedAt: new Date().toISOString(),
-          },
+      await createTypedNotificationService({
+        userId: user.id,
+        type: 'reset_password',
+        metadata: {
+          url,
         },
-        {forceEmail: true}
-      )
+      })
     },
   },
   account: {

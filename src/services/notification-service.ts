@@ -19,7 +19,6 @@ import {
 import {sendNotificationEmailService} from '@/services/facades/email-service-facade'
 
 import {
-  canCreateNotification,
   canDeleteNotification,
   canManageNotifications,
   canReadNotification,
@@ -187,18 +186,47 @@ export const createNotificationService = async (
 }
 
 /**
+ * Détermine si un type de notification nécessite un email obligatoire
+ *
+ * Les notifications critiques sont celles liées à :
+ * - L'authentification (reset_password, email_verification, magic_link, otp_code)
+ * - La sécurité (security_alert, password_changed)
+ *
+ * Ces notifications ignorent les paramètres utilisateur et envoient toujours un email
+ *
+ * @param type - Type de notification à vérifier
+ * @returns true si le type nécessite un email obligatoire, false sinon
+ */
+const isCriticalNotification = (type: NotificationType): boolean => {
+  const criticalTypes: NotificationType[] = [
+    'reset_password',
+    'email_verification',
+    'magic_link',
+    'otp_code',
+    'security_alert',
+    'password_changed',
+  ]
+  return criticalTypes.includes(type)
+}
+
+/**
  * Créer une notification typée avec métadonnées
+ *
+ * Cette fonction détermine automatiquement si l'email doit être envoyé selon :
+ * - Pour les notifications critiques (auth, sécurité) : email toujours envoyé
+ * - Pour les notifications internes : respecte les paramètres utilisateur
+ *
+ * @param notificationParams - Paramètres de la notification typée
+ * @returns Promise<Notification> - La notification créée
  */
 export const createTypedNotificationService = async <
   T extends NotificationType,
 >(
-  notificationParams: CreateTypedNotification<T>,
-  options: {forceEmail?: boolean} = {}
+  notificationParams: CreateTypedNotification<T>
 ) => {
   console.log('🔔 createTypedNotificationService appelé avec:', {
     type: notificationParams.type,
     userId: notificationParams.userId,
-    forceEmail: options.forceEmail,
   })
 
   // Récupérer les paramètres utilisateur pour la langue
@@ -251,7 +279,10 @@ export const createTypedNotificationService = async <
       `Une nouvelle notification de type ${notificationParams.type} a été créée.`,
   }
 
-  return await createNotificationService(finalNotificationParams, options)
+  // Déterminer automatiquement si l'email est critique
+  const forceEmail = isCriticalNotification(notificationParams.type)
+
+  return await createNotificationService(finalNotificationParams, {forceEmail})
 }
 
 /**
