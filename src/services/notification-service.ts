@@ -34,8 +34,13 @@ import {
 import {
   sendEmailChangeEmailVerificationService,
   sendMagicLinkEmailService,
+  sendOrganizationInvitationService,
   sendOTPEmailService,
   sendResetPasswordLinkEmailService,
+  sendSubscriptionCanceledEmailService,
+  sendSubscriptionCompletedEmailService,
+  sendSubscriptionDeletedEmailService,
+  sendSubscriptionUpdatedEmailService,
   sendVerificationEmailService,
 } from './facades/email-service-facade'
 import {Pagination} from './types/common-type'
@@ -147,6 +152,48 @@ export const createNotificationService = async (
           otp: parsed.data.metadata.otp_code.otp,
           otpLink: parsed.data.metadata.otp_code.otpLink,
         })
+      } else if (
+        parsed.data.type === 'organization_invitation' &&
+        parsed.data.metadata?.organization_invitation?.organizationName
+      ) {
+        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invitations`
+        await sendOrganizationInvitationService({
+          email: targetUser.email,
+          invitedByUsername:
+            parsed.data.metadata.organization_invitation.invitedBy,
+          invitedByEmail: targetUser.email,
+          teamName:
+            parsed.data.metadata.organization_invitation.organizationName,
+          inviteLink,
+        })
+      } else if (
+        parsed.data.type === 'subscription_created' &&
+        parsed.data.metadata?.subscription_created?.subscription
+      ) {
+        await sendSubscriptionCompletedEmailService(
+          parsed.data.metadata.subscription_created.subscription
+        )
+      } else if (
+        parsed.data.type === 'subscription_updated' &&
+        parsed.data.metadata?.subscription_updated?.subscription
+      ) {
+        await sendSubscriptionUpdatedEmailService(
+          parsed.data.metadata.subscription_updated.subscription
+        )
+      } else if (
+        parsed.data.type === 'subscription_canceled' &&
+        parsed.data.metadata?.subscription_canceled?.subscription
+      ) {
+        await sendSubscriptionCanceledEmailService(
+          parsed.data.metadata.subscription_canceled.subscription
+        )
+      } else if (
+        parsed.data.type === 'subscription_deleted' &&
+        parsed.data.metadata?.subscription_deleted?.subscription
+      ) {
+        await sendSubscriptionDeletedEmailService(
+          parsed.data.metadata.subscription_deleted.subscription
+        )
       } else {
         // Utiliser le service d'email générique pour les autres types
         let emailType: 'info' | 'warning' | 'success' | 'error' = 'info'
@@ -209,6 +256,11 @@ const isCriticalNotification = (type: NotificationType): boolean => {
     'otp_code',
     'security_alert',
     'password_changed',
+    'organization_invitation',
+    'subscription_created',
+    'subscription_updated',
+    'subscription_canceled',
+    'subscription_deleted',
   ]
   return criticalTypes.includes(type)
 }

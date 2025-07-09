@@ -1,3 +1,5 @@
+import {Subscription} from '@better-auth/stripe'
+
 import {
   AddNotificationModel,
   NotificationModel,
@@ -74,22 +76,16 @@ export type NotificationMetadata = {
     currency: string
   }
   subscription_created?: {
-    subscriptionId: string
-    planName: string
+    subscription: Subscription // Better Auth subscription object
   }
   subscription_updated?: {
-    subscriptionId: string
-    planName: string
-    previousPlanName?: string
+    subscription: Subscription // Better Auth subscription object
   }
   subscription_canceled?: {
-    subscriptionId: string
-    planName: string
-    canceledAt: string
+    subscription: Subscription // Better Auth subscription object
   }
   subscription_deleted?: {
-    subscriptionId: string
-    planName: string
+    subscription: Subscription // Better Auth subscription object
   }
   organization_invitation?: {
     organizationId: string

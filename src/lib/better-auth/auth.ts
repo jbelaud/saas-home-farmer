@@ -17,19 +17,14 @@ import db from '@/db/models/db'
 import {
   getUserByEmailDao,
   getUserByIdDao,
+  getUserByStripeCustomerIdDao,
 } from '@/db/repositories/user-repository'
 import {env} from '@/env'
 import {APP_ISSUER} from '@/lib/constants'
 import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {stripeClient} from '@/lib/stripe/stripe-client'
 import {onStripeEvent} from '@/lib/stripe/stripe-events'
-import {
-  sendOrganizationInvitationService,
-  sendSubscriptionCanceledEmailService,
-  sendSubscriptionCompletedEmailService,
-  sendSubscriptionDeletedEmailService,
-  sendSubscriptionUpdatedEmailService,
-} from '@/services/facades/email-service-facade'
+import {sendOrganizationInvitationService} from '@/services/facades/email-service-facade'
 import {createTypedNotificationService} from '@/services/facades/notification-service-facade'
 import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
 import {getActivePlansForBetterAuthService} from '@/services/facades/subscription-service-facade'
@@ -164,13 +159,29 @@ const options = {
       allowUserToCreateOrganization: false,
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invitations/${data.id}`
-        await sendOrganizationInvitationService({
-          email: data.email,
-          invitedByUsername: data.inviter.user.name,
-          invitedByEmail: data.inviter.user.email,
-          teamName: data.organization.name,
-          inviteLink,
-        })
+        // Find user by email to get userId for notification
+        const invitedUser = await getUserByEmailDao(data.email)
+        if (invitedUser) {
+          await createTypedNotificationService({
+            userId: invitedUser.id,
+            type: NotificationTypeConst.organization_invitation,
+            metadata: {
+              organizationId: data.organization.id,
+              organizationName: data.organization.name,
+              invitedBy: data.inviter.user.name,
+              role: data.role,
+            },
+          })
+        } else {
+          // If user doesn't exist yet, still send the email directly for now
+          await sendOrganizationInvitationService({
+            email: data.email,
+            invitedByUsername: data.inviter.user.name,
+            invitedByEmail: data.inviter.user.email,
+            teamName: data.organization.name,
+            inviteLink,
+          })
+        }
       },
     }),
     stripe({
@@ -182,16 +193,72 @@ const options = {
         plans: () => getActivePlansForBetterAuthService(),
         authorizeReference: createAuthorizeReference(),
         onSubscriptionComplete: async ({subscription}) => {
-          await sendSubscriptionCompletedEmailService(subscription)
+          if (!subscription.stripeCustomerId) {
+            return
+          }
+          const user = await getUserByStripeCustomerIdDao(
+            subscription.stripeCustomerId as string
+          )
+          if (user) {
+            await createTypedNotificationService({
+              userId: user.id,
+              type: NotificationTypeConst.subscription_created,
+              metadata: {
+                subscription,
+              },
+            })
+          }
         },
         onSubscriptionUpdate: async ({subscription}) => {
-          await sendSubscriptionUpdatedEmailService(subscription)
+          if (!subscription.stripeCustomerId) {
+            return
+          }
+          const user = await getUserByStripeCustomerIdDao(
+            subscription.stripeCustomerId as string
+          )
+          if (user) {
+            await createTypedNotificationService({
+              userId: user.id,
+              type: NotificationTypeConst.subscription_updated,
+              metadata: {
+                subscription,
+              },
+            })
+          }
         },
         onSubscriptionCancel: async ({subscription}) => {
-          await sendSubscriptionCanceledEmailService(subscription)
+          if (!subscription.stripeCustomerId) {
+            return
+          }
+          const user = await getUserByStripeCustomerIdDao(
+            subscription.stripeCustomerId as string
+          )
+          if (user) {
+            await createTypedNotificationService({
+              userId: user.id,
+              type: NotificationTypeConst.subscription_canceled,
+              metadata: {
+                subscription,
+              },
+            })
+          }
         },
         onSubscriptionDeleted: async ({subscription}) => {
-          await sendSubscriptionDeletedEmailService(subscription)
+          if (!subscription.stripeCustomerId) {
+            return
+          }
+          const user = await getUserByStripeCustomerIdDao(
+            subscription.stripeCustomerId as string
+          )
+          if (user) {
+            await createTypedNotificationService({
+              userId: user.id,
+              type: NotificationTypeConst.subscription_deleted,
+              metadata: {
+                subscription,
+              },
+            })
+          }
         },
       },
       onEvent: onStripeEvent,
