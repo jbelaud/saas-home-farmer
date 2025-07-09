@@ -26,7 +26,10 @@ export default async function NotificationEmail({
   preview,
   language = 'fr',
 }: NotificationEmailProps) {
-  const t = await getTranslations('email.user.notification')
+  const t = await getTranslations({
+    locale: language,
+    namespace: 'email.user.notification',
+  })
 
   // Couleurs selon le type de notification
   const typeStyles = {

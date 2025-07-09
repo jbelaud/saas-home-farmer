@@ -211,7 +211,10 @@ export const sendNotificationEmailService = async ({
   type?: 'info' | 'warning' | 'success' | 'error'
   language?: 'fr' | 'en' | 'es'
 }) => {
-  const t = await getTranslations('email.user.notification')
+  const t = await getTranslations({
+    locale: language,
+    namespace: 'email.user.notification',
+  })
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
