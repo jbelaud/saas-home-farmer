@@ -178,8 +178,16 @@ describe('[createNotificationService]', () => {
     )
   })
 
-  it('[USER] devrait lever une erreur si tentative de création pour un autre utilisateur', async () => {
+  it('[USER] devrait créer une notification pour un autre utilisateur (autorisation temporairement désactivée)', async () => {
     setupAuthUserMocked(userTest)
+    vi.mocked(userRepository.getUserByIdDao).mockResolvedValue({
+      ...userTest,
+      id: differentUserId,
+    })
+    vi.mocked(notificationRepository.createNotificationDao).mockResolvedValue({
+      ...notificationTest,
+      userId: differentUserId,
+    })
 
     const notificationData = {
       userId: differentUserId,
@@ -189,9 +197,15 @@ describe('[createNotificationService]', () => {
       metadata: {},
     }
 
-    await expect(createNotificationService(notificationData)).rejects.toThrow(
-      AuthorizationError
-    )
+    const result = await createNotificationService(notificationData)
+    expect(result).toEqual({
+      ...notificationTest,
+      userId: differentUserId,
+    })
+    expect(notificationRepository.createNotificationDao).toHaveBeenCalledWith({
+      ...notificationData,
+      read: false,
+    })
   })
 
   it('devrait lever une erreur si utilisateur cible inexistant', async () => {
