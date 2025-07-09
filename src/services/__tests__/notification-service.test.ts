@@ -28,6 +28,7 @@ vi.mock('../facades/email-service-facade', () => ({
   sendVerificationEmailService: vi.fn(),
   sendMagicLinkEmailService: vi.fn(),
   sendOTPEmailService: vi.fn(),
+  sendNotificationEmailService: vi.fn(),
 }))
 
 import * as notificationRepository from '@/db/repositories/notification-repository'
@@ -52,7 +53,7 @@ import {
   updateNotificationService,
 } from '../notification-service'
 import {RoleConst} from '../types/domain/auth-types'
-import {NotificationModel} from '../types/domain/notification-types'
+import {Notification} from '../types/domain/notification-types'
 import {User} from '../types/domain/user-types'
 import {setupAuthUserMocked} from './helper-service-test'
 
@@ -91,7 +92,7 @@ const notificationTest = {
   metadata: {},
   read: false,
   createdAt: new Date(),
-} satisfies NotificationModel
+} satisfies Notification
 
 describe('[createNotificationService]', () => {
   beforeEach(() => {
