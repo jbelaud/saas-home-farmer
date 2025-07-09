@@ -36,17 +36,17 @@ export interface OrganizationContext {
 
 // Constantes pour les rôles utilisateur dans une organisation
 export const UserOrganizationRoleConst = {
-  OWNER: 'owner' as OrganizationRoleEnumModel,
-  ADMIN: 'admin' as OrganizationRoleEnumModel,
+  OWNER: 'owner' satisfies OrganizationRoleEnumModel,
+  ADMIN: 'admin' satisfies OrganizationRoleEnumModel,
   MEMBER: 'member' as OrganizationRoleEnumModel,
 } as const
 
 // Constantes pour les rôles globaux
 export const RoleConst = {
-  PUBLIC: 'public' as Roles,
-  USER: 'user' as Roles,
-  REDACTOR: 'redactor' as Roles,
-  MODERATOR: 'moderator' as Roles,
-  ADMIN: 'admin' as Roles,
-  SUPER_ADMIN: 'super_admin' as Roles,
+  PUBLIC: 'public' satisfies Roles,
+  USER: 'user' satisfies Roles,
+  REDACTOR: 'redactor' satisfies Roles,
+  MODERATOR: 'moderator' satisfies Roles,
+  ADMIN: 'admin' satisfies Roles,
+  SUPER_ADMIN: 'super_admin' satisfies Roles,
 } as const

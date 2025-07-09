@@ -36,6 +36,27 @@ export type NotificationType =
   | 'magic_link'
   | 'otp_code'
 
+export const NotificationTypeConst = {
+  payment_failed: 'payment_failed' satisfies NotificationType,
+  payment_succeeded: 'payment_succeeded' satisfies NotificationType,
+  subscription_created: 'subscription_created' satisfies NotificationType,
+  subscription_updated: 'subscription_updated' satisfies NotificationType,
+  subscription_canceled: 'subscription_canceled' satisfies NotificationType,
+  subscription_deleted: 'subscription_deleted' satisfies NotificationType,
+  organization_invitation: 'organization_invitation' satisfies NotificationType,
+  project_created: 'project_created' satisfies NotificationType,
+  project_updated: 'project_updated' satisfies NotificationType,
+  user_banned: 'user_banned' satisfies NotificationType,
+  user_unbanned: 'user_unbanned' satisfies NotificationType,
+  system_maintenance: 'system_maintenance' satisfies NotificationType,
+  security_alert: 'security_alert' satisfies NotificationType,
+  password_changed: 'password_changed' satisfies NotificationType,
+  reset_password: 'reset_password' satisfies NotificationType,
+  email_verification: 'email_verification' satisfies NotificationType,
+  magic_link: 'magic_link' satisfies NotificationType,
+  otp_code: 'otp_code' satisfies NotificationType,
+} as const
+
 // Métadonnées spécifiques selon le type de notification
 export type NotificationMetadata = {
   payment_failed?: {

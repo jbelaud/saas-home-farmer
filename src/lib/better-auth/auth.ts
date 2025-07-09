@@ -35,6 +35,7 @@ import {createTypedNotificationService} from '@/services/facades/notification-se
 import {getOrganizationMembersService} from '@/services/facades/organization-service-facade'
 import {getActivePlansForBetterAuthService} from '@/services/facades/subscription-service-facade'
 import {initializeRegisterUserDataService} from '@/services/facades/user-service-facade'
+import {NotificationTypeConst} from '@/services/types/domain/notification-types'
 import {BillingModes} from '@/services/types/domain/subscription-types'
 
 export const AuthAppConfig = {
@@ -67,7 +68,7 @@ const options = {
     sendResetPassword: async ({user, url}) => {
       await createTypedNotificationService({
         userId: user.id,
-        type: 'reset_password',
+        type: NotificationTypeConst.reset_password,
         metadata: {
           url,
         },

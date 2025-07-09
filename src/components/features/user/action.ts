@@ -16,6 +16,7 @@ import {
   EntityTypeConst,
   FileCategoryConst,
 } from '@/services/types/domain/file-types'
+import {NotificationTypeConst} from '@/services/types/domain/notification-types'
 import {
   Language,
   NotificationChannel,
@@ -520,7 +521,7 @@ export async function changePasswordAction(
 
         await createTypedNotificationService({
           userId: user.id,
-          type: 'password_changed',
+          type: NotificationTypeConst.password_changed,
           metadata: {
             changedAt: new Date().toISOString(),
             ipAddress,

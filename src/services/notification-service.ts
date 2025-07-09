@@ -16,6 +16,7 @@ import {
   getUserByIdDao,
   getUserSettingsByUserIdDao,
 } from '@/db/repositories/user-repository'
+import {logger} from '@/lib/logger'
 import {sendNotificationEmailService} from '@/services/facades/email-service-facade'
 
 import {
@@ -57,7 +58,7 @@ export const createNotificationService = async (
   notificationParams: CreateNotification,
   options: {forceEmail?: boolean} = {}
 ) => {
-  console.log('🔔 createNotificationService appelé avec:', {
+  logger.debug('🔔 createNotificationService appelé avec:', {
     type: notificationParams.type,
     userId: notificationParams.userId,
     forceEmail: options.forceEmail,
@@ -99,18 +100,11 @@ export const createNotificationService = async (
         (userSettings?.notificationChannel === 'email' ||
           userSettings?.notificationChannel === 'both'))
 
-    console.log('📧 Configuration email:', {
-      forceEmail: options.forceEmail,
-      enableEmailNotifications: userSettings?.enableEmailNotifications,
-      notificationChannel: userSettings?.notificationChannel,
-      shouldSendEmail,
-    })
-
     if (shouldSendEmail) {
-      console.log("📧 Envoi d'email autorisé pour:", parsed.data.type)
+      logger.debug("📧 Envoi d'email autorisé pour:", parsed.data.type)
 
       // Gérer les emails spécifiques Better Auth
-      console.log('🔍 Métadonnées reçues:', parsed.data.metadata)
+      logger.debug('🔍 Métadonnées reçues:', parsed.data.metadata)
 
       if (parsed.data.type === 'reset_password' && parsed.data.metadata?.url) {
         console.log('🔄 Envoi email reset password à:', targetUser.email)
@@ -224,7 +218,7 @@ export const createTypedNotificationService = async <
 >(
   notificationParams: CreateTypedNotification<T>
 ) => {
-  console.log('🔔 createTypedNotificationService appelé avec:', {
+  logger.debug('🔔 createTypedNotificationService appelé avec:', {
     type: notificationParams.type,
     userId: notificationParams.userId,
   })
