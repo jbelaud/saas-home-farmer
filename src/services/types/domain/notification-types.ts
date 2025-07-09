@@ -30,6 +30,7 @@ export type NotificationType =
   | 'user_unbanned'
   | 'system_maintenance'
   | 'security_alert'
+  | 'password_changed'
 
 // Métadonnées spécifiques selon le type de notification
 export type NotificationMetadata = {
@@ -96,6 +97,11 @@ export type NotificationMetadata = {
     alertType: string
     severity: 'low' | 'medium' | 'high' | 'critical'
     description: string
+  }
+  password_changed?: {
+    changedAt: string
+    ipAddress?: string
+    userAgent?: string
   }
 }
 

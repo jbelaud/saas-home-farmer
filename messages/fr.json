@@ -930,6 +930,17 @@
         "accessLost": "Votre accès aux fonctionnalités premium a été révoqué.",
         "resubscribeInfo": "Vous pouvez vous réabonner à tout moment depuis votre tableau de bord.",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
+      "notification": {
+        "subject": "Notification - {title}",
+        "preview": "Vous avez reçu une nouvelle notification",
+        "additionalInfo": "Cette notification a été générée automatiquement par le système.",
+        "timestamp": "Envoyé le {date}",
+        "footer": {
+          "greeting": "Cordialement,",
+          "signature": "L'équipe SaaS Mike Codeur",
+          "unsubscribe": "Vous pouvez modifier vos préférences de notification dans les paramètres de votre compte."
+        }
       }
     },
     "admin": {

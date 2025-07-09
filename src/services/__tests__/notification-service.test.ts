@@ -15,6 +15,11 @@ vi.mock('@/db/repositories/notification-repository', () => ({
 
 vi.mock('@/db/repositories/user-repository', () => ({
   getUserByIdDao: vi.fn(),
+  getUserSettingsByUserIdDao: vi.fn(),
+}))
+
+vi.mock('../email-service', () => ({
+  sendNotificationEmailService: vi.fn(),
 }))
 
 import * as notificationRepository from '@/db/repositories/notification-repository'
@@ -88,6 +93,20 @@ describe('[createNotificationService]', () => {
   it('[ADMIN] devrait créer une notification si utilisateur admin', async () => {
     setupAuthUserMocked(adminUser)
     vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+    vi.mocked(userRepository.getUserSettingsByUserIdDao).mockResolvedValue({
+      userId: currentAuthUserId,
+      enableEmailNotifications: true,
+      notificationChannel: 'email',
+      language: 'fr',
+      enablePushNotifications: true,
+      emailDigest: true,
+      marketingEmails: false,
+      theme: 'system',
+      timezone: 'Europe/Paris',
+      twoFactorType: 'totp',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
     vi.mocked(notificationRepository.createNotificationDao).mockResolvedValue(
       notificationTest
     )
@@ -111,11 +130,51 @@ describe('[createNotificationService]', () => {
     )
   })
 
-  it('[USER] devrait lever une erreur si utilisateur non admin', async () => {
+  it('[USER] devrait pouvoir créer une notification pour lui-même', async () => {
     setupAuthUserMocked(userTest)
+    vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+    vi.mocked(userRepository.getUserSettingsByUserIdDao).mockResolvedValue({
+      userId: currentAuthUserId,
+      enableEmailNotifications: true,
+      notificationChannel: 'both',
+      language: 'fr',
+      enablePushNotifications: true,
+      emailDigest: true,
+      marketingEmails: false,
+      theme: 'system',
+      timezone: 'Europe/Paris',
+      twoFactorType: 'totp',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    vi.mocked(notificationRepository.createNotificationDao).mockResolvedValue(
+      notificationTest
+    )
 
     const notificationData = {
       userId: currentAuthUserId,
+      type: 'password_changed' as const,
+      title: 'Mot de passe modifié',
+      message: 'Votre mot de passe a été modifié avec succès',
+      metadata: {},
+    }
+
+    const result = await createNotificationService(notificationData)
+    expect(result).toEqual(notificationTest)
+    expect(notificationRepository.createNotificationDao).toHaveBeenCalledWith({
+      ...notificationData,
+      read: false,
+    })
+    expect(userRepository.getUserByIdDao).toHaveBeenCalledWith(
+      currentAuthUserId
+    )
+  })
+
+  it('[USER] devrait lever une erreur si tentative de création pour un autre utilisateur', async () => {
+    setupAuthUserMocked(userTest)
+
+    const notificationData = {
+      userId: differentUserId,
       type: 'system' as const,
       title: 'Test Notification',
       message: 'This is a test notification',
@@ -169,18 +228,73 @@ describe('[createTypedNotificationService]', () => {
   it('[ADMIN] devrait créer une notification typée', async () => {
     setupAuthUserMocked(adminUser)
     vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+    vi.mocked(userRepository.getUserSettingsByUserIdDao).mockResolvedValue({
+      userId: currentAuthUserId,
+      enableEmailNotifications: false,
+      notificationChannel: 'none',
+      language: 'fr',
+      enablePushNotifications: false,
+      emailDigest: false,
+      marketingEmails: false,
+      theme: 'system',
+      timezone: 'Europe/Paris',
+      twoFactorType: 'totp',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
     vi.mocked(notificationRepository.createNotificationDao).mockResolvedValue(
       notificationTest
     )
 
     const typedNotificationData = {
       userId: currentAuthUserId,
-      type: 'subscription_renewal' as const,
-      title: 'Subscription Renewal',
-      message: 'Your subscription will renew soon',
+      type: 'subscription_created' as const,
+      title: 'Subscription Created',
+      message: 'Your subscription has been created',
       metadata: {
         subscriptionId: 'sub-123',
-        renewalDate: '2024-01-01T00:00:00Z',
+        planName: 'Premium',
+      },
+    }
+
+    const result = await createTypedNotificationService(typedNotificationData)
+    expect(result).toEqual(notificationTest)
+    expect(notificationRepository.createNotificationDao).toHaveBeenCalledWith({
+      ...typedNotificationData,
+      read: false,
+    })
+  })
+
+  it('[USER] devrait créer une notification typée pour lui-même', async () => {
+    setupAuthUserMocked(userTest)
+    vi.mocked(userRepository.getUserByIdDao).mockResolvedValue(userTest)
+    vi.mocked(userRepository.getUserSettingsByUserIdDao).mockResolvedValue({
+      userId: currentAuthUserId,
+      enableEmailNotifications: true,
+      notificationChannel: 'email',
+      language: 'en',
+      enablePushNotifications: false,
+      emailDigest: true,
+      marketingEmails: false,
+      theme: 'dark',
+      timezone: 'America/New_York',
+      twoFactorType: 'totp',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    vi.mocked(notificationRepository.createNotificationDao).mockResolvedValue(
+      notificationTest
+    )
+
+    const typedNotificationData = {
+      userId: currentAuthUserId,
+      type: 'password_changed' as const,
+      title: 'Mot de passe modifié',
+      message: 'Votre mot de passe a été modifié avec succès',
+      metadata: {
+        changedAt: '2024-01-01T00:00:00Z',
+        ipAddress: '192.168.1.1',
+        userAgent: 'Mozilla/5.0',
       },
     }
 

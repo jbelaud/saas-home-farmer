@@ -90,11 +90,31 @@ export const canReadUserNotifications = async (
 
 /**
  * Vérifier si l'utilisateur peut créer des notifications
- * Seuls les admins peuvent créer des notifications système
+ * - Les admins peuvent créer des notifications pour n'importe qui
+ * - Les utilisateurs peuvent créer des notifications pour eux-mêmes (notifications système)
  */
-export const canCreateNotification = async (): Promise<boolean> => {
+export const canCreateNotification = async (
+  userId?: string
+): Promise<boolean> => {
   const authUser = await getAuthUser()
-  return isUserAdmin(authUser)
+
+  // Si aucun utilisateur n'est connecté, pas d'autorisation
+  if (!authUser) {
+    return false
+  }
+
+  // Si c'est un admin, il peut créer des notifications pour n'importe qui
+  if (isUserAdmin(authUser)) {
+    return true
+  }
+
+  // Si un userId est fourni, l'utilisateur ne peut créer que pour lui-même
+  if (userId) {
+    return authUser.id === userId
+  }
+
+  // Par défaut, seuls les admins peuvent créer sans spécifier d'utilisateur
+  return false
 }
 
 /**

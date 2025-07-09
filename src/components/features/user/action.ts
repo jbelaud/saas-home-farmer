@@ -11,6 +11,7 @@ import {isValidationParsedZodError} from '@/services/errors/validation-error'
 import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {updateUserService} from '@/services/facades/user-service-facade'
 import {updateUserSettingsService} from '@/services/facades/user-service-facade'
+import {createTypedNotificationService} from '@/services/notification-service'
 import {
   EntityTypeConst,
   FileCategoryConst,
@@ -509,6 +510,34 @@ export async function changePasswordAction(
     })
 
     if (result) {
+      // Créer une notification pour le changement de mot de passe
+      try {
+        const headersList = await headers()
+        const userAgent = headersList.get('user-agent') || undefined
+        const xForwardedFor = headersList.get('x-forwarded-for')
+        const xRealIp = headersList.get('x-real-ip')
+        const ipAddress = xForwardedFor?.split(',')[0] || xRealIp || undefined
+
+        await createTypedNotificationService({
+          userId: user.id,
+          type: 'password_changed',
+          title: 'Mot de passe modifié',
+          message:
+            "Votre mot de passe a été modifié avec succès. Si vous n'êtes pas à l'origine de cette modification, contactez immédiatement le support.",
+          metadata: {
+            changedAt: new Date().toISOString(),
+            ipAddress,
+            userAgent,
+          },
+        })
+      } catch (notificationError) {
+        // Ne pas faire échouer le changement de mot de passe si la notification échoue
+        console.error(
+          'Erreur lors de la création de la notification:',
+          notificationError
+        )
+      }
+
       revalidatePath('/account')
       return {
         success: true,

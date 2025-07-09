@@ -10,7 +10,10 @@ import {
   markNotificationAsReadDao,
   updateNotificationDao,
 } from '@/db/repositories/notification-repository'
-import {getUserByIdDao} from '@/db/repositories/user-repository'
+import {
+  getUserByIdDao,
+  getUserSettingsByUserIdDao,
+} from '@/db/repositories/user-repository'
 
 import {
   canCreateNotification,
@@ -20,6 +23,7 @@ import {
   canReadUserNotifications,
   canUpdateNotification,
 } from './authorization/notification-authorization'
+import {sendNotificationEmailService} from './email-service'
 import {AuthorizationError} from './errors/authorization-error'
 import {
   ValidationError,
@@ -51,8 +55,8 @@ export const createNotificationService = async (
     throw new ValidationParsedZodError(parsed.error)
   }
 
-  // Vérification des autorisations - seuls les admins peuvent créer des notifications
-  const canCreate = await canCreateNotification()
+  // Vérification des autorisations - admins ou utilisateur créant pour lui-même
+  const canCreate = await canCreateNotification(parsed.data.userId)
   if (!canCreate) {
     throw new AuthorizationError(
       "Vous n'avez pas les droits pour créer des notifications"
@@ -65,7 +69,60 @@ export const createNotificationService = async (
     throw new ValidationError("L'utilisateur spécifié n'existe pas")
   }
 
-  return await createNotificationDao(parsed.data)
+  // Créer la notification
+  const notification = await createNotificationDao(parsed.data)
+
+  // Envoyer un email si les paramètres utilisateur l'autorisent
+  try {
+    const userSettings = await getUserSettingsByUserIdDao(parsed.data.userId)
+
+    // Vérifier si l'utilisateur a activé les notifications email
+    const shouldSendEmail =
+      userSettings?.enableEmailNotifications &&
+      (userSettings?.notificationChannel === 'email' ||
+        userSettings?.notificationChannel === 'both')
+
+    if (shouldSendEmail) {
+      // Déterminer le type d'email selon le type de notification
+      let emailType: 'info' | 'warning' | 'success' | 'error' = 'info'
+
+      if (
+        parsed.data.type === 'security_alert' ||
+        parsed.data.type === 'password_changed'
+      ) {
+        emailType = 'warning'
+      } else if (
+        parsed.data.type === 'payment_succeeded' ||
+        parsed.data.type === 'subscription_created'
+      ) {
+        emailType = 'success'
+      } else if (
+        parsed.data.type === 'payment_failed' ||
+        parsed.data.type === 'user_banned'
+      ) {
+        emailType = 'error'
+      }
+
+      // Utiliser la langue définie dans les paramètres utilisateur
+      const language = userSettings?.language || 'fr'
+
+      await sendNotificationEmailService({
+        email: targetUser.email,
+        title: parsed.data.title,
+        message: parsed.data.message,
+        type: emailType,
+        language,
+      })
+    }
+  } catch (emailError) {
+    // Ne pas faire échouer la création de notification si l'email échoue
+    console.error(
+      "Erreur lors de l'envoi de l'email de notification:",
+      emailError
+    )
+  }
+
+  return notification
 }
 
 /**

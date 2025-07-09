@@ -10,6 +10,7 @@ import {getUserByStripeCustomerIdDao} from '@/db/repositories/user-repository'
 import EmailChangeEmailVerification from '@/lib/emails/email-change-email-verification'
 import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization-link-email'
 import MagicLinkMail from '@/lib/emails/magic-link-email'
+import NotificationEmail from '@/lib/emails/notification-email'
 import OtpEmail from '@/lib/emails/otp-email'
 import ResetPasswordEmail from '@/lib/emails/reset-password-email'
 import SubscriptionCanceledMail from '@/lib/emails/subscription-canceled-email'
@@ -194,6 +195,37 @@ export const sendEmailChangeEmailVerificationService = async ({
     from: fromEmail,
     text: t('preview'),
     react: EmailChangeEmailVerification({url}),
+  })
+}
+
+export const sendNotificationEmailService = async ({
+  email,
+  title,
+  message,
+  type = 'info',
+  language = 'fr',
+}: {
+  email: string
+  title: string
+  message: string
+  type?: 'info' | 'warning' | 'success' | 'error'
+  language?: 'fr' | 'en' | 'es'
+}) => {
+  const t = await getTranslations('email.user.notification')
+  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  await sendEmailService({
+    to: email,
+    subject: t('subject', {title}),
+    from: fromEmail,
+    text: t('preview'),
+    react: NotificationEmail({
+      title,
+      message,
+      type,
+      preview: t('preview'),
+      language,
+    }),
   })
 }
 
