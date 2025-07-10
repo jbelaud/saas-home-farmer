@@ -48,6 +48,8 @@ export default function SubscriptionPage({
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [isYearly, setIsYearly] = useState(false)
+  const [activeSubscriptionIsYearly, setActiveSubscriptionIsYearly] =
+    useState(false)
   const [realPriceId, setRealPriceId] = useState<string | null>(null)
   const [selectedSeats, setSelectedSeats] = useState<{
     [planId: string]: number
@@ -71,12 +73,15 @@ export default function SubscriptionPage({
         (sub) => sub.status === 'active' || sub.status === 'trialing'
       )
 
+      //Hack time to get the yearly price from the subscription id
+      //https://github.com/better-auth/better-auth/pull/3239
       if (activeSubscription?.stripeSubscriptionId) {
         const priceId = await getPriceIdFromSubscriptionIdAction(
           activeSubscription.stripeSubscriptionId
         )
         const isYearly = await isYearlyPrice(priceId || '')
         setIsYearly(isYearly)
+        setActiveSubscriptionIsYearly(isYearly)
         setRealPriceId(priceId)
       } else {
         setRealPriceId(null)
@@ -109,6 +114,7 @@ export default function SubscriptionPage({
         const yearly = await isYearlyPrice(realPriceId)
         console.log('🔍 isYearly', yearly)
         setIsYearly(yearly)
+        setActiveSubscriptionIsYearly(yearly)
       }
       updateIsYearly()
     } else {
@@ -437,9 +443,9 @@ export default function SubscriptionPage({
   )
 
   // Utiliser le vrai priceId récupéré via Stripe pour déterminer si l'abonnement est annuel
-  const activeSubscriptionIsYearly = realPriceId
-    ? true // todo isYearlyPrice(realPriceId)
-    : false
+  // const activeSubscriptionIsYearly = realPriceId
+  //   ? await isYearlyPrice(realPriceId)
+  //   : false
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 p-6">

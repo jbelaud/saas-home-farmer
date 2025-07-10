@@ -6,6 +6,15 @@ import initDotEnv from './env'
 
 initDotEnv()
 
+// Stripe Price IDs constants
+const STRIPE_PRICE_IDS = {
+  PRO_MONTHLY: 'price_1Rfz5wCkPpvUnhXxvh6yJOOM',
+  PRO_YEARLY: 'price_1Rfz6ZCkPpvUnhXxc6ky9bl2',
+  ENTREPRISE_MONTHLY: 'price_1RedsMCkPpvUnhXxu3Z0g2mE',
+  ENTREPRISE_YEARLY: 'price_1RedsnCkPpvUnhXx6PfNSaHW',
+  LIFETIME: 'price_1QoOzLCkPpvUnhXxTNRAOlEe',
+} as const
+
 const seed = async () => {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('Do not use in production')
@@ -67,8 +76,8 @@ const seed = async () => {
       -- Plan PRO
       (
         'pro',
-        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY || 'price_pro_monthly'}',
-        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY || 'price_pro_yearly'}',
+        '${STRIPE_PRICE_IDS.PRO_MONTHLY}',
+        '${STRIPE_PRICE_IDS.PRO_YEARLY}',
         'Pro',
         'Parfait pour les équipes en croissance',
         '{"projects": 2, "storage": 10}',
@@ -86,8 +95,8 @@ const seed = async () => {
       -- Plan ENTREPRISE
       (
         'enterprise',
-        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_MONTHLY || 'price_enterprise_monthly'}',
-        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTREPRISE_YEARLY || 'price_enterprise_yearly'}',
+        '${STRIPE_PRICE_IDS.ENTREPRISE_MONTHLY}',
+        '${STRIPE_PRICE_IDS.ENTREPRISE_YEARLY}',
         'Enterprise',
         'Pour les grandes organisations',
         '{"projects": 3, "storage": 50}',
@@ -105,7 +114,7 @@ const seed = async () => {
       -- Plan LIFETIME
       (
         'lifetime',
-        '${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_LIFETIME || 'price_lifetime'}',
+        '${STRIPE_PRICE_IDS.LIFETIME}',
         NULL,
         'Lifetime',
         'Pour les longues durées',
