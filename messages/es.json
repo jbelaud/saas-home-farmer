@@ -868,6 +868,14 @@
         "ignoreMessage": "Si no solicitaste este enlace, por favor ignora este email.",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       },
+      "magicLink": {
+        "subject": "Tu enlace mágico para iniciar sesión",
+        "preview": "Has solicitado un enlace mágico para conectar tu cuenta.",
+        "title": "Conexión mágica",
+        "clickToConnect": "Haz clic aquí para conectarte",
+        "ignoreMessage": "Si no solicitaste este enlace, por favor ignora este email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
       "resetPassword": {
         "subject": "Restablece tu contraseña",
         "preview": "Has solicitado restablecer tu contraseña.",

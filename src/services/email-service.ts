@@ -108,7 +108,7 @@ export const sendMagicLinkEmailService = async ({
   email: string
   url: string
 }) => {
-  const t = await getTranslations('email.user.verify')
+  const t = await getTranslations('email.user.magicLink')
   const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({

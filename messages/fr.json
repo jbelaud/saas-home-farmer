@@ -868,6 +868,14 @@
         "ignoreMessage": "Si vous n'avez pas demandé ce lien, veuillez ignorer cet email.",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       },
+      "magicLink": {
+        "subject": "Votre lien de connexion magique",
+        "preview": "Vous avez demandé un lien magique pour vous connecter à votre compte.",
+        "title": "Connexion magique",
+        "clickToConnect": "Cliquez ici pour vous connecter",
+        "ignoreMessage": "Si vous n'avez pas demandé ce lien, veuillez ignorer cet email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
       "resetPassword": {
         "subject": "Réinitialisation de votre mot de passe",
         "preview": "Vous avez demandé la réinitialisation de votre mot de passe.",

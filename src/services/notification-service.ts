@@ -58,6 +58,81 @@ import {
 } from './validation/notification-validation'
 
 /**
+ * Créer une notification typée avec métadonnées
+ *
+ * Cette fonction détermine automatiquement si l'email doit être envoyé selon :
+ * - Pour les notifications critiques (auth, sécurité) : email toujours envoyé
+ * - Pour les notifications internes : respecte les paramètres utilisateur
+ *
+ * @param notificationParams - Paramètres de la notification typée
+ * @returns Promise<Notification> - La notification créée
+ */
+export const createTypedNotificationService = async <
+  T extends NotificationType,
+>(
+  notificationParams: CreateTypedNotification<T>
+) => {
+  logger.debug('🔔 createTypedNotificationService appelé avec:', {
+    type: notificationParams.type,
+    userId: notificationParams.userId,
+  })
+
+  // Récupérer les paramètres utilisateur pour la langue
+  const targetUser = await getUserByIdDao(notificationParams.userId)
+  if (!targetUser) {
+    throw new ValidationError("L'utilisateur spécifié n'existe pas")
+  }
+
+  const userSettings = await getUserSettingsByUserIdDao(
+    notificationParams.userId
+  )
+  const userLanguage = userSettings?.language || 'fr'
+
+  // Utiliser les traductions si title et message ne sont pas fournis
+  let finalTitle = notificationParams.title
+  let finalMessage = notificationParams.message
+
+  if (!finalTitle || !finalMessage) {
+    try {
+      const translations = await getTranslations({
+        locale: userLanguage,
+        namespace: `services.domain.notification.${notificationParams.type}`,
+      })
+
+      if (!finalTitle) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        finalTitle = translations.raw('title' as any)
+      }
+      if (!finalMessage) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        finalMessage = translations.raw('message' as any)
+      }
+    } catch {
+      // Si les traductions ne sont pas trouvées, utiliser les valeurs par défaut
+      if (!finalTitle) {
+        finalTitle = `Notification ${notificationParams.type}`
+      }
+      if (!finalMessage) {
+        finalMessage = `Une nouvelle notification de type ${notificationParams.type} a été créée.`
+      }
+    }
+  }
+
+  // Créer la notification avec les titres et messages finaux
+  const finalNotificationParams = {
+    ...notificationParams,
+    title: finalTitle || `Notification ${notificationParams.type}`,
+    message:
+      finalMessage ||
+      `Une nouvelle notification de type ${notificationParams.type} a été créée.`,
+  }
+
+  // Déterminer automatiquement si l'email est critique
+  const forceEmail = isCriticalNotification(notificationParams.type)
+
+  return await createNotificationService(finalNotificationParams, {forceEmail})
+}
+/**
  * Créer une nouvelle notification
  */
 export const createNotificationService = async (
@@ -121,49 +196,44 @@ export const createNotificationService = async (
         console.log('✅ Email reset password envoyé')
       } else if (
         parsed.data.type === 'email_verification' &&
-        parsed.data.metadata?.email_verification?.url
+        parsed.data.metadata?.url
       ) {
         await sendVerificationEmailService({
           email: targetUser.email,
-          url: parsed.data.metadata.email_verification.url,
+          url: parsed.data.metadata.url,
         })
       } else if (
         parsed.data.type === 'change_email_verification' &&
-        parsed.data.metadata?.change_email_verification?.url
+        parsed.data.metadata?.url
       ) {
         await sendEmailChangeEmailVerificationService({
           email: targetUser.email, // Send to current email for security
-          url: parsed.data.metadata.change_email_verification.url,
+          url: parsed.data.metadata.url,
         })
       } else if (
         parsed.data.type === 'magic_link' &&
-        parsed.data.metadata?.magic_link?.url
+        parsed.data.metadata?.url
       ) {
         await sendMagicLinkEmailService({
           email: targetUser.email,
-          url: parsed.data.metadata.magic_link.url,
+          url: parsed.data.metadata.url,
         })
-      } else if (
-        parsed.data.type === 'otp_code' &&
-        parsed.data.metadata?.otp_code?.otp
-      ) {
+      } else if (parsed.data.type === 'otp_code' && parsed.data.metadata?.otp) {
         await sendOTPEmailService({
           email: targetUser.email,
-          otp: parsed.data.metadata.otp_code.otp,
-          otpLink: parsed.data.metadata.otp_code.otpLink,
+          otp: parsed.data.metadata.otp,
+          otpLink: parsed.data.metadata.otpLink,
         })
       } else if (
         parsed.data.type === 'organization_invitation' &&
-        parsed.data.metadata?.organization_invitation?.organizationName
+        parsed.data.metadata?.organizationName
       ) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invitations`
         await sendOrganizationInvitationService({
           email: targetUser.email,
-          invitedByUsername:
-            parsed.data.metadata.organization_invitation.invitedBy,
+          invitedByUsername: parsed.data.metadata.invitedBy,
           invitedByEmail: targetUser.email,
-          teamName:
-            parsed.data.metadata.organization_invitation.organizationName,
+          teamName: parsed.data.metadata.organizationName,
           inviteLink,
         })
       } else if (
@@ -263,82 +333,6 @@ const isCriticalNotification = (type: NotificationType): boolean => {
     'subscription_deleted',
   ]
   return criticalTypes.includes(type)
-}
-
-/**
- * Créer une notification typée avec métadonnées
- *
- * Cette fonction détermine automatiquement si l'email doit être envoyé selon :
- * - Pour les notifications critiques (auth, sécurité) : email toujours envoyé
- * - Pour les notifications internes : respecte les paramètres utilisateur
- *
- * @param notificationParams - Paramètres de la notification typée
- * @returns Promise<Notification> - La notification créée
- */
-export const createTypedNotificationService = async <
-  T extends NotificationType,
->(
-  notificationParams: CreateTypedNotification<T>
-) => {
-  logger.debug('🔔 createTypedNotificationService appelé avec:', {
-    type: notificationParams.type,
-    userId: notificationParams.userId,
-  })
-
-  // Récupérer les paramètres utilisateur pour la langue
-  const targetUser = await getUserByIdDao(notificationParams.userId)
-  if (!targetUser) {
-    throw new ValidationError("L'utilisateur spécifié n'existe pas")
-  }
-
-  const userSettings = await getUserSettingsByUserIdDao(
-    notificationParams.userId
-  )
-  const userLanguage = userSettings?.language || 'fr'
-
-  // Utiliser les traductions si title et message ne sont pas fournis
-  let finalTitle = notificationParams.title
-  let finalMessage = notificationParams.message
-
-  if (!finalTitle || !finalMessage) {
-    try {
-      const translations = await getTranslations({
-        locale: userLanguage,
-        namespace: `services.domain.notification.${notificationParams.type}`,
-      })
-
-      if (!finalTitle) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        finalTitle = translations.raw('title' as any)
-      }
-      if (!finalMessage) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        finalMessage = translations.raw('message' as any)
-      }
-    } catch {
-      // Si les traductions ne sont pas trouvées, utiliser les valeurs par défaut
-      if (!finalTitle) {
-        finalTitle = `Notification ${notificationParams.type}`
-      }
-      if (!finalMessage) {
-        finalMessage = `Une nouvelle notification de type ${notificationParams.type} a été créée.`
-      }
-    }
-  }
-
-  // Créer la notification avec les titres et messages finaux
-  const finalNotificationParams = {
-    ...notificationParams,
-    title: finalTitle || `Notification ${notificationParams.type}`,
-    message:
-      finalMessage ||
-      `Une nouvelle notification de type ${notificationParams.type} a été créée.`,
-  }
-
-  // Déterminer automatiquement si l'email est critique
-  const forceEmail = isCriticalNotification(notificationParams.type)
-
-  return await createNotificationService(finalNotificationParams, {forceEmail})
 }
 
 /**
