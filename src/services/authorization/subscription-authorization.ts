@@ -97,7 +97,11 @@ export const checkSubscriptionLimit = async (
 
   if (subscription.length === 0) {
     const freeStripePlan = await getPlanByCodeService(PlanConst.FREE)
-    const limitsUsers = JSON.parse(freeStripePlan?.limits as string).users ?? 1
+
+    // Les limites sont déjà un objet avec Drizzle (pas une chaîne JSON)
+    const limits = freeStripePlan?.limits as Record<string, number> | null
+    const limitsUsers = limits?.users ?? 1
+
     subscription.push({
       id: PlanConst.FREE,
       referenceId,
