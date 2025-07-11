@@ -115,7 +115,7 @@ export function LimitsManager({
             variant="outline"
             size="sm"
             onClick={handleAddLimit}
-            disabled={!newLimitKey.trim() || limits[newLimitKey]}
+            disabled={!newLimitKey.trim() || newLimitKey in limits}
           >
             <Plus className="h-4 w-4" />
           </Button>
