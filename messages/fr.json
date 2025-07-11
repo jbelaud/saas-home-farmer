@@ -885,6 +885,18 @@
         "expirationWarning": "Ce lien expirera dans 24 heures.",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       },
+      "organizationInvitation": {
+        "subject": "Invitation à rejoindre {teamName}",
+        "preview": "{invitedByUsername} vous invite à rejoindre {teamName}",
+        "title": "Invitation d'organisation",
+        "hello": "Bonjour,",
+        "invitationMessage": "{invitedByUsername} ({invitedByEmail}) vous invite à rejoindre l'organisation {teamName}.",
+        "acceptInvitation": "Pour accepter cette invitation, veuillez cliquer sur le lien suivant :",
+        "clickToAccept": "Accepter l'invitation",
+        "expirationWarning": "Ce lien expirera dans 24 heures.",
+        "ignoreMessage": "Si vous n'avez pas initié cette demande, vous pouvez ignorer cet email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
       "welcome": {
         "subject": "Bienvenue sur {appName}",
         "preview": "Bienvenue ! Votre compte a été créé avec succès.",

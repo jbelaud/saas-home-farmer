@@ -885,6 +885,18 @@
         "expirationWarning": "Este enlace expirará en 24 horas.",
         "footer": "SaaS Mike Codeur Stripe Boilerplate"
       },
+      "organizationInvitation": {
+        "subject": "Invitación para unirse a {teamName}",
+        "preview": "{invitedByUsername} te invita a unirte a {teamName}",
+        "title": "Invitación de organización",
+        "hello": "Hola,",
+        "invitationMessage": "{invitedByUsername} ({invitedByEmail}) te invita a unirte a la organización {teamName}.",
+        "acceptInvitation": "Para aceptar esta invitación, por favor haz clic en el siguiente enlace:",
+        "clickToAccept": "Aceptar invitación",
+        "expirationWarning": "Este enlace expirará en 24 horas.",
+        "ignoreMessage": "Si no iniciaste esta solicitud, puedes ignorar este email.",
+        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+      },
       "welcome": {
         "subject": "Bienvenido a {appName}",
         "preview": "¡Bienvenido! Tu cuenta ha sido creada exitosamente.",
