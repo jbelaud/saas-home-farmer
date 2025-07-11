@@ -29,6 +29,7 @@ import {Switch} from '@/components/ui/switch'
 import {Textarea} from '@/components/ui/textarea'
 import {Plan} from '@/services/types/domain/subscription-types'
 
+import {LimitsManager} from './limits-manager'
 import {EditPlanFormData, editPlanSchema} from './plan-form-validation'
 
 interface Props {
@@ -52,6 +53,10 @@ export function EditPlanDialog({plan, onSave}: Props) {
       currency: plan.currency || 'EUR',
       isRecurring: plan.isRecurring ?? true,
       displayOrder: plan.displayOrder || 0,
+      limits: (plan.limits as Record<string, number>) || {
+        users: 10,
+        projects: 5,
+      },
     },
   })
 
@@ -77,7 +82,7 @@ export function EditPlanDialog({plan, onSave}: Props) {
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Modifier le plan</DialogTitle>
           <DialogDescription>
@@ -260,6 +265,20 @@ export function EditPlanDialog({plan, onSave}: Props) {
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="limits"
+              render={({field}) => (
+                <FormItem>
+                  <LimitsManager
+                    limits={field.value || {}}
+                    onChange={field.onChange}
+                    className="rounded-lg border p-4"
+                  />
                 </FormItem>
               )}
             />

@@ -11,6 +11,7 @@ export const createPlanSchema = z.object({
   currency: z.string().optional(),
   isRecurring: z.boolean().optional(),
   displayOrder: z.number().optional(),
+  limits: z.record(z.string(), z.number()).optional(),
 })
 
 export const editPlanSchema = z.object({
@@ -23,6 +24,7 @@ export const editPlanSchema = z.object({
   currency: z.string().optional(),
   isRecurring: z.boolean().optional(),
   displayOrder: z.number().optional(),
+  limits: z.record(z.string(), z.number()).optional(),
 })
 
 // Schémas avec internationalisation (pour le futur)
