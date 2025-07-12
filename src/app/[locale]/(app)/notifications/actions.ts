@@ -2,6 +2,7 @@
 
 import {revalidatePath} from 'next/cache'
 
+import {requireActionAuth} from '@/app/dal/user-dal'
 import {
   deleteNotificationService,
   getNotificationsByUserIdService,
@@ -12,6 +13,7 @@ import {
 } from '@/services/facades/notification-service-facade'
 
 export async function markNotificationAsReadAction(notificationId: string) {
+  await requireActionAuth()
   try {
     await markNotificationAsReadService(notificationId)
     revalidatePath('/notifications')
@@ -26,6 +28,7 @@ export async function markNotificationAsReadAction(notificationId: string) {
 }
 
 export async function markNotificationAsUnreadAction(notificationId: string) {
+  await requireActionAuth()
   try {
     await updateNotificationService({
       id: notificationId,
@@ -43,6 +46,7 @@ export async function markNotificationAsUnreadAction(notificationId: string) {
 }
 
 export async function deleteNotificationAction(notificationId: string) {
+  await requireActionAuth()
   try {
     await deleteNotificationService(notificationId)
     revalidatePath('/notifications')
@@ -57,6 +61,7 @@ export async function deleteNotificationAction(notificationId: string) {
 }
 
 export async function markAllNotificationsAsReadAction(userId: string) {
+  await requireActionAuth({uid: userId})
   try {
     const result = await markAllNotificationsAsReadService(userId)
     revalidatePath('/notifications')
@@ -75,6 +80,7 @@ export async function getNotificationsByFilterAction(
   filter: 'all' | 'unread',
   pagination: {page: number; limit: number}
 ) {
+  await requireActionAuth({uid: userId})
   try {
     const offset = (pagination.page - 1) * pagination.limit
     const paginationParams = {

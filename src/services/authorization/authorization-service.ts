@@ -69,7 +69,19 @@ export function defineAbilitiesFor(
     return builder.build()
   }
 
-  // Permissions par défaut pour utilisateurs connectés sans rôle spécifique
+  // MODERATOR/REDACTOR - même permissions que user pour le moment
+  if (user.role === RoleConst.MODERATOR || user.role === RoleConst.REDACTOR) {
+    buildUserAbilities(builder, user, orgContext)
+    return builder.build()
+  }
+
+  // PUBLIC ou role non defini - permissions guest
+  if (!user.role || user.role === RoleConst.PUBLIC) {
+    buildGuestAbilities(builder)
+    return builder.build()
+  }
+
+  // Fallback : Permissions par défaut pour utilisateurs connectés sans rôle spécifique connu
   buildGuestAbilities(builder)
   return builder.build()
 }

@@ -4,6 +4,7 @@ import {cache} from 'react'
 
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {hasRequiredRoles} from '@/services/authentication/auth-util'
+import {isUserAdmin} from '@/services/authorization/authorization-service'
 import {canManageUsers} from '@/services/authorization/user-authorization'
 import {AuthorizationError} from '@/services/errors/authorization-error'
 import {
@@ -35,9 +36,14 @@ export const getAuthUserDTO = cache(async () => {
 
 export async function requireActionAuth(options?: RequireAuthOptions) {
   const user = await getAuthUser()
+  const isAdmin = isUserAdmin(user)
 
   if (!user) {
     throw new AuthorizationError('Utilisateur non authentifié')
+  }
+  // authoriser seulement un uid particulier
+  if (options?.uid && user.id !== options.uid && !isAdmin) {
+    throw new AuthorizationError('Accès interdit')
   }
   if (
     options?.roles &&

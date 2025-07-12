@@ -36,6 +36,7 @@ export type NotificationChannel = NotificationChannelEnumModel
 export type RequireAuthOptions = {
   roles?: Roles[]
   active?: boolean
+  uid?: string
 }
 export type UserVisibility = User['visibility']
 

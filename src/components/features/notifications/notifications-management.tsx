@@ -2,6 +2,7 @@
 
 import {useEffect, useState} from 'react'
 
+import {getNotificationsByFilterAction} from '@/app/[locale]/(app)/notifications/actions'
 import {useUnreadNotifications} from '@/components/hooks/use-unread-notifications'
 import {Card} from '@/components/ui/card'
 import {PaginatedResponse} from '@/services/types/common-type'
@@ -37,14 +38,14 @@ export default function NotificationsManagement({
     setLoading(true)
 
     try {
-      const {getNotificationsByFilterAction} = await import(
-        '../../../app/[locale]/(app)/notifications/actions'
+      const result = await getNotificationsByFilterAction(
+        `${userId}`,
+        newFilter,
+        {
+          page: 1,
+          limit: data.pagination.limit,
+        }
       )
-
-      const result = await getNotificationsByFilterAction(userId, newFilter, {
-        page: 1,
-        limit: data.pagination.limit,
-      })
 
       if (result.success && result.data) {
         setData(result.data)
