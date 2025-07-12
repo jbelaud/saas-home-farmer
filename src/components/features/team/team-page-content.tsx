@@ -8,7 +8,7 @@ import {
   OrganizationDTO,
   OrganizationMemberDTO,
 } from '@/app/dal/organization-dal'
-import {useOrganization} from '@/components/context/organizarion-provider'
+import {useOrganization} from '@/components/context/organization-provider'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'

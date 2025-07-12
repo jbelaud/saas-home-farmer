@@ -2,7 +2,7 @@
 
 import {useState} from 'react'
 
-import {useOrganizationRole} from '@/components/context/organizarion-provider'
+import {useOrganizationRole} from '@/components/context/organization-provider'
 import {InvitationWithUser} from '@/services/types/domain/organization-types'
 
 import InvitationsOrganization from './invitations-organization'

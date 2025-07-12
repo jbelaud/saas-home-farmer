@@ -4,7 +4,7 @@ import {useEffect, useState, useTransition} from 'react'
 import {useDebounce} from 'react-use'
 import {toast} from 'sonner'
 
-import {useOrganization} from '@/components/context/organizarion-provider'
+import {useOrganization} from '@/components/context/organization-provider'
 import {Button} from '@/components/ui/button'
 import {
   Dialog,

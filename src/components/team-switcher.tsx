@@ -4,7 +4,7 @@ import {Plus} from 'lucide-react'
 import * as React from 'react'
 import {toast} from 'sonner'
 
-import {useOrganization} from '@/components/context/organizarion-provider'
+import {useOrganization} from '@/components/context/organization-provider'
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -5,12 +5,11 @@ Un boilerplate moderne pour les applications SaaS utilisant Next.js 15, React 19
 ## Todo
 
 - homepage
-- admin - soucriptions
+- admin - members (do not use betterauth)
 - admin - API Keys
 - admin - Email Marketing
 - admin - Affilites
 - admin - Analytics
-- Notification
 - MCP
 
 ## Technologies

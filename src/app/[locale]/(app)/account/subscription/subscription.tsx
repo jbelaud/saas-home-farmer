@@ -8,7 +8,7 @@ import {toast} from 'sonner'
 import {
   useOrganization,
   useOrganizationRole,
-} from '@/components/context/organizarion-provider'
+} from '@/components/context/organization-provider'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {

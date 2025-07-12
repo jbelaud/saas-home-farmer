@@ -13,7 +13,7 @@ import {useTranslations} from 'next-intl'
 import * as React from 'react'
 
 import {useAuth} from '@/components/context/auth-provider'
-import {useOrganization} from '@/components/context/organizarion-provider'
+import {useOrganization} from '@/components/context/organization-provider'
 import {NavMain} from '@/components/features/layouts/sidebar/nav-main'
 import {NavProjects} from '@/components/features/layouts/sidebar/nav-projects'
 import {NavUser} from '@/components/features/layouts/sidebar/nav-user'
