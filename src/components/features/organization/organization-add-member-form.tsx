@@ -1,9 +1,10 @@
 'use client'
 import {Plus} from 'lucide-react'
-import {useState, useTransition} from 'react'
+import {useEffect, useState, useTransition} from 'react'
 import {useDebounce} from 'react-use'
 import {toast} from 'sonner'
 
+import {useOrganization} from '@/components/context/organizarion-provider'
 import {Button} from '@/components/ui/button'
 import {
   Dialog,
@@ -44,6 +45,8 @@ export function OrganizationAddMemberForm({
     OrganizationRoleConst.member as OrganizationRole
   )
 
+  const {setCurrentOrganizationWithoutRedirect} = useOrganization()
+
   // Debounce la recherche pour éviter les appels trop fréquents
   useDebounce(
     () => {
@@ -64,6 +67,11 @@ export function OrganizationAddMemberForm({
     300, // 300ms de délai
     [searchValue]
   )
+
+  // We need set current organization to add member
+  useEffect(() => {
+    setCurrentOrganizationWithoutRedirect(organizationId)
+  }, [organizationId, setCurrentOrganizationWithoutRedirect])
 
   function handleSearch(value: string) {
     setEmail(value)

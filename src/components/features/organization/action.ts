@@ -114,6 +114,14 @@ export async function addUserToOrganizationAction(
   sendInvitationEmail?: boolean
 ): Promise<MemberActionResult> {
   await requireActionAuth()
+  console.log(
+    'addUserToOrganizationAction',
+    organizationId,
+    userId,
+    email,
+    role,
+    sendInvitationEmail
+  )
   try {
     const limits = await checkMembersLimit(1)
     if (!limits.allowed) {
@@ -155,7 +163,7 @@ export async function addUserToOrganizationAction(
       })
     }
     revalidatePath(`/organizations/${organizationId}/edit`)
-    return {success: true, message: 'Membre ajouté avec succès'}
+    return {success: true, message: 'Membre invité avec succès'}
   } catch (error) {
     return {
       success: false,
