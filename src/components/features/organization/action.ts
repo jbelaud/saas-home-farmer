@@ -114,14 +114,7 @@ export async function addUserToOrganizationAction(
   sendInvitationEmail?: boolean
 ): Promise<MemberActionResult> {
   await requireActionAuth()
-  console.log(
-    'addUserToOrganizationAction',
-    organizationId,
-    userId,
-    email,
-    role,
-    sendInvitationEmail
-  )
+
   try {
     const limits = await checkMembersLimit(1)
     if (!limits.allowed) {
@@ -172,7 +165,6 @@ export async function addUserToOrganizationAction(
   }
 }
 
-// Server action à créer (mock)
 export async function cancelMemberInvitationAction(
   organizationId: string,
   invitationId: string

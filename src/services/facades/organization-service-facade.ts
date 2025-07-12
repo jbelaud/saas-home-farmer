@@ -37,3 +37,7 @@ export const getMembersAndInvitationsService =
   organizationServiceInterceptor.getMembersAndInvitationsService
 export const getUserInvitationsService =
   organizationServiceInterceptor.getUserInvitationsService
+export const deleteUserInvitationsService =
+  organizationServiceInterceptor.deleteUserInvitationsService
+export const deleteInvitationByIdService =
+  organizationServiceInterceptor.deleteInvitationByIdService

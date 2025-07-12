@@ -3,7 +3,11 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 // Mock des DAOs avant l'import
 vi.mock('@/db/repositories/project-repository')
+vi.mock('@/db/repositories/user-repository')
+vi.mock('@/db/repositories/notification-repository')
 
+import {NotificationModel} from '@/db/models/notification-model'
+import {createNotificationDao} from '@/db/repositories/notification-repository'
 import {
   createProjectDao,
   createTaskDao,
@@ -16,6 +20,7 @@ import {
   updateProjectByIdDao,
   updateTaskByIdDao,
 } from '@/db/repositories/project-repository'
+import {getUserByIdDao} from '@/db/repositories/user-repository'
 
 import {
   getActiveSubscriptions,
@@ -31,6 +36,7 @@ import {
   updateProjectService,
 } from '../project-service'
 import {UserOrganizationRoleConst} from '../types/domain/auth-types'
+import {NotificationTypeConst} from '../types/domain/notification-types'
 import {
   CreateProject,
   CreateTask,
@@ -71,6 +77,19 @@ describe('[ADMIN] CRUD : Project Service', () => {
     assignedTo: null,
   }
 
+  const notificationData: NotificationModel = {
+    id: faker.string.uuid(),
+    userId: userTestAdmin.id,
+    type: NotificationTypeConst.project_created,
+    metadata: {
+      projectId,
+    },
+    title: '',
+    message: '',
+    read: false,
+    createdAt: new Date(),
+  }
+
   beforeEach(() => {
     setupAuthUserMocked(userTestAdmin)
     vi.clearAllMocks()
@@ -86,6 +105,11 @@ describe('[ADMIN] CRUD : Project Service', () => {
     vi.mocked(updateTaskByIdDao).mockResolvedValue()
     vi.mocked(deleteTaskByIdDao).mockResolvedValue()
     vi.mocked(getTasksByProjectIdDao).mockResolvedValue([taskData])
+
+    vi.mocked(createNotificationDao).mockResolvedValue(notificationData)
+
+    // Mock pour les notifications
+    vi.mocked(getUserByIdDao).mockResolvedValue(userTestAdmin)
   })
 
   it('should create a new project', async () => {
@@ -258,6 +282,9 @@ describe('[ORGANIZATION OWNER] CRUD : Project Service', () => {
     vi.mocked(updateTaskByIdDao).mockResolvedValue()
     vi.mocked(deleteTaskByIdDao).mockResolvedValue()
     vi.mocked(getTasksByProjectIdDao).mockResolvedValue([taskData])
+
+    // Mock pour les notifications
+    vi.mocked(getUserByIdDao).mockResolvedValue(userTest)
   })
 
   it('should create a project as owner', async () => {
@@ -397,6 +424,9 @@ describe('[ORGANIZATION ADMIN] CRUD : Project Service', () => {
     vi.mocked(updateTaskByIdDao).mockResolvedValue()
     vi.mocked(deleteTaskByIdDao).mockResolvedValue()
     vi.mocked(getTasksByProjectIdDao).mockResolvedValue([taskData])
+
+    // Mock pour les notifications
+    vi.mocked(getUserByIdDao).mockResolvedValue(userTest)
   })
 
   it('should create a project as admin', async () => {

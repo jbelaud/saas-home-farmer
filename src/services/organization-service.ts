@@ -1,7 +1,9 @@
 import {
   createOrganizationDao,
   createOrganizationMemberDao,
+  deleteInvitationByIdDao,
   deleteOrganizationDao,
+  deleteUserInvitationsDao,
   deleteUserOrganizationDao,
   getAllOrganizationsWithPaginationDao,
   getInvitationMembersDao,
@@ -22,6 +24,7 @@ import {getAuthUser} from '@/services/authentication/auth-service'
 import {
   canChangeOrganizationMemberRole,
   canCreateOrganization,
+  canDeleteInvitation,
   canDeleteOrganization,
   canInviteToOrganization,
   canReadOrganization,
@@ -44,6 +47,7 @@ import {
   OrganizationRole,
   UpdateOrganization,
 } from './types/domain/organization-types'
+import {uuidSchema} from './validation/common-validation'
 import {
   createOrganizationServiceSchema,
   createUserOrganizationServiceSchema,
@@ -430,4 +434,29 @@ export const getUserInvitationsService = async (): Promise<
     ...invitation,
     user: authUser, // L'utilisateur connecté est celui qui a reçu l'invitation
   }))
+}
+
+export const deleteUserInvitationsService = async (userId: string) => {
+  const parsed = userUuidSchema.safeParse(userId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+  const userIdSanitized = parsed.data
+
+  await deleteUserInvitationsDao(userIdSanitized)
+}
+
+export const deleteInvitationByIdService = async (invitationId: string) => {
+  const granted = await canDeleteInvitation()
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  const parsed = uuidSchema.safeParse(invitationId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+  const invitationIdSanitized = parsed.data
+
+  await deleteInvitationByIdDao(invitationIdSanitized)
 }

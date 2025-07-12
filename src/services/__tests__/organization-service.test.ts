@@ -3,6 +3,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {
   createOrganizationDao,
+  deleteInvitationByIdDao,
   deleteOrganizationDao,
   getOrganizationByIdDao,
   getOrganizationMembersDao,
@@ -14,6 +15,7 @@ import {
 import {AuthorizationError} from '../errors/authorization-error'
 import {
   createOrganizationService,
+  deleteInvitationByIdService,
   deleteOrganizationService,
   getOrganizationByIdService,
   getOrganizationMembersService,
@@ -627,5 +629,63 @@ describe('[ORGANIZATION MEMBER READ ACCESS] getOrganizationMembersService', () =
       AuthorizationError
     )
     expect(getOrganizationMembersDao).not.toHaveBeenCalled()
+  })
+})
+
+describe('[ADMIN] deleteInvitationByIdService', () => {
+  const invitationId = faker.string.uuid()
+
+  beforeEach(() => {
+    // Admin système peut supprimer les invitations
+    setupAuthUserMocked(userTestAdmin)
+    vi.clearAllMocks()
+    vi.mocked(deleteInvitationByIdDao).mockResolvedValue()
+  })
+
+  it('should delete invitation as admin', async () => {
+    await deleteInvitationByIdService(invitationId)
+
+    expect(deleteInvitationByIdDao).toHaveBeenCalledWith(invitationId)
+  })
+
+  it('should throw ValidationError for invalid UUID', async () => {
+    await expect(deleteInvitationByIdService('invalid-uuid')).rejects.toThrow()
+    expect(deleteInvitationByIdDao).not.toHaveBeenCalled()
+  })
+})
+
+describe('[NON-ADMIN] deleteInvitationByIdService', () => {
+  const invitationId = faker.string.uuid()
+
+  beforeEach(() => {
+    // Utilisateur normal sans permissions admin
+    setupAuthUserMocked(userTest)
+    vi.clearAllMocks()
+    vi.mocked(deleteInvitationByIdDao).mockResolvedValue()
+  })
+
+  it('should NOT delete invitation as non-admin user', async () => {
+    await expect(deleteInvitationByIdService(invitationId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(deleteInvitationByIdDao).not.toHaveBeenCalled()
+  })
+})
+
+describe('[PUBLIC] deleteInvitationByIdService', () => {
+  const invitationId = faker.string.uuid()
+
+  beforeEach(() => {
+    // Pas d'utilisateur connecté (guest)
+    setupAuthUserMocked(undefined)
+    vi.clearAllMocks()
+    vi.mocked(deleteInvitationByIdDao).mockResolvedValue()
+  })
+
+  it('should NOT delete invitation as guest', async () => {
+    await expect(deleteInvitationByIdService(invitationId)).rejects.toThrow(
+      AuthorizationError
+    )
+    expect(deleteInvitationByIdDao).not.toHaveBeenCalled()
   })
 })

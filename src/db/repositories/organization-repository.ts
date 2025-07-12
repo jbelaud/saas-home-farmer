@@ -1,6 +1,10 @@
 import {and, eq, or, sql} from 'drizzle-orm'
 
-import {member, organization as organizations} from '@/db/models/auth-model'
+import {
+  invitation,
+  member,
+  organization as organizations,
+} from '@/db/models/auth-model'
 import db from '@/db/models/db'
 import {
   AddMemberModel,
@@ -324,4 +328,16 @@ export const getUserInvitationsDao = async (
   })
 
   return rows
+}
+
+export const deleteUserInvitationsDao = async (
+  userId: string
+): Promise<void> => {
+  await db.delete(invitation).where(eq(invitation.inviterId, userId))
+}
+
+export const deleteInvitationByIdDao = async (
+  invitationId: string
+): Promise<void> => {
+  await db.delete(invitation).where(eq(invitation.id, invitationId))
 }

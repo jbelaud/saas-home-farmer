@@ -410,3 +410,15 @@ export const checkMembersLimit = async (requestedAmount: number = 1) => {
   )
   return limitCheck
 }
+
+/**
+ * Vérifie si l'utilisateur connecté peut supprimer une invitation
+ * Seuls les admins système peuvent hard delete les invitations
+ * @returns true si l'accès est autorisé
+ */
+export const canDeleteInvitation = async (): Promise<boolean> => {
+  const authUser = await getAuthUser()
+
+  // Seuls les admins système peuvent hard delete les invitations
+  return userCan(authUser, ActionsConst.MANAGE, SubjectsConst.ORGANIZATION)
+}

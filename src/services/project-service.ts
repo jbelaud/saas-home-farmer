@@ -81,6 +81,7 @@ export const createProjectService = async (projectData: CreateProject) => {
   }
 
   const project = await createProjectDao(validatedData)
+
   const user = await getAuthUser()
   await createTypedNotificationService({
     userId: user?.id || '',

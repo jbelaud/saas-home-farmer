@@ -17,7 +17,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import {isAuthAdmin} from '@/services/authorization/user-authorization'
 
+import {CancelAdminInvitationButton} from '../admin/organizations/cancel-admin-invitation-button'
+import {OrganizationAdminAddMemberForm} from '../admin/organizations/organization-admin-add-member-form'
 import {CancelInvitationButton} from './cancel-invitation-button'
 import {EditMemberRoleDialog} from './edit-member-role-dialog'
 import {OrganizationAddMemberForm} from './organization-add-member-form'
@@ -36,14 +39,22 @@ export default async function OrganizationMembersTable({
   organizationId: string
   canManageMembers?: boolean
 }) {
+  const isAdmin = await isAuthAdmin()
   const members = await getMembersAndInvitationsDal(organizationId)
 
   return (
     <div className="overflow-x-auto">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold">Membres</h3>
-        {canManageMembers && (
+        {canManageMembers && !isAdmin && (
           <OrganizationAddMemberForm
+            organizationId={organizationId}
+            existingMemberIds={members.map((m) => m.memberId ?? m.userId ?? '')}
+          />
+        )}
+
+        {isAdmin && (
+          <OrganizationAdminAddMemberForm
             organizationId={organizationId}
             existingMemberIds={members.map((m) => m.memberId ?? m.userId ?? '')}
           />
@@ -148,11 +159,21 @@ export default async function OrganizationMembersTable({
                       userName={member.name ?? ''}
                     />
                   ) : (
-                    <CancelInvitationButton
-                      organizationId={organizationId}
-                      invitationId={member.invitationId ?? ''}
-                      userEmail={member.email}
-                    />
+                    <>
+                      {isAdmin ? (
+                        <CancelAdminInvitationButton
+                          organizationId={organizationId}
+                          invitationId={member.invitationId ?? ''}
+                          userEmail={member.email}
+                        />
+                      ) : (
+                        <CancelInvitationButton
+                          organizationId={organizationId}
+                          invitationId={member.invitationId ?? ''}
+                          userEmail={member.email}
+                        />
+                      )}
+                    </>
                   )
                 ) : (
                   <span className="text-muted-foreground text-sm">-</span>
