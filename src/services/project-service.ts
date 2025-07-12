@@ -20,6 +20,7 @@ import {
   updateTasksOrderDao,
 } from '@/db/repositories/project-repository'
 
+import {getAuthUser} from './authentication/auth-service'
 import {
   canCreateProject,
   canCreateTask,
@@ -34,7 +35,9 @@ import {
 } from './authorization/project-authorization'
 import {AuthorizationError} from './errors/authorization-error'
 import {ValidationError} from './errors/validation-error'
+import {createTypedNotificationService} from './facades/notification-service-facade'
 import {Pagination} from './types/common-type'
+import {NotificationTypeConst} from './types/domain/notification-types'
 import {
   CreateProject,
   CreateTask,
@@ -77,8 +80,19 @@ export const createProjectService = async (projectData: CreateProject) => {
     throw new AuthorizationError()
   }
 
+  const project = await createProjectDao(validatedData)
+  const user = await getAuthUser()
+  await createTypedNotificationService({
+    userId: user?.id || '',
+    type: NotificationTypeConst.project_created,
+    metadata: {
+      projectId: project.id,
+      projectName: project.name,
+      organizationId: project.organizationId,
+    },
+  })
   // Création du projet
-  return await createProjectDao(validatedData)
+  return project
 }
 
 /**

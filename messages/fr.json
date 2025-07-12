@@ -553,6 +553,10 @@
         "subscription_deleted": {
           "title": "Abonnement supprimé",
           "message": "Votre abonnement a été supprimé définitivement."
+        },
+        "project_created": {
+          "title": "Projet créé",
+          "message": "Votre projet a été créé avec succès."
         }
       }
     }

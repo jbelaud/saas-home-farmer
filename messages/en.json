@@ -553,6 +553,10 @@
         "subscription_deleted": {
           "title": "Subscription Deleted",
           "message": "Your subscription has been permanently deleted."
+        },
+        "project_created": {
+          "title": "Project Created",
+          "message": "Your project has been created successfully."
         }
       }
     }
