@@ -91,6 +91,7 @@ export type NotificationMetadata = {
     organizationId: string
     organizationName: string
     invitedBy: string
+    invitedByEmail: string
     role: string
   }
   project_created?: {

@@ -534,7 +534,9 @@
         },
         "organization_invitation": {
           "title": "Invitación a la Organización",
-          "message": "Has sido invitado a unirte a una organización."
+          "message": "Has sido invitado a unirte a una organización.",
+          "title_invited": "Has invitado a {email} a unirte a la organización {organizationName}.",
+          "message_invited": "Has invitado a {email} a unirte a la organización {organizationName}."
         },
         "subscription_created": {
           "title": "Suscripción Creada",

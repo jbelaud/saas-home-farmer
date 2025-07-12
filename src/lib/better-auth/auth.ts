@@ -169,6 +169,7 @@ const options = {
               organizationId: data.organization.id,
               organizationName: data.organization.name,
               invitedBy: data.inviter.user.name,
+              invitedByEmail: data.inviter.user.email,
               role: data.role,
             },
           })

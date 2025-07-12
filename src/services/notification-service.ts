@@ -13,6 +13,7 @@ import {
   updateNotificationDao,
 } from '@/db/repositories/notification-repository'
 import {
+  getUserByEmailDao,
   getUserByIdDao,
   getUserSettingsByUserIdDao,
 } from '@/db/repositories/user-repository'
@@ -130,7 +131,9 @@ export const createTypedNotificationService = async <
   // Déterminer automatiquement si l'email est critique
   const forceEmail = isCriticalNotification(notificationParams.type)
 
-  return await createNotificationService(finalNotificationParams, {forceEmail})
+  return await createNotificationService(finalNotificationParams, {
+    forceEmail,
+  })
 }
 /**
  * Créer une nouvelle notification
@@ -173,6 +176,11 @@ export const createNotificationService = async (
   try {
     const userSettings = await getUserSettingsByUserIdDao(parsed.data.userId)
     const userLanguage = userSettings?.language || 'fr'
+
+    const translations = await getTranslations({
+      locale: userLanguage,
+      namespace: `services.domain.notification.${parsed.data.type}`,
+    })
 
     // Vérifier si l'utilisateur a activé les notifications email OU si c'est forcé
     const shouldSendEmail =
@@ -232,9 +240,28 @@ export const createNotificationService = async (
         await sendOrganizationInvitationService({
           email: targetUser.email,
           invitedByUsername: parsed.data.metadata.invitedBy,
-          invitedByEmail: targetUser.email,
+          invitedByEmail: parsed.data.metadata.invitedByEmail,
           teamName: parsed.data.metadata.organizationName,
           inviteLink,
+        })
+        const invitedByUser = await getUserByEmailDao(
+          parsed.data.metadata.invitedByEmail
+        )
+
+        const titleInvited = translations('title_invited', {
+          email: targetUser.email,
+          organizationName: parsed.data.metadata.organizationName,
+        })
+        const messageInvited = translations('message_invited', {
+          email: targetUser.email,
+          organizationName: parsed.data.metadata.organizationName,
+        })
+
+        await createNotificationDao({
+          ...parsed.data,
+          title: titleInvited,
+          message: messageInvited,
+          userId: invitedByUser?.id || '',
         })
       } else if (
         parsed.data.type === 'subscription_created' &&
