@@ -26,19 +26,22 @@ export function AppBreadcrumb() {
         {segments.map((segment, index) => {
           const href = `/${segments.slice(0, index + 1).join('/')}`
           const isLast = index === segments.length - 1
+          const isFirst = index === 0
 
           return (
             <React.Fragment key={href}>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                {isLast ? (
-                  <BreadcrumbPage>{capitalize(segment)}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink href={href}>
-                    {capitalize(segment)}
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
+              {!isFirst && <BreadcrumbSeparator />}
+              {!isFirst && (
+                <BreadcrumbItem>
+                  {isLast ? (
+                    <BreadcrumbPage>{capitalize(segment)}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink href={href}>
+                      {capitalize(segment)}
+                    </BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+              )}
             </React.Fragment>
           )
         })}
