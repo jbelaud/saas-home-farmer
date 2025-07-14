@@ -178,6 +178,7 @@
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
     "account": "Account",
+    "apiKeys": "API Keys",
     "settings": "Settings",
     "billing": "Billing",
     "notifications": "Notifications",
@@ -376,6 +377,54 @@
         },
         "sessionCount": "{count, plural, =0 {No active sessions} one {# active session} other {# active sessions}}"
       }
+    }
+  },
+  "ApiKeysPage": {
+    "title": "API Keys",
+    "description": "Manage your API keys for external integrations",
+    "management": {
+      "title": "API Key Management",
+      "description": "Create and manage API keys to access your account programmatically"
+    },
+    "actions": {
+      "createKey": "Create API Key",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating...",
+      "delete": "Delete"
+    },
+    "createDialog": {
+      "title": "Create New API Key",
+      "description": "Create a new API key for your application",
+      "nameLabel": "Key Name",
+      "namePlaceholder": "Enter a descriptive name for this API key",
+      "newKeyLabel": "Your new API key",
+      "keyWarning": "⚠️ This is the only time you'll see this key. Copy it and store it securely."
+    },
+    "deleteDialog": {
+      "title": "Delete API Key",
+      "description": "Are you sure you want to delete the API key \"{name}\"? This action cannot be undone and will immediately revoke access for applications using this key."
+    },
+    "table": {
+      "name": "Name",
+      "key": "Key",
+      "created": "Created",
+      "expires": "Expires",
+      "actions": "Actions",
+      "noKeys": "No API keys found. Create your first API key to get started.",
+      "never": "Never",
+      "keyHidden": "Key is hidden for security reasons"
+    },
+    "messages": {
+      "keyCreated": "API key created successfully",
+      "keyDeleted": "API key deleted successfully",
+      "copiedToClipboard": "Copied to clipboard"
+    },
+    "errors": {
+      "nameRequired": "API key name is required",
+      "loadFailed": "Failed to load API keys",
+      "createFailed": "Failed to create API key",
+      "deleteFailed": "Failed to delete API key"
     }
   },
   "AccountSettingsPage": {

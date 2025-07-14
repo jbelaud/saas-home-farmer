@@ -5,6 +5,7 @@ import {createAuthMiddleware} from 'better-auth/api'
 import {nextCookies} from 'better-auth/next-js'
 import {
   admin,
+  apiKey,
   bearer,
   customSession,
   magicLink,
@@ -117,6 +118,7 @@ const options = {
   },
   plugins: [
     bearer(),
+    apiKey(),
     twoFactor({
       issuer: APP_ISSUER,
       skipVerificationOnEnable: AuthAppConfig.skipVerificationOnEnable,

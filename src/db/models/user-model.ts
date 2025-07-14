@@ -8,7 +8,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-import {account, member, roleEnum, user} from './auth-model'
+import {account, apikey, member, roleEnum, user} from './auth-model'
 import {notifications} from './notification-model'
 
 // Enums pour les paramètres utilisateur
@@ -63,6 +63,9 @@ export const usersRelations = relations(user, ({one, many}) => ({
   }),
   notifications: many(notifications, {
     relationName: 'userToNotifications',
+  }),
+  apiKeys: many(apikey, {
+    relationName: 'userToApiKeys',
   }),
   // userOrganizations: many(userOrganizations, {
   //   relationName: 'userToOrganizations',

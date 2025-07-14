@@ -1,6 +1,7 @@
 import {stripeClient} from '@better-auth/stripe/client'
 import {
   adminClient,
+  apiKeyClient,
   magicLinkClient,
   organizationClient,
   twoFactorClient,
@@ -27,6 +28,7 @@ export const authClient = createAuthClient({
     organizationClient(),
     magicLinkClient(),
     twoFactorClient(),
+    apiKeyClient(),
     stripeClient({
       subscription: true, //if you want to enable subscription management
     }),

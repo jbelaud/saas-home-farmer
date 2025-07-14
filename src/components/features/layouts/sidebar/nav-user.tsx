@@ -5,6 +5,7 @@ import {
   Bell,
   ChevronsUpDown,
   CreditCard,
+  Key,
   LogOut,
   Moon,
   Settings,
@@ -116,6 +117,10 @@ export function NavUser({user}: {user?: User}) {
               <DropdownMenuItem>
                 <BadgeCheck />
                 <Link href="/account">{t('account')}</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Key />
+                <Link href="/account/api-keys">{t('apiKeys')}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings />

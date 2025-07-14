@@ -178,6 +178,7 @@
     "darkMode": "Mode sombre",
     "lightMode": "Mode clair",
     "account": "Compte",
+    "apiKeys": "Clés API",
     "settings": "Paramètres",
     "billing": "Facturation",
     "notifications": "Notifications",
@@ -376,6 +377,54 @@
         },
         "sessionCount": "{count, plural, =0 {Aucune session active} one {# session active} other {# sessions actives}}"
       }
+    }
+  },
+  "ApiKeysPage": {
+    "title": "Clés API",
+    "description": "Gérez vos clés API pour les intégrations externes",
+    "management": {
+      "title": "Gestion des clés API",
+      "description": "Créez et gérez des clés API pour accéder à votre compte de manière programmatique"
+    },
+    "actions": {
+      "createKey": "Créer une clé API",
+      "cancel": "Annuler",
+      "create": "Créer",
+      "creating": "Création...",
+      "delete": "Supprimer"
+    },
+    "createDialog": {
+      "title": "Créer une nouvelle clé API",
+      "description": "Créez une nouvelle clé API pour votre application",
+      "nameLabel": "Nom de la clé",
+      "namePlaceholder": "Entrez un nom descriptif pour cette clé API",
+      "newKeyLabel": "Votre nouvelle clé API",
+      "keyWarning": "⚠️ C'est la seule fois que vous verrez cette clé. Copiez-la et stockez-la en sécurité."
+    },
+    "deleteDialog": {
+      "title": "Supprimer la clé API",
+      "description": "Êtes-vous sûr de vouloir supprimer la clé API \"{name}\" ? Cette action ne peut pas être annulée et révoquera immédiatement l'accès pour les applications utilisant cette clé."
+    },
+    "table": {
+      "name": "Nom",
+      "key": "Clé",
+      "created": "Créée",
+      "expires": "Expire",
+      "actions": "Actions",
+      "noKeys": "Aucune clé API trouvée. Créez votre première clé API pour commencer.",
+      "never": "Jamais",
+      "keyHidden": "La clé est masquée pour des raisons de sécurité"
+    },
+    "messages": {
+      "keyCreated": "Clé API créée avec succès",
+      "keyDeleted": "Clé API supprimée avec succès",
+      "copiedToClipboard": "Copié dans le presse-papiers"
+    },
+    "errors": {
+      "nameRequired": "Le nom de la clé API est requis",
+      "loadFailed": "Échec du chargement des clés API",
+      "createFailed": "Échec de la création de la clé API",
+      "deleteFailed": "Échec de la suppression de la clé API"
     }
   },
   "AccountSettingsPage": {
