@@ -1,3 +1,5 @@
-GET http://localhost:3000/api/projects/by-token
-Authorization: Bearer tk8hM7tm7NxArWpRRGNc11XYz13BzWvY
+# GET http://localhost:3000/api/projects/by-token
+# Authorization: Bearer tk8hM7tm7NxArWpRRGNc11XYz13BzWvY
 
+GET http://localhost:3000/api/projects/by-token
+X-API-Key:ZtQBXOaBOauptbZyfDgjsmuLViuxFIYTXdaIUSgHpKSGDLizZHrSOnVPTNkpXnUn
