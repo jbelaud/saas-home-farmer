@@ -2,7 +2,7 @@
 
 import {Copy, Plus, Trash2} from 'lucide-react'
 import {useTranslations} from 'next-intl'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
 import {
@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import {Button} from '@/components/ui/button'
+import {Checkbox} from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -52,6 +53,8 @@ export function ApiKeyManagement() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [newKeyName, setNewKeyName] = useState('')
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null)
+  const [expiresAt, setExpiresAt] = useState<string>('')
+  const [neverExpires, setNeverExpires] = useState(false)
   // Remove visibility toggle since we can't retrieve keys after creation
 
   const loadApiKeys = async () => {
@@ -68,10 +71,11 @@ export function ApiKeyManagement() {
               key.createdAt instanceof Date
                 ? key.createdAt.toISOString()
                 : key.createdAt,
-            expiresAt:
-              key.expiresAt instanceof Date
+            expiresAt: key.expiresAt
+              ? key.expiresAt instanceof Date
                 ? key.expiresAt.toISOString()
-                : key.expiresAt || undefined,
+                : key.expiresAt
+              : undefined,
           }))
         )
       }
@@ -91,15 +95,35 @@ export function ApiKeyManagement() {
 
     setIsLoading(true)
     try {
-      const response = await authClient.apiKey.create({
+      const createData: {name: string; expiresIn?: number} = {
         name: newKeyName.trim(),
-      })
+      }
+
+      // Add expiration if not "never"
+      if (!neverExpires && expiresAt) {
+        const expirationDate = new Date(expiresAt)
+        const now = new Date()
+
+        if (expirationDate <= now) {
+          toast.error(t('errors.invalidExpiration'))
+          setIsLoading(false)
+          return
+        }
+
+        // Calculate expiration in seconds from now
+        const expiresIn = Math.floor(
+          (expirationDate.getTime() - now.getTime()) / 1000
+        )
+        createData.expiresIn = expiresIn
+      }
+
+      const response = await authClient.apiKey.create(createData)
 
       if (response.data) {
         setNewlyCreatedKey(response.data.key) // Use key property
-        setNewKeyName('')
         await loadApiKeys()
         toast.success(t('messages.keyCreated'))
+        // Note: Don't clear newKeyName or close dialog yet - user needs to copy the key
       }
     } catch (error) {
       console.error('Error creating API key:', error)
@@ -130,7 +154,11 @@ export function ApiKeyManagement() {
     toast.success(t('messages.copiedToClipboard'))
   }
 
-  // Keys are not retrievable after creation for security reasons
+  // Load API keys on component mount
+  useEffect(() => {
+    loadApiKeys()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
@@ -147,7 +175,7 @@ export function ApiKeyManagement() {
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={loadApiKeys}>
+            <Button>
               <Plus className="mr-2 h-4 w-4" />
               {t('actions.createKey')}
             </Button>
@@ -170,6 +198,47 @@ export function ApiKeyManagement() {
                   disabled={isLoading}
                 />
               </div>
+
+              <div className="space-y-3">
+                <Label>{t('createDialog.expirationLabel')}</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="neverExpires"
+                    checked={neverExpires}
+                    onCheckedChange={(checked) => {
+                      setNeverExpires(checked as boolean)
+                      if (checked) {
+                        setExpiresAt('')
+                      }
+                    }}
+                    disabled={isLoading}
+                  />
+                  <Label htmlFor="neverExpires" className="text-sm font-normal">
+                    {t('createDialog.neverExpires')}
+                  </Label>
+                </div>
+                {!neverExpires && (
+                  <div className="space-y-2">
+                    <Label htmlFor="expiresAt" className="text-sm">
+                      {t('createDialog.expiresAtLabel')}
+                    </Label>
+                    <Input
+                      id="expiresAt"
+                      type="datetime-local"
+                      value={expiresAt}
+                      onChange={(e) => setExpiresAt(e.target.value)}
+                      disabled={isLoading}
+                      min={new Date(Date.now() + 60000)
+                        .toISOString()
+                        .slice(0, 16)} // Minimum 1 minute from now
+                    />
+                    <p className="text-muted-foreground text-xs">
+                      {t('createDialog.expirationHelp')}
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {newlyCreatedKey && (
                 <div className="space-y-2">
                   <Label>{t('createDialog.newKeyLabel')}</Label>
@@ -193,22 +262,40 @@ export function ApiKeyManagement() {
                 </div>
               )}
               <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsCreateDialogOpen(false)
-                    setNewKeyName('')
-                    setNewlyCreatedKey(null)
-                  }}
-                >
-                  {t('actions.cancel')}
-                </Button>
-                <Button
-                  onClick={createApiKey}
-                  disabled={isLoading || !newKeyName.trim()}
-                >
-                  {isLoading ? t('actions.creating') : t('actions.create')}
-                </Button>
+                {!newlyCreatedKey ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsCreateDialogOpen(false)
+                        setNewKeyName('')
+                        setNewlyCreatedKey(null)
+                        setExpiresAt('')
+                        setNeverExpires(false)
+                      }}
+                    >
+                      {t('actions.cancel')}
+                    </Button>
+                    <Button
+                      onClick={createApiKey}
+                      disabled={isLoading || !newKeyName.trim()}
+                    >
+                      {isLoading ? t('actions.creating') : t('actions.create')}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      setIsCreateDialogOpen(false)
+                      setNewKeyName('')
+                      setNewlyCreatedKey(null)
+                      setExpiresAt('')
+                      setNeverExpires(false)
+                    }}
+                  >
+                    {t('actions.done')}
+                  </Button>
+                )}
               </div>
             </div>
           </DialogContent>

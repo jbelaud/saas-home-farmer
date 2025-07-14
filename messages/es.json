@@ -147,7 +147,8 @@
       "subscriptions": "Suscripciones",
       "organizations": "Organizaciones",
       "invitations": "Invitaciones",
-      "settings": "Configuración"
+      "settings": "Configuración",
+      "apiKeys": "Claves API"
     },
     "projects": {
       "title": "Proyectos",
@@ -391,13 +392,18 @@
       "cancel": "Cancelar",
       "create": "Crear",
       "creating": "Creando...",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "done": "Listo"
     },
     "createDialog": {
       "title": "Crear nueva clave API",
       "description": "Crea una nueva clave API para tu aplicación",
       "nameLabel": "Nombre de la clave",
       "namePlaceholder": "Ingresa un nombre descriptivo para esta clave API",
+      "expirationLabel": "Expiración",
+      "neverExpires": "Nunca expira",
+      "expiresAtLabel": "Expira el",
+      "expirationHelp": "Elige cuándo debe expirar esta clave API por seguridad",
       "newKeyLabel": "Tu nueva clave API",
       "keyWarning": "⚠️ Esta es la única vez que verás esta clave. Cópiala y guárdala de forma segura."
     },
@@ -424,7 +430,8 @@
       "nameRequired": "El nombre de la clave API es requerido",
       "loadFailed": "Error al cargar las claves API",
       "createFailed": "Error al crear la clave API",
-      "deleteFailed": "Error al eliminar la clave API"
+      "deleteFailed": "Error al eliminar la clave API",
+      "invalidExpiration": "La fecha de expiración debe ser en el futuro"
     }
   },
   "AccountSettingsPage": {

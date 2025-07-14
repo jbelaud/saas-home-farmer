@@ -147,7 +147,8 @@
       "subscriptions": "Subscriptions",
       "organizations": "Organizations",
       "invitations": "Invitations",
-      "settings": "Settings"
+      "settings": "Settings",
+      "apiKeys": "API Keys"
     },
     "projects": {
       "title": "Projects",
@@ -391,13 +392,18 @@
       "cancel": "Cancel",
       "create": "Create",
       "creating": "Creating...",
-      "delete": "Delete"
+      "delete": "Delete",
+      "done": "Done"
     },
     "createDialog": {
       "title": "Create New API Key",
       "description": "Create a new API key for your application",
       "nameLabel": "Key Name",
       "namePlaceholder": "Enter a descriptive name for this API key",
+      "expirationLabel": "Expiration",
+      "neverExpires": "Never expires",
+      "expiresAtLabel": "Expires at",
+      "expirationHelp": "Choose when this API key should expire for security",
       "newKeyLabel": "Your new API key",
       "keyWarning": "⚠️ This is the only time you'll see this key. Copy it and store it securely."
     },
@@ -424,7 +430,8 @@
       "nameRequired": "API key name is required",
       "loadFailed": "Failed to load API keys",
       "createFailed": "Failed to create API key",
-      "deleteFailed": "Failed to delete API key"
+      "deleteFailed": "Failed to delete API key",
+      "invalidExpiration": "Expiration date must be in the future"
     }
   },
   "AccountSettingsPage": {

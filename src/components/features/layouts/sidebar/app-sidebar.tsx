@@ -81,6 +81,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               url: '/account/settings',
             },
             {
+              title: t('account.apiKeys'),
+              url: '/account/api-keys',
+            },
+            {
               title: t('account.subscriptions'),
               url: '/account/subscription',
             },
