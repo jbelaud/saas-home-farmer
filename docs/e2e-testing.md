@@ -84,16 +84,16 @@ pnpm test:e2e --reporter=html
 ### Structure de base
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import {test, expect} from '@playwright/test'
 
 test.describe('Ma fonctionnalité', () => {
-  test('devrait faire quelque chose', async ({ page }) => {
-    await page.goto('/');
-    
+  test('devrait faire quelque chose', async ({page}) => {
+    await page.goto('/')
+
     // Vos assertions ici
-    await expect(page.locator('h1')).toBeVisible();
-  });
-});
+    await expect(page.locator('h1')).toBeVisible()
+  })
+})
 ```
 
 ### Bonnes pratiques
@@ -106,24 +106,24 @@ test.describe('Ma fonctionnalité', () => {
 ### Exemple complet
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import {test, expect} from '@playwright/test'
 
 test.describe('Authentification', () => {
-  test('devrait permettre de se connecter', async ({ page }) => {
+  test('devrait permettre de se connecter', async ({page}) => {
     // Naviguer vers la page de connexion
-    await page.goto('/signin');
-    
+    await page.goto('/signin')
+
     // Remplir le formulaire
-    await page.fill('input[type="email"]', 'test@example.com');
-    await page.fill('input[type="password"]', 'password123');
-    
+    await page.fill('input[type="email"]', 'test@example.com')
+    await page.fill('input[type="password"]', 'password123')
+
     // Soumettre le formulaire
-    await page.click('button[type="submit"]');
-    
+    await page.click('button[type="submit"]')
+
     // Vérifier la redirection
-    await expect(page).toHaveURL('/dashboard');
-  });
-});
+    await expect(page).toHaveURL('/dashboard')
+  })
+})
 ```
 
 ## Débogage
@@ -135,6 +135,7 @@ pnpm test:e2e --debug
 ```
 
 Le mode debug permet de :
+
 - Exécuter les tests pas à pas
 - Inspecter les éléments en temps réel
 - Voir les actions Playwright
