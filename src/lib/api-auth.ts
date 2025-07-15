@@ -134,7 +134,12 @@ export function withDynamicRedactorAuth(handler: DynamicRouteHandler) {
   return withDynamicAuth(handler, RoleConst.REDACTOR)
 }
 
-// Fonction simple pour authentification par token
+/**
+ * @deprecated x-api-key est gerer automatiquement par better auth
+ * @param handler ]@
+ * @param requiredRole
+ * @returns
+ */
 export function withAuthToken(
   handler: StaticRouteHandler,
   requiredRole?: Roles
@@ -143,27 +148,25 @@ export function withAuthToken(
     try {
       // Récupérer le token depuis les headers
       const authHeader = request.headers.get('Authorization')
-      const apiKeyHeader = request.headers.get('X-API-Key')
-      const authTokenHeader = request.headers.get('X-Auth-Token')
+      const apiKeyHeader = request.headers.get('x-api-key')
 
       let token: string | null = null
 
       // Vérifier différents formats de token
+
+      // Valider le token avec better-auth
+      const tokenHeaders = new Headers()
       if (authHeader?.startsWith('Bearer ')) {
         token = authHeader.substring(7)
+        tokenHeaders.set('authorization', `Bearer ${token}`)
       } else if (apiKeyHeader) {
         token = apiKeyHeader
-      } else if (authTokenHeader) {
-        token = authTokenHeader
+        tokenHeaders.set('x-api-key', `${apiKeyHeader}`)
       }
 
       if (!token) {
         return NextResponse.json({error: 'Token manquant'}, {status: 401})
       }
-
-      // Valider le token avec better-auth
-      const tokenHeaders = new Headers()
-      tokenHeaders.set('authorization', `Bearer ${token}`)
 
       const session = await auth.api.getSession({
         headers: tokenHeaders,

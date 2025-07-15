@@ -1,5 +1,12 @@
-# GET http://localhost:3000/api/projects/by-token
-# Authorization: Bearer tk8hM7tm7NxArWpRRGNc11XYz13BzWvY
 
-GET http://localhost:3000/api/projects/by-token
-X-API-Key:ZtQBXOaBOauptbZyfDgjsmuLViuxFIYTXdaIUSgHpKSGDLizZHrSOnVPTNkpXnUn
+#Get the token here : http://localhost:3000/fr/account (active sessions)
+# GET http://localhost:3000/api/projects/by-token
+# Authorization: Bearer LhBGvjx4DOjTmVXL1mVNpV5Nzwd4RVxr
+
+#Get the api key here : http://localhost:3000/fr/account/api-keys
+# GET http://localhost:3000/api/projects/by-token
+# x-api-key:WwGZYxDsbjZMHxeYAUdDAUeVZhXhBkcRHyCJLxgLtaygNtUsiJvQVwosXzvRdKGF
+
+GET http://localhost:3000/api/projects
+x-api-key:WwGZYxDsbjZMHxeYAUdDAUeVZhXhBkcRHyCJLxgLtaygNtUsiJvQVwosXzvRdKGF
+
