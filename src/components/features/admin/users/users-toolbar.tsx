@@ -1,7 +1,7 @@
 'use client'
 
 import {Search, X} from 'lucide-react'
-import React, {useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {useDebounce} from 'react-use'
 
 import {Button} from '@/components/ui/button'
@@ -30,11 +30,21 @@ export function UsersToolbar({
   perPage,
 }: UsersToolbarProps) {
   const [searchValue, setSearchValue] = useState(initialSearch)
+  const isUserTyping = useRef(false)
+
+  // Synchroniser avec les changements externes (pagination)
+  useEffect(() => {
+    if (!isUserTyping.current && initialSearch !== searchValue) {
+      setSearchValue(initialSearch)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSearch])
 
   useDebounce(
     () => {
-      if (onSearch) {
+      if (onSearch && isUserTyping.current) {
         onSearch(searchValue)
+        isUserTyping.current = false
       }
     },
     300,
@@ -44,16 +54,19 @@ export function UsersToolbar({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearchValue(value)
+    isUserTyping.current = true
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && onSearch) {
+      isUserTyping.current = false
       onSearch(searchValue)
     }
   }
 
   const handleClearSearch = () => {
     setSearchValue('')
+    isUserTyping.current = true
   }
 
   return (
