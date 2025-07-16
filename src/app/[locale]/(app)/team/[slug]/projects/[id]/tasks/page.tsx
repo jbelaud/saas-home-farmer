@@ -3,6 +3,7 @@ import {Suspense} from 'react'
 
 import {getTasksByProjectGroupedByStatusDal} from '@/app/dal/task-dal'
 import {getUsersByOrganizationDal} from '@/app/dal/user-dal'
+import {CreateTaskModal} from '@/components/features/tasks/create-task-modal'
 import {TaskBoardComponent} from '@/components/features/tasks/task-board'
 import {Button} from '@/components/ui/button'
 import {getProjectByIdService} from '@/services/facades/project-service-facade'
@@ -45,6 +46,8 @@ export default async function TasksPage({
     notFound()
   }
 
+  const users = await getUsersByOrganizationDal(project.organizationId)
+
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
@@ -56,7 +59,13 @@ export default async function TasksPage({
           <Button variant="outline" asChild>
             <a href={`/team/${slug}/projects/${id}/edit`}>Modifier le projet</a>
           </Button>
-          <Button>Nouvelle tâche</Button>
+          <CreateTaskModal
+            projectId={id}
+            organizationId={project.organizationId}
+            users={users}
+          >
+            <Button>Nouvelle tâche</Button>
+          </CreateTaskModal>
         </div>
       </div>
 
