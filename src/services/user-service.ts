@@ -27,6 +27,7 @@ import {
   ValidationParsedZodError,
 } from './errors/validation-error'
 import {Pagination} from './types/common-type'
+import {RoleConst} from './types/domain/auth-types'
 import {CreateOrganization} from './types/domain/organization-types'
 import {
   CreateUser,
@@ -178,14 +179,31 @@ export const isEmailAvailableService = async (
 /**
  * Initialise les données utilisateur en vérifiant et créant une organisation si nécessaire
  */
-export const initializeRegisterUserDataService = async (email: string) => {
+export const initializeRegisterUserDataService = async (
+  email: string,
+  createUser: boolean = false
+) => {
   if (!email) {
     throw new ValidationError('Email is required')
   }
 
-  const user = await getUserByEmailDao(email)
-  if (!user) {
+  let user = await getUserByEmailDao(email)
+
+  if (!user && !createUser) {
     throw new ValidationError('User not found')
+  }
+
+  if (!user && createUser) {
+    await createUserDao({
+      email,
+      name: email.split('@')[0],
+      role: RoleConst.USER,
+    })
+    user = await getUserByEmailDao(email)
+  }
+
+  if (!user) {
+    throw new ValidationError('Failed to retrieve user')
   }
 
   // Vérifier si l'utilisateur a déjà une organisation

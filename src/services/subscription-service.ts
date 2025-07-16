@@ -8,12 +8,15 @@ import {
   getActivePlansDao,
   getActiveSubscriptionsByStripeCustomerIdDao,
   getActiveSubscriptionsByUserIdDao,
+  getAllActiveSubscriptionsDao,
+  getNewSubscriptionsThisMonthDao,
   getPlanByCodeDao,
   getPlanByIdDao,
   getPlanByPriceIdDao,
   getPlansWithPaginationDao,
   getSubscriptionByIdDao,
   getSubscriptionByUserIdDao,
+  getSubscriptionGrowthByMonthDao,
   getSubscriptionsWithPaginationDao,
   initSubscriptionDao,
   isActivePlanExistDao,
@@ -32,6 +35,7 @@ import {
 } from '@/db/repositories/user-repository'
 import {BILLING_MODE} from '@/lib/helper/subscription-helper'
 import {logger} from '@/lib/logger'
+import {getSubscriptionDetails} from '@/lib/stripe/stripe-utils'
 import {
   canCreatePlan,
   canDeletePlan,
@@ -50,6 +54,7 @@ import {
   type CreateSubscription,
   type LimitType,
   LimitTypeConst,
+  type MRRStats,
   type Plan,
   PlanConst,
   type Subscription,
@@ -988,3 +993,167 @@ export const reactivateSubscriptionAdminService = async (
     cancelAtPeriodEnd: false,
   })
 }
+
+// ========================================
+// SERVICES POUR LES STATISTIQUES MRR
+// ========================================
+
+/**
+ * Obtenir toutes les statistiques MRR pour le dashboard admin
+ */
+export const getAdminStripeSubscriptionMRRService =
+  async (): Promise<MRRStats> => {
+    // 1. Vérification des autorisations admin
+    const canList = await canReadSubscription()
+    if (!canList) {
+      throw new AuthorizationError(
+        'Accès non autorisé pour consulter les statistiques MRR'
+      )
+    }
+
+    // 2. Récupérer toutes les subscriptions actives, nouvelles du mois et croissance
+    const [subscriptions, newSubscriptionsThisMonth, subscriptionGrowth] =
+      await Promise.all([
+        getAllActiveSubscriptionsDao(),
+        getNewSubscriptionsThisMonthDao(),
+        getSubscriptionGrowthByMonthDao(),
+      ])
+
+    // 3. Pour chaque subscription, récupérer les détails Stripe
+    const subscriptionDetails = await Promise.allSettled(
+      subscriptions.map(async (sub) => {
+        if (!sub.stripeSubscriptionId) return null
+
+        try {
+          const stripeDetails = await getSubscriptionDetails(
+            sub.stripeSubscriptionId
+          )
+          if (!stripeDetails) return null
+
+          // Récupérer les infos du plan
+          const plan = await getPlanByCodeDao(sub.plan)
+
+          return {
+            subscriptionId: sub.id,
+            stripeSubscriptionId: sub.stripeSubscriptionId,
+            planName: plan?.planName || sub.plan,
+            planCode: sub.plan,
+            amount: stripeDetails.items.data[0]?.price.unit_amount || 0,
+            currency: stripeDetails.items.data[0]?.price.currency || 'eur',
+            quantity: stripeDetails.items.data[0]?.quantity || 1,
+            status: stripeDetails.status,
+            interval: stripeDetails.items.data[0]?.price.recurring?.interval as
+              | 'month'
+              | 'year',
+            intervalCount:
+              stripeDetails.items.data[0]?.price.recurring?.interval_count || 1,
+            currentPeriodStart: new Date(sub.periodStart || 0),
+            currentPeriodEnd: new Date(sub.periodEnd || 0),
+            createdAt: sub.createdAt || new Date(),
+            referenceId: sub.referenceId,
+          }
+        } catch (error) {
+          logger.error('Erreur récupération détails Stripe:', {
+            subscriptionId: sub.id,
+            error,
+          })
+          return null
+        }
+      })
+    )
+
+    // 4. Filtrer les résultats valides
+    const validSubscriptions = subscriptionDetails
+      .map((result) => (result.status === 'fulfilled' ? result.value : null))
+      .filter(Boolean)
+
+    // 5. Calculer les statistiques
+    let totalMRR = 0
+    let monthlyMRR = 0
+    let yearlyMRR = 0
+    const planBreakdowns = new Map<
+      string,
+      {
+        planCode: string
+        planName: string
+        subscriptionCount: number
+        totalMRR: number
+        currency: string
+        amounts: number[]
+      }
+    >()
+
+    validSubscriptions.forEach((sub) => {
+      // Calculer MRR (montant mensuel récurrent)
+      const unitAmount = sub?.amount || 0
+      const quantity = sub?.quantity || 0
+      let monthlyAmount = unitAmount * quantity
+
+      if (sub?.interval === 'year') {
+        monthlyAmount = Math.round(monthlyAmount / 12) // Diviser par 12 pour avoir le MRR
+        yearlyMRR += monthlyAmount
+      } else {
+        monthlyMRR += monthlyAmount
+      }
+
+      totalMRR += monthlyAmount
+
+      // Calculer breakdown par plan
+      const planKey = sub?.planCode || 'free'
+      if (!planBreakdowns.has(planKey)) {
+        planBreakdowns.set(planKey, {
+          planCode: sub?.planCode || 'free',
+          planName: sub?.planName || 'free',
+          subscriptionCount: 0,
+          totalMRR: 0,
+          currency: sub?.currency || 'eur',
+          amounts: [],
+        })
+      }
+
+      const breakdown = planBreakdowns.get(planKey)
+      if (breakdown) {
+        breakdown.subscriptionCount++
+        breakdown.totalMRR += monthlyAmount
+        breakdown.amounts.push(monthlyAmount)
+      }
+    })
+
+    // 6. Calculer les moyennes et formater les résultats
+    const planBreakdownsArray = Array.from(planBreakdowns.values()).map(
+      (breakdown) => ({
+        planCode: breakdown.planCode,
+        planName: breakdown.planName,
+        subscriptionCount: breakdown.subscriptionCount,
+        totalMRR: breakdown.totalMRR,
+        averageAmount: Math.round(
+          breakdown.totalMRR / breakdown.subscriptionCount
+        ),
+        currency: breakdown.currency,
+      })
+    )
+
+    const averageRevenuePerUser =
+      validSubscriptions.length > 0
+        ? Math.round(totalMRR / validSubscriptions.length)
+        : 0
+
+    // 7. Calculer la croissance des subscriptions
+    const totalSubs = validSubscriptions.length
+    const newSubsCount = newSubscriptionsThisMonth.length
+    const subscriptionGrowthPercent =
+      totalSubs > 0 ? Math.round((newSubsCount / totalSubs) * 100) : 0
+
+    return {
+      totalMRR,
+      currency: validSubscriptions[0]?.currency || 'eur',
+      totalActiveSubscriptions: validSubscriptions.length,
+      newSubscriptionsThisMonth: newSubsCount,
+      subscriptionGrowthPercent,
+      subscriptionGrowth,
+      planBreakdowns: planBreakdownsArray,
+      monthlyMRR,
+      yearlyMRR,
+      averageRevenuePerUser,
+    }
+  }

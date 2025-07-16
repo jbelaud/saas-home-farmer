@@ -140,8 +140,14 @@ const options = {
     }),
     magicLink({
       sendMagicLink: async ({email, url}) => {
+        console.log('sendMagicLink', email, url)
         // Find user by email for notification service
-        const user = await getUserByEmailDao(email)
+        let user = await getUserByEmailDao(email)
+        if (!user) {
+          // Regsiter with magic Link
+          await initializeRegisterUserDataService(email, true)
+          user = await getUserByEmailDao(email)
+        }
         if (user) {
           await createTypedNotificationService({
             userId: user.id,

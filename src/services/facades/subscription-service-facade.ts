@@ -61,3 +61,9 @@ export const cancelSubscriptionAdminService =
   subscriptionServiceInterceptor.cancelSubscriptionAdminService
 export const reactivateSubscriptionAdminService =
   subscriptionServiceInterceptor.reactivateSubscriptionAdminService
+
+// ========================================
+// SERVICES DE STATISTIQUES MRR ADMIN
+// ========================================
+export const getAdminStripeSubscriptionMRRService =
+  subscriptionServiceInterceptor.getAdminStripeSubscriptionMRRService
