@@ -140,3 +140,8 @@ Always use `pnpm` over `npm` for this project.
 ## CURSOR RULES
 
 Read the .cursor/rules folder for the rules to follow.
+
+## Coding Guidelines
+
+- Ne pas utiliser de commentaires pour expliquer le code, seulement pour le code complexe
+- Ne lance pas de pnpm build a la fin 

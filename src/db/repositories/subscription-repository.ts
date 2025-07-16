@@ -357,6 +357,85 @@ export const isPriceIdExistDao = async (priceId: string): Promise<boolean> => {
   return Boolean(row)
 }
 
+/**
+ * Obtenir toutes les subscriptions actives pour les calculs MRR
+ */
+export const getAllActiveSubscriptionsDao = async () => {
+  const rows = await db
+    .select()
+    .from(subscription)
+    .where(
+      and(
+        or(
+          eq(subscription.status, 'active'),
+          eq(subscription.status, 'trialing')
+        ),
+        not(eq(subscription.stripeSubscriptionId, ''))
+      )
+    )
+    .orderBy(desc(subscription.createdAt))
+
+  return rows
+}
+
+/**
+ * Obtenir les nouvelles subscriptions du mois en cours
+ */
+export const getNewSubscriptionsThisMonthDao = async () => {
+  const now = new Date()
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59
+  )
+
+  const rows = await db
+    .select()
+    .from(subscription)
+    .where(
+      and(
+        or(
+          eq(subscription.status, 'active'),
+          eq(subscription.status, 'trialing')
+        ),
+        sql`${subscription.createdAt} >= ${startOfMonth}`,
+        sql`${subscription.createdAt} <= ${endOfMonth}`
+      )
+    )
+    .orderBy(desc(subscription.createdAt))
+
+  return rows
+}
+
+/**
+ * Obtenir la croissance des subscriptions par mois (12 derniers mois)
+ */
+export const getSubscriptionGrowthByMonthDao = async () => {
+  const result = await db
+    .select({
+      month: sql<string>`TO_CHAR(${subscription.createdAt}, 'YYYY-MM')`,
+      count: sql<number>`COUNT(*)::int`,
+    })
+    .from(subscription)
+    .where(
+      and(
+        or(
+          eq(subscription.status, 'active'),
+          eq(subscription.status, 'trialing')
+        ),
+        sql`${subscription.createdAt} >= NOW() - INTERVAL '12 months'`
+      )
+    )
+    .groupBy(sql`TO_CHAR(${subscription.createdAt}, 'YYYY-MM')`)
+    .orderBy(sql`TO_CHAR(${subscription.createdAt}, 'YYYY-MM')`)
+
+  return result
+}
+
 // ========================================
 // FONCTIONS POUR LES SUBSCRIPTIONS ADMIN
 // ========================================

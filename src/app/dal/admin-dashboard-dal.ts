@@ -1,6 +1,7 @@
 import {cache} from 'react'
 
 import {getDashboardStatsService} from '@/services/facades/admin-dashboard-service-facade'
+import {getAdminStripeSubscriptionMRRService} from '@/services/facades/subscription-service-facade'
 import {AdminDashboardStats} from '@/services/types/domain/admin-dashboard-types'
 
 export type AdminDashboardStatsDTO = {
@@ -23,3 +24,10 @@ export const getAdminDashboardStatsDal = cache(
     }
   }
 )
+
+/**
+ * Obtenir les statistiques MRR pour le dashboard admin
+ */
+export const getAdminStripeSubscriptionMRRDal = cache(async () => {
+  return getAdminStripeSubscriptionMRRService()
+})

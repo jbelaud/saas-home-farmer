@@ -150,3 +150,46 @@ export const BillingModes = {
 } as const
 
 export type BillingMode = (typeof BillingModes)[keyof typeof BillingModes]
+
+// ========================================
+// TYPES MRR ET DASHBOARD ADMIN
+// ========================================
+
+export type SubscriptionMRRData = {
+  subscriptionId: string
+  stripeSubscriptionId: string
+  planName: string
+  planCode: string
+  amount: number // en centimes
+  currency: string
+  quantity: number
+  status: string
+  interval: 'month' | 'year'
+  intervalCount: number
+  currentPeriodStart: Date
+  currentPeriodEnd: Date
+  createdAt: Date
+  referenceId: string
+}
+
+export type PlanBreakdown = {
+  planCode: string
+  planName: string
+  subscriptionCount: number
+  totalMRR: number // en centimes
+  averageAmount: number // en centimes
+  currency: string
+}
+
+export type MRRStats = {
+  totalMRR: number // en centimes
+  currency: string
+  totalActiveSubscriptions: number
+  newSubscriptionsThisMonth: number
+  subscriptionGrowthPercent: number // croissance en pourcentage
+  subscriptionGrowth: {month: string; count: number}[] // croissance par mois
+  planBreakdowns: PlanBreakdown[]
+  monthlyMRR: number // en centimes (seulement les abonnements mensuels)
+  yearlyMRR: number // en centimes (abonnements annuels divisés par 12)
+  averageRevenuePerUser: number // en centimes
+}
