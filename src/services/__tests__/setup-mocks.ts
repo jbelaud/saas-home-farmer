@@ -22,3 +22,7 @@ vi.mock('@/db/repositories/user-repository', () => ({
 
 // Mock server-only pour éviter les erreurs lors des tests
 vi.mock('server-only', () => ({}))
+
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(),
+}))
