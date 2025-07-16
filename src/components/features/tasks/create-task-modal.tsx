@@ -1,11 +1,11 @@
 'use client'
 
-import React, {useActionState, useState} from 'react'
+import {zodResolver} from '@hookform/resolvers/zod'
+import React, {useState} from 'react'
+import {useForm} from 'react-hook-form'
+import {toast} from 'sonner'
 
-import {
-  createTaskAction,
-  FormState,
-} from '@/app/[locale]/(app)/team/[slug]/projects/actions'
+import {createTaskAction} from '@/app/[locale]/(app)/team/[slug]/projects/actions'
 import {Button} from '@/components/ui/button'
 import {
   Dialog,
@@ -16,8 +16,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -26,7 +33,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {Textarea} from '@/components/ui/textarea'
-import {TaskStatus} from '@/services/types/domain/project-types'
+
+import {taskFormSchema, TaskFormSchemaType} from './task-form-validation'
 
 type User = {
   id: string
@@ -41,10 +49,6 @@ type CreateTaskModalProps = {
   children: React.ReactNode
 }
 
-const initialState: FormState = {
-  success: false,
-}
-
 export function CreateTaskModal({
   projectId,
   organizationId,
@@ -52,20 +56,60 @@ export function CreateTaskModal({
   children,
 }: CreateTaskModalProps) {
   const [open, setOpen] = useState(false)
-  const [selectedStatus, setSelectedStatus] = useState<TaskStatus>('todo')
-  const [selectedAssignee, setSelectedAssignee] = useState<string>('unassigned')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const createTaskWithProjectId = createTaskAction.bind(null, projectId)
-  const [state, formAction, isPending] = useActionState(
-    createTaskWithProjectId,
-    initialState
-  )
+  const form = useForm<TaskFormSchemaType>({
+    resolver: zodResolver(taskFormSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      status: 'todo',
+      assignedTo: 'unassigned',
+      organizationId,
+      projectId,
+    },
+  })
 
-  // Fermer la modal et réinitialiser le state si création réussie
-  if (state.success && open) {
-    setOpen(false)
-    setSelectedStatus('todo')
-    setSelectedAssignee('unassigned')
+  async function onSubmit(data: TaskFormSchemaType) {
+    setIsSubmitting(true)
+
+    const formData = new FormData()
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined && value !== null) {
+        // Convertir 'unassigned' en chaîne vide pour le backend
+        const finalValue =
+          key === 'assignedTo' && value === 'unassigned' ? '' : value
+
+        // Ajouter au FormData même si c'est une chaîne vide (pour assignedTo)
+        if (finalValue !== '' || key === 'assignedTo') {
+          formData.append(key, finalValue.toString())
+        }
+      }
+    }
+
+    const result = await createTaskAction(projectId, undefined, formData)
+    setIsSubmitting(false)
+
+    if (result.success) {
+      toast.success('Succès', {
+        description: result.message,
+      })
+      form.reset()
+      setOpen(false)
+    } else {
+      // Appliquer les erreurs de validation du serveur
+      if (result.errors) {
+        for (const error of result.errors) {
+          form.setError(error.field as keyof TaskFormSchemaType, {
+            type: 'manual',
+            message: error.message,
+          })
+        }
+      }
+      toast.error('Erreur', {
+        description: result.message,
+      })
+    }
   }
 
   return (
@@ -80,113 +124,115 @@ export function CreateTaskModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form action={formAction}>
-          <div className="grid gap-4 py-4">
-            <input type="hidden" name="organizationId" value={organizationId} />
-            <input type="hidden" name="status" value={selectedStatus} />
-            <input
-              type="hidden"
-              name="assignedTo"
-              value={selectedAssignee === 'unassigned' ? '' : selectedAssignee}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <input type="hidden" {...form.register('organizationId')} />
+            <input type="hidden" {...form.register('projectId')} />
+
+            <FormField
+              control={form.control}
+              name="title"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Titre *</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Ex: Développer la fonctionnalité"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
-                Titre *
-              </Label>
-              <Input
-                id="title"
-                name="title"
-                placeholder="Ex: Développer la fonctionnalité"
-                className="col-span-3"
-                required
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Décrivez la tâche en détail..."
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
-              </Label>
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Décrivez la tâche en détail..."
-                className="col-span-3"
-                rows={3}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="status"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Statut</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un statut" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="todo">À faire</SelectItem>
+                      <SelectItem value="in_progress">En cours</SelectItem>
+                      <SelectItem value="done">Terminé</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right">
-                Statut
-              </Label>
-              <Select
-                value={selectedStatus}
-                onValueChange={(value) =>
-                  setSelectedStatus(value as TaskStatus)
-                }
+            <FormField
+              control={form.control}
+              name="assignedTo"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Assigné à</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un utilisateur" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="unassigned">Non assigné</SelectItem>
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name || user.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
               >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Sélectionnez un statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todo">À faire</SelectItem>
-                  <SelectItem value="in_progress">En cours</SelectItem>
-                  <SelectItem value="done">Terminé</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="assignedTo" className="text-right">
-                Assigné à
-              </Label>
-              <Select
-                value={selectedAssignee}
-                onValueChange={setSelectedAssignee}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Sélectionnez un utilisateur" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unassigned">Non assigné</SelectItem>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.name || user.email}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {state.errors && (
-              <div className="col-span-4 text-sm text-red-600">
-                {state.errors.map((error, index) => (
-                  <p key={index}>{error.message}</p>
-                ))}
-              </div>
-            )}
-
-            {state.message && !state.success && (
-              <div className="col-span-4 text-sm text-red-600">
-                {state.message}
-              </div>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Annuler
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Création...' : 'Créer la tâche'}
-            </Button>
-          </DialogFooter>
-        </form>
+                Annuler
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Création...' : 'Créer la tâche'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

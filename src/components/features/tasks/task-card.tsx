@@ -63,6 +63,7 @@ export function TaskCard({task, assignedUser}: TaskCardProps) {
           )}
         </div>
         <div
+          suppressHydrationWarning
           suppressContentEditableWarning
           {...attributes}
           {...listeners}

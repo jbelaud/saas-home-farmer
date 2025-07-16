@@ -4,6 +4,10 @@ import {revalidatePath} from 'next/cache'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
 import {
+  taskFormSchema,
+  TaskValidationError,
+} from '@/components/features/tasks/task-form-validation'
+import {
   createProjectService,
   createTaskService,
   deleteProjectService,
@@ -180,43 +184,67 @@ export async function createTaskAction(
       }
     }
 
-    const title = formData.get('title') as string
-    const description = formData.get('description') as string
-    const status = (formData.get('status') as TaskStatus) || 'todo'
-    const organizationId = formData.get('organizationId') as string
-    const assignedTo = formData.get('assignedTo') as string
+    // Extraire les données du FormData
+    const taskData = {
+      title: formData.get('title') as string,
+      description: formData.get('description') as string,
+      status: (formData.get('status') as TaskStatus) || 'todo',
+      organizationId: formData.get('organizationId') as string,
+      assignedTo: formData.get('assignedTo') as string,
+      projectId,
+    }
 
-    // Validation basique
-    if (!title) {
+    // STEP 1 : Valider les données avec le schéma Zod côté back
+    const validationResult = taskFormSchema.safeParse(taskData)
+
+    if (!validationResult.success) {
+      // Récupérer les messages d'erreur à plat
+      const errorMessages = validationResult.error.errors
+        .map((err) => `${err.path.join('.')}: ${err.message}`)
+        .join(', ')
+
+      // Récupérer les messages d'erreur pour chaque champ
+      const validationErrors: TaskValidationError[] =
+        validationResult.error.errors.map((err) => ({
+          field: err.path[0] as keyof typeof taskData,
+          message: err.message,
+        }))
+
       return {
         success: false,
-        message: 'Le titre de la tâche est requis',
-        errors: [{field: 'title', message: 'Le titre est requis'}],
+        message: `Validation échouée: ${errorMessages}`,
+        errors: validationErrors,
       }
     }
 
-    if (!organizationId) {
+    // STEP 2 : Règles custom côté backend
+    if (taskData.title.toLowerCase().includes('test')) {
       return {
         success: false,
-        message: "L'organisation est requise",
         errors: [
-          {field: 'organizationId', message: "L'organisation est requise"},
+          {
+            field: 'title',
+            message: 'Le titre ne peut pas contenir le mot "test"',
+          },
         ],
+        message: 'Le titre ne peut pas contenir le mot "test"',
       }
     }
+
+    const validatedData = validationResult.data
 
     await createTaskService({
-      title,
-      description: description || undefined,
-      status,
+      title: validatedData.title,
+      description: validatedData.description || undefined,
+      status: validatedData.status,
       order: 0,
       projectId,
-      organizationId,
+      organizationId: validatedData.organizationId,
       createdBy: user.id,
-      assignedTo: assignedTo || undefined,
+      assignedTo: validatedData.assignedTo || undefined,
     })
 
-    revalidatePath('/team/[slug]/projects/[id]', 'page')
+    revalidatePath('/team/[slug]/projects/[id]/tasks', 'page')
     return {
       success: true,
       message: 'Tâche créée avec succès',
