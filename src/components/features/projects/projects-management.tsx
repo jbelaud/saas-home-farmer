@@ -145,10 +145,12 @@ export default function ProjectsManagement({
                   <div className="flex space-x-2">
                     <Button variant="outline" size="sm" asChild>
                       <Link
-                        href={`/team/${organizationSlug}/projects/${project.id}/edit`}
+                        href={`/team/${organizationSlug}/projects/${project.id}/tasks`}
                       >
                         <Edit className="h-4 w-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Gérer</span>
+                        <span className="hidden sm:inline">
+                          Gérer les tâches
+                        </span>
                       </Link>
                     </Button>
                     {permissions.canEdit && (
