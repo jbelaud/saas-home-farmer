@@ -39,14 +39,8 @@ export async function getPriceIdFromSubscriptionId(
 export async function getSubscriptionDetails(
   subscriptionId: string
 ): Promise<Stripe.Subscription | null> {
-  try {
-    const subscription =
-      await stripeClient.subscriptions.retrieve(subscriptionId)
-    return subscription
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'abonnement:", error)
-    return null
-  }
+  const subscription = await stripeClient.subscriptions.retrieve(subscriptionId)
+  return subscription
 }
 
 /**
