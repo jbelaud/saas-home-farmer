@@ -1085,7 +1085,10 @@ export const getAdminStripeSubscriptionMRRService =
 
     validSubscriptions.forEach((sub) => {
       // Calculer MRR (montant mensuel récurrent)
-      let monthlyAmount = (sub?.amount || 0) * (sub?.quantity || 0)
+      const unitAmount = sub?.amount || 0
+      const quantity = sub?.quantity || 0
+      let monthlyAmount = unitAmount * quantity
+
       if (sub?.interval === 'year') {
         monthlyAmount = Math.round(monthlyAmount / 12) // Diviser par 12 pour avoir le MRR
         yearlyMRR += monthlyAmount
