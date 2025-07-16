@@ -2,6 +2,7 @@
 
 import {zodResolver} from '@hookform/resolvers/zod'
 import {ArrowLeft, Calendar, Shield, User} from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import {useRouter} from 'next/navigation'
 import {useState} from 'react'
@@ -472,7 +473,7 @@ export default function UserDetailForm({
                   <p className="text-muted-foreground text-sm font-medium">
                     Photo de profil
                   </p>
-                  <img
+                  <Image
                     src={user.image}
                     alt="Photo de profil"
                     className="mt-2 h-16 w-16 rounded-full object-cover"
