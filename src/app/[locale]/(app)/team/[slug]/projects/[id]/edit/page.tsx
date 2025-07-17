@@ -1,38 +1,8 @@
 import {notFound} from 'next/navigation'
-import {Suspense} from 'react'
 
 import {getProjectPermissions} from '@/app/dal/project-dal'
-import {getTasksByProjectGroupedByStatusDal} from '@/app/dal/task-dal'
-import {getUsersByOrganizationDal} from '@/app/dal/user-dal'
 import {EditProjectForm} from '@/components/features/projects/edit-project-form'
-import {TaskBoardComponent} from '@/components/features/tasks/task-board'
 import {getProjectByIdService} from '@/services/facades/project-service-facade'
-
-async function TaskBoard({projectId}: {projectId: string}) {
-  const [tasks, project] = await Promise.all([
-    getTasksByProjectGroupedByStatusDal(projectId),
-    getProjectByIdService(projectId),
-  ])
-
-  if (!project) {
-    return null
-  }
-
-  const users = await getUsersByOrganizationDal(project.organizationId)
-  const usersMap = users.reduce(
-    (acc, user) => {
-      acc[user.id] = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      }
-      return acc
-    },
-    {} as Record<string, {id: string; name: string | null; email: string}>
-  )
-
-  return <TaskBoardComponent tasks={tasks} usersMap={usersMap} />
-}
 
 export default async function EditProjectPage({
   params,
@@ -52,12 +22,6 @@ export default async function EditProjectPage({
       <div>
         <h1 className="mb-8 text-2xl font-bold">Modifier le projet</h1>
         <EditProjectForm project={project} canEdit={canEdit} />
-      </div>
-      <div>
-        <h2 className="mb-6 text-xl font-semibold">Tableau des tâches</h2>
-        <Suspense fallback={<div>Chargement des tâches...</div>}>
-          <TaskBoard projectId={id} />
-        </Suspense>
       </div>
     </div>
   )
