@@ -70,7 +70,7 @@ stripe trigger customer.subscription.updated \
 */
 
 // webhook secret
-const endpointSecret = process.env.STRIPE_APP_WEBHOOK_SECRET ?? ''
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET ?? ''
 
 const disableWebhook = true // Réactivé temporairement
 

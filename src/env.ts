@@ -19,7 +19,6 @@ export const env = createEnv({
     DATABASE_URL: z.string().url(),
 
     // Authentification
-    AUTH_SECRET: z.string().min(1),
     BETTER_AUTH_SECRET: z.string().min(1),
     BETTER_AUTH_URL: z.string().url(),
 
@@ -47,7 +46,6 @@ export const env = createEnv({
     // Stripe (serveur)
     STRIPE_SECRET_KEY: z.string().min(1),
 
-    STRIPE_APP_WEBHOOK_SECRET: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
 
     // OAuth (optionnel)
@@ -114,7 +112,6 @@ export const env = createEnv({
   runtimeEnv: {
     // Variables serveur
     DATABASE_URL: process.env.DATABASE_URL,
-    AUTH_SECRET: process.env.AUTH_SECRET,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
@@ -128,7 +125,6 @@ export const env = createEnv({
     ALLOWED_MIME_TYPES: process.env.ALLOWED_MIME_TYPES,
     STORAGE_TYPE: process.env.STORAGE_TYPE,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-    STRIPE_APP_WEBHOOK_SECRET: process.env.STRIPE_APP_WEBHOOK_SECRET,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,

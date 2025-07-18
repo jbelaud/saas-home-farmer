@@ -38,7 +38,6 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
           # Auth
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           BETTER_AUTH_URL: https://preview.example.com
 
@@ -51,9 +50,9 @@ jobs:
           LOG_LEVEL: info
 
           # Supabase
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: https://xxx.supabase.co
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          SUPABASE_BUCKET: BUCKET-NAME
 
           # File Upload
           MAX_FILE_SIZE: 5242880
@@ -62,7 +61,6 @@ jobs:
 
           # Stripe
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_APP_WEBHOOK_SECRET: ${{ secrets.STRIPE_APP_WEBHOOK_SECRET }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
           # OAuth (optional)
@@ -74,18 +72,15 @@ jobs:
 
           # Client vars
           NEXT_PUBLIC_APP_URL: https://preview.example.com
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
           NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE: EmbededForm
           NEXT_PUBLIC_BILLING_MODE: subscription
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: Test
         run: pnpm test
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: https://xxx.supabase.co
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          SUPABASE_BUCKET: BUCKET-NAME
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
