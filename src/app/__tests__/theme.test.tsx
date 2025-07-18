@@ -1,12 +1,9 @@
-import {renderHook} from '@testing-library/react'
+import {act, renderHook} from '@testing-library/react'
 import {useTheme} from 'next-themes'
-import {act as reactAct} from 'react'
-import {act as reactDomAct} from 'react-dom/test-utils'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {WrapperContext} from './utils'
 
-const act = reactAct || reactDomAct
 console.log('act is a', typeof act)
 
 describe('Theme', () => {
