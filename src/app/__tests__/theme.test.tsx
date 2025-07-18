@@ -1,5 +1,6 @@
-import {act, renderHook} from '@testing-library/react'
+import {renderHook} from '@testing-library/react'
 import {useTheme} from 'next-themes'
+import {act} from 'react'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {WrapperContext} from './utils'
