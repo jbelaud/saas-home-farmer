@@ -27,7 +27,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint
@@ -78,7 +78,7 @@ jobs:
           NEXT_PUBLIC_BILLING_MODE: organization
 
       - name: Test
-        run: pnpm test
+        run: pnpm test --reporter=verbose
         env:
           # Database
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
