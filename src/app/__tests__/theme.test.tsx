@@ -5,6 +5,8 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {WrapperContext} from './utils'
 
+console.log('act is a', typeof act)
+
 describe('Theme', () => {
   beforeEach(() => {
     Object.defineProperty(window, 'matchMedia', {

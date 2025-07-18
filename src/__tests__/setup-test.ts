@@ -1,5 +1,6 @@
-import '@testing-library/jest-dom/vitest'
 import '@testing-library/jest-dom'
+import 'react-test-renderer'
+import '@testing-library/jest-dom/vitest'
 
 import {beforeAll, vi} from 'vitest'
 
