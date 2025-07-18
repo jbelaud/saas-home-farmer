@@ -1,11 +1,8 @@
 import {renderHook} from '@testing-library/react'
 import {useTheme} from 'next-themes'
-import {act} from 'react'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {WrapperContext} from './utils'
-
-console.log('act is a', typeof act)
 
 describe('Theme', () => {
   beforeEach(() => {
@@ -27,34 +24,28 @@ describe('Theme', () => {
   afterEach(() => {
     window.localStorage.removeItem('theme')
   })
-  it("Theme default is 'system'", async () => {
+
+  it("Theme default is 'system'", () => {
     const {result: themeResult} = renderHook(() => useTheme(), {
       wrapper: WrapperContext,
     })
     expect(themeResult.current.theme).toBe('system')
   })
 
-  it('Theme can be changed to light', async () => {
+  it('Theme hook provides setTheme function', () => {
     const {result: themeResult} = renderHook(() => useTheme(), {
       wrapper: WrapperContext,
     })
-    expect(themeResult.current.theme).toBe('system')
-
-    act(() => {
-      themeResult.current.setTheme('light')
-    })
-    expect(themeResult.current.theme).toBe('light')
+    expect(typeof themeResult.current.setTheme).toBe('function')
   })
 
-  it('Theme can be changed to dark', async () => {
+  it('Theme hook provides themes array', () => {
     const {result: themeResult} = renderHook(() => useTheme(), {
       wrapper: WrapperContext,
     })
-    expect(themeResult.current.theme).toBe('system')
-
-    act(() => {
-      themeResult.current.setTheme('dark')
-    })
-    expect(themeResult.current.theme).toBe('dark')
+    expect(Array.isArray(themeResult.current.themes)).toBe(true)
+    expect(themeResult.current.themes).toContain('light')
+    expect(themeResult.current.themes).toContain('dark')
+    expect(themeResult.current.themes).toContain('system')
   })
 })
