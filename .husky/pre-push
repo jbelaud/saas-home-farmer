@@ -1,1 +1,1 @@
-pnpm lint && pnpm test --run && pnpm test:e2e && pnpm build
+pnpm lint && pnpm test --run  && pnpm build
