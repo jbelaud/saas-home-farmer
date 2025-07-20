@@ -7,6 +7,7 @@ on:
 jobs:
   production:
     runs-on: ubuntu-latest
+    environment: Production
 
     steps:
       - name: Checkout code
@@ -24,7 +25,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint
@@ -32,33 +33,89 @@ jobs:
       - name: Build
         run: pnpm build
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROD }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_PROD }}
-          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET_PROD }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY_PROD }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_PROD }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET_PROD }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY_PROD }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET_PROD }}
+          # Database
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+          # Auth
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: https://prod.example.com
+
+          # Email
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: noreply@example.com
+          EMAIL_TO: admin@example.com
+
+          # Logging
+          LOG_LEVEL: info
+
+          # Supabase
+          SUPABASE_URL: https://xxx.supabase.co
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_BUCKET: BUCKET-NAME
+
+          # File Upload
+          MAX_FILE_SIZE: 5242880
+          ALLOWED_MIME_TYPES: image/jpeg,image/png,image/webp
+          STORAGE_TYPE: supabase
+
+          # Stripe
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+
+          # OAuth (optional)
+          GOOGLE_CLIENT_ID: ''
+          GOOGLE_CLIENT_SECRET: ''
+
+          # Environment
+          NODE_ENV: production
+
+          # Client vars
+          NEXT_PUBLIC_APP_URL: https://prod.example.com
+          NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE: EmbededForm
+          NEXT_PUBLIC_BILLING_MODE: organization
 
       - name: Test
         run: pnpm test
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # Database
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-          AUTH_SECRET: test-secret-key-for-production
+
+          # Auth
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: https://prod.example.com
+
+          # Email
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: noreply@example.com
+          EMAIL_TO: admin@example.com
+
+          # Logging
+          LOG_LEVEL: info
+
+          # Supabase
+          SUPABASE_URL: https://xxx.supabase.co
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_BUCKET: BUCKET-NAME
+
+          # File Upload
+          MAX_FILE_SIZE: 5242880
+          ALLOWED_MIME_TYPES: image/jpeg,image/png,image/webp
+          STORAGE_TYPE: supabase
+
+          # Stripe
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
 
-      - name: Install Drizzle Kit
-        run: npm install -g drizzle-kit
+          # OAuth (optional)
+          GOOGLE_CLIENT_ID: ''
+          GOOGLE_CLIENT_SECRET: ''
 
-      - name: Run database migrations
-        run: pnpm db:migrate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
+          # Environment
+          NODE_ENV: production
+
+          # Client vars
+          NEXT_PUBLIC_APP_URL: https://prod.example.com
+          NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE: EmbededForm
+          NEXT_PUBLIC_BILLING_MODE: organization
