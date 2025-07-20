@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom/vitest'
 
+import React from 'react'
 import {beforeAll, vi} from 'vitest'
+
+console.log('React version:', React.version)
+console.log('typeof React.act:', typeof React.act)
 
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {

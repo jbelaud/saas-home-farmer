@@ -1,27 +1,11 @@
 import {renderHook} from '@testing-library/react'
-import {act} from '@testing-library/react'
 import {useTheme} from 'next-themes'
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+import {act} from 'react'
+import {afterEach, describe, expect, it} from 'vitest'
 
 import {WrapperContext} from './utils'
 
 describe('Theme', () => {
-  beforeEach(() => {
-    Object.defineProperty(window, 'matchMedia', {
-      writable: true,
-      value: vi.fn().mockImplementation((query) => ({
-        matches: false,
-        media: query,
-        onchange: undefined,
-        addListener: vi.fn(), // deprecated
-        removeListener: vi.fn(), // deprecated
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      })),
-    })
-  })
-
   afterEach(() => {
     window.localStorage.removeItem('theme')
   })
