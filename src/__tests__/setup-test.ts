@@ -1,16 +1,6 @@
 import '@testing-library/jest-dom/vitest'
 
-import * as React from 'react'
-import * as TestUtils from 'react-dom/test-utils'
 import {beforeAll, vi} from 'vitest'
-
-// Problems github action, will be removed
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-if (typeof (React as any).act !== 'function') {
-  console.warn('⚠️ React.act is missing, falling back to test-utils.act')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(React as any).act = TestUtils.act
-}
 
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
@@ -27,3 +17,17 @@ beforeAll(() => {
     }),
   })
 })
+
+import * as React from 'react'
+import * as TestUtils from 'react-dom/test-utils'
+
+// Ce hack ne tente PAS de redéfinir React.act, juste de patcher Testing Library si nécessaire
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+if (!(React as any).act && TestUtils.act) {
+  console.warn(
+    '⚠️ React.act is missing, patching Testing Library fallback to TestUtils.act'
+  )
+  // Patch global utilisé par @testing-library/react pour choisir act()
+  // @ts-expect-error pour la CI
+  globalThis['__REACT_TEST_LIB_ACT__'] = TestUtils.act
+}
