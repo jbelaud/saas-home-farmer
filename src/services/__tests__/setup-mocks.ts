@@ -26,3 +26,10 @@ vi.mock('server-only', () => ({}))
 vi.mock('next-intl/server', () => ({
   getTranslations: vi.fn(),
 }))
+
+vi.mock('@/lib/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    debug: vi.fn(),
+  },
+}))

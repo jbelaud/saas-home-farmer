@@ -10,19 +10,16 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     projects: [
-      // Projet pour les tests serveur (services, db) avec Node
+      // Projet pour les tests client (jsdom)
       {
         plugins: [react(), tsconfigPaths()],
         test: {
           name: 'client',
           environment: 'jsdom',
-          setupFiles: [
-            './src/__tests__/setup-test.ts',
-            './src/services/__tests__/setup-mocks.ts',
-          ],
+          setupFiles: ['./src/__tests__/setup-test.ts'],
           include: ['src/**/*.test.{ts,tsx}'],
-          globals: true, // cleanup globals activé
-          // fileParallelism: false,
+          exclude: ['src/services/**/*.test.{ts,tsx}'],
+          globals: true,
           server: {
             deps: {
               // https://github.com/vercel/next.js/issues/77200
@@ -31,23 +28,15 @@ export default defineConfig({
           },
         },
       },
-      // Projet pour les tests client (components, app) avec jsdom
+      // Projet pour les servers (node)
       {
         plugins: [react(), tsconfigPaths()],
         test: {
           name: 'server',
-          environment: 'jsdom',
-          include: [
-            'src/app/**/*.test.{ts,tsx}',
-            'src/components/**/*.test.{ts,tsx}',
-          ],
+          environment: 'node',
+          setupFiles: ['./src/services/__tests__/setup-mocks.ts'],
+          include: ['src/services/**/*.test.{ts,tsx}'],
           globals: true,
-          server: {
-            deps: {
-              // https://github.com/vercel/next.js/issues/77200
-              inline: ['next-intl'],
-            },
-          },
         },
       },
     ],
