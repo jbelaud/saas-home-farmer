@@ -14,14 +14,13 @@ export default defineConfig({
       {
         plugins: [react(), tsconfigPaths()],
         test: {
-          name: 'all',
+          name: 'client',
           environment: 'jsdom',
           setupFiles: [
             './src/__tests__/setup-test.ts',
             './src/services/__tests__/setup-mocks.ts',
           ],
           include: ['src/**/*.test.{ts,tsx}'],
-          exclude: ['e2e/**', 'node_modules/**'],
           globals: true, // cleanup globals activé
           // fileParallelism: false,
           server: {
@@ -36,7 +35,7 @@ export default defineConfig({
       {
         plugins: [react(), tsconfigPaths()],
         test: {
-          name: 'client',
+          name: 'server',
           environment: 'jsdom',
           include: [
             'src/app/**/*.test.{ts,tsx}',
