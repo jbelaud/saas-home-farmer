@@ -1,4 +1,5 @@
 import {renderHook} from '@testing-library/react'
+import {act} from '@testing-library/react'
 import {useTheme} from 'next-themes'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
@@ -29,23 +30,32 @@ describe('Theme', () => {
     const {result: themeResult} = renderHook(() => useTheme(), {
       wrapper: WrapperContext,
     })
-    expect(themeResult.current.theme).toBe('system')
+
+    act(() => {
+      expect(themeResult.current.theme).toBe('system')
+    })
   })
 
   it('Theme hook provides setTheme function', () => {
     const {result: themeResult} = renderHook(() => useTheme(), {
       wrapper: WrapperContext,
     })
-    expect(typeof themeResult.current.setTheme).toBe('function')
+
+    act(() => {
+      expect(typeof themeResult.current.setTheme).toBe('function')
+    })
   })
 
   it('Theme hook provides themes array', () => {
     const {result: themeResult} = renderHook(() => useTheme(), {
       wrapper: WrapperContext,
     })
-    expect(Array.isArray(themeResult.current.themes)).toBe(true)
-    expect(themeResult.current.themes).toContain('light')
-    expect(themeResult.current.themes).toContain('dark')
-    expect(themeResult.current.themes).toContain('system')
+
+    act(() => {
+      expect(Array.isArray(themeResult.current.themes)).toBe(true)
+      expect(themeResult.current.themes).toContain('light')
+      expect(themeResult.current.themes).toContain('dark')
+      expect(themeResult.current.themes).toContain('system')
+    })
   })
 })
