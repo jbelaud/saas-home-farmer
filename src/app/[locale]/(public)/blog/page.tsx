@@ -1,9 +1,12 @@
+import rehypeShiki from '@shikijs/rehype'
 import fs from 'fs'
 import type {Metadata} from 'next'
 import {getTranslations} from 'next-intl/server'
 import {MDXRemote} from 'next-mdx-remote/rsc'
 import path from 'path'
 import remarkGfm from 'remark-gfm'
+
+import {mdxComponents} from '@/components/mdx-components'
 export async function generateMetadata({
   params,
 }: {
@@ -50,10 +53,21 @@ export default async function BlogPage({
           <article className="prose prose-lg prose-gray dark:prose-invert prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-blockquote:border-l-primary max-w-none">
             <MDXRemote
               source={blogContent}
+              components={mdxComponents}
               options={{
                 mdxOptions: {
                   remarkPlugins: [remarkGfm],
-                  rehypePlugins: [],
+                  rehypePlugins: [
+                    [
+                      rehypeShiki,
+                      {
+                        themes: {
+                          light: 'github-light',
+                          dark: 'github-dark',
+                        },
+                      },
+                    ],
+                  ],
                 },
               }}
             />
