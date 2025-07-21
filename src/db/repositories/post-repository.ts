@@ -61,7 +61,15 @@ export const getPostByIdWithRelationsDao = async (
       },
     },
   })
-  return row
+
+  if (!row) return undefined
+
+  // Transform to match PostData type - null to undefined
+  return {
+    ...row,
+    author: row.author || undefined,
+    category: row.category || undefined,
+  } as PostData
 }
 
 export const updatePostByIdDao = async (
@@ -278,7 +286,9 @@ export const getPostsWithPaginationDao = async (
   const whereConditions = []
 
   if (filters?.status) {
-    whereConditions.push(eq(posts.status, filters.status))
+    whereConditions.push(
+      eq(posts.status, filters.status as 'draft' | 'published' | 'archived')
+    )
   }
   if (filters?.authorId) {
     whereConditions.push(eq(posts.authorId, filters.authorId))
@@ -326,7 +336,9 @@ export const getPostsWithTranslationsAndPaginationDao = async (
   const whereConditions = []
 
   if (filters?.status) {
-    whereConditions.push(eq(posts.status, filters.status))
+    whereConditions.push(
+      eq(posts.status, filters.status as 'draft' | 'published' | 'archived')
+    )
   }
   if (filters?.authorId) {
     whereConditions.push(eq(posts.authorId, filters.authorId))
@@ -370,7 +382,17 @@ export const getPostsWithTranslationsAndPaginationDao = async (
   const totalPages = Math.ceil(count / pagination.limit)
 
   return {
-    data: rows.length === 0 ? [] : rows,
+    data:
+      rows.length === 0
+        ? []
+        : rows.map(
+            (row) =>
+              ({
+                ...row,
+                author: row.author || undefined,
+                category: row.category || undefined,
+              }) as PostData
+          ),
     pagination: {
       total: count,
       page: page,
@@ -400,7 +422,7 @@ export const getPostsByStatusDao = async (
   const rows = await db
     .select()
     .from(posts)
-    .where(eq(posts.status, status))
+    .where(eq(posts.status, status as 'draft' | 'published' | 'archived'))
     .orderBy(posts.createdAt)
 
   return rows
@@ -441,7 +463,13 @@ export const getPostBySlugAndLanguageDao = async (
     },
   })
 
-  return translation?.post
+  if (!translation?.post) return undefined
+
+  return {
+    ...translation.post,
+    author: translation.post.author || undefined,
+    category: translation.post.category || undefined,
+  } as PostData
 }
 
 // ===== REQUÊTES CATEGORIES AVEC PAGINATION =====
@@ -591,7 +619,10 @@ export const updatePostsStatusDao = async (
 
   await db
     .update(posts)
-    .set({status, updatedAt: new Date()})
+    .set({
+      status: status as 'draft' | 'published' | 'archived',
+      updatedAt: new Date(),
+    })
     .where(inArray(posts.id, postIds))
 }
 
