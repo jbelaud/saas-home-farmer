@@ -62,10 +62,10 @@ export default async function BlogPage({
                       rehypeShiki,
                       {
                         themes: {
-                          light: 'github-light',
-                          dark: 'github-light',
+                          light: 'github-dark',
+                          dark: 'github-dark',
                         },
-                        // Ajouts optionnels :
+
                         langs: [
                           'javascript',
                           'typescript',
@@ -74,16 +74,8 @@ export default async function BlogPage({
                           'css',
                           'json',
                           'bash',
-                        ],
-                        transformers: [
-                          // Numéros de lignes
-                          {
-                            name: 'line-numbers',
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            line(node: any, line: any) {
-                              node.properties['data-line'] = line
-                            },
-                          },
+                          'html',
+                          'markdown',
                         ],
                       },
                     ],

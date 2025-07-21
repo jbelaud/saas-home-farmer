@@ -318,25 +318,25 @@ export const mdxComponents = {
       {children}
     </blockquote>
   ),
-  code: ({children, className}: {children: ReactNode; className?: string}) => {
-    // Si c'est un bloc de code (avec className), laisser Shiki s'en occuper
-    if (className) {
-      return <code className={className}>{children}</code>
-    }
-    // Sinon, c'est du code inline
-    return (
-      <code className="rounded bg-gray-100 px-2 py-1 font-mono text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-200">
-        {children}
-      </code>
-    )
-  },
-  pre: ({children, className}: {children: ReactNode; className?: string}) => (
-    <pre
-      className={`mb-4 overflow-x-auto rounded-lg ${className || 'bg-gray-900 p-4 text-sm text-gray-100'}`}
-    >
-      {children}
-    </pre>
-  ),
+  // code: ({children, className}: {children: ReactNode; className?: string}) => {
+  //   // Si c'est un bloc de code (avec className), laisser Shiki s'en occuper
+  //   if (className) {
+  //     return <code className={className}>{children}</code>
+  //   }
+  //   // Sinon, c'est du code inline
+  //   return (
+  //     <code className="rounded bg-gray-100 px-2 py-1 font-mono text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+  //       {children}
+  //     </code>
+  //   )
+  // },
+  // pre: ({children, className}: {children: ReactNode; className?: string}) => (
+  //   <pre
+  //     className={`mb-4 overflow-x-auto rounded-lg ${className || 'bg-gray-900 p-4 text-sm text-gray-100'}`}
+  //   >
+  //     {children}
+  //   </pre>
+  // ),
   table: ({children}: {children: ReactNode}) => (
     <div className="mb-4 overflow-x-auto">
       <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
