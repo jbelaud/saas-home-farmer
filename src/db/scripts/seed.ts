@@ -397,7 +397,63 @@ const seed = async () => {
     ON CONFLICT DO NOTHING;
   `)
 
-  // 7. Insérer des notifications de test
+  // 7. Insérer des catégories de blog
+  await client.query(`
+    INSERT INTO "categories" (name, description, icon, image)
+    VALUES
+      ('Tech', 'Articles sur les technologies web et développement', '💻', 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400'),
+      ('Tutorial', 'Tutoriels et guides pratiques', '📚', 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400')
+    ON CONFLICT (name) DO NOTHING;
+  `)
+
+  // 8. Insérer des posts avec traductions
+  await client.query(`
+    INSERT INTO "posts" (status, "authorid", "categoryid", "nbview", "nblike")
+    SELECT 
+      'published'::post_status,
+      u.id as "authorid",
+      c.id as "categoryid",
+      post_data.nb_view,
+      post_data.nb_like
+    FROM (
+      VALUES 
+        ('user@gmail.com', 'Tech', 150, 12),
+        ('admin@gmail.com', 'Tutorial', 89, 8)
+    ) AS post_data(author_email, category_name, nb_view, nb_like)
+    JOIN "user" u ON u.email = post_data.author_email
+    JOIN "categories" c ON c.name = post_data.category_name
+    ON CONFLICT DO NOTHING;
+  `)
+
+  // 9. Insérer les traductions des posts
+  await client.query(`
+    INSERT INTO "posts_translation" ("postid", language, title, slug, content, description)
+    SELECT 
+      p.id as "postid",
+      trans_data.language,
+      trans_data.title,
+      trans_data.slug,
+      trans_data.content,
+      trans_data.description
+    FROM (
+      VALUES 
+        -- Post 1 - Tech (par user@gmail.com)
+        ('user@gmail.com', 'Tech', 'fr', 'Les Nouveautés de React 19', 'nouveautes-react-19', '# Les Nouveautés de React 19\n\nReact 19 apporte de nombreuses améliorations...', 'Découvrez les nouvelles fonctionnalités de React 19'),
+        ('user@gmail.com', 'Tech', 'en', 'React 19 New Features', 'react-19-new-features', '# React 19 New Features\n\nReact 19 brings many improvements...', 'Discover the new features of React 19'),
+        ('user@gmail.com', 'Tech', 'es', 'Novedades de React 19', 'novedades-react-19', '# Novedades de React 19\n\nReact 19 trae muchas mejoras...', 'Descubre las nuevas características de React 19'),
+        
+        -- Post 2 - Tutorial (par admin@gmail.com)
+        ('admin@gmail.com', 'Tutorial', 'fr', 'Guide Next.js pour Débutants', 'guide-nextjs-debutants', '# Guide Next.js pour Débutants\n\nApprenez les bases de Next.js...', 'Un guide complet pour débuter avec Next.js'),
+        ('admin@gmail.com', 'Tutorial', 'en', 'Next.js Guide for Beginners', 'nextjs-guide-beginners', '# Next.js Guide for Beginners\n\nLearn the basics of Next.js...', 'A complete guide to get started with Next.js'),
+        ('admin@gmail.com', 'Tutorial', 'es', 'Guía de Next.js para Principiantes', 'guia-nextjs-principiantes', '# Guía de Next.js para Principiantes\n\nAprende lo básico de Next.js...', 'Una guía completa para empezar con Next.js')
+    ) AS trans_data(author_email, category_name, language, title, slug, content, description)
+    JOIN "user" u ON u.email = trans_data.author_email
+    JOIN "posts" p ON p."authorid" = u.id
+    JOIN "categories" c ON c.name = trans_data.category_name AND p."categoryid" = c.id
+    ON CONFLICT ("postid", language) DO NOTHING;
+  `)
+
+  // 10. Insérer des notifications de test
   await client.query(`
     INSERT INTO "notifications" (
       "user_id",
@@ -497,6 +553,12 @@ const seed = async () => {
   console.log('  └─ Audit Sécurité: Scan vulnérabilités 🔄')
   console.log('')
   console.log('📊 Statuts des tâches : ✅ Done | 🔄 In Progress | 📋 Todo')
+  console.log('')
+  console.log('📝 Articles de blog créés :')
+  console.log('🔹 2 catégories : Tech et Tutorial')
+  console.log('🔹 2 posts traduits en 3 langues (fr, en, es)')
+  console.log('  └─ "Les Nouveautés de React 19" par user@gmail.com')
+  console.log('  └─ "Guide Next.js pour Débutants" par admin@gmail.com')
   console.log('')
   console.log('🔔 Notifications de test créées :')
   console.log('🔹 22 notifications réparties sur tous les utilisateurs')

@@ -4,6 +4,7 @@ import {Pool} from 'pg'
 import * as auth from './auth-model'
 import * as notification from './notification-model'
 import * as organization from './organization-model'
+import * as post from './post-model'
 import * as project from './project-model'
 import * as subscription from './subscription-model'
 import * as user from './user-model'
@@ -23,6 +24,7 @@ const db = drizzle(pool, {
     ...project,
     ...subscription,
     ...notification,
+    ...post,
   },
 })
 

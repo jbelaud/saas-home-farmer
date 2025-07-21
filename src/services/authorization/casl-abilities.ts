@@ -23,6 +23,9 @@ export type Subjects =
   | 'Technical'
   | 'Log'
   | 'Notification'
+  | 'Post'
+  | 'Category'
+  | 'Hashtag'
   | 'all'
 
 // Constantes pour les actions et subjects
@@ -44,6 +47,9 @@ export const SubjectsConst = {
   TECHNICAL: 'Technical' as Subjects,
   LOG: 'Log' as Subjects,
   NOTIFICATION: 'Notification' as Subjects,
+  POST: 'Post' as Subjects,
+  CATEGORY: 'Category' as Subjects,
+  HASHTAG: 'Hashtag' as Subjects,
   ALL: 'all' as Subjects,
 } as const
 /**
@@ -57,6 +63,11 @@ export function buildGuestAbilities(builder: AppAbilityBuilder) {
 
   // Peut lire les profils publics d'utilisateurs
   can(ActionsConst.READ, SubjectsConst.USER, {visibility: 'public'})
+
+  // Peut lire les posts publiés, catégories et hashtags (lecture publique)
+  can(ActionsConst.READ, SubjectsConst.POST, {status: 'published'})
+  can(ActionsConst.READ, SubjectsConst.CATEGORY)
+  can(ActionsConst.READ, SubjectsConst.HASHTAG)
 }
 
 /**
@@ -97,6 +108,11 @@ export function buildAdminAbilities(builder: AppAbilityBuilder) {
 
   // Peut gérer toutes les notifications (créer des notifications système)
   can(ActionsConst.MANAGE, SubjectsConst.NOTIFICATION)
+
+  // Peut gérer tous les posts, catégories et hashtags
+  can(ActionsConst.MANAGE, SubjectsConst.POST)
+  can(ActionsConst.MANAGE, SubjectsConst.CATEGORY)
+  can(ActionsConst.MANAGE, SubjectsConst.HASHTAG)
 }
 
 /**
@@ -170,6 +186,15 @@ export function buildBaseUserAbilities(builder: AppAbilityBuilder, user: User) {
 
   // Peut lire les logs (accès en lecture seule)
   can(ActionsConst.READ, SubjectsConst.LOG)
+
+  // Posts - peut lire les posts publiés, créer ses propres posts et les gérer
+  can(ActionsConst.READ, SubjectsConst.POST, {status: 'published'})
+  can(ActionsConst.CREATE, SubjectsConst.POST)
+  can(ActionsConst.MANAGE, SubjectsConst.POST, {authorId: user.id})
+
+  // Catégories et Hashtags - lecture pour tous, création limitée selon le rôle
+  can(ActionsConst.READ, SubjectsConst.CATEGORY)
+  can(ActionsConst.READ, SubjectsConst.HASHTAG)
 
   // Ne peut pas supprimer d'autres utilisateurs
   cannot(ActionsConst.DELETE, SubjectsConst.USER)
