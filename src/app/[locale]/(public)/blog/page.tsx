@@ -31,7 +31,7 @@ export default async function BlogPage({
   // Lire le fichier MDX
   const blogPath = path.join(
     process.cwd(),
-    'src/app/[locale]/(public)/blog/blog.mdx'
+    'src/app/[locale]/(public)/blog/01.mdx'
   )
   const blogContent = fs.readFileSync(blogPath, 'utf8')
 
@@ -63,8 +63,28 @@ export default async function BlogPage({
                       {
                         themes: {
                           light: 'github-light',
-                          dark: 'github-dark',
+                          dark: 'github-light',
                         },
+                        // Ajouts optionnels :
+                        langs: [
+                          'javascript',
+                          'typescript',
+                          'jsx',
+                          'tsx',
+                          'css',
+                          'json',
+                          'bash',
+                        ],
+                        transformers: [
+                          // Numéros de lignes
+                          {
+                            name: 'line-numbers',
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            line(node: any, line: any) {
+                              node.properties['data-line'] = line
+                            },
+                          },
+                        ],
                       },
                     ],
                   ],
