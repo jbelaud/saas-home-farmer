@@ -15,12 +15,12 @@ const BlogContent = dynamic(() => import('./blog.mdx'), {
     </div>
   ),
 })
-
 export async function generateMetadata({
-  params: {locale},
+  params,
 }: {
-  params: {locale: string}
+  params: Promise<{locale: string}>
 }): Promise<Metadata> {
+  const {locale} = await params
   const t = await getTranslations({locale, namespace: 'BlogPage'})
 
   return {
@@ -28,12 +28,12 @@ export async function generateMetadata({
     description: t('meta.description'),
   }
 }
-
 export default async function BlogPage({
-  params: {locale},
+  params,
 }: {
-  params: {locale: string}
+  params: Promise<{locale: string}>
 }) {
+  const {locale} = await params
   const t = await getTranslations({locale, namespace: 'BlogPage'})
   return (
     <div className="bg-background min-h-screen">
