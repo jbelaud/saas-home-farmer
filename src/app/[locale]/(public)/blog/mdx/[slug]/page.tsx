@@ -1,39 +1,61 @@
 import rehypeShiki from '@shikijs/rehype'
-import fs from 'fs'
 import type {Metadata} from 'next'
+import {notFound} from 'next/navigation'
 import {getTranslations} from 'next-intl/server'
 import {MDXRemote} from 'next-mdx-remote/rsc'
-import path from 'path'
 import remarkGfm from 'remark-gfm'
 
 import {mdxComponents} from '@/components/mdx-components'
+import {blogPostExists, getBlogPost, getMDXSlugs} from '@/lib/helper/blog'
+
+// Génération des paramètres statiques pour le SSG
+export function generateStaticParams() {
+  const slugs = getMDXSlugs()
+
+  return slugs.map((slug) => ({
+    slug,
+  }))
+}
+
+// Génération des métadonnées
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{locale: string}>
+  params: Promise<{locale: string; slug: string}>
 }): Promise<Metadata> {
-  const {locale} = await params
+  const {locale, slug} = await params
   const t = await getTranslations({locale, namespace: 'BlogPage'})
+
+  if (!blogPostExists(slug)) {
+    return {
+      title: 'Article non trouvé',
+      description: "Cet article n'existe pas.",
+    }
+  }
+
+  const post = getBlogPost(slug)
 
   return {
-    title: t('meta.title'),
-    description: t('meta.description'),
+    title: `${post.title} | ${t('meta.title')}`,
+    description: `Article de blog : ${post.title}`,
   }
 }
-export default async function BlogPage({
+
+export default async function BlogPostPage({
   params,
 }: {
-  params: Promise<{locale: string}>
+  params: Promise<{locale: string; slug: string}>
 }) {
-  const {locale} = await params
+  const {locale, slug} = await params
   const t = await getTranslations({locale, namespace: 'BlogPage'})
 
-  // Lire le fichier MDX
-  const blogPath = path.join(
-    process.cwd(),
-    'src/app/[locale]/(public)/blog/mdx/_files/sample.mdx'
-  )
-  const blogContent = fs.readFileSync(blogPath, 'utf8')
+  // Vérifier si le slug existe
+  if (!blogPostExists(slug)) {
+    notFound()
+  }
+
+  // Obtenir l'article
+  const post = getBlogPost(slug)
 
   return (
     <div className="bg-background min-h-screen">
@@ -52,7 +74,7 @@ export default async function BlogPage({
           {/* Contenu MDX */}
           <article className="prose prose-lg prose-gray dark:prose-invert prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-blockquote:border-l-primary max-w-none">
             <MDXRemote
-              source={blogContent}
+              source={post.content || ''}
               components={mdxComponents}
               options={{
                 mdxOptions: {

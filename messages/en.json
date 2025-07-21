@@ -1216,6 +1216,9 @@
     "meta": {
       "title": "Blog - Articles and tutorials on web development",
       "description": "Discover our articles on Next.js, React, TypeScript and the latest web development technologies."
-    }
+    },
+    "backToBlog": "Back to articles",
+    "share": "Share",
+    "readTime": "min read"
   }
 }

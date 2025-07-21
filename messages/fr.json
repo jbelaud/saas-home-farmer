@@ -1216,6 +1216,9 @@
     "meta": {
       "title": "Blog - Articles et tutoriels sur le développement web",
       "description": "Découvrez nos articles sur Next.js, React, TypeScript et les dernières technologies de développement web."
-    }
+    },
+    "backToBlog": "Retour aux articles",
+    "share": "Partager",
+    "readTime": "min de lecture"
   }
 }
