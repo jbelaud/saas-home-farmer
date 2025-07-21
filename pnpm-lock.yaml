@@ -122,9 +122,6 @@ importers:
       '@tabler/icons-react':
         specifier: ^3.34.0
         version: 3.34.0(react@19.1.0)
-      '@tailwindcss/typography':
-        specifier: ^0.5.16
-        version: 0.5.16(tailwindcss@4.1.11)
       '@tanstack/react-query':
         specifier: ^5.81.5
         version: 5.83.0(react@19.1.0)
@@ -264,6 +261,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.11
         version: 4.1.11
+      '@tailwindcss/typography':
+        specifier: ^0.5.16
+        version: 0.5.16(tailwindcss@4.1.11)
       '@testing-library/jest-dom':
         specifier: 6.6.3
         version: 6.6.3

@@ -1,0 +1,134 @@
+# Bienvenue sur notre Blog avec MDX !
+
+Ceci est un exemple de **contenu MDX** qui combine la simplicité du Markdown avec la puissance des composants React. MDX vous permet d'écrire du contenu riche et interactif.
+
+## Qu'est-ce que MDX ?
+
+MDX est un format de fichier qui vous permet d'utiliser du JSX dans vos documents Markdown. Cela signifie que vous pouvez :
+
+- Écrire du contenu en **Markdown** standard
+- Intégrer des _composants React_ personnalisés
+- Créer des expériences interactives
+- Maintenir la lisibilité du code
+
+### Exemple de formatage
+
+Voici quelques exemples de formatage Markdown qui fonctionnent parfaitement :
+
+1. **Texte en gras** et _texte en italique_
+2. `Code inline` avec des backticks
+3. [Liens vers des sites externes](https://nextjs.org)
+4. [Liens internes](/pricing) vers d'autres pages
+
+> **Citation importante**  
+> MDX révolutionne la façon dont nous créons du contenu technique en combinant la simplicité du Markdown avec la flexibilité de React.
+
+## Exemples de code
+
+### JavaScript
+
+```javascript
+// Exemple de fonction React
+function WelcomeMessage({name}) {
+  return (
+    <div className="welcome">
+      <h2>Bonjour {name} !</h2>
+      <p>Bienvenue dans notre application Next.js</p>
+    </div>
+  )
+}
+
+export default WelcomeMessage
+```
+
+### TypeScript
+
+```typescript
+interface User {
+  id: number
+  name: string
+  email: string
+  isActive: boolean
+}
+
+const createUser = (userData: Omit<User, 'id'>): User => {
+  return {
+    id: Date.now(),
+    ...userData,
+  }
+}
+```
+
+### CSS
+
+```css
+.blog-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.highlight {
+  background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+```
+
+## Listes et structures
+
+### Technologies utilisées dans ce projet
+
+- **Next.js 15** - Framework React avec App Router
+- **TypeScript** - Typage statique pour JavaScript
+- **Tailwind CSS** - Framework CSS utilitaire
+- **MDX** - Markdown avec composants React
+- **ShadCN UI** - Composants UI modernes
+- **Next Intl** - Internationalisation
+
+### Étapes de développement
+
+1. **Configuration initiale**
+   - Installation des dépendances
+   - Configuration de Next.js
+   - Setup de TypeScript
+
+2. **Développement**
+   - Création des composants
+   - Implémentation des pages
+   - Tests et optimisation
+
+3. **Déploiement**
+   - Build de production
+   - Optimisation des performances
+   - Mise en ligne
+
+## Tableau des fonctionnalités
+
+| Fonctionnalité       | Description                   | Statut        |
+| -------------------- | ----------------------------- | ------------- |
+| **Authentification** | Système de connexion sécurisé | ✅ Implémenté |
+| **Dashboard**        | Interface utilisateur         | ✅ Implémenté |
+| **Paiements**        | Intégration Stripe            | ✅ Implémenté |
+| **Blog MDX**         | Système de blog avec MDX      | 🚧 En cours   |
+| **Organisations**    | Gestion multi-tenant          | ✅ Implémenté |
+
+---
+
+## Conclusion
+
+MDX offre une expérience de création de contenu exceptionnelle en combinant :
+
+- **Simplicité** : Syntaxe Markdown familière
+- **Flexibilité** : Composants React intégrés
+- **Performance** : Rendu optimisé côté serveur
+- **Maintenabilité** : Code structuré et lisible
+
+Cette approche révolutionne la création de contenu technique et permet de créer des expériences riches et interactives.
+
+**Prêt à commencer ?** Explorez notre [documentation](/docs) ou visitez notre [page de pricing](/pricing) pour découvrir nos offres.
+
+---
+
+_Cet article a été créé avec ❤️ en utilisant MDX et Next.js 15_

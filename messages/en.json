@@ -1209,5 +1209,13 @@
       "updateError": "Error updating task",
       "deleteError": "Error deleting task"
     }
+  },
+  "BlogPage": {
+    "title": "Blog",
+    "description": "Discover our latest articles and insights on web development",
+    "meta": {
+      "title": "Blog - Articles and tutorials on web development",
+      "description": "Discover our articles on Next.js, React, TypeScript and the latest web development technologies."
+    }
   }
 }

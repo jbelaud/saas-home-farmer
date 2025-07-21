@@ -1209,5 +1209,13 @@
       "updateError": "Erreur lors de la mise à jour de la tâche",
       "deleteError": "Erreur lors de la suppression de la tâche"
     }
+  },
+  "BlogPage": {
+    "title": "Blog",
+    "description": "Découvrez nos derniers articles et réflexions sur le développement web",
+    "meta": {
+      "title": "Blog - Articles et tutoriels sur le développement web",
+      "description": "Découvrez nos articles sur Next.js, React, TypeScript et les dernières technologies de développement web."
+    }
   }
 }
