@@ -62,6 +62,9 @@ importers:
       '@milkdown/theme-nord':
         specifier: ^7.15.1
         version: 7.15.1
+      '@milkdown/utils':
+        specifier: ^7.15.1
+        version: 7.15.1
       '@next/mdx':
         specifier: 15.4.1
         version: 15.4.1(@mdx-js/loader@3.1.0(acorn@8.15.0))(@mdx-js/react@3.1.0(@types/react@19.1.8)(react@19.1.0))

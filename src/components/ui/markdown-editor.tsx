@@ -6,8 +6,9 @@ import {Milkdown, MilkdownProvider, useEditor} from '@milkdown/react'
 import {commonmark} from '@milkdown/preset-commonmark'
 import {listener, listenerCtx} from '@milkdown/plugin-listener'
 import {history} from '@milkdown/plugin-history'
+import {getMarkdown, replaceAll} from '@milkdown/utils'
 import {Eye, FileText} from 'lucide-react'
-import {useCallback, useState} from 'react'
+import {useCallback, useState, useEffect, useRef} from 'react'
 
 import {Button} from './button'
 import {Textarea} from './textarea'
@@ -22,6 +23,64 @@ interface MarkdownEditorProps {
   id?: string
 }
 
+// Composant Milkdown pur
+function MilkdownEditor({
+  content,
+  onChange,
+}: {
+  content: string
+  onChange: (markdown: string) => void
+}) {
+  const {get} = useEditor((root) =>
+    Editor.make()
+      .config(nord)
+      .config((ctx) => {
+        ctx.set(rootCtx, root)
+        ctx.set(defaultValueCtx, content)
+        ctx.get(listenerCtx).markdownUpdated((_, markdown) => {
+          onChange(markdown)
+        })
+      })
+      .use(commonmark)
+      .use(listener)
+      .use(history)
+  )
+
+  const previousContent = useRef(content)
+  const debounceTimeout = useRef<number | null>(null)
+
+  // Synchroniser le contenu avec l'éditeur
+  useEffect(() => {
+    const editor = get()
+    if (editor && content !== previousContent.current) {
+      // Debouncing pour éviter les boucles
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current)
+      }
+
+      debounceTimeout.current = window.setTimeout(() => {
+        try {
+          const currentContent = editor.action(getMarkdown())
+          if (currentContent !== content) {
+            editor.action(replaceAll(content))
+            previousContent.current = content
+          }
+        } catch (error) {
+          console.warn('Erreur lors de la mise à jour Milkdown:', error)
+        }
+      }, 200)
+    }
+
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current)
+      }
+    }
+  }, [content, get])
+
+  return <Milkdown />
+}
+
 function MarkdownEditorInner({
   value = '',
   onChange,
@@ -32,21 +91,6 @@ function MarkdownEditorInner({
 }: MarkdownEditorProps) {
   const [isTextMode, setIsTextMode] = useState(false)
 
-  useEditor((root) => {
-    return Editor.make()
-      .config(nord)
-      .config((ctx) => {
-        ctx.set(rootCtx, root)
-        ctx.set(defaultValueCtx, value || '')
-        ctx.get(listenerCtx).markdownUpdated((_, markdown) => {
-          onChange?.(markdown)
-        })
-      })
-      .use(commonmark)
-      .use(listener)
-      .use(history)
-  })
-
   const toggleMode = useCallback(() => {
     setIsTextMode(!isTextMode)
   }, [isTextMode])
@@ -54,6 +98,13 @@ function MarkdownEditorInner({
   const handleTextareaChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       onChange?.(e.target.value)
+    },
+    [onChange]
+  )
+
+  const handleMilkdownChange = useCallback(
+    (markdown: string) => {
+      onChange?.(markdown)
     },
     [onChange]
   )
@@ -105,7 +156,7 @@ function MarkdownEditorInner({
         ) : (
           // Mode éditeur Milkdown
           <div className="milkdown-wrapper min-h-[200px] p-0">
-            <Milkdown />
+            <MilkdownEditor content={value} onChange={handleMilkdownChange} />
           </div>
         )}
       </div>

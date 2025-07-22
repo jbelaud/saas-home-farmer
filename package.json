@@ -48,6 +48,7 @@
     "@milkdown/preset-commonmark": "^7.15.1",
     "@milkdown/react": "^7.15.1",
     "@milkdown/theme-nord": "^7.15.1",
+    "@milkdown/utils": "^7.15.1",
     "@next/mdx": "15.4.1",
     "@next/third-parties": "15.4.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
