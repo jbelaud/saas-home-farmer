@@ -155,3 +155,100 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Milkdown Editor Styles */
+.milkdown-wrapper {
+  @apply relative;
+}
+
+.milkdown-wrapper .milkdown {
+  @apply min-h-[200px];
+}
+
+.milkdown-wrapper .editor {
+  @apply min-h-[200px] p-4 outline-none;
+}
+
+.milkdown-wrapper .ProseMirror {
+  @apply text-foreground bg-background min-h-[200px] p-4 outline-none;
+}
+
+.milkdown-wrapper .ProseMirror p {
+  @apply mb-3 last:mb-0;
+}
+
+.milkdown-wrapper .ProseMirror p:empty::before {
+  content: attr(data-placeholder);
+  @apply text-muted-foreground;
+  pointer-events: none;
+}
+
+.milkdown-wrapper .ProseMirror h1,
+.milkdown-wrapper .ProseMirror h2,
+.milkdown-wrapper .ProseMirror h3,
+.milkdown-wrapper .ProseMirror h4,
+.milkdown-wrapper .ProseMirror h5,
+.milkdown-wrapper .ProseMirror h6 {
+  @apply mt-6 mb-3 font-semibold first:mt-0;
+}
+
+.milkdown-wrapper .ProseMirror h1 {
+  @apply text-2xl;
+}
+
+.milkdown-wrapper .ProseMirror h2 {
+  @apply text-xl;
+}
+
+.milkdown-wrapper .ProseMirror h3 {
+  @apply text-lg;
+}
+
+.milkdown-wrapper .ProseMirror ul,
+.milkdown-wrapper .ProseMirror ol {
+  @apply mb-3 pl-6;
+}
+
+.milkdown-wrapper .ProseMirror ul {
+  @apply list-disc;
+}
+
+.milkdown-wrapper .ProseMirror ol {
+  @apply list-decimal;
+}
+
+.milkdown-wrapper .ProseMirror li {
+  @apply mb-1;
+}
+
+.milkdown-wrapper .ProseMirror blockquote {
+  @apply border-muted-foreground/20 text-muted-foreground mb-3 border-l-4 pl-4 italic;
+}
+
+.milkdown-wrapper .ProseMirror code {
+  @apply bg-muted text-muted-foreground rounded px-1.5 py-1 font-mono text-sm;
+}
+
+.milkdown-wrapper .ProseMirror pre {
+  @apply bg-muted mb-3 overflow-x-auto rounded p-4;
+}
+
+.milkdown-wrapper .ProseMirror pre code {
+  @apply text-foreground bg-transparent p-0;
+}
+
+.milkdown-wrapper .ProseMirror strong {
+  @apply font-semibold;
+}
+
+.milkdown-wrapper .ProseMirror em {
+  @apply italic;
+}
+
+.milkdown-wrapper .ProseMirror a {
+  @apply text-primary underline;
+}
+
+.milkdown-wrapper .ProseMirror hr {
+  @apply border-border my-4;
+}

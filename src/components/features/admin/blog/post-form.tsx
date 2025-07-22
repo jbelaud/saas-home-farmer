@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
+import {MarkdownEditor} from '@/components/ui/markdown-editor'
 import {
   Select,
   SelectContent,
@@ -656,10 +657,11 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
                         <FormItem>
                           <FormLabel>Contenu</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
+                            <MarkdownEditor
+                              value={field.value}
+                              onChange={field.onChange}
                               placeholder="Contenu complet de l'article (Markdown supporté)"
-                              rows={10}
+                              id={`content-${index}`}
                             />
                           </FormControl>
                           <FormMessage />
