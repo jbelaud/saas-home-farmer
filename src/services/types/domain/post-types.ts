@@ -17,6 +17,9 @@ import {UserModel} from '@/db/models/user-model'
 
 // ===== TYPES DE DOMAINE DÉCOUPLÉS =====
 
+// Re-export des types de modèles pour utilisation externe
+export type {PostModel} from '@/db/models/post-model'
+
 // Types de domaine découplés des types Drizzle
 export type Post = PostModel
 export type PostTranslation = PostsTranslationModel
