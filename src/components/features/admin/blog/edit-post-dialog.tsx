@@ -73,7 +73,7 @@ export function EditPostDialog({
     try {
       const transformedData = {
         ...data,
-        categoryId: data.categoryId === 'none' ? null : data.categoryId,
+        categoryId: data.categoryId === 'none' ? undefined : data.categoryId,
       }
       await onSave(post.id, transformedData)
       setIsDialogOpen(false)

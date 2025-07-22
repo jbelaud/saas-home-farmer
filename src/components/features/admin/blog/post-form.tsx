@@ -9,8 +9,8 @@ import * as z from 'zod'
 
 import {
   createPostAction,
-  updatePostAction,
-} from '@/app/[locale]/admin/blog/form-actions'
+  updatePostCompleteAction,
+} from '@/app/[locale]/admin/blog/actions'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
@@ -83,6 +83,7 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newHashtagInput, setNewHashtagInput] = useState('')
+  const [hashtagSelectValue, setHashtagSelectValue] = useState('')
 
   // Préparation des valeurs par défaut
   const defaultValues: PostFormValues = {
@@ -111,7 +112,10 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
             metaKeywords: '',
           },
         ],
-    hashtags: post?.postHashtags?.map((ph) => ph.hashtag.id) || [],
+    hashtags:
+      post?.postHashtags
+        ?.map((ph) => ph.hashtag?.id)
+        .filter((id): id is string => Boolean(id)) || [],
     newHashtags: [],
   }
 
@@ -153,13 +157,41 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
   }
 
   const addNewHashtag = () => {
-    if (newHashtagInput.trim()) {
+    // Nettoyer l'input : enlever #, espaces, et caractères non autorisés
+    const cleanInput = newHashtagInput
+      .trim()
+      .replace(/^#/, '') // Enlever # du début si présent
+      .replace(/[^a-zA-Z0-9_]/g, '') // Ne garder que lettres, chiffres et underscores
+      .toLowerCase() // Convertir en minuscules pour uniformité
+
+    if (cleanInput && cleanInput.length >= 2) {
       const currentNewHashtags = form.getValues('newHashtags') || []
-      form.setValue('newHashtags', [
-        ...currentNewHashtags,
-        newHashtagInput.trim(),
-      ])
-      setNewHashtagInput('')
+      const currentHashtags = form.getValues('hashtags') || []
+
+      // Vérifier que le hashtag n'existe pas déjà
+      const existsInExisting = hashtags.some(
+        (h) => h.name.toLowerCase() === cleanInput.toLowerCase()
+      )
+      const existsInNew = currentNewHashtags.some(
+        (h) => h.toLowerCase() === cleanInput.toLowerCase()
+      )
+
+      if (!existsInExisting && !existsInNew) {
+        form.setValue('newHashtags', [...currentNewHashtags, cleanInput])
+        setNewHashtagInput('')
+      } else {
+        // Si le hashtag existe déjà, on peut l'ajouter à la sélection
+        const existingHashtag = hashtags.find(
+          (h) => h.name.toLowerCase() === cleanInput.toLowerCase()
+        )
+        if (existingHashtag && !currentHashtags.includes(existingHashtag.id)) {
+          toggleHashtag(existingHashtag.id)
+        }
+        setNewHashtagInput('')
+      }
+    } else if (cleanInput.length < 2) {
+      // Montrer un message d'erreur si le hashtag est trop court après nettoyage
+      console.warn('Le hashtag doit contenir au moins 2 caractères valides')
     }
   }
 
@@ -202,7 +234,7 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
       if (mode === 'create') {
         result = await createPostAction(data)
       } else if (post) {
-        result = await updatePostAction(post.id, data)
+        result = await updatePostCompleteAction(post.id, data)
       }
 
       if (result?.success) {
@@ -289,33 +321,58 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
             <CardTitle>Hashtags</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Hashtags existants */}
+            {/* Sélecteur de hashtags */}
             <div>
-              <FormLabel>Hashtags existants</FormLabel>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {hashtags.map((hashtag) => (
-                  <Badge
-                    key={hashtag.id}
-                    variant={
-                      watchedHashtags.includes(hashtag.id)
-                        ? 'default'
-                        : 'outline'
-                    }
-                    className="cursor-pointer"
-                    onClick={() => toggleHashtag(hashtag.id)}
+              <FormLabel>Sélectionner des hashtags</FormLabel>
+              <Select
+                value={hashtagSelectValue}
+                onValueChange={(value) => {
+                  if (value && value !== 'add-new') {
+                    toggleHashtag(value)
+                    setHashtagSelectValue('') // Réinitialiser la sélection
+                  } else if (value === 'add-new') {
+                    // Focus sur l'input pour nouveau hashtag
+                    document.getElementById('new-hashtag-input')?.focus()
+                    setHashtagSelectValue('') // Réinitialiser la sélection
+                  }
+                }}
+              >
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Choisir un hashtag..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    value="add-new"
+                    className="text-primary font-medium"
                   >
-                    {hashtag.name}
-                  </Badge>
-                ))}
-              </div>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Ajouter un nouveau hashtag
+                  </SelectItem>
+                  {hashtags
+                    .filter((hashtag) => !watchedHashtags.includes(hashtag.id))
+                    .map((hashtag) => (
+                      <SelectItem key={hashtag.id} value={hashtag.id}>
+                        #{hashtag.name}
+                      </SelectItem>
+                    ))}
+                  {hashtags.filter(
+                    (hashtag) => !watchedHashtags.includes(hashtag.id)
+                  ).length === 0 && (
+                    <SelectItem value="no-more" disabled>
+                      Tous les hashtags sont déjà sélectionnés
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Nouveaux hashtags */}
+            {/* Ajouter nouveau hashtag */}
             <div>
-              <FormLabel>Ajouter de nouveaux hashtags</FormLabel>
+              <FormLabel>Ajouter un nouveau hashtag</FormLabel>
               <div className="mt-2 flex gap-2">
                 <Input
-                  placeholder="Nom du hashtag"
+                  id="new-hashtag-input"
+                  placeholder="Ex: react, javascript, web_dev (lettres, chiffres, _)"
                   value={newHashtagInput}
                   onChange={(e) => setNewHashtagInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -325,24 +382,60 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
                     }
                   }}
                 />
-                <Button type="button" onClick={addNewHashtag}>
+                <Button
+                  type="button"
+                  onClick={addNewHashtag}
+                  disabled={!newHashtagInput.trim()}
+                >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              {watchedNewHashtags.length > 0 && (
+              <p className="text-muted-foreground text-sm">
+                Les caractères spéciaux et espaces seront automatiquement
+                supprimés
+              </p>
+            </div>
+
+            {/* Hashtags sélectionnés */}
+            {(watchedHashtags.length > 0 || watchedNewHashtags.length > 0) && (
+              <div>
+                <FormLabel>Hashtags sélectionnés</FormLabel>
                 <div className="mt-2 flex flex-wrap gap-2">
+                  {/* Hashtags existants sélectionnés */}
+                  {watchedHashtags.map((hashtagId) => {
+                    const hashtag = hashtags.find((h) => h.id === hashtagId)
+                    return hashtag ? (
+                      <Badge
+                        key={hashtag.id}
+                        variant="default"
+                        className="gap-1"
+                      >
+                        #{hashtag.name}
+                        <X
+                          className="hover:text-destructive h-3 w-3 cursor-pointer"
+                          onClick={() => toggleHashtag(hashtag.id)}
+                        />
+                      </Badge>
+                    ) : null
+                  })}
+
+                  {/* Nouveaux hashtags */}
                   {watchedNewHashtags.map((hashtag, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
-                      {hashtag}
+                    <Badge
+                      key={`new-${index}`}
+                      variant="secondary"
+                      className="gap-1"
+                    >
+                      #{hashtag}
                       <X
-                        className="h-3 w-3 cursor-pointer"
+                        className="hover:text-destructive h-3 w-3 cursor-pointer"
                         onClick={() => removeNewHashtag(index)}
                       />
                     </Badge>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

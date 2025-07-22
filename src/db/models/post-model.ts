@@ -58,6 +58,9 @@ export const postsTranslation = pgTable(
     slug: text('slug').notNull().unique(), // Slug traduit
     content: text('content').notNull(), // Contenu traduit
     description: text('description').notNull(), // Description traduite
+    metaTitle: text('meta_title'), // Titre SEO
+    metaDescription: text('meta_description'), // Description SEO
+    metaKeywords: text('meta_keywords'), // Mots-clés SEO
   },
   (table) => ({
     // Contrainte unique sur postId et language

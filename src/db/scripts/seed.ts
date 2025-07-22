@@ -406,6 +406,23 @@ const seed = async () => {
     ON CONFLICT (name) DO NOTHING;
   `)
 
+  // 7.5. Insérer des hashtags
+  await client.query(`
+    INSERT INTO "hashtags" (name)
+    VALUES
+      ('javascript'),
+      ('react'),
+      ('nextjs'),
+      ('typescript'),
+      ('css'),
+      ('backend'),
+      ('frontend'),
+      ('tutorial'),
+      ('tips'),
+      ('webdev')
+    ON CONFLICT (name) DO NOTHING;
+  `)
+
   // 8. Insérer des posts avec traductions
   await client.query(`
     INSERT INTO "posts" (status, "authorid", "categoryid", "nbview", "nblike")
@@ -451,6 +468,33 @@ const seed = async () => {
     JOIN "posts" p ON p."authorid" = u.id
     JOIN "categories" c ON c.name = trans_data.category_name AND p."categoryid" = c.id
     ON CONFLICT ("postid", language) DO NOTHING;
+  `)
+
+  // 9.5. Associer des hashtags aux posts
+  await client.query(`
+    INSERT INTO "post_hashtags" ("postid", "hashtagid")
+    SELECT 
+      p.id as "postid",
+      h.id as "hashtagid"
+    FROM (
+      VALUES 
+        -- Post 1 (React 19) : javascript, react, frontend, tips
+        ('user@gmail.com', 'Tech', 'javascript'),
+        ('user@gmail.com', 'Tech', 'react'),
+        ('user@gmail.com', 'Tech', 'frontend'),
+        ('user@gmail.com', 'Tech', 'tips'),
+        
+        -- Post 2 (Guide Next.js) : nextjs, typescript, tutorial, webdev
+        ('admin@gmail.com', 'Tutorial', 'nextjs'),
+        ('admin@gmail.com', 'Tutorial', 'typescript'),
+        ('admin@gmail.com', 'Tutorial', 'tutorial'),
+        ('admin@gmail.com', 'Tutorial', 'webdev')
+    ) AS hashtag_data(author_email, category_name, hashtag_name)
+    JOIN "user" u ON u.email = hashtag_data.author_email
+    JOIN "posts" p ON p."authorid" = u.id
+    JOIN "categories" c ON c.name = hashtag_data.category_name AND p."categoryid" = c.id
+    JOIN "hashtags" h ON h.name = hashtag_data.hashtag_name
+    ON CONFLICT ("postid", "hashtagid") DO NOTHING;
   `)
 
   // 10. Insérer des notifications de test
@@ -556,9 +600,16 @@ const seed = async () => {
   console.log('')
   console.log('📝 Articles de blog créés :')
   console.log('🔹 2 catégories : Tech et Tutorial')
+  console.log(
+    '🔹 10 hashtags : javascript, react, nextjs, typescript, css, backend, frontend, tutorial, tips, webdev'
+  )
   console.log('🔹 2 posts traduits en 3 langues (fr, en, es)')
-  console.log('  └─ "Les Nouveautés de React 19" par user@gmail.com')
-  console.log('  └─ "Guide Next.js pour Débutants" par admin@gmail.com')
+  console.log(
+    '  └─ "Les Nouveautés de React 19" par user@gmail.com (hashtags: javascript, react, frontend, tips)'
+  )
+  console.log(
+    '  └─ "Guide Next.js pour Débutants" par admin@gmail.com (hashtags: nextjs, typescript, tutorial, webdev)'
+  )
   console.log('')
   console.log('🔔 Notifications de test créées :')
   console.log('🔹 22 notifications réparties sur tous les utilisateurs')
