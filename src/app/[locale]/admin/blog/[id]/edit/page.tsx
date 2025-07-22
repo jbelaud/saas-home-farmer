@@ -1,0 +1,56 @@
+import {notFound} from 'next/navigation'
+
+import {getAllCategoriesDal, getAllHashtagsDal} from '@/app/dal/post-dal'
+import {PostForm} from '@/components/features/admin/blog/post-form'
+import {canUpdatePost} from '@/services/authorization/post-authorization'
+import {getPostByIdWithRelationsService} from '@/services/facades/post-service-facade'
+
+type PageProps = {
+  params: Promise<{id: string}>
+}
+
+export default async function EditPostPage({params}: PageProps) {
+  const {id} = await params
+
+  // Récupération du post avec ses relations
+  const post = await getPostByIdWithRelationsService(id)
+
+  if (!post) {
+    notFound()
+  }
+
+  // Vérifications des permissions
+  const canEdit = await canUpdatePost(id)
+
+  if (!canEdit) {
+    throw new Error(
+      "Accès refusé - Vous n'avez pas les permissions pour modifier ce post"
+    )
+  }
+
+  // Récupération des données nécessaires
+  const [categories, hashtags] = await Promise.all([
+    getAllCategoriesDal(),
+    getAllHashtagsDal(),
+  ])
+
+  return (
+    <div className="container mx-auto py-8">
+      <div className="mx-auto max-w-4xl space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Modifier le post
+          </h1>
+          <p className="text-muted-foreground">ID: {post.id}</p>
+        </div>
+
+        <PostForm
+          mode="edit"
+          post={post}
+          categories={categories}
+          hashtags={hashtags}
+        />
+      </div>
+    </div>
+  )
+}

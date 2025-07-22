@@ -1,6 +1,6 @@
 'use client'
 
-import {Eye, FileText, MoreHorizontal} from 'lucide-react'
+import {Edit, Eye, FileText, MoreHorizontal, Plus} from 'lucide-react'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {useState} from 'react'
 import {toast} from 'sonner'
@@ -176,6 +176,12 @@ export function PostsManagement({
             Gérez les articles de blog et leurs traductions
           </p>
         </div>
+        {permissions.canCreate && (
+          <Button onClick={() => router.push('/admin/blog/new')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nouveau post
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -242,6 +248,18 @@ export function PostsManagement({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {permissions.isAdmin && (
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={() =>
+                              router.push(`/admin/blog/${post.id}/edit`)
+                            }
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Modifier le post
+                          </Button>
+                        )}
                         {permissions.isAdmin && (
                           <EditPostDialog
                             post={post}

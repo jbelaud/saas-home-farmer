@@ -66,3 +66,9 @@ export const bulkActionPostsService =
 
 // ===== SERVICES DE STATISTIQUES =====
 export const getPostStatsService = postServiceInterceptor.getPostStatsService
+
+// ===== SERVICES COMPLEXES =====
+export const createPostWithTranslationsService =
+  postServiceInterceptor.createPostWithTranslationsService
+export const updatePostWithTranslationsService =
+  postServiceInterceptor.updatePostWithTranslationsService

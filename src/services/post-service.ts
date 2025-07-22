@@ -950,3 +950,156 @@ export const getPostStatsService = async () => {
 
   return stats
 }
+
+// ===== SERVICES COMPLEXES =====
+
+/**
+ * Créer un post avec traductions et hashtags
+ */
+export const createPostWithTranslationsService = async (
+  postData: CreatePost,
+  translations: CreatePostTranslation[],
+  hashtagNames: string[] = []
+) => {
+  // Validation du post
+  const parsedPost = createPostServiceSchema.safeParse(postData)
+  if (!parsedPost.success) {
+    throw new ValidationError(parsedPost.error.message)
+  }
+
+  // Vérification des autorisations
+  const canCreate = await canCreatePost()
+  if (!canCreate) {
+    throw new AuthorizationError()
+  }
+
+  // 1. Créer le post
+  const createdPost = await createPostDao(parsedPost.data)
+
+  try {
+    // 2. Créer les traductions
+    for (const translation of translations) {
+      const translationData = {
+        ...translation,
+        postId: createdPost.id,
+      }
+
+      const parsedTranslation =
+        createPostTranslationServiceSchema.safeParse(translationData)
+      if (!parsedTranslation.success) {
+        throw new ValidationError(parsedTranslation.error.message)
+      }
+
+      await createPostTranslationDao(parsedTranslation.data)
+    }
+
+    // 3. Gérer les hashtags
+    if (hashtagNames.length > 0) {
+      for (const hashtagName of hashtagNames) {
+        // Chercher ou créer le hashtag
+        let hashtag = await getHashtagByNameDao(hashtagName.trim())
+
+        if (!hashtag) {
+          const hashtagData = {name: hashtagName.trim()}
+          const parsedHashtag =
+            createHashtagServiceSchema.safeParse(hashtagData)
+          if (!parsedHashtag.success) {
+            throw new ValidationError(parsedHashtag.error.message)
+          }
+          hashtag = await createHashtagDao(parsedHashtag.data)
+        }
+
+        // Associer le hashtag au post
+        // TODO: Implémenter createPostHashtagDao si nécessaire
+      }
+    }
+
+    // TODO: Ajouter notification de création si nécessaire
+    // const notificationService = createTypedNotificationService(NotificationTypeConst.POST_CREATED)
+    // await notificationService.sendNotification({
+    //   userId: createdPost.authorId,
+    //   title: 'Post créé',
+    //   content: `Votre post a été créé avec succès`,
+    // })
+
+    return await getPostByIdWithRelationsDao(createdPost.id)
+  } catch (error) {
+    // En cas d'erreur, supprimer le post créé
+    await deletePostsDao([createdPost.id])
+    throw error
+  }
+}
+
+/**
+ * Mettre à jour un post avec traductions et hashtags
+ */
+export const updatePostWithTranslationsService = async (
+  postData: UpdatePost,
+  translations: CreatePostTranslation[],
+  hashtagNames: string[] = []
+) => {
+  // Validation du post
+  const parsedPost = updatePostServiceSchema.safeParse(postData)
+  if (!parsedPost.success) {
+    throw new ValidationError(parsedPost.error.message)
+  }
+
+  // Vérification des autorisations
+  const canUpdate = await canUpdatePost(parsedPost.data.id)
+  if (!canUpdate) {
+    throw new AuthorizationError()
+  }
+
+  // Vérifier que le post existe
+  const existingPost = await getPostByIdDao(parsedPost.data.id)
+  if (!existingPost) {
+    throw new NotFoundError('Post non trouvé')
+  }
+
+  // 1. Mettre à jour le post
+  await updatePostByIdDao(parsedPost.data)
+
+  // 2. Supprimer les anciennes traductions
+  const existingTranslations = await getPostTranslationsByPostIdDao(
+    parsedPost.data.id
+  )
+  for (const translation of existingTranslations) {
+    await deletePostTranslationByIdDao(translation.id)
+  }
+
+  // 3. Créer les nouvelles traductions
+  for (const translation of translations) {
+    const translationData = {
+      ...translation,
+      postId: parsedPost.data.id,
+    }
+
+    const parsedTranslation =
+      createPostTranslationServiceSchema.safeParse(translationData)
+    if (!parsedTranslation.success) {
+      throw new ValidationError(parsedTranslation.error.message)
+    }
+
+    await createPostTranslationDao(parsedTranslation.data)
+  }
+
+  // 4. Gérer les hashtags (similaire à la création)
+  if (hashtagNames.length > 0) {
+    for (const hashtagName of hashtagNames) {
+      let hashtag = await getHashtagByNameDao(hashtagName.trim())
+
+      if (!hashtag) {
+        const hashtagData = {name: hashtagName.trim()}
+        const parsedHashtag = createHashtagServiceSchema.safeParse(hashtagData)
+        if (!parsedHashtag.success) {
+          throw new ValidationError(parsedHashtag.error.message)
+        }
+        hashtag = await createHashtagDao(parsedHashtag.data)
+      }
+
+      // TODO: Gérer les associations post-hashtag
+    }
+  }
+
+  return await getPostByIdWithRelationsDao(parsedPost.data.id)
+}
