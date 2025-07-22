@@ -296,6 +296,9 @@ export async function updatePostAction(
   id: string,
   formData: FormData
 ): Promise<FormState> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
   try {
     const status = formData.get('status') as string
     const categoryId = formData.get('categoryId') as string
@@ -335,6 +338,9 @@ export async function updatePostAction(
 }
 
 export async function deletePostAction(id: string): Promise<FormState> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
   try {
     await deletePostService(id)
 

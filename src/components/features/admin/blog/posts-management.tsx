@@ -15,6 +15,7 @@ import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -249,16 +250,14 @@ export function PostsManagement({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         {permissions.isAdmin && (
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start"
+                          <DropdownMenuItem
                             onClick={() =>
                               router.push(`/admin/blog/${post.id}/edit`)
                             }
                           >
                             <Edit className="mr-2 h-4 w-4" />
                             Modifier le post
-                          </Button>
+                          </DropdownMenuItem>
                         )}
                         {permissions.isAdmin && (
                           <EditPostDialog
