@@ -41,7 +41,7 @@ import {
 // Schéma de validation
 const formSchema = z.object({
   status: z.enum(['draft', 'published', 'archived']),
-  categoryId: z.string().optional().nullable(),
+  categoryId: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -64,14 +64,18 @@ export function EditPostDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       status: post.status as 'draft' | 'published' | 'archived',
-      categoryId: post.categoryId,
+      categoryId: post.categoryId || 'none',
     },
   })
 
   async function onSubmit(data: FormValues) {
     setIsSubmitting(true)
     try {
-      await onSave(post.id, data)
+      const transformedData = {
+        ...data,
+        categoryId: data.categoryId === 'none' ? null : data.categoryId,
+      }
+      await onSave(post.id, transformedData)
       setIsDialogOpen(false)
     } finally {
       setIsSubmitting(false)
@@ -129,7 +133,7 @@ export function EditPostDialog({
                   <FormLabel>Catégorie</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value || 'none'}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -137,7 +141,7 @@ export function EditPostDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Aucune catégorie</SelectItem>
+                      <SelectItem value="none">Aucune catégorie</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
