@@ -133,20 +133,24 @@ export function PostsManagement({
 
     const result = await updatePostAction(id, formData)
 
-    toast({
-      title: result.success ? 'Succès' : 'Erreur',
+    toast(result.success ? 'Succès' : 'Erreur', {
       description: result.message,
-      variant: result.success ? 'default' : 'destructive',
+      action: {
+        label: 'Undo',
+        onClick: () => console.log('Undo'),
+      },
     })
   }
 
   const handleDeletePost = async (id: string) => {
     const result = await deletePostAction(id)
 
-    toast({
-      title: result.success ? 'Succès' : 'Erreur',
+    toast(result.success ? 'Succès' : 'Erreur', {
       description: result.message,
-      variant: result.success ? 'default' : 'destructive',
+      action: {
+        label: 'Undo',
+        onClick: () => console.log('Undo'),
+      },
     })
   }
 

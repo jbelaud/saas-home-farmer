@@ -1,8 +1,9 @@
 ---
-description: 
+description:
 globs: src/app/(app)/**,src/app/admin/**,**table**
 alwaysApply: false
 ---
+
 # Structure d'un tableau avec pagination et recherche
 
 Ce guide décrit la structure recommandée pour implémenter un tableau avec pagination, limite et recherche dans le monorepo.
@@ -10,6 +11,7 @@ Ce guide décrit la structure recommandée pour implémenter un tableau avec pag
 ## Structure de Pagination Unifiée
 
 ### Structure de données (Repository/API)
+
 ```typescript
 // Format retourné par les repositories et APIs
 pagination: {
@@ -21,18 +23,20 @@ pagination: {
 ```
 
 ### Props de composants React
+
 ```typescript
 // Props des composants de gestion (plus explicites)
 interface Props {
-  totalItems: number,   // ← Mappé depuis pagination.total
-  currentPage: number,  // ← Mappé depuis pagination.page
-  pageSize: number,     // ← Mappé depuis pagination.limit
+  totalItems: number // ← Mappé depuis pagination.total
+  currentPage: number // ← Mappé depuis pagination.page
+  pageSize: number // ← Mappé depuis pagination.limit
 }
 ```
 
 **Mapping entre structure de données et props :**
+
 - `pagination.total` → `totalItems` (prop composant)
-- `pagination.page` → `currentPage` (prop composant) 
+- `pagination.page` → `currentPage` (prop composant)
 - `pagination.limit` → `pageSize` (prop composant)
 
 ## Architecture des fichiers
@@ -59,6 +63,7 @@ components/
 
 Le composant page doit être un RSC qui gère les searchParams et le Suspense :
 NOTE avec NEXT 15 :les queryparam sont async
+
 ```tsx
 type SearchParamsType = Promise<{
   page?: string
@@ -141,6 +146,7 @@ export default async function MyFeatureContent({
 ## Management Component (RCC)
 
 Le composant client qui gère l'UI et les interactions :
+
 - Limiter l'usage du router client et preferer la revalidation coté server action (revalidatpath)
 
 ```tsx
@@ -192,7 +198,6 @@ export function MyFeatureManagement({
   const router = useRouter()
   const searchParams = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('search') || '')
- 
 
   const handleSearch = (value: string) => {
     setSearch(value)
@@ -207,29 +212,32 @@ export function MyFeatureManagement({
     params.set('page', page.toString())
     router.push(`?${params.toString()}`)
   }
-  
+
   // Handlers pour les actions CRUD
   const handleSaveItem = async (id: string, data: UpdateItemData) => {
     const formData = new FormData()
     formData.append('field1', data.field1)
     formData.append('field2', data.field2)
-    
+
     const result = await updateItem(id, formData)
-    
-    toast({
-      title: result.success ? 'Succès' : 'Erreur',
+    toast(result.success ? 'Succès' : 'Erreur', {
       description: result.message,
-      variant: result.success ? 'default' : 'destructive',
+      action: {
+        label: 'Undo',
+        onClick: () => console.log('Undo'),
+      },
     })
   }
-  
+
   const handleDeleteItem = async (id: string) => {
     const result = await deleteItem(id)
-    
-    toast({
-      title: result.success ? 'Succès' : 'Erreur',
+
+    toast(result.success ? 'Succès' : 'Erreur', {
       description: result.message,
-      variant: result.success ? 'default' : 'destructive',
+      action: {
+        label: 'Undo',
+        onClick: () => console.log('Undo'),
+      },
     })
   }
 
@@ -413,7 +421,11 @@ export function EditItemDialog({item, onSave}: EditItemDialogProps) {
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+              >
                 Annuler
               </Button>
               <Button type="submit" disabled={isSubmitting}>
@@ -478,11 +490,16 @@ export function DeleteItemDialog({itemId, onDelete}: DeleteItemDialogProps) {
         <DialogHeader>
           <DialogTitle>Confirmer la suppression</DialogTitle>
           <DialogDescription>
-            Êtes-vous sûr de vouloir supprimer cet élément ? Cette action ne peut pas être annulée.
+            Êtes-vous sûr de vouloir supprimer cet élément ? Cette action ne
+            peut pas être annulée.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsDialogOpen(false)}
+          >
             Annuler
           </Button>
           <Button
@@ -500,7 +517,7 @@ export function DeleteItemDialog({itemId, onDelete}: DeleteItemDialogProps) {
 }
 ```
 
-## Toolbar de recherche et limit 
+## Toolbar de recherche et limit
 
 ```tsx
 export function Toolbar({
@@ -531,7 +548,7 @@ export function Toolbar({
       <div className="flex items-center gap-2">
         {onSearch && (
           <div className="relative flex w-[250px] items-center">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
             <Input
               placeholder="Rechercher..."
               className="pl-8 pr-8"
@@ -550,13 +567,13 @@ export function Toolbar({
             )}
           </div>
         )}
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground text-sm">
           {totalCampaigns} campagne{totalCampaigns > 1 ? 's' : ''} trouvée
           {totalCampaigns > 1 ? 's' : ''}
         </span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Afficher</span>
+        <span className="text-muted-foreground text-sm">Afficher</span>
         <Select value={perPage} onValueChange={onPerPageChange}>
           <SelectTrigger className="w-[70px]">
             <SelectValue placeholder="50" />
@@ -569,12 +586,13 @@ export function Toolbar({
             <SelectItem value="100">100</SelectItem>
           </SelectContent>
         </Select>
-        <span className="text-sm text-muted-foreground">par page</span>
+        <span className="text-muted-foreground text-sm">par page</span>
       </div>
     </div>
   )
 }
 ```
+
 ## Server Actions
 
 Les Server Actions sont utilisées pour les opérations de mutation :
@@ -607,7 +625,7 @@ export async function updateItem(id: string, formData: FormData) {
       field1,
       field2,
     })
-    
+
     revalidatePath('/admin/my-feature')
     return {
       success: true,
@@ -617,7 +635,8 @@ export async function updateItem(id: string, formData: FormData) {
     console.error('Erreur lors de la mise à jour:', error)
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Une erreur est survenue',
+      message:
+        error instanceof Error ? error.message : 'Une erreur est survenue',
     }
   }
 }
@@ -625,7 +644,7 @@ export async function updateItem(id: string, formData: FormData) {
 export async function deleteItem(id: string) {
   try {
     await deleteItemService(id)
-    
+
     revalidatePath('/admin/my-feature')
     return {
       success: true,
@@ -635,7 +654,8 @@ export async function deleteItem(id: string) {
     console.error('Erreur lors de la suppression:', error)
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Une erreur est survenue',
+      message:
+        error instanceof Error ? error.message : 'Une erreur est survenue',
     }
   }
 }
