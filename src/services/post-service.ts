@@ -75,6 +75,7 @@ import {
   POST_STATUS,
   PostBulkAction,
   PostBulkUpdate,
+  PostData,
   PostFilters,
   SupportedLanguage,
   UpdateCategory,
@@ -954,6 +955,75 @@ export const getPostStatsService = async () => {
   const stats = await getPostStatsDao()
 
   return stats
+}
+
+// ===== SERVICES PUBLICS (SANS AUTORISATION) =====
+
+/**
+ * Récupérer les posts publiés avec traductions et pagination (VERSION PUBLIQUE)
+ */
+export const getPublishedPostsWithTranslationsService = async (
+  pagination: Pagination,
+  language: SupportedLanguage,
+  filters?: PostFilters
+) => {
+  // Validation des filtres
+  if (filters) {
+    const parsed = postFiltersSchema.safeParse(filters)
+    if (!parsed.success) {
+      throw new ValidationError(parsed.error.message)
+    }
+  }
+
+  if (!SUPPORTED_LANGUAGES.includes(language)) {
+    throw new ValidationError('Langue non supportée')
+  }
+
+  // Forcer le filtre sur les posts publiés seulement
+  const publicFilters = {
+    ...filters,
+    status: POST_STATUS.PUBLISHED,
+  }
+
+  const posts = await getPostsWithTranslationsAndPaginationDao(
+    pagination,
+    language,
+    publicFilters
+  )
+
+  return posts
+}
+
+/**
+ * Récupérer un post publié par slug et langue (VERSION PUBLIQUE)
+ */
+export const getPublishedPostBySlugAndLanguageService = async (
+  slug: string,
+  language: SupportedLanguage
+): Promise<PostData> => {
+  // Validation basique
+  if (!slug || !language) {
+    throw new ValidationError('Slug et langue sont requis')
+  }
+
+  if (!SUPPORTED_LANGUAGES.includes(language)) {
+    throw new ValidationError('Langue non supportée')
+  }
+
+  const post = await getPostBySlugAndLanguageDao(slug, language)
+  if (!post) {
+    throw new NotFoundError('Post non trouvé')
+  }
+
+  // Vérifier que le post est publié
+  if (post.status !== POST_STATUS.PUBLISHED) {
+    throw new NotFoundError('Post non trouvé')
+  }
+
+  // Incrémenter les vues pour les posts publiés
+  await incrementPostViewDao(post.id)
+
+  return post
 }
 
 // ===== SERVICES COMPLEXES =====

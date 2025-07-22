@@ -72,3 +72,9 @@ export const createPostWithTranslationsService =
   postServiceInterceptor.createPostWithTranslationsService
 export const updatePostWithTranslationsService =
   postServiceInterceptor.updatePostWithTranslationsService
+
+// ===== SERVICES PUBLICS (SANS AUTORISATION) =====
+export const getPublishedPostsWithTranslationsService =
+  postServiceInterceptor.getPublishedPostsWithTranslationsService
+export const getPublishedPostBySlugAndLanguageService =
+  postServiceInterceptor.getPublishedPostBySlugAndLanguageService

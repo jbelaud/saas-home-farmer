@@ -1216,6 +1216,63 @@
     "meta": {
       "title": "Blog - Artículos y tutoriales sobre desarrollo web",
       "description": "Descubre nuestros artículos sobre Next.js, React, TypeScript y las últimas tecnologías de desarrollo web."
+    },
+    "backToBlog": "Volver a los artículos",
+    "share": "Compartir",
+    "readTime": "min de lectura"
+  },
+  "BlogListPage": {
+    "title": "Artículos",
+    "description": "Descubre nuestros últimos artículos e ideas sobre desarrollo web",
+    "meta": {
+      "title": "Blog - Artículos y tutoriales sobre desarrollo web",
+      "description": "Descubre nuestros artículos sobre Next.js, React, TypeScript y las últimas tecnologías de desarrollo web."
+    },
+    "noArticles": "No hay artículos disponibles por ahora.",
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente"
+    }
+  },
+  "BlogPostPage": {
+    "meta": {
+      "title": "Blog - Artículos y tutoriales sobre desarrollo web"
+    },
+    "publishedOn": "Publicado el",
+    "updatedOn": "Actualizado el",
+    "share": "Compartir",
+    "comment": "Comentar"
+  },
+  "BlogLayout": {
+    "navigation": {
+      "title": "Navegación",
+      "allArticles": "Todos los Artículos",
+      "mdxArticles": "Artículos MDX",
+      "admin": "Administración"
+    },
+    "categories": {
+      "title": "Categorías"
+    },
+    "popular": {
+      "title": "Más Leídos",
+      "views": "visualizaciones"
+    },
+    "hashtags": {
+      "title": "Tags Populares"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Mantente al día con nuestros últimos artículos y noticias de desarrollo web.",
+      "placeholder": "tu.email@ejemplo.com",
+      "subscribe": "Suscribirse",
+      "privacy": "Sin spam, cancela en cualquier momento"
+    },
+    "stats": {
+      "title": "Estadísticas del Blog",
+      "articles": "Artículos",
+      "authors": "Autores",
+      "categories": "Categorías",
+      "totalViews": "Vistas Totales"
     }
   }
 }

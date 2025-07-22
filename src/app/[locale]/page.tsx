@@ -209,7 +209,7 @@ export default async function Home({
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-primary transition">
+                <Link href="/blog" className="hover:text-primary transition">
                   {t('footer.resources.blog')}
                 </Link>
               </li>

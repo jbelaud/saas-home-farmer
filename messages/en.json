@@ -1220,5 +1220,59 @@
     "backToBlog": "Back to articles",
     "share": "Share",
     "readTime": "min read"
+  },
+  "BlogListPage": {
+    "title": "Articles",
+    "description": "Discover our latest articles and insights on web development",
+    "meta": {
+      "title": "Blog - Articles and tutorials on web development",
+      "description": "Discover our articles on Next.js, React, TypeScript and the latest web development technologies."
+    },
+    "noArticles": "No articles available yet.",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "BlogPostPage": {
+    "meta": {
+      "title": "Blog - Articles and tutorials on web development"
+    },
+    "publishedOn": "Published on",
+    "updatedOn": "Updated on",
+    "share": "Share",
+    "comment": "Comment"
+  },
+  "BlogLayout": {
+    "navigation": {
+      "title": "Navigation",
+      "allArticles": "All Articles",
+      "mdxArticles": "MDX Articles",
+      "admin": "Admin"
+    },
+    "categories": {
+      "title": "Categories"
+    },
+    "popular": {
+      "title": "Most Read",
+      "views": "views"
+    },
+    "hashtags": {
+      "title": "Popular Tags"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Stay updated with our latest articles and web development news.",
+      "placeholder": "your.email@example.com",
+      "subscribe": "Subscribe",
+      "privacy": "No spam, unsubscribe anytime"
+    },
+    "stats": {
+      "title": "Blog Stats",
+      "articles": "Articles",
+      "authors": "Authors",
+      "categories": "Categories",
+      "totalViews": "Total Views"
+    }
   }
 }

@@ -1220,5 +1220,59 @@
     "backToBlog": "Retour aux articles",
     "share": "Partager",
     "readTime": "min de lecture"
+  },
+  "BlogListPage": {
+    "title": "Articles",
+    "description": "Découvrez nos derniers articles et réflexions sur le développement web",
+    "meta": {
+      "title": "Blog - Articles et tutoriels sur le développement web",
+      "description": "Découvrez nos articles sur Next.js, React, TypeScript et les dernières technologies de développement web."
+    },
+    "noArticles": "Aucun article disponible pour le moment.",
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant"
+    }
+  },
+  "BlogPostPage": {
+    "meta": {
+      "title": "Blog - Articles et tutoriels sur le développement web"
+    },
+    "publishedOn": "Publié le",
+    "updatedOn": "Mis à jour le",
+    "share": "Partager",
+    "comment": "Commenter"
+  },
+  "BlogLayout": {
+    "navigation": {
+      "title": "Navigation",
+      "allArticles": "Tous les Articles",
+      "mdxArticles": "Articles MDX",
+      "admin": "Administration"
+    },
+    "categories": {
+      "title": "Catégories"
+    },
+    "popular": {
+      "title": "Les Plus Lus",
+      "views": "vues"
+    },
+    "hashtags": {
+      "title": "Tags Populaires"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Restez informé de nos derniers articles et actualités du développement web.",
+      "placeholder": "votre.email@exemple.com",
+      "subscribe": "S'abonner",
+      "privacy": "Pas de spam, désabonnement à tout moment"
+    },
+    "stats": {
+      "title": "Statistiques du Blog",
+      "articles": "Articles",
+      "authors": "Auteurs",
+      "categories": "Catégories",
+      "totalViews": "Vues Totales"
+    }
   }
 }
