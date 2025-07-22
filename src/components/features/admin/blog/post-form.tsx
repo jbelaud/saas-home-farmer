@@ -112,10 +112,15 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
             metaKeywords: '',
           },
         ],
-    hashtags:
-      post?.postHashtags
-        ?.map((ph) => ph.hashtag?.id)
-        .filter((id): id is string => Boolean(id)) || [],
+    hashtags: (() => {
+      console.log('Edit mode - Post hashtags:', post?.postHashtags)
+      const result =
+        post?.postHashtags
+          ?.map((ph) => ph.hashtag?.id)
+          .filter((id): id is string => Boolean(id)) || []
+      console.log('Edit mode - Hashtag IDs:', result)
+      return result
+    })(),
     newHashtags: [],
   }
 
@@ -408,13 +413,20 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
                       <Badge
                         key={hashtag.id}
                         variant="default"
-                        className="gap-1"
+                        className="gap-1 pr-1"
                       >
                         #{hashtag.name}
-                        <X
-                          className="hover:text-destructive h-3 w-3 cursor-pointer"
-                          onClick={() => toggleHashtag(hashtag.id)}
-                        />
+                        <button
+                          type="button"
+                          className="ml-1 cursor-pointer rounded-sm"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            toggleHashtag(hashtag.id)
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
                       </Badge>
                     ) : null
                   })}
@@ -424,13 +436,20 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
                     <Badge
                       key={`new-${index}`}
                       variant="secondary"
-                      className="gap-1"
+                      className="gap-1 pr-1"
                     >
                       #{hashtag}
-                      <X
-                        className="hover:text-destructive h-3 w-3 cursor-pointer"
-                        onClick={() => removeNewHashtag(index)}
-                      />
+                      <button
+                        type="button"
+                        className="ml-1 cursor-pointer rounded-sm"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          removeNewHashtag(index)
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </Badge>
                   ))}
                 </div>

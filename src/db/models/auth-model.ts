@@ -205,6 +205,14 @@ export const invitationRelation = relations(invitation, ({one}) => ({
   }),
 }))
 
+export const apikeyRelation = relations(apikey, ({one}) => ({
+  user: one(user, {
+    fields: [apikey.userId],
+    references: [user.id],
+    relationName: 'userToApiKeys',
+  }),
+}))
+
 export type InvitationModel = typeof invitation.$inferSelect
 export type AddInvitationModel = typeof invitation.$inferInsert
 export type UpdateInvitationModel = typeof invitation.$inferInsert

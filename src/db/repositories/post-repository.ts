@@ -277,6 +277,61 @@ export const deleteAllPostHashtagsByPostIdDao = async (
   await db.delete(postHashtags).where(eq(postHashtags.postId, postId))
 }
 
+export const upsertPostHashtags = async (
+  postId: string,
+  existingHashtagIds: string[] = [],
+  newHashtagNames: string[] = []
+): Promise<void> => {
+  await db.transaction(async (tx) => {
+    // 1. Supprimer toutes les associations existantes
+    await tx.delete(postHashtags).where(eq(postHashtags.postId, postId))
+
+    // 2. Associer les hashtags existants
+    for (const hashtagId of existingHashtagIds) {
+      // Vérifier que le hashtag existe
+      const existingHashtag = await tx.query.hashtags.findFirst({
+        where: (hashtag, {eq}) => eq(hashtag.id, hashtagId),
+      })
+
+      if (!existingHashtag) {
+        throw new Error(`Hashtag avec l'ID ${hashtagId} non trouvé`)
+      }
+
+      // Créer l'association
+      await tx.insert(postHashtags).values({
+        postId,
+        hashtagId,
+      })
+    }
+
+    // 3. Créer et associer les nouveaux hashtags
+    for (const hashtagName of newHashtagNames) {
+      const sanitizedName = hashtagName.trim()
+      if (!sanitizedName) continue
+
+      // Chercher si le hashtag existe déjà
+      let hashtag = await tx.query.hashtags.findFirst({
+        where: (h, {eq}) => eq(h.name, sanitizedName),
+      })
+
+      // Créer le hashtag s'il n'existe pas
+      if (!hashtag) {
+        const newHashtag = await tx
+          .insert(hashtags)
+          .values({name: sanitizedName})
+          .returning()
+        hashtag = newHashtag[0]
+      }
+
+      // Créer l'association
+      await tx.insert(postHashtags).values({
+        postId,
+        hashtagId: hashtag.id,
+      })
+    }
+  })
+}
+
 // ===== REQUÊTES POSTS AVEC PAGINATION =====
 
 export const getPostsWithPaginationDao = async (

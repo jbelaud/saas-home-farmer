@@ -125,11 +125,11 @@ export async function createPostAction(data: PostFormData): Promise<FormState> {
       })
     )
 
-    // Combinaison et nettoyage des hashtags existants et nouveaux
-    const allHashtags = sanitizeHashtags([
-      ...(validatedData.hashtags || []),
-      ...(validatedData.newHashtags || []),
-    ])
+    // Séparation des hashtags existants (IDs) et nouveaux (noms)
+    const existingHashtags = validatedData.hashtags || []
+    const newHashtagsToCreate = sanitizeHashtags(
+      validatedData.newHashtags || []
+    )
 
     // Création du post avec traductions
     // Convertir TranslationInput en CreatePostTranslation en ajoutant un postId temporaire
@@ -141,7 +141,8 @@ export async function createPostAction(data: PostFormData): Promise<FormState> {
     await createPostWithTranslationsService(
       postData,
       translationsWithPostId as CreatePostTranslation[],
-      allHashtags
+      existingHashtags,
+      newHashtagsToCreate
     )
 
     // Revalidation du cache
@@ -229,11 +230,11 @@ export async function updatePostCompleteAction(
       })
     )
 
-    // Combinaison et nettoyage des hashtags existants et nouveaux
-    const allHashtags = sanitizeHashtags([
-      ...(validatedData.hashtags || []),
-      ...(validatedData.newHashtags || []),
-    ])
+    // Séparation des hashtags existants (IDs) et nouveaux (noms)
+    const existingHashtags = validatedData.hashtags || []
+    const newHashtagsToCreate = sanitizeHashtags(
+      validatedData.newHashtags || []
+    )
 
     // Mise à jour du post avec traductions
     // Convertir TranslationInput en CreatePostTranslation en ajoutant un postId temporaire
@@ -245,7 +246,8 @@ export async function updatePostCompleteAction(
     await updatePostWithTranslationsService(
       postData,
       translationsWithPostId as CreatePostTranslation[],
-      allHashtags
+      existingHashtags,
+      newHashtagsToCreate
     )
 
     // Revalidation du cache
