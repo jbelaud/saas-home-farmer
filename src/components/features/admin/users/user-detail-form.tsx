@@ -4,7 +4,6 @@ import {zodResolver} from '@hookform/resolvers/zod'
 import {ArrowLeft, Calendar, Shield, User} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import {useRouter} from 'next/navigation'
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -69,7 +68,6 @@ export default function UserDetailForm({
   user,
   permissions,
 }: UserDetailFormProps) {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<UserDetailFormData>({
@@ -113,7 +111,7 @@ export default function UserDetailForm({
 
       if (result.success) {
         toast.success(result.message)
-        router.refresh()
+        // router.refresh()
       } else {
         toast.error(result.message)
         // Gérer les erreurs de validation spécifiques

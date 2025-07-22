@@ -1,3 +1,5 @@
+import {ZodError} from 'zod'
+
 import {
   createCategoryDao,
   createHashtagDao,
@@ -58,7 +60,10 @@ import {
 } from './authorization/post-authorization'
 import {AuthorizationError} from './errors/authorization-error'
 import {NotFoundError} from './errors/not-found-error'
-import {ValidationError} from './errors/validation-error'
+import {
+  ValidationError,
+  ValidationParsedZodError,
+} from './errors/validation-error'
 import {createTypedNotificationService} from './facades/notification-service-facade'
 import {Pagination, SUPPORTED_LANGUAGES} from './types/common-type'
 import {NotificationTypeConst} from './types/domain/notification-types'
@@ -965,7 +970,7 @@ export const createPostWithTranslationsService = async (
   // Validation du post
   const parsedPost = createPostServiceSchema.safeParse(postData)
   if (!parsedPost.success) {
-    throw new ValidationError(parsedPost.error.message)
+    throw new ValidationParsedZodError(parsedPost.error)
   }
 
   // Vérification des autorisations
@@ -979,7 +984,7 @@ export const createPostWithTranslationsService = async (
 
   try {
     // 2. Créer les traductions
-    for (const translation of translations) {
+    for (const [index, translation] of translations.entries()) {
       const translationData = {
         ...translation,
         postId: createdPost.id,
@@ -988,7 +993,14 @@ export const createPostWithTranslationsService = async (
       const parsedTranslation =
         createPostTranslationServiceSchema.safeParse(translationData)
       if (!parsedTranslation.success) {
-        throw new ValidationError(parsedTranslation.error.message)
+        // Créer une nouvelle ZodError avec les chemins modifiés
+        const modifiedErrors = parsedTranslation.error.errors.map((err) => ({
+          ...err,
+          path: [index.toString(), ...err.path],
+        }))
+
+        const modifiedZodError = new ZodError(modifiedErrors)
+        throw new ValidationParsedZodError(modifiedZodError)
       }
 
       await createPostTranslationDao(parsedTranslation.data)
@@ -1017,7 +1029,7 @@ export const updatePostWithTranslationsService = async (
   // Validation du post
   const parsedPost = updatePostServiceSchema.safeParse(postData)
   if (!parsedPost.success) {
-    throw new ValidationError(parsedPost.error.message)
+    throw new ValidationParsedZodError(parsedPost.error)
   }
 
   // Vérification des autorisations
@@ -1044,7 +1056,7 @@ export const updatePostWithTranslationsService = async (
   }
 
   // 3. Créer les nouvelles traductions
-  for (const translation of translations) {
+  for (const [index, translation] of translations.entries()) {
     const translationData = {
       ...translation,
       postId: parsedPost.data.id,
@@ -1053,7 +1065,14 @@ export const updatePostWithTranslationsService = async (
     const parsedTranslation =
       createPostTranslationServiceSchema.safeParse(translationData)
     if (!parsedTranslation.success) {
-      throw new ValidationError(parsedTranslation.error.message)
+      // Créer une nouvelle ZodError avec les chemins modifiés
+      const modifiedErrors = parsedTranslation.error.errors.map((err) => ({
+        ...err,
+        path: [index.toString(), ...err.path],
+      }))
+
+      const modifiedZodError = new ZodError(modifiedErrors)
+      throw new ValidationParsedZodError(modifiedZodError)
     }
 
     await createPostTranslationDao(parsedTranslation.data)

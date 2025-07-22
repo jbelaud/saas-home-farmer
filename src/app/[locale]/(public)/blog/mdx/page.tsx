@@ -2,7 +2,7 @@ import type {Metadata} from 'next'
 import Link from 'next/link'
 import {getTranslations} from 'next-intl/server'
 
-import {getAllBlogPosts} from '@/lib/helper/blog'
+import {getAllBlogPosts} from '@/lib/helper/blog.server'
 
 export async function generateMetadata({
   params,

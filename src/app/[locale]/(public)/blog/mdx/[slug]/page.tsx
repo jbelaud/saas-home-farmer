@@ -6,7 +6,11 @@ import {MDXRemote} from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 
 import {mdxComponents} from '@/components/mdx-components'
-import {blogPostExists, getBlogPost, getMDXSlugs} from '@/lib/helper/blog'
+import {
+  blogPostExists,
+  getBlogPost,
+  getMDXSlugs,
+} from '@/lib/helper/blog.server'
 
 // Génération des paramètres statiques pour le SSG
 export function generateStaticParams() {

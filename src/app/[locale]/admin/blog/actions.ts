@@ -3,19 +3,25 @@
 import {revalidatePath} from 'next/cache'
 import * as z from 'zod'
 
-import {getAuthUser} from '@/services/authentication/auth-service'
+import {requireActionAuth} from '@/app/dal/user-dal'
 import {
-  canCreatePost,
-  canUpdatePost,
-} from '@/services/authorization/post-authorization'
+  FormState,
+  PostFormData,
+  postFormSchema,
+} from '@/components/features/admin/blog/post-form-validation'
+import {getAuthUser} from '@/services/authentication/auth-service'
 import {AuthorizationError} from '@/services/errors/authorization-error'
-import {ValidationError} from '@/services/errors/validation-error'
+import {
+  isValidationParsedZodError,
+  ValidationError,
+} from '@/services/errors/validation-error'
 import {
   createPostWithTranslationsService,
   deletePostService,
   updatePostService,
   updatePostWithTranslationsService,
 } from '@/services/facades/post-service-facade'
+import {RoleConst} from '@/services/types/domain/auth-types'
 import {
   CreatePostTranslation,
   POST_STATUS,
@@ -32,36 +38,6 @@ type TranslationInput = {
   metaTitle: string
   metaDescription: string
   metaKeywords: string
-}
-
-// Schémas de validation pour les Server Actions
-const translationSchema = z.object({
-  language: z.enum(['fr', 'en', 'es']),
-  title: z.string().min(1, 'Le titre est requis'),
-  slug: z.string().min(1, 'Le slug est requis'),
-  description: z.string().optional(),
-  content: z.string().optional(),
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
-  metaKeywords: z.string().optional(),
-})
-
-const postFormSchema = z.object({
-  status: z.enum(['draft', 'published', 'archived']),
-  categoryId: z.string().optional(),
-  translations: z
-    .array(translationSchema)
-    .min(1, 'Au moins une traduction est requise'),
-  hashtags: z.array(z.string()).optional(),
-  newHashtags: z.array(z.string()).optional(),
-})
-
-export type PostFormData = z.infer<typeof postFormSchema>
-
-export type FormState = {
-  success: boolean
-  message: string
-  fieldErrors?: Record<string, string[]>
 }
 
 /**
@@ -86,17 +62,12 @@ function sanitizeHashtags(hashtags: string[]): string[] {
 }
 
 export async function createPostAction(data: PostFormData): Promise<FormState> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
   try {
     // Validation des données
     const validatedData = postFormSchema.parse(data)
-
-    // Vérification des permissions
-    const canCreate = await canCreatePost()
-    if (!canCreate) {
-      throw new AuthorizationError(
-        "Vous n'avez pas les permissions pour créer un post"
-      )
-    }
 
     // Récupération de l'utilisateur authentifié
     const user = await getAuthUser()
@@ -169,6 +140,19 @@ export async function createPostAction(data: PostFormData): Promise<FormState> {
       }
     }
 
+    // Gestion des erreurs Zod depuis les services
+    const validationError = isValidationParsedZodError(error)
+    if (validationError) {
+      return {
+        success: false,
+        message: `Erreur de validation: ${error.message}`,
+        errors: error.zodErrorFields?.errors.map((err) => ({
+          field: err.path.join('.') as keyof PostFormData, // Garder le chemin complet
+          message: err.message,
+        })),
+      }
+    }
+
     if (error instanceof z.ZodError) {
       const fieldErrors: Record<string, string[]> = {}
       error.errors.forEach((err) => {
@@ -197,17 +181,12 @@ export async function updatePostCompleteAction(
   postId: string,
   data: PostFormData
 ): Promise<FormState> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
   try {
     // Validation des données
     const validatedData = postFormSchema.parse(data)
-
-    // Vérification des permissions
-    const canUpdate = await canUpdatePost(postId)
-    if (!canUpdate) {
-      throw new AuthorizationError(
-        "Vous n'avez pas les permissions pour modifier ce post"
-      )
-    }
 
     // Transformation des données pour le service
     const postData = {
@@ -272,6 +251,19 @@ export async function updatePostCompleteAction(
       return {
         success: false,
         message: error.message,
+      }
+    }
+
+    // Gestion des erreurs Zod depuis les services
+    const validationError = isValidationParsedZodError(error)
+    if (validationError) {
+      return {
+        success: false,
+        message: `Erreur de validation: ${error.message}`,
+        errors: error.zodErrorFields?.errors.map((err) => ({
+          field: err.path.join('.') as keyof PostFormData, // Garder le chemin complet
+          message: err.message,
+        })),
       }
     }
 

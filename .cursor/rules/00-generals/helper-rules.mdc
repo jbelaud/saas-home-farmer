@@ -1,0 +1,185 @@
+---
+globs: src/lib/**
+alwaysApply: false
+---
+# Règle - Organisation des Fichiers Helper/Utils Isomorphiques
+
+## Principe Général
+
+Les fichiers helper et utils doivent être **le plus possible isomorphiques** (compatibles front/back). Cela permet une meilleure réutilisabilité du code et évite la duplication de logique.
+
+## Règles d'Organisation
+
+### ✅ Cas Acceptables
+
+1. **Helper purement isomorphique** : Code compatible client et serveur
+   ```typescript
+   // ✅ utils/date.ts - Fonctionne partout
+   export const formatDate = (date: Date): string => {
+     return date.toLocaleDateString('fr-FR')
+   }
+   ```
+
+2. **Helper spécifique serveur** : Code exclusivement serveur
+   ```typescript
+   // ✅ helpers/auth.server.ts - Serveur uniquement
+   import 'server-only'
+   export const validateServerToken = (token: string) => { ... }
+   ```
+
+3. **Helper spécifique client** : Code exclusivement client
+   ```typescript
+   // ✅ helpers/dom.client.ts - Client uniquement
+   export const getElementPosition = (el: HTMLElement) => { ... }
+   ```
+
+### ⚠️ Cas Problématique
+
+**Helper non-isomorphique utilisé dans les 2 environnements** :
+```typescript
+// ❌ PROBLÈME : Mélange code client/serveur dans le même fichier
+export const blogHelper = {
+  // Code commun
+  generateSlug: (title: string) => { ... },
+  
+  // Code serveur uniquement
+  readMDXFile: (path: string) => fs.readFileSync(path),
+  
+  // Code client uniquement
+  saveToLocalStorage: (data: any) => localStorage.setItem(...)
+}
+```
+
+## Solution : Pattern de Splitting
+
+### 🔧 Exemple Concret : Blog Helpers
+
+Référence : [blog.ts](mdc:src/lib/helper/blog.ts), [blog.server.ts](mdc:src/lib/helper/blog.server.ts), [blog.client.ts](mdc:src/lib/helper/blog.client.ts)
+
+#### 1. **Fichier Commun** : `blog.ts`
+```typescript
+// Interface et fonctions isomorphiques
+export interface BlogPost {
+  slug: string
+  title: string
+  description: string
+  readTime: string
+  content?: string
+}
+
+export const generateSlug = (title: string): string => {
+  // Logique pure, fonctionne partout
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+}
+```
+
+#### 2. **Fichier Serveur** : `blog.server.ts`
+```typescript
+import 'server-only'
+import fs from 'fs'
+import { BlogPost } from './blog'
+
+// Fonctions serveur uniquement
+export function getMDXSlugs(): string[] { ... }
+export function getMDXContent(slug: string): string { ... }
+export function getAllBlogPosts(): BlogPost[] { ... }
+```
+
+#### 3. **Fichier Client** : `blog.client.ts`
+```typescript
+import { BlogPost } from './blog'
+
+// Fonctions client uniquement
+export const blogStorage = {
+  savePost: (post: BlogPost): void => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`blog-post-${post.slug}`, JSON.stringify(post))
+    }
+  }
+}
+```
+
+## Convention de Nommage
+
+### Structure des Fichiers
+```
+src/lib/helper/
+├── feature.ts          # Code isomorphique commun
+├── feature.server.ts   # Code spécifique serveur
+└── feature.client.ts   # Code spécifique client
+```
+
+### Suffixes Obligatoires
+- **`.server.ts`** : Code serveur uniquement (avec `import 'server-only'`)
+- **`.client.ts`** : Code client uniquement
+- **`.ts`** : Code isomorphique (sans suffixe)
+
+## Imports et Utilisation
+
+### ✅ Bonnes Pratiques
+```typescript
+// Dans un Server Component
+import { generateSlug } from '@/lib/helper/blog'
+import { getAllBlogPosts } from '@/lib/helper/blog.server'
+
+// Dans un Client Component  
+import { generateSlug } from '@/lib/helper/blog'
+import { blogStorage } from '@/lib/helper/blog.client'
+```
+
+### ❌ Éviter
+```typescript
+// ❌ Import serveur dans du code client
+import { getAllBlogPosts } from '@/lib/helper/blog.server' // ERREUR
+
+// ❌ Import client dans du code serveur
+import { blogStorage } from '@/lib/helper/blog.client' // ERREUR
+```
+
+## Checklist de Refactorisation
+
+### 🔍 **Quand Splitter un Helper ?**
+- [ ] Le fichier contient du code `fs`, `path`, ou autres APIs Node.js ?
+- [ ] Le fichier utilise `window`, `document`, `localStorage` ?
+- [ ] Le fichier est importé à la fois côté client ET serveur ?
+- [ ] Les fonctions ont des comportements différents selon l'environnement ?
+
+### 🛠️ **Étapes de Splitting**
+- [ ] Identifier le code vraiment isomorphique
+- [ ] Extraire les types/interfaces dans le fichier commun
+- [ ] Déplacer le code serveur vers `.server.ts`
+- [ ] Déplacer le code client vers `.client.ts`
+- [ ] Ajouter `import 'server-only'` dans les fichiers serveur
+- [ ] Mettre à jour tous les imports
+
+### ✅ **Validation**
+- [ ] Le fichier commun ne contient que du code isomorphique
+- [ ] Pas d'erreur de build côté client/serveur
+- [ ] Les imports sont corrects dans tous les contextes
+- [ ] La logique métier n'est pas dupliquée
+
+## Avantages de cette Approche
+
+### 🚀 **Performance**
+- Bundles client plus légers (pas de code serveur)
+- Tree-shaking optimisé
+- Pas de polyfills inutiles
+
+### 🔒 **Sécurité**
+- Code serveur protégé par `server-only`
+- Pas de fuite de logique backend vers le client
+- APIs sensibles isolées
+
+### 🧹 **Maintenabilité**
+- Séparation claire des responsabilités
+- Code réutilisable maximisé
+- Pas de conditions `if (typeof window !== 'undefined')`
+
+**Objectif** : Code propre, performant et sécurisé avec une réutilisabilité maximale.

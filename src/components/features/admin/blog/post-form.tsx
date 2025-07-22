@@ -5,7 +5,7 @@ import {Plus, Save, X} from 'lucide-react'
 import {useRouter} from 'next/navigation'
 import {useState} from 'react'
 import {useFieldArray, useForm} from 'react-hook-form'
-import * as z from 'zod'
+import {toast} from 'sonner'
 
 import {
   createPostAction,
@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/select'
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import {Textarea} from '@/components/ui/textarea'
-import {SUPPORTED_LANGUAGES} from '@/services/types/common-type'
+import {generateSlug} from '@/lib/helper/blog'
 import {
   Category,
   Hashtag,
@@ -42,30 +42,13 @@ import {
   SupportedLanguage,
 } from '@/services/types/domain/post-types'
 
-// Schéma pour une traduction
-const translationSchema = z.object({
-  language: z.enum(SUPPORTED_LANGUAGES),
-  title: z.string().min(1, 'Le titre est requis'),
-  slug: z.string().min(1, 'Le slug est requis'),
-  description: z.string().optional(),
-  content: z.string().optional(),
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
-  metaKeywords: z.string().optional(),
-})
+import {
+  LANGUAGE_OPTIONS,
+  PostFormData,
+  postFormSchema,
+} from './post-form-validation'
 
-// Schéma principal du formulaire
-const postFormSchema = z.object({
-  status: z.enum(['draft', 'published', 'archived']),
-  categoryId: z.string().optional(),
-  translations: z
-    .array(translationSchema)
-    .min(1, 'Au moins une traduction est requise'),
-  hashtags: z.array(z.string()).optional(),
-  newHashtags: z.array(z.string()).optional(),
-})
-
-type PostFormValues = z.infer<typeof postFormSchema>
+type PostFormValues = PostFormData
 
 interface PostFormProps {
   mode: 'create' | 'edit'
@@ -74,11 +57,39 @@ interface PostFormProps {
   hashtags: Hashtag[]
 }
 
-const LANGUAGES: {value: SupportedLanguage; label: string}[] = [
-  {value: 'fr', label: 'Français'},
-  {value: 'en', label: 'English'},
-  {value: 'es', label: 'Español'},
-]
+// Fonction pour mapper les champs d'erreur du service vers les chemins RHF
+function mapErrorFieldToFormPath(field: string): string {
+  // Si le chemin contient déjà un index (ex: "1.title"), on le convertit vers RHF
+  const pathParts = field.split('.')
+
+  // Si c'est un champ de traduction individuel sans index
+  const translationFields = [
+    'title',
+    'slug',
+    'description',
+    'content',
+    'metaTitle',
+    'metaDescription',
+    'metaKeywords',
+  ]
+
+  if (translationFields.includes(field)) {
+    // Pointer vers la première traduction par défaut
+    return `translations.0.${field}`
+  }
+
+  // Si le chemin a déjà la structure index.field (ex: "0.title")
+  if (
+    pathParts.length === 2 &&
+    !isNaN(Number(pathParts[0])) &&
+    translationFields.includes(pathParts[1])
+  ) {
+    return `translations.${pathParts[0]}.${pathParts[1]}`
+  }
+
+  // Les autres champs restent inchangés
+  return field
+}
 
 export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
   const router = useRouter()
@@ -113,15 +124,10 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
             metaKeywords: '',
           },
         ],
-    hashtags: (() => {
-      console.log('Edit mode - Post hashtags:', post?.postHashtags)
-      const result =
-        post?.postHashtags
-          ?.map((ph) => ph.hashtag?.id)
-          .filter((id): id is string => Boolean(id)) || []
-      console.log('Edit mode - Hashtag IDs:', result)
-      return result
-    })(),
+    hashtags:
+      post?.postHashtags
+        ?.map((ph) => ph.hashtag?.id)
+        .filter((id): id is string => Boolean(id)) || [],
     newHashtags: [],
   }
 
@@ -144,7 +150,7 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
 
   const addTranslation = () => {
     const usedLanguages = form.getValues('translations').map((t) => t.language)
-    const availableLanguages = LANGUAGES.filter(
+    const availableLanguages = LANGUAGE_OPTIONS.filter(
       (lang) => !usedLanguages.includes(lang.value)
     )
 
@@ -221,17 +227,6 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
     }
   }
 
-  const generateSlug = (title: string): string => {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim()
-  }
-
   async function onSubmit(data: PostFormValues) {
     setIsSubmitting(true)
     try {
@@ -244,9 +239,27 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
       }
 
       if (result?.success) {
-        router.push('/admin/blog')
-        router.refresh()
+        toast.success(result.message)
+      } else {
+        // Appliquer les erreurs serveur au formulaire RHF
+
+        // Appliquer les erreurs Zod du service au formulaire RHF
+        if (result?.errors) {
+          result.errors.forEach((error) => {
+            // Mapper les champs de traduction vers le bon chemin dans RHF
+            const fieldPath = mapErrorFieldToFormPath(error.field as string)
+            form.setError(fieldPath as keyof PostFormValues, {
+              type: 'manual',
+              message: error.message,
+            })
+          })
+        }
+
+        toast.error(result?.message || 'Une erreur est survenue')
       }
+    } catch (error) {
+      console.error('Erreur lors de la soumission:', error)
+      toast.error('Une erreur inattendue est survenue')
     } finally {
       setIsSubmitting(false)
     }
@@ -481,7 +494,10 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
               <TabsList className="grid w-full grid-cols-3">
                 {translationFields.map((field, index) => (
                   <TabsTrigger key={field.id} value={index.toString()}>
-                    {LANGUAGES.find((l) => l.value === field.language)?.label}
+                    {
+                      LANGUAGE_OPTIONS.find((l) => l.value === field.language)
+                        ?.label
+                    }
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -492,8 +508,9 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium">
                         {
-                          LANGUAGES.find((l) => l.value === field.language)
-                            ?.label
+                          LANGUAGE_OPTIONS.find(
+                            (l) => l.value === field.language
+                          )?.label
                         }
                       </h3>
                       {translationFields.length > 1 && (
@@ -524,7 +541,7 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {LANGUAGES.map((lang) => (
+                              {LANGUAGE_OPTIONS.map((lang) => (
                                 <SelectItem key={lang.value} value={lang.value}>
                                   {lang.label}
                                 </SelectItem>

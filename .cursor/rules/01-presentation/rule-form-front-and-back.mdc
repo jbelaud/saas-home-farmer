@@ -209,7 +209,7 @@ export async function updateUserAction(
   prevState?: FormState,
   formData?: FormData
 ): Promise<FormState> {
-  const user = await getAuthUser()
+  const user = await requireActionAuth()
   if (!user) {
     return {success: false, message: 'User not found'}
   }
