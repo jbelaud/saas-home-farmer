@@ -2,7 +2,7 @@
 
 import {zodResolver} from '@hookform/resolvers/zod'
 import {Plus, Save, X} from 'lucide-react'
-import {useRouter} from 'next/navigation'
+import {useParams, useRouter} from 'next/navigation'
 import {useState} from 'react'
 import {useFieldArray, useForm} from 'react-hook-form'
 import {toast} from 'sonner'
@@ -93,6 +93,8 @@ function mapErrorFieldToFormPath(field: string): string {
 
 export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
   const router = useRouter()
+  const params = useParams()
+  const currentLocale = params.locale as SupportedLanguage
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newHashtagInput, setNewHashtagInput] = useState('')
   const [hashtagSelectValue, setHashtagSelectValue] = useState('')
@@ -102,19 +104,30 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
     status: (post?.status as 'draft' | 'published' | 'archived') || 'draft',
     categoryId: post?.categoryId || undefined,
     translations: post?.postTranslations?.length
-      ? post.postTranslations.map((t) => ({
-          language: t.language as SupportedLanguage,
-          title: t.title,
-          slug: t.slug,
-          description: t.description || '',
-          content: t.content || '',
-          metaTitle: t.metaTitle || '',
-          metaDescription: t.metaDescription || '',
-          metaKeywords: t.metaKeywords || '',
-        }))
+      ? post.postTranslations
+          .map((t) => ({
+            language: t.language as SupportedLanguage,
+            title: t.title,
+            slug: t.slug,
+            description: t.description || '',
+            content: t.content || '',
+            metaTitle: t.metaTitle || '',
+            metaDescription: t.metaDescription || '',
+            metaKeywords: t.metaKeywords || '',
+          }))
+          .sort((a, b) => {
+            // Trier selon l'ordre défini dans LANGUAGE_OPTIONS
+            const aIndex = LANGUAGE_OPTIONS.findIndex(
+              (lang) => lang.value === a.language
+            )
+            const bIndex = LANGUAGE_OPTIONS.findIndex(
+              (lang) => lang.value === b.language
+            )
+            return aIndex - bIndex
+          })
       : [
           {
-            language: 'fr',
+            language: currentLocale,
             title: '',
             slug: '',
             description: '',
@@ -155,6 +168,7 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
     )
 
     if (availableLanguages.length > 0) {
+      // Ajouter la nouvelle traduction
       appendTranslation({
         language: availableLanguages[0].value,
         title: '',
@@ -165,6 +179,23 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
         metaDescription: '',
         metaKeywords: '',
       })
+
+      // Réorganiser l'ordre des traductions selon LANGUAGE_OPTIONS
+      setTimeout(() => {
+        const currentTranslations = form.getValues('translations')
+        const sortedTranslations = [...currentTranslations].sort((a, b) => {
+          const aIndex = LANGUAGE_OPTIONS.findIndex(
+            (lang) => lang.value === a.language
+          )
+          const bIndex = LANGUAGE_OPTIONS.findIndex(
+            (lang) => lang.value === b.language
+          )
+          return aIndex - bIndex
+        })
+
+        // Réassigner les traductions triées
+        form.setValue('translations', sortedTranslations)
+      }, 0)
     }
   }
 
@@ -493,7 +524,11 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
             <Tabs defaultValue="0" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 {translationFields.map((field, index) => (
-                  <TabsTrigger key={field.id} value={index.toString()}>
+                  <TabsTrigger
+                    key={field.id}
+                    value={index.toString()}
+                    className="cursor-pointer"
+                  >
                     {
                       LANGUAGE_OPTIONS.find((l) => l.value === field.language)
                         ?.label

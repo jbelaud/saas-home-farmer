@@ -1,11 +1,9 @@
 import * as z from 'zod'
 
-import {
-  SUPPORTED_LANGUAGES,
-  SupportedLanguage,
-} from '@/services/types/common-type'
+import {SUPPORTED_LANGUAGES} from '@/services/types/common-type'
+import {SupportedLanguage} from '@/services/types/domain/post-types'
 
-// Constante pour l'interface utilisateur
+// Constante pour l'interface utilisateur (ordre spécifique pour le formulaire)
 export const LANGUAGE_OPTIONS: {value: SupportedLanguage; label: string}[] = [
   {value: 'fr', label: 'Français'},
   {value: 'en', label: 'English'},
