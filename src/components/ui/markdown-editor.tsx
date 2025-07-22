@@ -4,6 +4,7 @@ import {Editor, defaultValueCtx, rootCtx} from '@milkdown/core'
 import {nord} from '@milkdown/theme-nord'
 import {Milkdown, MilkdownProvider, useEditor} from '@milkdown/react'
 import {commonmark} from '@milkdown/preset-commonmark'
+import {gfm} from '@milkdown/preset-gfm'
 import {listener, listenerCtx} from '@milkdown/plugin-listener'
 import {history} from '@milkdown/plugin-history'
 import {getMarkdown, replaceAll} from '@milkdown/utils'
@@ -42,6 +43,7 @@ function MilkdownEditor({
         })
       })
       .use(commonmark)
+      .use(gfm)
       .use(listener)
       .use(history)
   )
@@ -164,7 +166,7 @@ function MarkdownEditorInner({
       {/* Helper Text */}
       {!isTextMode && (
         <div className="text-muted-foreground mt-2 text-xs">
-          Utilisez Ctrl+Z pour annuler, tapez / pour les commandes
+          Support GFM : tableaux, listes de tâches, code fencé, strikethrough
         </div>
       )}
     </div>

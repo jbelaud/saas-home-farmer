@@ -252,3 +252,39 @@
 .milkdown-wrapper .ProseMirror hr {
   @apply border-border my-4;
 }
+
+/* Styles pour les tableaux GFM */
+.milkdown-wrapper .ProseMirror table {
+  @apply border-collapse border border-border my-4 w-full;
+}
+
+.milkdown-wrapper .ProseMirror th,
+.milkdown-wrapper .ProseMirror td {
+  @apply border border-border px-3 py-2 text-left;
+}
+
+.milkdown-wrapper .ProseMirror th {
+  @apply bg-muted font-semibold;
+}
+
+.milkdown-wrapper .ProseMirror td {
+  @apply bg-background;
+}
+
+.milkdown-wrapper .ProseMirror tr:nth-child(even) td {
+  @apply bg-muted/50;
+}
+
+/* Styles pour les listes de tâches */
+.milkdown-wrapper .ProseMirror .task-list-item {
+  @apply list-none;
+}
+
+.milkdown-wrapper .ProseMirror .task-list-item input[type="checkbox"] {
+  @apply mr-2;
+}
+
+/* Styles pour le code avec surlignage de syntaxe */
+.milkdown-wrapper .ProseMirror .code-fence {
+  @apply bg-muted text-foreground;
+}

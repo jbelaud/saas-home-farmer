@@ -46,6 +46,7 @@
     "@milkdown/plugin-history": "^7.15.1",
     "@milkdown/plugin-listener": "^7.15.1",
     "@milkdown/preset-commonmark": "^7.15.1",
+    "@milkdown/preset-gfm": "^7.15.1",
     "@milkdown/react": "^7.15.1",
     "@milkdown/theme-nord": "^7.15.1",
     "@milkdown/utils": "^7.15.1",
