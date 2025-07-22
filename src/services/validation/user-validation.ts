@@ -1,6 +1,7 @@
 import {getTranslations} from 'next-intl/server'
 import {z} from 'zod'
 
+import {SUPPORTED_LANGUAGES} from '../types/common-type'
 import {
   CreateUser,
   CreateUserFromStripe,
@@ -106,11 +107,9 @@ export const themeSchema = z.enum([
   'system',
 ]) satisfies z.Schema<Theme>
 
-export const languageSchema = z.enum([
-  'fr',
-  'en',
-  'es',
-]) satisfies z.Schema<Language>
+export const languageSchema = z.enum(
+  SUPPORTED_LANGUAGES
+) satisfies z.Schema<Language>
 
 export const notificationChannelSchema = z.enum([
   'email',

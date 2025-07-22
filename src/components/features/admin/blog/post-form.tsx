@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/select'
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import {Textarea} from '@/components/ui/textarea'
+import {SUPPORTED_LANGUAGES} from '@/services/types/common-type'
 import {
   Category,
   Hashtag,
@@ -43,7 +44,7 @@ import {
 
 // Schéma pour une traduction
 const translationSchema = z.object({
-  language: z.enum(['fr', 'en', 'es']),
+  language: z.enum(SUPPORTED_LANGUAGES),
   title: z.string().min(1, 'Le titre est requis'),
   slug: z.string().min(1, 'Le slug est requis'),
   description: z.string().optional(),

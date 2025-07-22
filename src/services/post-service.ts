@@ -60,7 +60,7 @@ import {AuthorizationError} from './errors/authorization-error'
 import {NotFoundError} from './errors/not-found-error'
 import {ValidationError} from './errors/validation-error'
 import {createTypedNotificationService} from './facades/notification-service-facade'
-import {Pagination} from './types/common-type'
+import {Pagination, SUPPORTED_LANGUAGES} from './types/common-type'
 import {NotificationTypeConst} from './types/domain/notification-types'
 import {
   CreateCategory,
@@ -71,7 +71,6 @@ import {
   PostBulkAction,
   PostBulkUpdate,
   PostFilters,
-  SUPPORTED_LANGUAGES,
   SupportedLanguage,
   UpdateCategory,
   UpdatePost,

@@ -15,6 +15,8 @@ import {
 } from '@/db/models/post-model'
 import {UserModel} from '@/db/models/user-model'
 
+import {SUPPORTED_LANGUAGES} from '../common-type'
+
 // ===== TYPES DE DOMAINE DÉCOUPLÉS =====
 
 // Re-export des types de modèles pour utilisation externe
@@ -197,7 +199,7 @@ export const POST_STATUS = {
   ARCHIVED: 'archived',
 } as const
 
-export const SUPPORTED_LANGUAGES = ['fr', 'en', 'es'] as const
+//export const SUPPORTED_LANGUAGES = ['fr', 'en', 'es'] as const
 
 export type PostStatus = (typeof POST_STATUS)[keyof typeof POST_STATUS]
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]

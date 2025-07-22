@@ -1,3 +1,5 @@
+import {routing} from '@/i18n/routing'
+
 export type Pagination = {
   limit: number
   offset: number
@@ -17,3 +19,4 @@ export type ActionResponse<T = unknown> = {
   message: string
   data?: T
 }
+export const SUPPORTED_LANGUAGES = routing.locales

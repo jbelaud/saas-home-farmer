@@ -7,12 +7,13 @@ import {
   CreatePostHashtag,
   CreatePostTranslation,
   POST_STATUS,
-  SUPPORTED_LANGUAGES,
   UpdateCategory,
   UpdateHashtag,
   UpdatePost,
   UpdatePostTranslation,
 } from '@/services/types/domain/post-types'
+
+import {SUPPORTED_LANGUAGES} from '../types/common-type'
 
 // ===== SCHÉMAS DE BASE =====
 
