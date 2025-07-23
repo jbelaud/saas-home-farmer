@@ -291,3 +291,41 @@ export const listFilesService = async (
     name: file.name,
   }))
 }
+
+/**
+ * Upload un fichier pour un post
+ */
+export const uploadFilePostService = async (
+  postId: string,
+  file: File
+): Promise<FileResponse> => {
+  return await uploadImageForEntityService({
+    entityType: 'post',
+    entityId: postId,
+    file,
+    category: 'image',
+  })
+}
+
+/**
+ * Liste les fichiers d'un post
+ */
+export const listFilesByPostIdService = async (
+  postId: string
+): Promise<FileListResponse> => {
+  return await listFilesService({
+    path: `posts/${postId}`,
+  })
+}
+
+/**
+ * Supprimer un fichier d'un post
+ */
+export const deleteFileByPostIdService = async (
+  postId: string,
+  filename: string
+): Promise<void> => {
+  return await deleteFileService({
+    path: `posts/${postId}/${filename}`,
+  })
+}

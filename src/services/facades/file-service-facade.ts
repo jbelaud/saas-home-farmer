@@ -8,3 +8,9 @@ export const uploadImageForEntityService =
 export const deleteFileService = fileServiceInterceptor.deleteFileService
 export const getFileService = fileServiceInterceptor.getFileService
 export const listFilesService = fileServiceInterceptor.listFilesService
+export const uploadFilePostService =
+  fileServiceInterceptor.uploadFilePostService
+export const listFilesByPostIdService =
+  fileServiceInterceptor.listFilesByPostIdService
+export const deleteFileByPostIdService =
+  fileServiceInterceptor.deleteFileByPostIdService

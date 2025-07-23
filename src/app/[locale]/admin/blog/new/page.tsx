@@ -34,7 +34,12 @@ export default async function NewPostPage() {
           </p>
         </div>
 
-        <PostForm mode="create" categories={categories} hashtags={hashtags} />
+        <PostForm
+          mode="create"
+          categories={categories}
+          hashtags={hashtags}
+          files={[]}
+        />
       </div>
     </div>
   )

@@ -9,6 +9,8 @@ import {toast} from 'sonner'
 
 import {
   createPostAction,
+  deleteFileAction,
+  listFilesAction,
   updatePostCompleteAction,
 } from '@/app/[locale]/admin/blog/actions'
 import {Badge} from '@/components/ui/badge'
@@ -24,6 +26,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
+import {Label} from '@/components/ui/label'
 import {MarkdownEditor} from '@/components/ui/markdown-editor'
 import {
   Select,
@@ -35,6 +38,7 @@ import {
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import {Textarea} from '@/components/ui/textarea'
 import {generateSlug} from '@/lib/helper/blog'
+import {FileResponse} from '@/services/types/domain/file-types'
 import {
   Category,
   Hashtag,
@@ -43,6 +47,7 @@ import {
   SupportedLanguage,
 } from '@/services/types/domain/post-types'
 
+import {FileDropzone} from './file-dropzone'
 import {
   LANGUAGE_OPTIONS,
   PostFormData,
@@ -56,6 +61,7 @@ interface PostFormProps {
   post?: PostData
   categories: Category[]
   hashtags: Hashtag[]
+  files?: FileResponse[]
 }
 
 // Fonction pour mapper les champs d'erreur du service vers les chemins RHF
@@ -92,13 +98,20 @@ function mapErrorFieldToFormPath(field: string): string {
   return field
 }
 
-export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
+export function PostForm({
+  mode,
+  post,
+  categories,
+  hashtags,
+  files = [],
+}: PostFormProps) {
   const router = useRouter()
   const params = useParams()
   const currentLocale = params.locale as SupportedLanguage
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newHashtagInput, setNewHashtagInput] = useState('')
   const [hashtagSelectValue, setHashtagSelectValue] = useState('')
+  const [fileList, setFileList] = useState<FileResponse[]>(files)
 
   // Préparation des valeurs par défaut
   const defaultValues: PostFormValues = {
@@ -161,6 +174,35 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
 
   const watchedHashtags = form.watch('hashtags') || []
   const watchedNewHashtags = form.watch('newHashtags') || []
+
+  // Gérer la suppression de fichier
+  const handleRemoveFile = async (file: FileResponse) => {
+    if (!post?.id) return
+
+    try {
+      const result = await deleteFileAction(post.id, file.name)
+      if (result.success) {
+        setFileList((files) => files.filter((f) => f.name !== file.name))
+        toast.success(result.message)
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      toast.error('Erreur lors de la suppression du fichier')
+    }
+  }
+
+  // Rafraîchir la liste des fichiers après upload
+  const handleFileUploaded = () => {
+    if (post?.id) {
+      listFilesAction(post.id)
+        .then(setFileList)
+        .catch((error) => {
+          console.error('Erreur lors du rafraîchissement:', error)
+        })
+    }
+  }
 
   const addTranslation = () => {
     const usedLanguages = form.getValues('translations').map((t) => t.language)
@@ -305,6 +347,18 @@ export function PostForm({mode, post, categories, hashtags}: PostFormProps) {
           <CardHeader>
             <CardTitle>Configuration générale</CardTitle>
           </CardHeader>
+
+          <div className="space-y-2">
+            <Label>Files</Label>
+            <FileDropzone
+              postId={post?.id}
+              disabled={!post?.id}
+              disabledMessage="Veuillez d'abord enregistrer le post."
+              defaultFiles={fileList}
+              onFilesSelected={handleFileUploaded}
+              onFilesServerSelectedToRemove={handleRemoveFile}
+            />
+          </div>
           <CardContent className="space-y-4">
             <FormField
               control={form.control}

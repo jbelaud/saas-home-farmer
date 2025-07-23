@@ -2,7 +2,12 @@
 export type File = globalThis.File
 
 // Types d'entités supportées
-export type EntityType = 'user' | 'organization' | 'product' | 'generic'
+export type EntityType =
+  | 'user'
+  | 'organization'
+  | 'product'
+  | 'generic'
+  | 'post'
 
 // Types de fichiers pour une entité
 export type FileCategory = 'profile' | 'logo' | 'banner' | 'document' | 'image'
@@ -13,6 +18,7 @@ export const EntityTypeConst = {
   ORGANIZATION: 'organization' as EntityType,
   PRODUCT: 'product' as EntityType,
   GENERIC: 'generic' as EntityType,
+  POST: 'post' as EntityType,
 } as const
 
 // Constantes pour les catégories de fichiers

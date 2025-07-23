@@ -16,12 +16,18 @@ import {
   ValidationError,
 } from '@/services/errors/validation-error'
 import {
+  deleteFileByPostIdService,
+  listFilesByPostIdService,
+  uploadFilePostService,
+} from '@/services/facades/file-service-facade'
+import {
   createPostWithTranslationsService,
   deletePostService,
   updatePostService,
   updatePostWithTranslationsService,
 } from '@/services/facades/post-service-facade'
 import {RoleConst} from '@/services/types/domain/auth-types'
+import {FileResponse} from '@/services/types/domain/file-types'
 import {
   CreatePostTranslation,
   POST_STATUS,
@@ -355,6 +361,113 @@ export async function deletePostAction(id: string): Promise<FormState> {
       success: false,
       message:
         error instanceof Error ? error.message : 'Une erreur est survenue',
+    }
+  }
+}
+
+// ===== ACTIONS FICHIERS =====
+
+// Types pour les actions de fichiers
+interface FileActionResult {
+  success: boolean
+  message: string
+  data?: FileResponse
+}
+
+// Validation UUID pour postId
+const uuidSchema = z.string().uuid('ID de post invalide')
+
+/**
+ * Upload un fichier pour un post
+ */
+export async function uploadFileAction(
+  postId: string,
+  formData: FormData
+): Promise<FileActionResult> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
+
+  try {
+    // Validation du postId
+    const parsed = uuidSchema.safeParse(postId)
+    if (!parsed.success) {
+      return {success: false, message: 'ID de post invalide'}
+    }
+
+    const file = formData.get('file') as File
+    if (!file) {
+      return {success: false, message: 'Aucun fichier fourni'}
+    }
+
+    const data = await uploadFilePostService(postId, file)
+
+    revalidatePath('/admin/blog')
+    return {
+      success: true,
+      message: 'Fichier uploadé avec succès!',
+      data,
+    }
+  } catch (error) {
+    console.error("Erreur d'upload:", error)
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Erreur lors de l'upload",
+    }
+  }
+}
+
+/**
+ * Lister les fichiers d'un post
+ */
+export async function listFilesAction(postId: string): Promise<FileResponse[]> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
+
+  try {
+    const files = await listFilesByPostIdService(postId)
+    return files
+  } catch (error) {
+    console.error('Erreur lors de la récupération des fichiers:', error)
+    return []
+  }
+}
+
+/**
+ * Supprimer un fichier
+ */
+export async function deleteFileAction(
+  postId: string,
+  filename: string
+): Promise<FileActionResult> {
+  await requireActionAuth({
+    roles: [RoleConst.ADMIN, RoleConst.SUPER_ADMIN],
+  })
+
+  try {
+    // Validation du postId
+    const parsed = uuidSchema.safeParse(postId)
+    if (!parsed.success) {
+      return {success: false, message: 'ID de post invalide'}
+    }
+
+    await deleteFileByPostIdService(postId, filename)
+
+    revalidatePath('/admin/blog')
+    return {
+      success: true,
+      message: 'Fichier supprimé avec succès!',
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression:', error)
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la suppression',
     }
   }
 }

@@ -23,6 +23,7 @@ export const entityTypeSchema = z.enum(
     EntityTypeConst.ORGANIZATION,
     EntityTypeConst.PRODUCT,
     EntityTypeConst.GENERIC,
+    EntityTypeConst.POST,
   ] satisfies [EntityType, ...EntityType[]],
   {
     message: "Type d'entité non supporté.",

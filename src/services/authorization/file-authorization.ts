@@ -1,4 +1,5 @@
 import {getOrganizationByIdDao} from '@/db/repositories/organization-repository'
+import {getPostByIdDao} from '@/db/repositories/post-repository'
 import {getUserByIdDao} from '@/db/repositories/user-repository'
 
 import {getAuthUser} from '../authentication/auth-service'
@@ -138,6 +139,19 @@ async function checkFileOwnership(
       )
     }
 
+    case EntityTypeConst.POST: {
+      // Vérifier si l'utilisateur peut modifier le post
+      const post = await getPostByIdDao(entityId)
+      if (!post) return false
+
+      // Utiliser les mêmes permissions que pour la modification de post
+      return userCanOnResource(authUser, action, SubjectsConst.POST, {
+        id: post.id,
+        status: post.status,
+        authorId: post.authorId,
+      })
+    }
+
     case EntityTypeConst.PRODUCT:
     case EntityTypeConst.GENERIC:
       // Pour les produits et fichiers génériques, vérifier si l'utilisateur connecté
@@ -180,6 +194,9 @@ export const canAccessFileByPath = async (path: string): Promise<boolean> => {
       break
     case 'products':
       entityType = EntityTypeConst.PRODUCT
+      break
+    case 'posts':
+      entityType = EntityTypeConst.POST
       break
     default:
       entityType = EntityTypeConst.GENERIC

@@ -1,5 +1,6 @@
 import {notFound} from 'next/navigation'
 
+import {getPostFilesDal} from '@/app/dal/file-dal'
 import {getAllCategoriesDal, getAllHashtagsDal} from '@/app/dal/post-dal'
 import {PostForm} from '@/components/features/admin/blog/post-form'
 import {canUpdatePost} from '@/services/authorization/post-authorization'
@@ -29,9 +30,10 @@ export default async function EditPostPage({params}: PageProps) {
   }
 
   // Récupération des données nécessaires
-  const [categories, hashtags] = await Promise.all([
+  const [categories, hashtags, files] = await Promise.all([
     getAllCategoriesDal(),
     getAllHashtagsDal(),
+    getPostFilesDal(id),
   ])
 
   return (
@@ -49,6 +51,7 @@ export default async function EditPostPage({params}: PageProps) {
           post={post}
           categories={categories}
           hashtags={hashtags}
+          files={files}
         />
       </div>
     </div>
