@@ -408,6 +408,8 @@ export async function uploadFileAction(
     }
   } catch (error) {
     console.error("Erreur d'upload:", error)
+    // Revalidate even on error to refresh file list
+    revalidatePath('/admin/blog')
     return {
       success: false,
       message:
