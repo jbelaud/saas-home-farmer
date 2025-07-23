@@ -25,24 +25,13 @@ export interface MenuData {
 }
 
 // Fonction principale pour construire le menu - simple et claire
-export function buildMenu(
-  menuDataToUse: MenuData,
-  isAdminUser: boolean,
-  orgSlug: string
-) {
+export function buildMenu(menuDataToUse: MenuData, orgSlug: string) {
   // Créer une copie mutable du menu utilisateur avec URLs mises à jour
   const userMenu = menuDataToUse.navMain.map((item: MenuItem) =>
     createMenuItemWithUrls(item, orgSlug)
   )
 
-  // Si admin, ajouter le menu admin au début
-  if (isAdminUser) {
-    const adminMenu = menuDataToUse.adminNavMain.map((item: MenuItem) => ({
-      ...item,
-    }))
-    return [...adminMenu, ...userMenu]
-  }
-
+  // Retourner uniquement le menu utilisateur (adminNavMain sera géré séparément)
   return userMenu
 }
 

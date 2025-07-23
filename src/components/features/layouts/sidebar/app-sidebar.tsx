@@ -14,6 +14,7 @@ import * as React from 'react'
 
 import {useAuth} from '@/components/context/auth-provider'
 import {useOrganization} from '@/components/context/organization-provider'
+import {NavAdmin} from '@/components/features/layouts/sidebar/nav-admin'
 import {NavMain} from '@/components/features/layouts/sidebar/nav-main'
 import {NavProjects} from '@/components/features/layouts/sidebar/nav-projects'
 import {NavUser} from '@/components/features/layouts/sidebar/nav-user'
@@ -46,23 +47,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       adminNavMain: [
         {
           title: t('admin.title'),
-          url: '#',
+          url: '/admin',
           icon: Settings2,
           isActive: false,
-          items: [
-            {
-              title: t('admin.dashboard'),
-              url: '/admin',
-            },
-            {
-              title: t('admin.users'),
-              url: '/admin/users',
-            },
-            {
-              title: t('admin.organizations'),
-              url: '/admin/organizations',
-            },
-          ],
         },
       ],
       navMain: [
@@ -180,8 +167,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   // Construction dynamique du menu avec mémorisation
   const menuItems = React.useMemo(
-    () => buildMenu(translatedMenuData, isAdminUser, currentOrgSlug),
-    [isAdminUser, currentOrgSlug, translatedMenuData]
+    () => buildMenu(translatedMenuData, currentOrgSlug),
+    [currentOrgSlug, translatedMenuData]
   )
 
   // Transformation des organisations en équipes
@@ -202,6 +189,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={teams} />
       </SidebarHeader>
       <SidebarContent>
+        {isAdminUser && (
+          <NavAdmin adminItems={translatedMenuData.adminNavMain} />
+        )}
         <NavMain items={menuItems} />
         <NavProjects projects={translatedMenuData.projects} />
       </SidebarContent>
