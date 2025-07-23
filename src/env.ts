@@ -52,6 +52,12 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
 
+    // Chat AI (serveur seulement - sécurisé)
+    CHAT_PROVIDER: z.enum(['ollama', 'openai', 'anthropic']).default('ollama'),
+    OLLAMA_BASE_URL: z.string().url().default('http://localhost:11434'),
+    OPENAI_API_KEY: z.string().optional(),
+    ANTHROPIC_API_KEY: z.string().optional(),
+
     // Environnement
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
@@ -103,12 +109,6 @@ export const env = createEnv({
     NEXT_PUBLIC_BILLING_MODE: z
       .enum([BillingModes.USER, BillingModes.ORGANIZATION])
       .default(BillingModes.USER),
-
-    // Ollama (client)
-    NEXT_PUBLIC_OLLAMA_BASE_URL: z
-      .string()
-      .url()
-      .default('http://localhost:11434'),
   },
 
   /*
@@ -134,6 +134,10 @@ export const env = createEnv({
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    CHAT_PROVIDER: process.env.CHAT_PROVIDER,
+    OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     NODE_ENV: process.env.NODE_ENV,
 
     // Variables client
@@ -156,7 +160,6 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_BILLING_MODE: process.env.NEXT_PUBLIC_BILLING_MODE,
-    NEXT_PUBLIC_OLLAMA_BASE_URL: process.env.NEXT_PUBLIC_OLLAMA_BASE_URL,
   },
 
   /*

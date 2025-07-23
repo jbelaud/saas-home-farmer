@@ -54,21 +54,17 @@ export function ChatInterface() {
     try {
       abortControllerRef.current = new AbortController()
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_OLLAMA_BASE_URL || 'http://localhost:11434'}/api/generate`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'llama3.2',
-            prompt: userMessage.content,
-            stream: true,
-          }),
-          signal: abortControllerRef.current.signal,
-        }
-      )
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: userMessage.content,
+          model: 'llama3.2',
+        }),
+        signal: abortControllerRef.current.signal,
+      })
 
       if (!response.ok) {
         throw new Error(`Erreur Ollama: ${response.status}`)
@@ -89,22 +85,24 @@ export function ChatInterface() {
         const lines = chunk.split('\n').filter((line) => line.trim())
 
         for (const line of lines) {
-          try {
-            const data = JSON.parse(line)
-            if (data.response) {
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === assistantMessage.id
-                    ? {...msg, content: msg.content + data.response}
-                    : msg
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (data.content) {
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMessage.id
+                      ? {...msg, content: msg.content + data.content}
+                      : msg
+                  )
                 )
-              )
+              }
+              if (data.done) {
+                break
+              }
+            } catch (error) {
+              console.warn('Erreur parsing SSE:', error)
             }
-            if (data.done) {
-              break
-            }
-          } catch (error) {
-            console.warn('Erreur parsing JSON:', error)
           }
         }
       }
