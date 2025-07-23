@@ -391,17 +391,37 @@ export const mdxComponents = {
   img: (props: React.ComponentProps<typeof Image>) => {
     const imageUrl = props.src as string
     const isGif = imageUrl.includes('.gif')
-    const queryParams = new URLSearchParams(imageUrl.split('?')[1])
-    const width = queryParams.get('width')
-    const height = queryParams.get('height')
+
+    // Support des paramètres d'URL: image.jpg?width=300&height=200
+    const queryParams = new URLSearchParams(imageUrl.split('?')[1] || '')
+    const widthFromUrl = queryParams.get('width')
+    const heightFromUrl = queryParams.get('height')
+
+    // Support des attributs HTML: <img width="300" height="200" />
+    const widthFromProps = props.width
+    const heightFromProps = props.height
+
+    // Priorité: attributs HTML > paramètres URL > valeurs par défaut
+    const width = widthFromProps
+      ? Number(widthFromProps)
+      : widthFromUrl
+        ? Number(widthFromUrl)
+        : 800
+    const height = heightFromProps
+      ? Number(heightFromProps)
+      : heightFromUrl
+        ? Number(heightFromUrl)
+        : 600
+
     return (
       <Image
-        width={Number(width)}
-        height={Number(height)}
+        width={width}
+        height={height}
         //@ts-expect-error next-image always have alt, only compliance with jsx-a11y/alt-text rules
         alt="default alt image"
         {...props}
         unoptimized={isGif}
+        className="h-auto max-w-full rounded-lg"
       />
     )
   },
