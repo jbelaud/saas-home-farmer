@@ -103,6 +103,12 @@ export const env = createEnv({
     NEXT_PUBLIC_BILLING_MODE: z
       .enum([BillingModes.USER, BillingModes.ORGANIZATION])
       .default(BillingModes.USER),
+
+    // Ollama (client)
+    NEXT_PUBLIC_OLLAMA_BASE_URL: z
+      .string()
+      .url()
+      .default('http://localhost:11434'),
   },
 
   /*
@@ -150,6 +156,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_BILLING_MODE: process.env.NEXT_PUBLIC_BILLING_MODE,
+    NEXT_PUBLIC_OLLAMA_BASE_URL: process.env.NEXT_PUBLIC_OLLAMA_BASE_URL,
   },
 
   /*

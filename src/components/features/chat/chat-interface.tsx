@@ -54,18 +54,21 @@ export function ChatInterface() {
     try {
       abortControllerRef.current = new AbortController()
 
-      const response = await fetch('http://localhost:11434/api/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama3.2',
-          prompt: userMessage.content,
-          stream: true,
-        }),
-        signal: abortControllerRef.current.signal,
-      })
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_OLLAMA_BASE_URL || 'http://localhost:11434'}/api/generate`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'llama3.2',
+            prompt: userMessage.content,
+            stream: true,
+          }),
+          signal: abortControllerRef.current.signal,
+        }
+      )
 
       if (!response.ok) {
         throw new Error(`Erreur Ollama: ${response.status}`)
