@@ -137,9 +137,11 @@
   "AppSidebar": {
     "admin": {
       "title": "Administración",
-      "dashboard": "Panel de Administración",
+      "dashboard": "Panel de Administración",  
       "users": "Usuarios",
-      "organizations": "Organizaciones"
+      "organizations": "Organizaciones",
+      "plans": "Planes",
+      "blog": "Blog"
     },
     "account": {
       "title": "Cuenta",

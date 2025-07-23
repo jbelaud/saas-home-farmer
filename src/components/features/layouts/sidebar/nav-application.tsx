@@ -1,18 +1,21 @@
 'use client'
 
 import {
-  Folder,
-  Forward,
+  Building2,
+  CreditCard,
+  Key,
   type LucideIcon,
+  Mail,
   MoreHorizontal,
-  Trash2,
+  Settings,
+  User,
 } from 'lucide-react'
+import {useTranslations} from 'next-intl'
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -35,6 +38,41 @@ export function NavApplication({
   }[]
 }) {
   const {isMobile} = useSidebar()
+  const t = useTranslations('AppSidebar')
+
+  // Menu items pour le dropdown des applications front
+  const accountMenuItems = [
+    {
+      title: t('account.accountAndSecurity'),
+      url: '/account',
+      icon: User,
+    },
+    {
+      title: t('account.settings'),
+      url: '/account/settings',
+      icon: Settings,
+    },
+    {
+      title: t('account.apiKeys'),
+      url: '/account/api-keys',
+      icon: Key,
+    },
+    {
+      title: t('account.subscriptions'),
+      url: '/account/subscription',
+      icon: CreditCard,
+    },
+    {
+      title: t('account.organizations'),
+      url: '/organizations',
+      icon: Building2,
+    },
+    {
+      title: t('account.invitations'),
+      url: '/invitations',
+      icon: Mail,
+    },
+  ]
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -60,19 +98,18 @@ export function NavApplication({
                 side={isMobile ? 'bottom' : 'right'}
                 align={isMobile ? 'end' : 'start'}
               >
-                <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>View Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Forward className="text-muted-foreground" />
-                  <span>Share Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Trash2 className="text-muted-foreground" />
-                  <span>Delete Project</span>
-                </DropdownMenuItem>
+                {accountMenuItems.map((menuItem) => (
+                  <DropdownMenuItem
+                    key={menuItem.title}
+                    asChild
+                    className="cursor-pointer"
+                  >
+                    <a href={menuItem.url}>
+                      <menuItem.icon className="text-muted-foreground" />
+                      <span>{menuItem.title}</span>
+                    </a>
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

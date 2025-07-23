@@ -139,7 +139,9 @@
       "title": "Administration",
       "dashboard": "Admin Dashboard",
       "users": "Users",
-      "organizations": "Organizations"
+      "organizations": "Organizations",
+      "plans": "Plans",
+      "blog": "Blog"
     },
     "account": {
       "title": "Account",
