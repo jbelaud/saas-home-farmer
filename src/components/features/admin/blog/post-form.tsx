@@ -193,17 +193,6 @@ export function PostForm({
     }
   }
 
-  // Rafraîchir la liste des fichiers après upload
-  const handleFileUploaded = () => {
-    if (post?.id) {
-      listFilesAction(post.id)
-        .then(setFileList)
-        .catch((error) => {
-          console.error('Erreur lors du rafraîchissement:', error)
-        })
-    }
-  }
-
   const addTranslation = () => {
     const usedLanguages = form.getValues('translations').map((t) => t.language)
     const availableLanguages = LANGUAGE_OPTIONS.filter(
@@ -348,17 +337,6 @@ export function PostForm({
             <CardTitle>Configuration générale</CardTitle>
           </CardHeader>
 
-          <div className="space-y-2">
-            <Label>Files</Label>
-            <FileDropzone
-              postId={post?.id}
-              disabled={!post?.id}
-              disabledMessage="Veuillez d'abord enregistrer le post."
-              defaultFiles={fileList}
-              onFilesSelected={handleFileUploaded}
-              onFilesServerSelectedToRemove={handleRemoveFile}
-            />
-          </div>
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
@@ -555,6 +533,26 @@ export function PostForm({
                 </div>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Fichiers */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Fichiers</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Files</Label>
+              <FileDropzone
+                postId={post?.id}
+                disabled={!post?.id}
+                disabledMessage="Veuillez d'abord enregistrer le post."
+                defaultFiles={fileList}
+                onFilesSelected={() => {}} // Le dropzone gère l'upload lui-même
+                onFilesServerSelectedToRemove={handleRemoveFile}
+              />
+            </div>
           </CardContent>
         </Card>
 
