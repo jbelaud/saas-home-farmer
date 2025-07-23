@@ -3,13 +3,13 @@ import 'server-only'
 import {cache} from 'react'
 
 import {listFilesByPostIdService} from '@/services/facades/file-service-facade'
-import {FileResponse} from '@/services/types/domain/file-types'
+import {FileListResponse} from '@/services/types/domain/file-types'
 
 /**
  * Récupérer les fichiers d'un post avec cache
  */
 export const getPostFilesDal = cache(
-  async (postId: string): Promise<FileResponse[]> => {
+  async (postId: string): Promise<FileListResponse> => {
     try {
       return await listFilesByPostIdService(postId)
     } catch (error) {

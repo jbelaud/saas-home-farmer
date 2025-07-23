@@ -10,8 +10,8 @@ import {toast} from 'sonner'
 import {
   createPostAction,
   deleteFileAction,
-  listFilesAction,
   updatePostCompleteAction,
+  uploadFileAction,
 } from '@/app/[locale]/admin/blog/actions'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
@@ -26,7 +26,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
 import {MarkdownEditor} from '@/components/ui/markdown-editor'
 import {
   Select,
@@ -38,7 +37,10 @@ import {
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import {Textarea} from '@/components/ui/textarea'
 import {generateSlug} from '@/lib/helper/blog'
-import {FileResponse} from '@/services/types/domain/file-types'
+import {
+  FileListResponse,
+  FileResponse,
+} from '@/services/types/domain/file-types'
 import {
   Category,
   Hashtag,
@@ -61,7 +63,7 @@ interface PostFormProps {
   post?: PostData
   categories: Category[]
   hashtags: Hashtag[]
-  files?: FileResponse[]
+  files?: FileListResponse
 }
 
 // Fonction pour mapper les champs d'erreur du service vers les chemins RHF
@@ -111,7 +113,7 @@ export function PostForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newHashtagInput, setNewHashtagInput] = useState('')
   const [hashtagSelectValue, setHashtagSelectValue] = useState('')
-  const [fileList, setFileList] = useState<FileResponse[]>(files)
+  //const [fileList, setFileList] = useState<FileResponse[]>(files)
 
   // Préparation des valeurs par défaut
   const defaultValues: PostFormValues = {
@@ -174,24 +176,6 @@ export function PostForm({
 
   const watchedHashtags = form.watch('hashtags') || []
   const watchedNewHashtags = form.watch('newHashtags') || []
-
-  // Gérer la suppression de fichier
-  const handleRemoveFile = async (file: FileResponse) => {
-    if (!post?.id) return
-
-    try {
-      const result = await deleteFileAction(post.id, file.name)
-      if (result.success) {
-        setFileList((files) => files.filter((f) => f.name !== file.name))
-        toast.success(result.message)
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error)
-      toast.error('Erreur lors de la suppression du fichier')
-    }
-  }
 
   const addTranslation = () => {
     const usedLanguages = form.getValues('translations').map((t) => t.language)
@@ -327,6 +311,61 @@ export function PostForm({
       setIsSubmitting(false)
     }
   }
+
+  const handleFileUpload = async (files: File[] | FileList): Promise<void> => {
+    if (!post?.id) {
+      toast.error("Veuillez d'abord enregistrer le post.")
+      return
+    }
+    const fileArray = Array.isArray(files) ? files : [...files]
+    for (const file of fileArray) {
+      try {
+        //const path = `/${file.name}`
+        // Créer FormData pour l'upload
+        const formData = new FormData()
+        formData.append('file', file)
+        const result = await uploadFileAction(post?.id ?? '', formData)
+        console.log('Fichier uploadé :', result)
+        if (result.success) {
+          toast.success(result.message)
+        } else if (!result.success) {
+          toast.error(result.message)
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'upload :", error)
+      }
+    }
+  }
+  async function handleRemoveFile(file: FileResponse): Promise<void> {
+    const result = await deleteFileAction(post?.id ?? '', file.name)
+    if (result.success) {
+      toast('Success', {
+        description: result.message,
+      })
+    } else if (!result.success) {
+      toast('Error', {
+        description: result.message,
+      })
+    }
+  }
+
+  // Gérer la suppression de fichier
+  // const handleRemoveFile = async (file: FileResponse) => {
+  //   if (!post?.id) return
+
+  //   try {
+  //     const result = await deleteFileAction(post.id, file.name)
+  //     if (result.success) {
+  //       setFileList((files) => files.filter((f) => f.name !== file.name))
+  //       toast.success(result.message)
+  //     } else {
+  //       toast.error(result.message)
+  //     }
+  //   } catch (error) {
+  //     console.error('Erreur lors de la suppression:', error)
+  //     toast.error('Erreur lors de la suppression du fichier')
+  //   }
+  // }
 
   return (
     <Form {...form}>
@@ -543,13 +582,13 @@ export function PostForm({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Files</Label>
               <FileDropzone
-                postId={post?.id}
-                disabled={!post?.id}
-                disabledMessage="Veuillez d'abord enregistrer le post."
-                defaultFiles={fileList}
-                onFilesSelected={() => {}} // Le dropzone gère l'upload lui-même
+                disabled={post?.id ? false : true}
+                disabledMessage="Please save the post first."
+                defaultFiles={files}
+                onFilesSelected={(files) => {
+                  handleFileUpload(files)
+                }}
                 onFilesServerSelectedToRemove={handleRemoveFile}
               />
             </div>

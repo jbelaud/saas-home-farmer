@@ -5,7 +5,6 @@ import * as React from 'react'
 import {useDropzone} from 'react-dropzone'
 import {toast} from 'sonner'
 
-import {uploadFileAction} from '@/app/[locale]/admin/blog/actions'
 import FilePreviewCard from '@/components/features/admin/blog/file-image-preview-card'
 import {Button} from '@/components/ui/button'
 import {Progress} from '@/components/ui/progress'
@@ -22,16 +21,14 @@ export interface FileWithPreview extends File {
 }
 
 interface FileDropzoneProps {
-  postId?: string
   defaultFiles?: FileResponse[]
-  onFilesSelected?: (files: File[]) => void
-  onFilesServerSelectedToRemove?: (files: FileResponse) => void
+  onFilesSelected: (files: File[]) => void
+  onFilesServerSelectedToRemove: (files: FileResponse) => void
   disabled?: boolean
   disabledMessage?: string
 }
 
 export function FileDropzone({
-  postId,
   onFilesSelected,
   defaultFiles = [],
   onFilesServerSelectedToRemove,
@@ -44,80 +41,35 @@ export function FileDropzone({
   }>({})
 
   const onDrop = React.useCallback(
-    async (acceptedFiles: File[]) => {
+    (acceptedFiles: File[]) => {
       if (disabled) {
-        toast('Erreur', {
-          description: disabledMessage,
-        })
+        toast.error(disabledMessage)
         return
       }
-
-      if (!postId) {
-        toast('Erreur', {
-          description: 'ID du post requis pour uploader des fichiers',
-        })
-        return
-      }
-
       const newFiles = acceptedFiles.map((file) =>
         Object.assign(file, {
           preview: URL.createObjectURL(file),
         })
       )
       setFiles((prev) => [...prev, ...newFiles])
-      onFilesSelected?.(acceptedFiles)
+      onFilesSelected(acceptedFiles)
 
-      // Upload réel des fichiers
+      // Simulate upload progress for each file
       for (const file of acceptedFiles) {
-        try {
-          // Simuler le progress
-          let progress = 0
-          const interval = setInterval(() => {
-            progress += 20
-            setUploadProgress((prev) => ({
-              ...prev,
-              [file.name]: progress,
-            }))
-            if (progress >= 90) {
-              clearInterval(interval)
-            }
-          }, 100)
-
-          // Créer FormData pour l'upload
-          const formData = new FormData()
-          formData.append('file', file)
-
-          // Upload via Server Action
-          const result = await uploadFileAction(postId, formData)
-
-          // Finaliser le progress
+        let progress = 0
+        const interval = setInterval(() => {
+          progress += 10
           setUploadProgress((prev) => ({
             ...prev,
-            [file.name]: 100,
+            [file.name]: progress,
           }))
-
-          if (result.success) {
-            toast('Succès', {
-              description: `${file.name} uploadé avec succès`,
-            })
-          } else {
-            toast('Erreur', {
-              description: result.message,
-            })
-            // Supprimer le fichier de la liste en cas d'erreur
-            setFiles((files) => files.filter((f) => f.name !== file.name))
+          if (progress >= 100) {
+            clearInterval(interval)
           }
-        } catch (error) {
-          console.error('Erreur upload:', error)
-          toast('Erreur', {
-            description: `Erreur lors de l'upload de ${file.name}`,
-          })
-          // Supprimer le fichier de la liste en cas d'erreur
-          setFiles((files) => files.filter((f) => f.name !== file.name))
-        }
+        }, 200)
       }
     },
-    [disabled, disabledMessage, onFilesSelected, postId]
+    [disabled, disabledMessage, onFilesSelected]
   )
 
   const {getRootProps, getInputProps, isDragActive} = useDropzone({
@@ -131,9 +83,9 @@ export function FileDropzone({
         if (
           fileRejection.errors.some((error) => error.code === 'file-too-large')
         ) {
-          toast('Erreur', {
-            description: `File ${fileRejection.file.name} is too large. Maximum size is 1MB.`,
-          })
+          toast.error(
+            `File ${fileRejection.file.name} is too large. Maximum size is 1MB.`
+          )
         }
       }
     },
@@ -149,7 +101,7 @@ export function FileDropzone({
   }
 
   const removeFileFromServer = (file: FileResponse) => {
-    onFilesServerSelectedToRemove?.(file)
+    onFilesServerSelectedToRemove(file)
   }
 
   React.useEffect(() => {
@@ -261,9 +213,7 @@ export function FileDropzone({
                       onClick={(e) => {
                         e.preventDefault()
                         navigator.clipboard.writeText(file.url || '')
-                        toast('Succès', {
-                          description: 'Link copied to clipboard',
-                        })
+                        toast.success('Link copied to clipboard')
                       }}
                       className="shrink-0"
                     >

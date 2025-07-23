@@ -9,7 +9,8 @@ import {FileResponse} from '@/services/types/domain/file-types'
 
 export default function FilePreviewCard({file}: {file: FileResponse}) {
   const isImage = file.type?.startsWith('image/')
-  const fileSize = file.size > 0 ? formatFileSize(file.size) : 'Unknown size'
+  const fileSize =
+    (file?.size ?? 0) > 0 ? formatFileSize(file.size ?? 0) : 'Unknown size'
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">
@@ -42,9 +43,7 @@ export default function FilePreviewCard({file}: {file: FileResponse}) {
               onClick={(e) => {
                 e.preventDefault()
                 navigator.clipboard.writeText(file.url || '')
-                toast('Succès', {
-                  description: 'Link copied to clipboard',
-                })
+                toast.success('Link copied to clipboard')
               }}
               className="shrink-0"
             >
