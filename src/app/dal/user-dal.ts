@@ -33,8 +33,7 @@ export const getAuthUserDTO = cache(async () => {
  * @param options - The options for the action
  * @returns The user
  */
-
-export async function requireActionAuth(options?: RequireAuthOptions) {
+export const requireActionAuth = cache(async (options?: RequireAuthOptions) => {
   const user = await getAuthUser()
   const isAdmin = isUserAdmin(user)
 
@@ -53,7 +52,7 @@ export async function requireActionAuth(options?: RequireAuthOptions) {
   }
 
   return user
-}
+})
 
 export function userDTO(user: User): UserDTO | undefined {
   if (!user) return undefined

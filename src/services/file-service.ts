@@ -17,7 +17,6 @@ import {
   ALLOWED_IMAGE_MIME_TYPES,
   DeleteFile,
   EntityType,
-  FileCategory,
   FileListResponse,
   FileResponse,
   GetFile,
@@ -40,12 +39,9 @@ const {config} = getStorageConfig()
 const generateFilePath = (
   entityType: EntityType,
   entityId: string,
-  file: File,
-  category: FileCategory = 'image'
+  file: File
 ): string => {
-  const timestamp = Date.now()
-  const fileExtension = file.name.split('.').pop()
-  return `${entityType}s/${entityId}/${category}-${timestamp}.${fileExtension}`
+  return `${entityType}s/${entityId}/${file.name}`
 }
 
 const getFileUrl = (path: string) => {
@@ -87,7 +83,7 @@ export const uploadFileForEntityService = async (
     throw new ValidationError(parsed.error.message)
   }
 
-  const {file, entityType, entityId, category = 'image'} = params
+  const {file, entityType, entityId} = params
 
   // Vérification des autorisations
   const granted = await canUploadFile(entityType, entityId)
@@ -106,7 +102,7 @@ export const uploadFileForEntityService = async (
   }
 
   // Générer le chemin automatiquement
-  const path = generateFilePath(entityType, entityId, file, category)
+  const path = generateFilePath(entityType, entityId, file)
 
   await uploadFile(file, path)
   return {
@@ -141,7 +137,7 @@ export const uploadImageForEntityService = async (
     throw new ValidationError(parsed.error.message)
   }
 
-  const {file, entityType, entityId, category = 'image'} = params
+  const {file, entityType, entityId} = params
 
   // Vérification des autorisations
   const granted = await canUploadFile(entityType, entityId)
@@ -166,7 +162,7 @@ export const uploadImageForEntityService = async (
   }
 
   // Générer le chemin automatiquement
-  const path = generateFilePath(entityType, entityId, file, category)
+  const path = generateFilePath(entityType, entityId, file)
 
   await uploadFile(file, path)
   return {
@@ -284,8 +280,8 @@ export const listFilesService = async (
   const {path} = params
   const files = await listFiles(path)
   return files.map((file) => ({
-    path: file.name,
-    url: getFileUrl(file.name),
+    path: `${path}/${file.name}`,
+    url: getFileUrl(`${path}/${file.name}`),
     size: file.metadata?.size || 0,
     type: file.metadata?.mimetype || '',
     name: file.name,

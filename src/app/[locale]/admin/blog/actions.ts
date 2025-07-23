@@ -33,6 +33,7 @@ import {
   POST_STATUS,
   SupportedLanguage,
 } from '@/services/types/domain/post-types'
+import {uuidSchema} from '@/services/validation/common-validation'
 
 // Types pour les traductions sans postId (pour les Server Actions)
 type TranslationInput = {
@@ -373,9 +374,6 @@ interface FileActionResult {
   message: string
   data?: FileResponse
 }
-
-// Validation UUID pour postId
-const uuidSchema = z.string().uuid('ID de post invalide')
 
 /**
  * Upload un fichier pour un post
