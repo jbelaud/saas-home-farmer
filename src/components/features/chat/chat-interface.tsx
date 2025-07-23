@@ -118,7 +118,7 @@ export function ChatInterface() {
             ? {
                 ...msg,
                 content:
-                  'Erreur: Impossible de communiquer avec le serveur de chat.',
+                  'Erreur: Impossible de communiquer avec le serveur de chat. (installez Ollama et run "ollama serve")',
               }
             : msg
         )

@@ -107,8 +107,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           icon: Bot,
           items: [
             {
-              title: t('models.genesis'),
-              url: '#',
+              title: 'Chat Llama3',
+              url: '/chat',
             },
             {
               title: t('models.explorer'),
