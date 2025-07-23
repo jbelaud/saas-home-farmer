@@ -68,6 +68,7 @@ import {createTypedNotificationService} from './facades/notification-service-fac
 import {Pagination, SUPPORTED_LANGUAGES} from './types/common-type'
 import {NotificationTypeConst} from './types/domain/notification-types'
 import {
+  CategoryDTO,
   CreateCategory,
   CreateHashtag,
   CreatePost,
@@ -575,6 +576,22 @@ export const getAllCategoriesService = async () => {
   return categories
 }
 
+/**
+ * Récupérer toutes les catégories
+ * (public =  no auth, no permission, no Dynamic server usage error)
+ */
+export const getAllCategoriesPublicService = async (): Promise<
+  CategoryDTO[]
+> => {
+  const categories = await getAllCategoriesDao()
+  return categories.map((category) => ({
+    id: category.id,
+    name: category.name,
+    description: category.description,
+    icon: category.icon,
+    image: category.image,
+  }))
+}
 /**
  * Mettre à jour une catégorie
  */

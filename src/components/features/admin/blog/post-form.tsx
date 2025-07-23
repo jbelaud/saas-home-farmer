@@ -42,7 +42,7 @@ import {
   FileResponse,
 } from '@/services/types/domain/file-types'
 import {
-  Category,
+  CategoryDTO,
   Hashtag,
   POST_STATUS,
   PostData,
@@ -61,7 +61,7 @@ type PostFormValues = PostFormData
 interface PostFormProps {
   mode: 'create' | 'edit'
   post?: PostData
-  categories: Category[]
+  categories: CategoryDTO[]
   hashtags: Hashtag[]
   files?: FileListResponse
 }

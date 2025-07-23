@@ -12,13 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {Category, POST_STATUS} from '@/services/types/domain/post-types'
+import {CategoryDTO, POST_STATUS} from '@/services/types/domain/post-types'
 
 interface PostsToolbarProps {
   onSearch?: (value: string) => void
   onStatusFilter?: (status: string) => void
   onCategoryFilter?: (categoryId: string) => void
-  categories: Category[]
+  categories: CategoryDTO[]
   totalItems: number
   onPerPageChange?: (perPage: string) => void
   perPage: string

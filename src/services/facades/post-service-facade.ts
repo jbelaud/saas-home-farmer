@@ -34,6 +34,8 @@ export const getCategoryByIdService =
   postServiceInterceptor.getCategoryByIdService
 export const getAllCategoriesService =
   postServiceInterceptor.getAllCategoriesService
+export const getAllCategoriesPublicService =
+  postServiceInterceptor.getAllCategoriesPublicService
 export const updateCategoryService =
   postServiceInterceptor.updateCategoryService
 export const deleteCategoryService =

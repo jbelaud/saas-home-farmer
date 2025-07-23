@@ -27,7 +27,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
-  Category,
+  CategoryDTO,
   POST_STATUS,
   PostModel,
 } from '@/services/types/domain/post-types'
@@ -42,7 +42,7 @@ interface PostsManagementProps {
   currentPage: number
   pageSize: number
   totalItems: number
-  categories: Category[]
+  categories: CategoryDTO[]
   permissions: {
     canCreate: boolean
     canReadAll: boolean

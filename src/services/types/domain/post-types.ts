@@ -97,15 +97,10 @@ export type PostTranslationDTO = {
   description: string
 }
 
-export type CategoryDTO = {
-  id: string
-  name: string
-  description: string
-  icon?: string | null
-  image?: string | null
-  createdAt?: Date | null
-  updatedAt?: Date | null
-}
+export type CategoryDTO = Pick<
+  CategoryModel,
+  'id' | 'name' | 'description' | 'icon' | 'image'
+>
 
 export type HashtagDTO = {
   id: string

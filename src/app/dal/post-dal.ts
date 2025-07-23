@@ -9,7 +9,7 @@ import {
 } from '@/services/authorization/post-authorization'
 import {AuthorizationError} from '@/services/errors/authorization-error'
 import {
-  getAllCategoriesService,
+  getAllCategoriesPublicService,
   getAllHashtagsService,
   getPostBySlugAndLanguageService,
   getPostsWithPaginationService,
@@ -19,7 +19,7 @@ import {
 } from '@/services/facades/post-service-facade'
 import {Pagination} from '@/services/types/common-type'
 import {
-  Category,
+  CategoryDTO,
   Hashtag,
   PostData,
   PostFilters,
@@ -84,8 +84,8 @@ export const getPostsWithTranslationsAndPaginationDal = cache(
 /**
  * Récupérer toutes les catégories (avec cache)
  */
-export const getAllCategoriesDal = cache(async (): Promise<Category[]> => {
-  return await getAllCategoriesService()
+export const getAllCategoriesDal = cache(async (): Promise<CategoryDTO[]> => {
+  return await getAllCategoriesPublicService()
 })
 
 /**

@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
-  Category,
+  CategoryDTO,
   POST_STATUS,
   PostModel,
 } from '@/services/types/domain/post-types'
@@ -48,7 +48,7 @@ type FormValues = z.infer<typeof formSchema>
 
 interface EditPostDialogProps {
   post: PostModel
-  categories: Category[]
+  categories: CategoryDTO[]
   onSave: (id: string, data: FormValues) => Promise<void>
 }
 
