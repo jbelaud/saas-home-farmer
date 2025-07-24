@@ -1,28 +1,27 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: false
 ---
----
-description: Form submission React
-globs: 
----
 
-# Form generales rules 
+# Form generales rules
 
 You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, and Tailwind.
 
 Key Principles
-- Prioritize these rules inside /app/** folders (folder for next layout (presentation))
+
+- Prioritize these rules inside /app/\*\* folders (folder for next layout (presentation))
 - Use **React Server Components (RSC)** by default for better performance
 - Only use `"use client"` when necessary (interactivity, browser APIs) else don't use it
-- Use **Server Actions** for mutations (exemple [action.ts](mdc:apps/codemail/src/app/(app)/account/action.ts) )
-- Use React Hook Form and Zod to validate data in client side 
+- Use **Server Actions** for mutations (exemple [action.ts](<mdc:apps/codemail/src/app/(app)/account/action.ts>) )
+- Use React Hook Form and Zod to validate data in client side
 - submit data to server action (action.ts) by using useActionState et useFormstatus
 - Validate data client component with react hook form
 
 Route Organization
+
 - A route or a group of routes can contain a shared actions.ts
+
 ```
 app/
   ├── (public)/ → Public routes
@@ -44,13 +43,15 @@ components/
 ## Forms and Server Actions
 
 In Next.js 15 and React 19, sometimes we want client validation with React Hook form for more reactivity.
+
 - Validation is done on client side with zod and rhf then submit to Server Action
 
 ### Basic Structure
+
 [edit-user-profile.tsx](mdc:src/components/features/user/edit-user-profile.tsx)
 
 ```tsx
- type FormValues = z.infer<typeof userFormSchema>
+type FormValues = z.infer<typeof userFormSchema>
 
 export function EditUserProfileForm({user}: {user: User}) {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -87,7 +88,6 @@ export function EditUserProfileForm({user}: {user: User}) {
         },
       })
     } else {
-      
       toast('Error', {
         description: result.message,
         action: {
@@ -185,12 +185,12 @@ export function EditUserProfileForm({user}: {user: User}) {
     </Form>
   )
 }
-
 ```
+
 # Server Action
 
-- Meme si l'on utilise pas de useActionState on essaye de garder la meme signature 
-- updateUserAction(prevState?: FormState, formData?: FormData): Promise<FormState>
+- Meme si l'on utilise pas de useActionState on essaye de garder la meme signature
+- updateUserAction(prevState?: FormState, formData?: FormData): `Promise<FormState>`
 
 ```ts
 export async function updateUserAction(
@@ -240,7 +240,7 @@ export async function updateUserAction(
 }
 ```
 
-
 Data Access Flow:
+
 1. RSC → DAL → Service Facades → Services → Repositories → Models
 2. Client Components → Server Actions → Service Facades → Services → Repositories → Models

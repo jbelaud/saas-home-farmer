@@ -1,3 +1,9 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+
 # Internationalisation des Server Actions avec next-intl
 
 Ce guide explique comment implémenter l'internationalisation des messages dans les Server Actions en utilisant next-intl, conformément à la [documentation officielle](https://next-intl.dev/docs/environments/actions-metadata-route-handlers).

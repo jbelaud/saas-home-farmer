@@ -1,13 +1,11 @@
 ---
-description: persistence
+description: Couche de persistance - Gestion des données avec Drizzle ORM
 globs: src/db/**
 alwaysApply: false
 ---
----
----
-description: Couche de persistance - Gestion des données avec Drizzle ORM
-globs: 
----
+
+# Couche de persistance - Gestion des données avec Drizzle ORM
+
 Vous êtes un expert en TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, et Tailwind.
 
 # Principes Clés
@@ -30,9 +28,10 @@ Vous êtes un expert en TypeScript, Node.js, Next.js App Router, React, Shadcn U
 - Utiliser des enums pour les valeurs contraintes
 - Définir des relations appropriées entre les tables
 - Toujours importer les modèles relatifs avec des imports relatifs locaux
-- Toujours ajouter ce model a db.ts pour drizzle 
+- Toujours ajouter ce model a db.ts pour drizzle
 
 [db.ts](mdc:src/db/models/db.ts)
+
 ```ts
 const db = drizzle(pool, {
   schema: {
@@ -44,10 +43,12 @@ const db = drizzle(pool, {
 ```
 
 Exemple de Schéma:
+
 - preferer le snake_case pour le nom des colonnes (ex : emailVerified: timestamp('email_verified'))
-[user-model.ts](mdc:src/db/models/user-model.ts)
+  [user-model.ts](mdc:src/db/models/user-model.ts)
+
 ```ts
-import { relations, sql } from 'drizzle-orm'
+import {relations, sql} from 'drizzle-orm'
 import {
   boolean,
   integer,
@@ -73,9 +74,9 @@ export const users = pgTable('user', {
     .primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
-  emailVerified: timestamp('email_verified', { mode: 'date' }),
-  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
-  updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow(),
+  emailVerified: timestamp('email_verified', {mode: 'date'}),
+  createdAt: timestamp('created_at', {mode: 'date'}).defaultNow(),
+  updatedAt: timestamp('updated_at', {mode: 'date'}).defaultNow(),
   image: text('image'),
   role: userRoleEnum('role').default('user').notNull(),
   password: text('password'),
@@ -83,7 +84,7 @@ export const users = pgTable('user', {
 })
 
 // Définir les relations
-export const usersRelations = relations(users, ({ one }) => ({
+export const usersRelations = relations(users, ({one}) => ({
   account: one(accounts, {
     fields: [users.id],
     references: [accounts.userId],
@@ -106,8 +107,9 @@ export type UpdateUserModel = typeof users.$inferInsert
 
 Exemple de Repository:
 [user-repository.ts](mdc:src/db/repositories/user-repository.ts)
+
 ```ts
-import { eq, sql } from 'drizzle-orm'
+import {eq, sql} from 'drizzle-orm'
 import db from '@/db/models/db'
 import {
   AddUserModel,
@@ -115,31 +117,35 @@ import {
   UserModel,
   users,
 } from '@/db/models/user-model'
-import { PaginatedResponse, Pagination } from '@/services/types/common-type'
+import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 
 // CRUD de base
 export const createUserDao = async (user: AddUserModel): Promise<UserModel> => {
   const row = await db
     .insert(users)
-    .values({ email: user.email, name: user.name })
+    .values({email: user.email, name: user.name})
     .returning()
   return row[0]
 }
 
-export const getUserByIdDao = async (uid: string): Promise<UserModel | undefined> => {
+export const getUserByIdDao = async (
+  uid: string
+): Promise<UserModel | undefined> => {
   const row = await db.query.users.findFirst({
-    where: (user, { eq }) => eq(user.id, uid),
+    where: (user, {eq}) => eq(user.id, uid),
   })
   return row
 }
 
-export const updateUserByUidDao = async (user: UpdateUserModel): Promise<void> => {
+export const updateUserByUidDao = async (
+  user: UpdateUserModel
+): Promise<void> => {
   if (!user.id) {
     throw new Error('User ID is required')
   }
   await db
     .update(users)
-    .set({ ...user, updatedAt: new Date() })
+    .set({...user, updatedAt: new Date()})
     .where(eq(users.id, user.id))
 }
 
@@ -151,7 +157,7 @@ export const deleteUserByIdDao = async (uid: string): Promise<void> => {
 export const getPublicUsersWithPaginationDao = async (
   pagination: Pagination
 ): Promise<PaginatedResponse<UserModel>> => {
-  const [rows, [{ count }]] = await Promise.all([
+  const [rows, [{count}]] = await Promise.all([
     db
       .select()
       .from(users)
@@ -159,7 +165,7 @@ export const getPublicUsersWithPaginationDao = async (
       .limit(pagination.limit)
       .offset(pagination.offset),
     db
-      .select({ count: sql<number>`count(*)` })
+      .select({count: sql<number>`count(*)`})
       .from(users)
       .where(eq(users.visibility, 'public')),
   ])
@@ -187,9 +193,10 @@ export const getPublicUsersWithPaginationDao = async (
 
 Exemple de Configuration:
 [db.ts](mdc:src/db/models/db.ts)
+
 ```ts
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { Pool } from 'pg'
+import {drizzle} from 'drizzle-orm/node-postgres'
+import {Pool} from 'pg'
 
 import * as user from './user-model'
 import * as subscription from './subscription-model'
@@ -224,9 +231,10 @@ export default db
 
 Exemple de Types de Domaine:
 [user-types.ts](mdc:src/services/types/domain/user-types.ts)
+
 ```ts
-import { Session } from 'better-auth'
-import { AddUserModel, UpdateUserModel, UserModel } from '@/db/models/user-model'
+import {Session} from 'better-auth'
+import {AddUserModel, UpdateUserModel, UserModel} from '@/db/models/user-model'
 
 // Types de domaine découplés des types Drizzle
 export type User = UserModel
@@ -257,8 +265,9 @@ export type AuthUser = {
 ```
 
 Exemple de Types de Domaine imbriqué avec relations :
-- Nommé le type <EntityRelation>Data : exemple UserOrganizationData
-[organization-types.ts](mdc:src/services/types/domain/organization-types.ts)
+
+- Nommé le type EntityRelationData : exemple UserOrganizationData
+  [organization-types.ts](mdc:src/services/types/domain/organization-types.ts)
 
 ```ts
 //entity organisation
@@ -281,21 +290,23 @@ La structure de pagination suit un format standardisé pour tous les repositorie
 return {
   data: rows.length === 0 ? [] : rows,
   pagination: {
-    total: count,        // ← Nombre total d'éléments
-    page: page,          // ← Page actuelle
-    limit: pagination.limit,  // ← Éléments par page
-    totalPages: totalPages,   // ← Nombre total de pages
+    total: count, // ← Nombre total d'éléments
+    page: page, // ← Page actuelle
+    limit: pagination.limit, // ← Éléments par page
+    totalPages: totalPages, // ← Nombre total de pages
   },
 }
 ```
 
 **Calculs automatiques dans chaque fonction de pagination :**
+
 ```typescript
 const page = Math.floor(pagination.offset / pagination.limit) + 1
 const totalPages = Math.ceil(count / pagination.limit)
 ```
 
 Cette structure garantit :
+
 - **Cohérence** entre tous les repositories
 - **Compatibilité** avec React Query et Server Components
 - **Performance** avec calculs centralisés

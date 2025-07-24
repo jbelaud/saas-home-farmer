@@ -1,11 +1,9 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: false
 ---
-description: Règles pour l'utilisation des transactions dans les repositories DAO
-globs: 
----
+
 # Transactions dans les Repositories DAO
 
 ## Principes Clés
@@ -26,10 +24,10 @@ export const createUserAndOrganizationTxnDao = async (
     // 1. Opérations dans la transaction
     const [newUser] = await tx.insert(users)...
     const [newOrganization] = await tx.insert(organizations)...
-    
+
     // 2. Relations dans la même transaction
     await tx.insert(userOrganizations)...
-    
+
     // 3. Retour des données créées
     return {user: {...}, organizationId: ...}
   })
@@ -65,6 +63,7 @@ export const createUserAndOrganizationTxnDao = async (
 ## Exemple Complet
 
 [user-repository.ts](mdc:src/db/repositories/user-repository.ts)
+
 ```typescript
 export const createUserAndOrganizationTxnDao = async (
   userData: AddUserModel,
