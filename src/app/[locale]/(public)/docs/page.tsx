@@ -1,16 +1,9 @@
 import type {Metadata} from 'next'
 import Link from 'next/link'
-import {getTranslations} from 'next-intl/server'
 
 import {getRulesByCategory} from '@/lib/helper/docs.server'
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{locale: string}>
-}): Promise<Metadata> {
-  const {locale} = await params
-
+export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Documentation des Règles de Développement',
     description:
@@ -18,13 +11,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function DocsPage({
-  params,
-}: {
-  params: Promise<{locale: string}>
-}) {
-  const {locale} = await params
-
+export default async function DocsPage() {
   const rulesByCategory = getRulesByCategory()
   const categories = Object.keys(rulesByCategory)
 

@@ -21,9 +21,9 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{locale: string; slug: string}>
+  params: Promise<{slug: string}>
 }): Promise<Metadata> {
-  const {locale, slug} = await params
+  const {slug} = await params
 
   if (!ruleExists(slug)) {
     return {
@@ -43,9 +43,9 @@ export async function generateMetadata({
 export default async function RulePage({
   params,
 }: {
-  params: Promise<{locale: string; slug: string}>
+  params: Promise<{slug: string}>
 }) {
-  const {locale, slug} = await params
+  const {slug} = await params
 
   // Vérifier si le slug existe
   if (!ruleExists(slug)) {
@@ -85,17 +85,12 @@ export default async function RulePage({
                   Toujours appliqué
                 </span>
               )}
+              {!rule.alwaysApply && (
+                <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+                  Appliqué sur {rule.globs}
+                </span>
+              )}
             </div>
-
-            <h1 className="text-foreground mb-4 text-4xl font-bold">
-              {rule.title}
-            </h1>
-
-            {rule.description && (
-              <p className="text-muted-foreground text-xl">
-                {rule.description}
-              </p>
-            )}
 
             <div className="text-muted-foreground mt-4 text-sm">
               {rule.readTime} de lecture
