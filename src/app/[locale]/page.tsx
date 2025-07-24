@@ -204,7 +204,7 @@ export default async function Home({
             </h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="#" className="hover:text-primary transition">
+                <Link href="/docs" className="hover:text-primary transition">
                   {t('footer.resources.documentation')}
                 </Link>
               </li>

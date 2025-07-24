@@ -17,6 +17,8 @@ export interface DocRule {
 
 // Chemin vers le dossier des règles
 const RULES_DIR = path.join(process.cwd(), '.cursor/rules')
+// Chemin vers le dossier de documentation
+const DOCS_DIR = path.join(process.cwd(), 'docs')
 
 // Catégories et leurs mappings
 const CATEGORY_MAPPING: Record<string, string> = {
@@ -24,6 +26,7 @@ const CATEGORY_MAPPING: Record<string, string> = {
   '01-presentation': 'Présentation',
   '02-services': 'Services',
   '03-persistance': 'Persistance',
+  documentation: 'Documentation',
 }
 
 // Obtenir toutes les catégories de règles
@@ -39,7 +42,7 @@ export function getRuleCategories(): string[] {
     .sort()
 }
 
-// Obtenir tous les slugs des fichiers MDC
+// Obtenir tous les slugs des fichiers MDC et MD
 export function getRuleSlugs(): string[] {
   const categories = getRuleCategories()
   const slugs: string[] = []
@@ -56,6 +59,16 @@ export function getRuleSlugs(): string[] {
     }
   }
 
+  // Ajouter les fichiers de documentation
+  if (fs.existsSync(DOCS_DIR)) {
+    const docFiles = fs.readdirSync(DOCS_DIR)
+    const docSlugs = docFiles
+      .filter((file) => file.endsWith('.md'))
+      .map((file) => `documentation--${file.replace('.md', '')}`)
+
+    slugs.push(...docSlugs)
+  }
+
   return slugs
 }
 
@@ -70,6 +83,24 @@ export function getRuleContent(slug: string): {
   category: string
 } {
   const realPath = slugToFilePath(slug)
+
+  // Vérifier si c'est un fichier de documentation
+  if (slug.startsWith('documentation--')) {
+    const fileName = slug.replace('documentation--', '')
+    const filePath = path.join(DOCS_DIR, `${fileName}.md`)
+
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Documentation non trouvée: ${slug}`)
+    }
+
+    const rawContent = fs.readFileSync(filePath, 'utf8')
+    // Les fichiers MD n'ont pas forcément de frontmatter YAML
+    const content = rawContent.replace(/^---[\s\S]*?---\n?/, '')
+
+    return {content, category: 'documentation'}
+  }
+
+  // Fichiers de règles normaux
   const filePath = path.join(RULES_DIR, `${realPath}.mdc`)
 
   if (!fs.existsSync(filePath)) {
@@ -90,6 +121,38 @@ export function extractRuleMetadata(
   slug: string,
   category: string
 ): Omit<DocRule, 'content'> {
+  // Traitement spécial pour la documentation
+  if (slug.startsWith('documentation--')) {
+    const fileName = slug.replace('documentation--', '')
+    let title = fileName.replace(/-/g, ' ')
+    let description = 'Aucune description disponible.'
+
+    // Extraire le titre depuis le H1
+    const contentWithoutFrontmatter = content.replace(/^---[\s\S]*?---\n?/, '')
+    const titleMatch = contentWithoutFrontmatter.match(/^#\s+(.+)/m)
+    if (titleMatch) {
+      title = titleMatch[1].trim()
+    }
+
+    // Extraire description depuis le premier paragraphe
+    const paragraphMatch = contentWithoutFrontmatter.match(
+      /^#[^\n]*\n\n([^\n#]+)/m
+    )
+    if (paragraphMatch) {
+      description = `${paragraphMatch[1].trim().slice(0, 150)}...`
+    }
+
+    const readTime = `${Math.ceil(content.length / 1000)} min`
+
+    return {
+      slug,
+      title,
+      description,
+      category: 'Documentation',
+      readTime,
+    }
+  }
+
   const realPath = slugToFilePath(slug)
   let title = realPath.split('/')[1] || slug
   let description = 'Aucune description disponible.'
@@ -210,6 +273,25 @@ export function getRulesByCategory(): Record<string, DocRule[]> {
 
 // Obtenir une règle spécifique par slug
 export function getRule(slug: string): DocRule {
+  // Traitement spécial pour la documentation
+  if (slug.startsWith('documentation--')) {
+    const fileName = slug.replace('documentation--', '')
+    const filePath = path.join(DOCS_DIR, `${fileName}.md`)
+
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Documentation non trouvée: ${slug}`)
+    }
+
+    const rawContent = fs.readFileSync(filePath, 'utf8')
+    const cleanContent = rawContent.replace(/^---[\s\S]*?---\n?/, '')
+
+    return {
+      ...extractRuleMetadata(rawContent, slug, 'documentation'),
+      content: cleanContent,
+    }
+  }
+
+  // Fichiers de règles normaux
   const realPath = slugToFilePath(slug)
   const filePath = path.join(RULES_DIR, `${realPath}.mdc`)
 

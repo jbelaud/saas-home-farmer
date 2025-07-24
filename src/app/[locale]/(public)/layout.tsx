@@ -48,7 +48,12 @@ export default function PublicLayout({children}: PropsWithChildren) {
               >
                 <span>Terms</span>
               </Link>
-
+              <Link
+                className="flex items-center space-x-2 font-bold"
+                href="/docs"
+              >
+                <span>Docs</span>
+              </Link>
               <Link
                 className="flex items-center space-x-2 font-bold"
                 href="/blog"

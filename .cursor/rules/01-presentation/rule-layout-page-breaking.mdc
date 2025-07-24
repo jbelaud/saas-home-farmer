@@ -3,6 +3,7 @@ description:
 globs: **layout**,**page**
 alwaysApply: false
 ---
+
 # Règle Layout Responsive - Gestion des Breakpoints et Optimisations
 
 ## Vue d'ensemble
@@ -23,6 +24,7 @@ Cette règle définit les meilleures pratiques pour optimiser les layouts, cards
 ```
 
 **Optimisations clés :**
+
 - **Mobile** : `px-0` (pas de padding horizontal)
 - **Small** : `sm:px-2` (8px de padding)
 - **Desktop** : `md:px-4` (16px de padding)
@@ -39,13 +41,12 @@ Cette règle définit les meilleures pratiques pour optimiser les layouts, cards
   <CardHeader className="px-4 sm:px-6">
     <CardTitle>Titre de la gestion</CardTitle>
   </CardHeader>
-  <CardContent className="px-4 sm:px-6">
-    {/* Contenu du tableau */}
-  </CardContent>
+  <CardContent className="px-4 sm:px-6">{/* Contenu du tableau */}</CardContent>
 </Card>
 ```
 
 **Optimisations clés :**
+
 - **Border** : Supprimé en mobile (`border-0 sm:border`)
 - **Padding Header** : `px-4` mobile, `sm:px-6` desktop
 - **Padding Content** : `px-4` mobile, `sm:px-6` desktop
@@ -66,11 +67,14 @@ Les colonnes doivent se masquer dans l'ordre de priorité décroissante :
 ```tsx
 <TableHeader>
   <TableRow>
-    <TableHead>Organisation</TableHead>                    {/* Toujours visible */}
-    <TableHead className="hidden md:table-cell">Slug</TableHead>     {/* Masqué < 768px */}
-    <TableHead className="hidden xl:table-cell">Description</TableHead> {/* Masqué < 1280px */}
-    <TableHead className="hidden lg:table-cell">Créée</TableHead>    {/* Masqué < 1024px */}
-    <TableHead>Actions</TableHead>                         {/* Toujours visible */}
+    <TableHead>Organisation</TableHead> {/* Toujours visible */}
+    <TableHead className="hidden md:table-cell">Slug</TableHead>{' '}
+    {/* Masqué < 768px */}
+    <TableHead className="hidden xl:table-cell">Description</TableHead>{' '}
+    {/* Masqué < 1280px */}
+    <TableHead className="hidden lg:table-cell">Créée</TableHead>{' '}
+    {/* Masqué < 1024px */}
+    <TableHead>Actions</TableHead> {/* Toujours visible */}
   </TableRow>
 </TableHeader>
 ```
@@ -80,24 +84,27 @@ Les colonnes doivent se masquer dans l'ordre de priorité décroissante :
 ```tsx
 <TableHeader>
   <TableRow>
-    <TableHead>Utilisateur</TableHead>                     {/* Toujours visible */}
-    <TableHead>Email</TableHead>                           {/* Toujours visible */}
-    <TableHead className="hidden lg:table-cell">Rôle</TableHead>     {/* Masqué < 1024px */}
-    <TableHead className="hidden lg:table-cell">Statut</TableHead>   {/* Masqué < 1024px */}
-    <TableHead className="hidden md:table-cell">Créé</TableHead>     {/* Masqué < 768px */}
-    <TableHead>Actions</TableHead>                         {/* Toujours visible */}
+    <TableHead>Utilisateur</TableHead> {/* Toujours visible */}
+    <TableHead>Email</TableHead> {/* Toujours visible */}
+    <TableHead className="hidden lg:table-cell">Rôle</TableHead>{' '}
+    {/* Masqué < 1024px */}
+    <TableHead className="hidden lg:table-cell">Statut</TableHead>{' '}
+    {/* Masqué < 1024px */}
+    <TableHead className="hidden md:table-cell">Créé</TableHead>{' '}
+    {/* Masqué < 768px */}
+    <TableHead>Actions</TableHead> {/* Toujours visible */}
   </TableRow>
 </TableHeader>
 ```
 
 ### Breakpoints Standards
 
-| Breakpoint | Taille | Utilisation |
-|------------|--------|-------------|
-| `hidden` | < 640px | Masquer en mobile |
-| `hidden sm:table-cell` | ≥ 640px | Afficher à partir de small |
-| `hidden md:table-cell` | ≥ 768px | Afficher à partir de medium |
-| `hidden lg:table-cell` | ≥ 1024px | Afficher à partir de large |
+| Breakpoint             | Taille   | Utilisation                      |
+| ---------------------- | -------- | -------------------------------- |
+| `hidden`               | < 640px  | Masquer en mobile                |
+| `hidden sm:table-cell` | ≥ 640px  | Afficher à partir de small       |
+| `hidden md:table-cell` | ≥ 768px  | Afficher à partir de medium      |
+| `hidden lg:table-cell` | ≥ 1024px | Afficher à partir de large       |
 | `hidden xl:table-cell` | ≥ 1280px | Afficher à partir de extra large |
 
 ## Gestion des Colonnes Principales
@@ -130,9 +137,7 @@ Pour les colonnes principales (toujours visibles), afficher les informations sec
 <TableCell>
   <div className="flex space-x-2">
     {/* Bouton principal - toujours visible */}
-    {permissions.canEdit && (
-      <EditDialog />
-    )}
+    {permissions.canEdit && <EditDialog />}
     {/* Bouton secondaire - masqué en mobile */}
     {permissions.canDelete && (
       <div className="hidden sm:block">
@@ -155,6 +160,7 @@ Les boutons doivent s'adapter automatiquement :
 ```
 
 **Comportement :**
+
 - **Mobile** : Icône seulement
 - **Desktop** : Icône + texte
 
@@ -179,20 +185,24 @@ Les boutons doivent s'adapter automatiquement :
 ## Checklist d'Optimisation
 
 ### Layout Level
+
 - [ ] Padding layout : `px-0 sm:px-2 md:px-4`
 - [ ] Container max-width approprié
 
-### Card Level  
+### Card Level
+
 - [ ] Border responsive : `border-0 sm:border`
 - [ ] Padding réduit : `px-4 sm:px-6`
 
 ### Table Level
+
 - [ ] Suppression des largeurs fixes (`w-[xxx]`)
 - [ ] Breakpoints progressifs sur les colonnes
 - [ ] Colonnes principales avec infos condensées
 - [ ] Actions adaptatives
 
 ### Mobile Experience
+
 - [ ] Pas de scroll horizontal
 - [ ] Informations essentielles visibles
 - [ ] Interactions possibles (boutons accessibles)
@@ -261,7 +271,7 @@ export default function TableManagement() {
 
 - ✅ **Pas de scroll horizontal** sur mobile
 - ✅ **Tous les écrans supportés** (320px à 1920px+)
-- ✅ **Performance optimale** 
+- ✅ **Performance optimale**
 - ✅ **Expérience utilisateur fluide**
 - ✅ **Accessibilité maintenue**
 
