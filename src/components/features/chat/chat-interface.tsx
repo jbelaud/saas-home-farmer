@@ -7,6 +7,8 @@ import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {cn} from '@/lib/utils'
 
+import {MessageContent} from './message-content'
+
 interface Message {
   id: string
   content: string
@@ -18,6 +20,9 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
+    null
+  )
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
@@ -50,6 +55,7 @@ export function ChatInterface() {
       timestamp: new Date(),
     }
     setMessages((prev) => [...prev, assistantMessage])
+    setStreamingMessageId(assistantMessage.id)
 
     try {
       abortControllerRef.current = new AbortController()
@@ -125,6 +131,7 @@ export function ChatInterface() {
       )
     } finally {
       setIsLoading(false)
+      setStreamingMessageId(null)
       abortControllerRef.current = null
     }
   }
@@ -140,6 +147,7 @@ export function ChatInterface() {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
       setIsLoading(false)
+      setStreamingMessageId(null)
     }
   }
 
@@ -164,23 +172,35 @@ export function ChatInterface() {
             >
               <div
                 className={cn(
-                  'max-w-[80%] rounded-lg px-4 py-2 break-words whitespace-pre-wrap',
+                  'max-w-[80%] rounded-lg px-4 py-2',
                   message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-primary text-primary-foreground break-words whitespace-pre-wrap'
                     : 'bg-muted text-foreground border'
                 )}
               >
-                {message.content}
-                {message.role === 'assistant' &&
-                  isLoading &&
-                  message.content === '' && (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-muted-foreground text-sm">
-                        Réflexion en cours...
-                      </span>
-                    </div>
-                  )}
+                {message.role === 'user' ? (
+                  <span className="break-words whitespace-pre-wrap">
+                    {message.content}
+                  </span>
+                ) : (
+                  <>
+                    {message.content ? (
+                      <MessageContent
+                        content={message.content}
+                        isStreaming={streamingMessageId === message.id}
+                      />
+                    ) : (
+                      isLoading && (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span className="text-muted-foreground text-sm">
+                            Réflexion en cours...
+                          </span>
+                        </div>
+                      )
+                    )}
+                  </>
+                )}
               </div>
             </div>
           ))
