@@ -2,9 +2,15 @@ import {notFound} from 'next/navigation'
 import {getTranslations} from 'next-intl/server'
 
 import {EditUserSettingsForm} from '@/components/features/user/edit-user-settings'
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
 export default async function Page() {
+  if (!isPageEnabled(PagesConst.SETTINGS)) {
+    return notFound()
+  }
+
   const t = await getTranslations('AccountSettingsPage')
   const user = await getAuthUser()
 

@@ -1,9 +1,17 @@
+import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
+
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 
 import NotificationsContent from './notifications-content'
 import NotificationsSkeleton from './notifications-skeleton'
 
 export default function NotificationsPage() {
+  if (!isPageEnabled(PagesConst.NOTIFICATIONS)) {
+    return notFound()
+  }
+
   return (
     <div className="space-y-6">
       <div>

@@ -25,11 +25,17 @@ export const AuthMethodsSchema = z
 
 // Pages optionnelles disponibles
 export const EnabledPageSchema = z.enum([
+  'none',
   'blog',
   'docs',
   'apikey',
   'organization',
   'invitation',
+  'account',
+  'settings',
+  'subscription',
+  'notifications',
+  'admin',
 ])
 export type EnabledPage = z.infer<typeof EnabledPageSchema>
 
@@ -39,14 +45,34 @@ export const PagesConst = {
   APIKEY: 'apikey' satisfies EnabledPage,
   ORGANIZATION: 'organization' satisfies EnabledPage,
   INVITATION: 'invitation' satisfies EnabledPage,
+  ACCOUNT: 'account' satisfies EnabledPage,
+  SETTINGS: 'settings' satisfies EnabledPage,
+  SUBSCRIPTION: 'subscription' satisfies EnabledPage,
+  NOTIFICATIONS: 'notifications' satisfies EnabledPage,
+  ADMIN: 'admin' satisfies EnabledPage,
 } as const
 
 export const EnabledPagesSchema = z
   .string()
+  .optional()
   .transform((val) =>
     val
-      ? val.split(',').map((page) => page.trim())
-      : ['blog', 'changelog', 'docs', 'apikey', 'organization', 'invitation']
+      ? val
+          .split(',')
+          .map((page) => page.trim())
+          .filter(Boolean)
+      : [
+          'blog',
+          'docs',
+          'apikey',
+          'organization',
+          'invitation',
+          'account',
+          'settings',
+          'subscription',
+          'notifications',
+          'admin',
+        ]
   )
   .pipe(z.array(EnabledPageSchema))
 

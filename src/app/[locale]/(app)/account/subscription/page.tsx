@@ -1,14 +1,21 @@
 import {CreditCard, Crown, Zap} from 'lucide-react'
+import {notFound} from 'next/navigation'
 
 import {
   getEntreprisePlan,
   getFreePlan,
   getProPlan,
 } from '@/app/dal/subscription-dal'
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 
 import SubscriptionPage from './subscription'
 
 export default async function Page() {
+  if (!isPageEnabled(PagesConst.SUBSCRIPTION)) {
+    return notFound()
+  }
+
   // Récupération des plans via le DAL
   const [planFree, planPro, planEntreprise] = await Promise.all([
     getFreePlan(),

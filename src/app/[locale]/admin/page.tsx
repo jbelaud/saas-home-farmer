@@ -1,11 +1,18 @@
+import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 
 import {AdminDashboardSkeleton} from '@/components/features/admin/dashboard/admin-dashboard-skeleton'
 import {withAuthAdmin} from '@/components/features/auth/with-auth'
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 
 import AdminDashboardContent from './admin-dashboard-content'
 
 async function AdminPage() {
+  if (!isPageEnabled(PagesConst.ADMIN)) {
+    return notFound()
+  }
+
   return (
     <div className="container mx-auto py-8">
       <div className="mx-auto space-y-6">

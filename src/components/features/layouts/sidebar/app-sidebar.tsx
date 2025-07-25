@@ -61,14 +61,22 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           icon: SquareTerminal,
           isActive: false,
           items: [
-            {
-              title: t('account.accountAndSecurity'),
-              url: '/account',
-            },
-            {
-              title: t('account.settings'),
-              url: '/account/settings',
-            },
+            ...(isPageEnabled(PagesConst.ACCOUNT)
+              ? [
+                  {
+                    title: t('account.accountAndSecurity'),
+                    url: '/account',
+                  },
+                ]
+              : []),
+            ...(isPageEnabled(PagesConst.SETTINGS)
+              ? [
+                  {
+                    title: t('account.settings'),
+                    url: '/account/settings',
+                  },
+                ]
+              : []),
             ...(isPageEnabled(PagesConst.APIKEY)
               ? [
                   {
@@ -77,10 +85,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   },
                 ]
               : []),
-            {
-              title: t('account.subscriptions'),
-              url: '/account/subscription',
-            },
+            ...(isPageEnabled(PagesConst.SUBSCRIPTION)
+              ? [
+                  {
+                    title: t('account.subscriptions'),
+                    url: '/account/subscription',
+                  },
+                ]
+              : []),
             ...(isPageEnabled(PagesConst.ORGANIZATION)
               ? [
                   {
@@ -203,7 +215,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={teams} />
       </SidebarHeader>
       <SidebarContent>
-        {isAdminUser && (
+        {isAdminUser && isPageEnabled(PagesConst.ADMIN) && (
           <NavAdmin adminItems={translatedMenuData.adminNavMain} />
         )}
         <NavMain items={menuItems} />

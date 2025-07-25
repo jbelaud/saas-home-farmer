@@ -34,6 +34,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 import {User} from '@/services/types/domain/user-types'
 
 export function NavUser({user}: {user?: User}) {
@@ -85,10 +87,12 @@ export function NavUser({user}: {user?: User}) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                <Link href="/account/subscription">{t('upgradeToPro')}</Link>
-              </DropdownMenuItem>
+              {isPageEnabled(PagesConst.SUBSCRIPTION) && (
+                <DropdownMenuItem>
+                  <Sparkles />
+                  <Link href="/account/subscription">{t('upgradeToPro')}</Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
@@ -114,38 +118,48 @@ export function NavUser({user}: {user?: User}) {
                   </>
                 )}
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                <Link href="/account">{t('account')}</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Key />
-                <Link href="/account/api-keys">{t('apiKeys')}</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings />
-                <Link href="/account/settings">{t('settings')}</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                <Link href="/account/subscription">{t('billing')}</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <div className="flex items-center gap-2">
-                  <Bell />
-                  <Link href="/notifications" className="flex-1">
-                    {t('notifications')}
-                  </Link>
-                  {unreadCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="h-5 min-w-[1.25rem] px-1 text-xs"
-                    >
-                      {unreadCount > 99 ? '99+' : unreadCount}
-                    </Badge>
-                  )}
-                </div>
-              </DropdownMenuItem>
+              {isPageEnabled(PagesConst.ACCOUNT) && (
+                <DropdownMenuItem>
+                  <BadgeCheck />
+                  <Link href="/account">{t('account')}</Link>
+                </DropdownMenuItem>
+              )}
+              {isPageEnabled(PagesConst.APIKEY) && (
+                <DropdownMenuItem>
+                  <Key />
+                  <Link href="/account/api-keys">{t('apiKeys')}</Link>
+                </DropdownMenuItem>
+              )}
+              {isPageEnabled(PagesConst.SETTINGS) && (
+                <DropdownMenuItem>
+                  <Settings />
+                  <Link href="/account/settings">{t('settings')}</Link>
+                </DropdownMenuItem>
+              )}
+              {isPageEnabled(PagesConst.SUBSCRIPTION) && (
+                <DropdownMenuItem>
+                  <CreditCard />
+                  <Link href="/account/subscription">{t('billing')}</Link>
+                </DropdownMenuItem>
+              )}
+              {isPageEnabled(PagesConst.NOTIFICATIONS) && (
+                <DropdownMenuItem>
+                  <div className="flex items-center gap-2">
+                    <Bell />
+                    <Link href="/notifications" className="flex-1">
+                      {t('notifications')}
+                    </Link>
+                    {unreadCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="h-5 min-w-[1.25rem] px-1 text-xs"
+                      >
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </Badge>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
