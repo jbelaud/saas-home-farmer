@@ -21,18 +21,22 @@ export function UserSecurityFactorSection({user}: {user: User}) {
       </div>
 
       {/* Section changement d'email */}
-      <div className="rounded-lg border">
-        <div className="p-6">
-          <ChangeEmailForm user={user} />
+      {AuthClientAppConfig.changeEmail && (
+        <div className="rounded-lg border">
+          <div className="p-6">
+            <ChangeEmailForm user={user} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Section changement de mot de passe */}
-      <div className="rounded-lg border">
-        <div className="p-6">
-          <ChangePasswordForm />
+      {AuthClientAppConfig.changePassword && (
+        <div className="rounded-lg border">
+          <div className="p-6">
+            <ChangePasswordForm />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Section authentification à deux facteurs */}
       {AuthClientAppConfig.enable2FA && (
