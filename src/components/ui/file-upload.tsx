@@ -35,7 +35,7 @@ export const FileUpload = ({
   multi = false,
   onlyimage = false,
   isUploading = false,
-  maxSize = Number(env.MAX_FILE_SIZE) || 1048576, // 1MB par défaut
+  maxSize = Number(env.NEXT_PUBLIC_MAX_FILE_SIZE) || 1048576, // 1MB par défaut
 }: {
   onChange?: (files: File[]) => void
   multi?: boolean

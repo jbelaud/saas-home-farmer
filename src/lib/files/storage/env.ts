@@ -8,7 +8,7 @@ const envSchema = z.object({
     .default('development'),
   STORAGE_TYPE: z.enum(['supabase', 's3']).default('supabase'),
   SUPABASE_BUCKET: z.string().min(1),
-  MAX_FILE_SIZE: z.number().transform(Number).default(5242880), // 5MB
+  NEXT_PUBLIC_MAX_FILE_SIZE: z.number().transform(Number).default(5242880), // 5MB
   ALLOWED_MIME_TYPES: z
     .string()
     .default('image/jpeg,image/png,image/gif,application/pdf'),
@@ -18,7 +18,7 @@ export const storageEnv = envSchema.parse({
   NODE_ENV: env.NODE_ENV,
   STORAGE_TYPE: env.STORAGE_TYPE,
   SUPABASE_BUCKET: env.SUPABASE_BUCKET,
-  MAX_FILE_SIZE: env.MAX_FILE_SIZE,
+  NEXT_PUBLIC_MAX_FILE_SIZE: env.NEXT_PUBLIC_MAX_FILE_SIZE,
   ALLOWED_MIME_TYPES: env.ALLOWED_MIME_TYPES,
 })
 
@@ -30,7 +30,7 @@ export const getStorageConfig = () => {
     config: {
       bucket: storageEnv.SUPABASE_BUCKET,
       basePath,
-      maxFileSize: storageEnv.MAX_FILE_SIZE,
+      maxFileSize: storageEnv.NEXT_PUBLIC_MAX_FILE_SIZE,
       allowedMimeTypes: storageEnv.ALLOWED_MIME_TYPES.split(','),
     },
   }

@@ -54,7 +54,7 @@ jobs:
           SUPABASE_BUCKET: BUCKET-NAME
 
           # File Upload
-          MAX_FILE_SIZE: 5242880
+          NEXT_PUBLIC_MAX_FILE_SIZE: 5242880
           ALLOWED_MIME_TYPES: image/jpeg,image/png,image/webp
           STORAGE_TYPE: supabase
 
@@ -99,7 +99,7 @@ jobs:
           SUPABASE_BUCKET: BUCKET-NAME
 
           # File Upload
-          MAX_FILE_SIZE: 5242880
+          NEXT_PUBLIC_MAX_FILE_SIZE: 5242880
           ALLOWED_MIME_TYPES: image/jpeg,image/png,image/webp
           STORAGE_TYPE: supabase
 

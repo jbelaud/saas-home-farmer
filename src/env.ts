@@ -79,10 +79,7 @@ export const env = createEnv({
     SUPABASE_BUCKET: z.string().min(1),
 
     // Upload de fichiers
-    MAX_FILE_SIZE: z
-      .string()
-      .transform((val) => Number(val))
-      .default('5242880'),
+
     ALLOWED_MIME_TYPES: z.string().min(1),
     STORAGE_TYPE: z.string().optional(),
 
@@ -114,6 +111,12 @@ export const env = createEnv({
   client: {
     // URL de l'application
     NEXT_PUBLIC_APP_URL: z.string().url(),
+
+    // Tailwind
+    NEXT_PUBLIC_NEXT_PUBLIC_MAX_FILE_SIZE: z
+      .string()
+      .transform((val) => Number(val))
+      .default('5242880'),
 
     // Stripe (client)
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
@@ -180,7 +183,6 @@ export const env = createEnv({
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
     SUPABASE_BUCKET: process.env.SUPABASE_BUCKET,
-    MAX_FILE_SIZE: process.env.MAX_FILE_SIZE,
     ALLOWED_MIME_TYPES: process.env.ALLOWED_MIME_TYPES,
     STORAGE_TYPE: process.env.STORAGE_TYPE,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
@@ -194,6 +196,8 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
 
     // Variables client
+    NEXT_PUBLIC_NEXT_PUBLIC_MAX_FILE_SIZE:
+      process.env.NEXT_PUBLIC_NEXT_PUBLIC_MAX_FILE_SIZE,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,

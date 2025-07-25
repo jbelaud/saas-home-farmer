@@ -16,7 +16,7 @@ const fileConfigSchema = z.object({
 
 export const fileConfig = fileConfigSchema.parse({
   bucket: env.SUPABASE_BUCKET || 'default-bucket',
-  maxFileSize: Number(env.MAX_FILE_SIZE) || 5 * 1024 * 1024,
+  maxFileSize: Number(env.NEXT_PUBLIC_MAX_FILE_SIZE) || 5 * 1024 * 1024,
   allowedMimeTypes: env.ALLOWED_MIME_TYPES?.split(',') || [
     'image/jpeg',
     'image/png',
