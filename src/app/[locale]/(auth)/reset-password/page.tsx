@@ -1,5 +1,8 @@
+import {notFound} from 'next/navigation'
 import {getTranslations, setRequestLocale} from 'next-intl/server'
 import {Suspense} from 'react'
+
+import {env} from '@/env'
 
 import ResetPasswordPage from './reset'
 
@@ -25,6 +28,11 @@ export default async function Page({
 }) {
   const {locale} = await params
   setRequestLocale(locale)
+
+  // Vérifier si credential est activé
+  if (!env.NEXT_PUBLIC_AUTH_METHODS.includes('credential')) {
+    notFound()
+  }
 
   return (
     <Suspense>

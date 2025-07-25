@@ -10,6 +10,7 @@ import {
   authMagicLinkFormSchema,
   authRegisterFormSchema,
 } from '@/components/features/auth/auth-form-validation'
+import {AuthMethod, env} from '@/env'
 import {auth, AuthAppConfig} from '@/lib/better-auth/auth' // path to your Better Auth server instance
 import {
   getUserByEmailService,
@@ -72,6 +73,14 @@ export async function loginCredentialAction(
   formData: FormData
 ): Promise<LoginFormState> {
   const t = await getTranslations('AuthActions.login')
+
+  // Vérifier si credential est activé
+  if (!env.NEXT_PUBLIC_AUTH_METHODS.includes('credential')) {
+    return {
+      success: false,
+      message: 'Credential authentication is not enabled',
+    }
+  }
 
   try {
     // 1. Validation Server Zod des données du formulaire
@@ -191,6 +200,14 @@ export async function loginMagicLinkAction(
 ): Promise<MagicLinkFormState> {
   const t = await getTranslations('AuthActions.magicLink')
 
+  // Vérifier si magiclink est activé
+  if (!env.NEXT_PUBLIC_AUTH_METHODS.includes('magiclink')) {
+    return {
+      success: false,
+      message: 'Magic link authentication is not enabled',
+    }
+  }
+
   try {
     // 1. Validation Server Zod des données du formulaire
     const validationResult = authMagicLinkFormSchema.safeParse({
@@ -258,6 +275,14 @@ export async function registerCredentialAction(
   formData: FormData
 ): Promise<RegisterFormState> {
   const t = await getTranslations('AuthActions.register')
+
+  // Vérifier si credential est activé
+  if (!env.NEXT_PUBLIC_AUTH_METHODS.includes('credential')) {
+    return {
+      success: false,
+      message: 'Credential authentication is not enabled',
+    }
+  }
 
   // 1. Validation server  Zod des données du formulaire
   const validationResult = authRegisterFormSchema.safeParse({
@@ -366,6 +391,15 @@ export async function loginProviderAction(
     | 'linkedin'
 ): Promise<LoginFormState> {
   const t = await getTranslations('AuthActions.loginProvider')
+
+  // Vérifier si le provider est activé (seulement pour google et apple pour l'instant)
+  if (!env.NEXT_PUBLIC_AUTH_METHODS.includes(provider as AuthMethod)) {
+    return {
+      success: false,
+      message: `${provider} authentication is not enabled`,
+    }
+  }
+
   try {
     const response = await auth.api.signInSocial({
       headers: await headers(),
@@ -404,6 +438,14 @@ export async function registerMagicLinkAction(
   formData: FormData
 ): Promise<MagicLinkFormState> {
   const t = await getTranslations('AuthActions.registerMagicLink')
+
+  // Vérifier si magiclink est activé
+  if (!env.NEXT_PUBLIC_AUTH_METHODS.includes('magiclink')) {
+    return {
+      success: false,
+      message: 'Magic link authentication is not enabled',
+    }
+  }
 
   // 1. Validation server  Zod des données du formulaire
   const validationResult = authMagicLinkFormSchema.safeParse({
@@ -479,6 +521,15 @@ export async function registerProviderAction(
   provider: 'google' | 'apple'
 ): Promise<LoginFormState> {
   const t = await getTranslations('AuthActions.registerProvider')
+
+  // Vérifier si le provider est activé
+  if (!env.NEXT_PUBLIC_AUTH_METHODS.includes(provider)) {
+    return {
+      success: false,
+      message: `${provider} authentication is not enabled`,
+    }
+  }
+
   await loginProviderAction(provider)
   return {
     success: true,

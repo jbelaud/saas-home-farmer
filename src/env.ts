@@ -7,6 +7,20 @@ import {
 } from './lib/stripe/stripe-types'
 import {BillingModes} from './services/types/domain/subscription-types'
 
+// Méthodes d'authentification disponibles
+export const AuthMethodSchema = z.enum([
+  'credential',
+  'magiclink',
+  'google',
+  'apple',
+])
+export type AuthMethod = z.infer<typeof AuthMethodSchema>
+
+export const AuthMethodsSchema = z
+  .array(AuthMethodSchema)
+  .min(1)
+  .default(['credential', 'magiclink'])
+
 // Types de checkout Stripe disponibles
 
 export const env = createEnv({
@@ -109,6 +123,13 @@ export const env = createEnv({
     NEXT_PUBLIC_BILLING_MODE: z
       .enum([BillingModes.USER, BillingModes.ORGANIZATION])
       .default(BillingModes.USER),
+
+    // Méthodes d'authentification
+    NEXT_PUBLIC_AUTH_METHODS: z
+      .string()
+      .transform((val) => val.split(',').map((method) => method.trim()))
+      .pipe(AuthMethodsSchema)
+      .default('credential,magiclink'),
   },
 
   /*
@@ -160,6 +181,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_BILLING_MODE: process.env.NEXT_PUBLIC_BILLING_MODE,
+    NEXT_PUBLIC_AUTH_METHODS: process.env.NEXT_PUBLIC_AUTH_METHODS,
   },
 
   /*
