@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-restricted-properties */
 import {sql} from 'drizzle-orm'
 import {drizzle} from 'drizzle-orm/node-postgres'
 import pg from 'pg'

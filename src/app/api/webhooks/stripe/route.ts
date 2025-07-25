@@ -14,6 +14,7 @@ import {headers} from 'next/headers'
 import {NextResponse} from 'next/server'
 import Stripe from 'stripe'
 
+import {env} from '@/env'
 import {stripeClient} from '@/lib/stripe/stripe-client'
 import {
   createSubscriptionFromStripeService,
@@ -70,7 +71,7 @@ stripe trigger customer.subscription.updated \
 */
 
 // webhook secret
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET ?? ''
+const endpointSecret = env.STRIPE_WEBHOOK_SECRET ?? ''
 
 const disableWebhook = true // Réactivé temporairement
 

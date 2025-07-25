@@ -17,6 +17,7 @@ import {
   getUserByIdDao,
   getUserSettingsByUserIdDao,
 } from '@/db/repositories/user-repository'
+import {env} from '@/env'
 import {logger} from '@/lib/logger'
 import {sendNotificationEmailService} from '@/services/facades/email-service-facade'
 
@@ -236,7 +237,7 @@ export const createNotificationService = async (
         parsed.data.type === 'organization_invitation' &&
         parsed.data.metadata?.organizationName
       ) {
-        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invitations`
+        const inviteLink = `${env.NEXT_PUBLIC_APP_URL}/invitations`
         await sendOrganizationInvitationService({
           email: targetUser.email,
           invitedByUsername: parsed.data.metadata.invitedBy,

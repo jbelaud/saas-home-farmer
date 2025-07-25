@@ -4,6 +4,7 @@ import {
   listFiles,
   uploadFile,
 } from '@/db/repositories/files-repository'
+import {env} from '@/env'
 import {FileErrors} from '@/lib/files/errors'
 import {getStorageConfig} from '@/lib/files/storage/env'
 
@@ -45,7 +46,7 @@ const generateFilePath = (
 }
 
 const getFileUrl = (path: string) => {
-  const baseUrl = process.env.SUPABASE_URL
+  const baseUrl = env.SUPABASE_URL
   const bucket = config.bucket
 
   if (!baseUrl) {

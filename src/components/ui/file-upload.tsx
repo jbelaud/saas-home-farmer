@@ -7,6 +7,7 @@ import {IconUpload} from '@tabler/icons-react'
 import {useDropzone} from 'react-dropzone'
 import {useTranslations} from 'next-intl'
 import {ALLOWED_IMAGE_MIME_TYPES} from '@/services/types/domain/file-types'
+import {env} from '@/env'
 
 const mainVariant = {
   initial: {
@@ -34,7 +35,7 @@ export const FileUpload = ({
   multi = false,
   onlyimage = false,
   isUploading = false,
-  maxSize = Number(process.env.MAX_FILE_SIZE) || 1048576, // 1MB par défaut
+  maxSize = Number(env.MAX_FILE_SIZE) || 1048576, // 1MB par défaut
 }: {
   onChange?: (files: File[]) => void
   multi?: boolean

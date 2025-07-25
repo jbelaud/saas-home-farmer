@@ -79,6 +79,15 @@ const eslintConfig = [
       'github/no-implicit-buggy-globals': 'off',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+      'no-restricted-properties': [
+        'warn',
+        {
+          object: 'process',
+          property: 'env',
+          message:
+            'N’utilise pas process.env directement. Utilise le fichier env.ts typé. (import {env} from "@/env")',
+        },
+      ],
     },
   },
   {

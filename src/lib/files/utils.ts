@@ -1,3 +1,5 @@
+import {env} from '@/env'
+
 export const emptyPaginationReturn = {
   data: [],
   pagination: {
@@ -9,7 +11,7 @@ export const emptyPaginationReturn = {
 }
 
 export const getEnvBase = () => {
-  return process.env.NODE_ENV === 'production' ? 'prod' : 'dev'
+  return env.NODE_ENV === 'production' ? 'prod' : 'dev'
 }
 
 export const fileServerEntityUsers = 'users'

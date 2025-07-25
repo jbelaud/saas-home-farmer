@@ -1,10 +1,11 @@
 import winston from 'winston'
 
-const isConsole = process.env.NODE_ENV === 'development' ? false : false
+import {env} from '@/env'
+const isConsole = env.NODE_ENV === 'development' ? false : false
 
 // Logger Winston pour la production
 const winstonLogger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: env.LOG_LEVEL || 'info',
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(

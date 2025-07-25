@@ -48,7 +48,7 @@ export default function StripeFormEmbedded({
         console.log('🔧 [CHECKOUT-FORM] Initialisation Stripe démarrée')
 
         const stripeInstance = await loadStripe(
-          process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
+          env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
         )
 
         if (!isSubscribed) return // 🛡️ Abandon si nettoyé

@@ -1,5 +1,7 @@
+import {env} from '@/env'
+
 // Configuration de base pour les appels API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ''
+const API_BASE_URL = env.NEXT_PUBLIC_API_URL || ''
 
 export class ApiError extends Error {
   constructor(

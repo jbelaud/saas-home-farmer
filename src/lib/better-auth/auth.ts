@@ -112,8 +112,8 @@ const options = {
   socialProviders: {
     google: {
       prompt: 'select_account',
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      clientId: env.GOOGLE_CLIENT_ID as string,
+      clientSecret: env.GOOGLE_CLIENT_SECRET as string,
     },
   },
   plugins: [
@@ -126,7 +126,7 @@ const options = {
       otpOptions: {
         period: 300, // 5 minutes d'expiration
         sendOTP: async ({user, otp}) => {
-          const otpLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-request/otp?code=${otp}`
+          const otpLink = `${env.NEXT_PUBLIC_APP_URL}/verify-request/otp?code=${otp}`
           await createTypedNotificationService({
             userId: user.id,
             type: NotificationTypeConst.otp_code,
@@ -166,7 +166,7 @@ const options = {
       membershipLimit: 10,
       allowUserToCreateOrganization: false,
       async sendInvitationEmail(data) {
-        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invitations/${data.id}`
+        const inviteLink = `${env.NEXT_PUBLIC_APP_URL}/invitations/${data.id}`
         // Find user by email to get userId for notification
         const invitedUser = await getUserByEmailDao(data.email)
         if (invitedUser) {

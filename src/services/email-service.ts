@@ -7,6 +7,7 @@ import {
 } from 'resend'
 
 import {getUserByStripeCustomerIdDao} from '@/db/repositories/user-repository'
+import {env} from '@/env'
 import EmailChangeEmailVerification from '@/lib/emails/email-change-email-verification'
 import InvitationOrganizationLinkMail from '@/lib/emails/invitation-organization-link-email'
 import MagicLinkMail from '@/lib/emails/magic-link-email'
@@ -25,7 +26,7 @@ import {
 
 import {getPlanByPriceIdService} from './subscription-service'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(env.RESEND_API_KEY)
 
 export const sendSimpleEmailService = async ({
   to,
@@ -40,7 +41,7 @@ export const sendSimpleEmailService = async ({
     to,
     subject,
     text,
-    from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
+    from: env.EMAIL_FROM ?? 'onboarding@resend.dev',
   })
 }
 
@@ -48,14 +49,14 @@ export const sendEmailService = async (
   payload: CreateEmailOptions,
   options?: CreateEmailRequestOptions
 ) => {
-  if (process.env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') {
     payload.subject = `[DEV] ${payload.subject}`
   }
 
   const {error} = await resend.emails.send(
     {
       ...payload,
-      from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
+      from: env.EMAIL_FROM ?? 'onboarding@resend.dev',
     },
     options
   )
@@ -86,7 +87,7 @@ export const sendOrganizationInvitation = async ({
   await sendEmailService({
     to: email,
     subject: t('subject', {teamName}),
-    from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
+    from: env.EMAIL_FROM ?? 'onboarding@resend.dev',
     text: `${t('invitationMessage', {
       invitedByUsername,
       invitedByEmail,
@@ -109,7 +110,7 @@ export const sendMagicLinkEmailService = async ({
   url: string
 }) => {
   const t = await getTranslations('email.user.magicLink')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
@@ -128,7 +129,7 @@ export const sendVerificationEmailService = async ({
   url: string
 }) => {
   const t = await getTranslations('email.user.verification')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
@@ -147,7 +148,7 @@ export const sendResetPasswordLinkEmailService = async ({
   url: string
 }) => {
   const t = await getTranslations('email.user.resetPassword')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
@@ -168,7 +169,7 @@ export const sendOTPEmailService = async ({
   otpLink?: string
 }) => {
   const t = await getTranslations('email.user.otp')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
@@ -187,7 +188,7 @@ export const sendEmailChangeEmailVerificationService = async ({
   url: string
 }) => {
   const t = await getTranslations('email.user.emailChange')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
@@ -215,7 +216,7 @@ export const sendNotificationEmailService = async ({
     locale: language,
     namespace: 'email.user.notification',
   })
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,
@@ -236,7 +237,7 @@ export const sendSubscriptionCompletedEmailService = async (
   subscription: Subscription
 ) => {
   const t = await getTranslations('email.user.subscriptionCompleted')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   if (!subscription.stripeCustomerId) {
     console.error('Pas de stripeCustomerId dans la subscription')
@@ -301,7 +302,7 @@ export const sendSubscriptionUpdatedEmailService = async (
   subscription: Subscription
 ) => {
   const t = await getTranslations('email.user.subscriptionUpdated')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   if (!subscription.stripeCustomerId) {
     console.error('Pas de stripeCustomerId dans la subscription')
@@ -366,7 +367,7 @@ export const sendSubscriptionCanceledEmailService = async (
   subscription: Subscription
 ) => {
   const t = await getTranslations('email.user.subscriptionCanceled')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   if (!subscription.stripeCustomerId) {
     console.error('Pas de stripeCustomerId dans la subscription')
@@ -429,7 +430,7 @@ export const sendSubscriptionDeletedEmailService = async (
   subscription: Subscription
 ) => {
   const t = await getTranslations('email.user.subscriptionDeleted')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   if (!subscription.stripeCustomerId) {
     console.error('Pas de stripeCustomerId dans la subscription')

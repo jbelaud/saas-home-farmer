@@ -11,6 +11,7 @@ import React, {useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
 import {Button} from '@/components/ui/button'
+import {env} from '@/env'
 
 import {createCheckoutSession} from './actions'
 
@@ -84,9 +85,7 @@ export default function CheckoutButtonReactStripe({
 
   useEffect(() => {
     // eslint-disable-next-line promise/catch-or-return
-    loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string).then(
-      setStripe
-    )
+    loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string).then(setStripe)
   }, [])
 
   const handleInitialClick = () => {
