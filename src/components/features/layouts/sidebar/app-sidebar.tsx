@@ -26,7 +26,9 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import {PagesConst} from '@/env'
 import {buildMenu, MenuData} from '@/lib/helper/menu-helper'
+import {isPageEnabled} from '@/lib/utils'
 import {isAdmin} from '@/services/authentication/auth-util'
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
@@ -67,22 +69,34 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               title: t('account.settings'),
               url: '/account/settings',
             },
-            {
-              title: t('account.apiKeys'),
-              url: '/account/api-keys',
-            },
+            ...(isPageEnabled(PagesConst.APIKEY)
+              ? [
+                  {
+                    title: t('account.apiKeys'),
+                    url: '/account/api-keys',
+                  },
+                ]
+              : []),
             {
               title: t('account.subscriptions'),
               url: '/account/subscription',
             },
-            {
-              title: t('account.organizations'),
-              url: '/organizations',
-            },
-            {
-              title: t('account.invitations'),
-              url: '/invitations',
-            },
+            ...(isPageEnabled(PagesConst.ORGANIZATION)
+              ? [
+                  {
+                    title: t('account.organizations'),
+                    url: '/organizations',
+                  },
+                ]
+              : []),
+            ...(isPageEnabled(PagesConst.INVITATION)
+              ? [
+                  {
+                    title: t('account.invitations'),
+                    url: '/invitations',
+                  },
+                ]
+              : []),
           ],
         },
         {

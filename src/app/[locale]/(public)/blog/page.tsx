@@ -1,10 +1,13 @@
 import type {Metadata} from 'next'
 import Link from 'next/link'
+import {notFound} from 'next/navigation'
 import {getTranslations} from 'next-intl/server'
 
 import {getPublishedPostsWithTranslationsAndPaginationDal} from '@/app/dal/post-dal'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 import {SupportedLanguage} from '@/services/types/domain/post-types'
 
 // Génération des métadonnées
@@ -33,6 +36,10 @@ export default async function BlogListPage({
   params: Promise<{locale: string}>
   searchParams: SearchParamsType
 }) {
+  if (!isPageEnabled(PagesConst.BLOG)) {
+    return notFound()
+  }
+
   const {locale} = await params
   const searchStore = await searchParams
   const t = await getTranslations({locale, namespace: 'BlogListPage'})
@@ -46,7 +53,6 @@ export default async function BlogListPage({
     {limit, offset},
     locale as SupportedLanguage
   )
-  console.log('postsResult', postsResult)
 
   const formatDate = (date: Date | null) => {
     if (!date) return ''

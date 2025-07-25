@@ -2,9 +2,15 @@ import {notFound} from 'next/navigation'
 import {getTranslations} from 'next-intl/server'
 
 import {ApiKeyManagement} from '@/components/features/api-key/api-key-management'
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
 export default async function ApiKeysPage() {
+  if (!isPageEnabled(PagesConst.APIKEY)) {
+    return notFound()
+  }
+
   const t = await getTranslations('ApiKeysPage')
   const user = await getAuthUser()
 

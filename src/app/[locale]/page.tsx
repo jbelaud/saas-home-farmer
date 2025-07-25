@@ -9,8 +9,10 @@ import {LangToggle} from '@/components/lang-toggle'
 import {ModeToggle} from '@/components/theme-toggle'
 import {Button} from '@/components/ui/button'
 import {Component} from '@/components/ui/vapour-text-effect'
+import {PagesConst} from '@/env'
 import {routing} from '@/i18n/routing'
 import {APP_NAME} from '@/lib/constants'
+import {isPageEnabled} from '@/lib/utils'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({locale}))
@@ -203,16 +205,20 @@ export default async function Home({
               {t('footer.resources.title')}
             </h4>
             <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/docs" className="hover:text-primary transition">
-                  {t('footer.resources.documentation')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="hover:text-primary transition">
-                  {t('footer.resources.blog')}
-                </Link>
-              </li>
+              {isPageEnabled(PagesConst.DOCS) && (
+                <li>
+                  <Link href="/docs" className="hover:text-primary transition">
+                    {t('footer.resources.documentation')}
+                  </Link>
+                </li>
+              )}
+              {isPageEnabled(PagesConst.BLOG) && (
+                <li>
+                  <Link href="/blog" className="hover:text-primary transition">
+                    {t('footer.resources.blog')}
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link href="#" className="hover:text-primary transition">
                   {t('footer.resources.support')}

@@ -1,7 +1,10 @@
 import type {Metadata} from 'next'
 import Link from 'next/link'
+import {notFound} from 'next/navigation'
 
+import {PagesConst} from '@/env'
 import {getRulesByCategory} from '@/lib/helper/docs.server'
+import {isPageEnabled} from '@/lib/utils'
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -12,6 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DocsPage() {
+  if (!isPageEnabled(PagesConst.DOCS)) {
+    return notFound()
+  }
+
   const rulesByCategory = getRulesByCategory()
   const categories = Object.keys(rulesByCategory)
 

@@ -6,11 +6,13 @@ import {MDXRemote} from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 
 import {mdxComponents} from '@/components/mdx-components'
+import {PagesConst} from '@/env'
 import {
   blogPostExists,
   getBlogPost,
   getMDXSlugs,
 } from '@/lib/helper/blog.server'
+import {isPageEnabled} from '@/lib/utils'
 
 // Génération des paramètres statiques pour le SSG
 export function generateStaticParams() {
@@ -50,6 +52,9 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{locale: string; slug: string}>
 }) {
+  if (!isPageEnabled(PagesConst.BLOG)) {
+    return notFound()
+  }
   const {locale, slug} = await params
   const t = await getTranslations({locale, namespace: 'BlogPage'})
 

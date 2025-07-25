@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import {notFound} from 'next/navigation'
 import {getTranslations} from 'next-intl/server'
 import React from 'react'
 
@@ -6,6 +7,8 @@ import {getAllCategoriesDal} from '@/app/dal/post-dal'
 import {Badge} from '@/components/ui/badge'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {Separator} from '@/components/ui/separator'
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 
 export default async function BlogLayout({
   children,
@@ -14,6 +17,9 @@ export default async function BlogLayout({
   children: React.ReactNode
   params: Promise<{locale: string}>
 }) {
+  if (!isPageEnabled(PagesConst.BLOG)) {
+    return notFound()
+  }
   const {locale} = await params
   const t = await getTranslations({locale, namespace: 'BlogLayout'})
 

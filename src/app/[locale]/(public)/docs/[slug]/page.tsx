@@ -6,7 +6,9 @@ import {MDXRemote} from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 
 import {mdxComponents} from '@/components/mdx-components'
+import {PagesConst} from '@/env'
 import {getRule, getRuleSlugs, ruleExists} from '@/lib/helper/docs.server'
+import {isPageEnabled} from '@/lib/utils'
 
 // Génération des paramètres statiques pour le SSG
 export function generateStaticParams() {
@@ -45,6 +47,9 @@ export default async function RulePage({
 }: {
   params: Promise<{slug: string}>
 }) {
+  if (!isPageEnabled(PagesConst.DOCS)) {
+    return notFound()
+  }
   const {slug} = await params
 
   // Vérifier si le slug existe

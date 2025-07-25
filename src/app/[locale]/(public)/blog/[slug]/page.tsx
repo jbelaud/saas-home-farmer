@@ -9,6 +9,8 @@ import {getPublishedPostBySlugAndLanguageDal} from '@/app/dal/post-dal'
 import {mdxComponents} from '@/components/mdx-components'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
+import {PagesConst} from '@/env'
+import {isPageEnabled} from '@/lib/utils'
 import {SupportedLanguage} from '@/services/types/domain/post-types'
 
 // Génération des métadonnées
@@ -69,6 +71,9 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{locale: string; slug: string}>
 }) {
+  if (!isPageEnabled(PagesConst.BLOG)) {
+    return notFound()
+  }
   const {locale, slug} = await params
   const t = await getTranslations({locale, namespace: 'BlogPostPage'})
 

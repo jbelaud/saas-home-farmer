@@ -23,6 +23,33 @@ export const AuthMethodsSchema = z
   .min(1)
   .default(['credential', 'magiclink'])
 
+// Pages optionnelles disponibles
+export const EnabledPageSchema = z.enum([
+  'blog',
+  'docs',
+  'apikey',
+  'organization',
+  'invitation',
+])
+export type EnabledPage = z.infer<typeof EnabledPageSchema>
+
+export const PagesConst = {
+  BLOG: 'blog' satisfies EnabledPage,
+  DOCS: 'docs' satisfies EnabledPage,
+  APIKEY: 'apikey' satisfies EnabledPage,
+  ORGANIZATION: 'organization' satisfies EnabledPage,
+  INVITATION: 'invitation' satisfies EnabledPage,
+} as const
+
+export const EnabledPagesSchema = z
+  .string()
+  .transform((val) =>
+    val
+      ? val.split(',').map((page) => page.trim())
+      : ['blog', 'changelog', 'docs', 'apikey', 'organization', 'invitation']
+  )
+  .pipe(z.array(EnabledPageSchema))
+
 // Types de checkout Stripe disponibles
 
 export const env = createEnv({
@@ -132,6 +159,9 @@ export const env = createEnv({
       .transform((val) => val.split(',').map((method) => method.trim()))
       .pipe(AuthMethodsSchema)
       .default('credential,magiclink'),
+
+    // Pages optionnelles activées
+    NEXT_PUBLIC_ENABLED_PAGES: EnabledPagesSchema,
   },
 
   /*
@@ -184,6 +214,7 @@ export const env = createEnv({
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_BILLING_MODE: process.env.NEXT_PUBLIC_BILLING_MODE,
     NEXT_PUBLIC_AUTH_METHODS: process.env.NEXT_PUBLIC_AUTH_METHODS,
+    NEXT_PUBLIC_ENABLED_PAGES: process.env.NEXT_PUBLIC_ENABLED_PAGES,
   },
 
   /*

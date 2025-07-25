@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import {notFound} from 'next/navigation'
 
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
@@ -11,11 +12,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {PagesConst} from '@/env'
 import {sortOrganizationsByRole} from '@/lib/helper/organization-helper'
+import {isPageEnabled} from '@/lib/utils'
 import {getOrganizationsByUserIdService} from '@/services/facades/organization-service-facade'
 import {UserOrganizationRoleConst} from '@/services/types/domain/auth-types'
 
 export default async function OrganizationsPage() {
+  if (!isPageEnabled(PagesConst.ORGANIZATION)) {
+    return notFound()
+  }
+
   const organizations = await getOrganizationsByUserIdService()
 
   // Trier les organisations par rôle : OWNER en premier, puis ADMIN, puis les autres

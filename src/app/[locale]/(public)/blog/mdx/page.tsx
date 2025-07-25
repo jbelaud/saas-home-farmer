@@ -1,14 +1,20 @@
 import type {Metadata} from 'next'
 import Link from 'next/link'
+import {notFound} from 'next/navigation'
 import {getTranslations} from 'next-intl/server'
 
+import {PagesConst} from '@/env'
 import {getAllBlogPosts} from '@/lib/helper/blog.server'
+import {isPageEnabled} from '@/lib/utils'
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{locale: string}>
 }): Promise<Metadata> {
+  if (!isPageEnabled(PagesConst.BLOG)) {
+    return notFound()
+  }
   const {locale} = await params
   const t = await getTranslations({locale, namespace: 'BlogPage'})
 
