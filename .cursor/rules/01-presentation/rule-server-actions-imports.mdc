@@ -72,10 +72,11 @@ import { isRedirectError } from 'next/dist/client/components/redirect-error'
 #### 5. Variables d'Environnement
 ```typescript
 'use server'
+import {env} from '@/env'
 
 // Configuration depuis variables d'environnement
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY
-const databaseUrl = process.env.DATABASE_URL
+const stripeSecretKey = env.STRIPE_SECRET_KEY
+const databaseUrl = env.DATABASE_URL
 ```
 
 ### ❌ INTERDIT - Importations Prohibées

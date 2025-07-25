@@ -634,12 +634,14 @@
       "providers": {
         "apple": "Sign in with Apple",
         "google": "Sign in with Google",
+        "github": "Sign in with GitHub",
         "magicLink": "Sign in with Magic Link"
       },
       "loading": {
         "connecting": "Connecting...",
         "apple": "Connecting...",
-        "google": "Connecting..."
+        "google": "Connecting...",
+        "github": "Connecting..."
       },
       "backToClassic": "Back to classic login",
       "backToOptions": "Back to login options",
@@ -709,6 +711,7 @@
       "providers": {
         "apple": "Sign up with Apple",
         "google": "Sign up with Google",
+        "github": "Sign up with GitHub",
         "magicLink": "Sign up with Magic Link"
       },
       "or": "Or",

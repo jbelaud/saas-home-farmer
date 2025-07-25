@@ -634,12 +634,14 @@
       "providers": {
         "apple": "Se connecter avec Apple",
         "google": "Se connecter avec Google",
+        "github": "Se connecter avec GitHub",
         "magicLink": "Se connecter avec un lien magique"
       },
       "loading": {
         "connecting": "Connexion...",
         "apple": "Connexion...",
-        "google": "Connexion..."
+        "google": "Connexion...",
+        "github": "Connexion..."
       },
       "backToClassic": "Retour à la connexion classique",
       "backToOptions": "Retour aux options de connexion",
@@ -709,6 +711,7 @@
       "providers": {
         "apple": "S'inscrire avec Apple",
         "google": "S'inscrire avec Google",
+        "github": "S'inscrire avec GitHub",
         "magicLink": "S'inscrire avec Magic Link"
       },
       "or": "Ou",

@@ -634,12 +634,14 @@
       "providers": {
         "apple": "Iniciar sesión con Apple",
         "google": "Iniciar sesión con Google",
+        "github": "Iniciar sesión con GitHub",
         "magicLink": "Iniciar sesión con enlace mágico"
       },
       "loading": {
         "connecting": "Conectando...",
         "apple": "Conectando...",
-        "google": "Conectando..."
+        "google": "Conectando...",
+        "github": "Conectando..."
       },
       "backToClassic": "Volver al inicio de sesión clásico",
       "backToOptions": "Volver a las opciones de inicio de sesión",
@@ -709,6 +711,7 @@
       "providers": {
         "apple": "Registrarse con Apple",
         "google": "Registrarse con Google",
+        "github": "Registrarse con GitHub",
         "magicLink": "Registrarse con enlace mágico"
       },
       "or": "O",

@@ -518,7 +518,7 @@ export async function registerMagicLinkAction(
  * Action pour l'inscription avec un provider OAuth (Google, Apple)
  */
 export async function registerProviderAction(
-  provider: 'google' | 'apple'
+  provider: 'google' | 'apple' | 'github'
 ): Promise<LoginFormState> {
   const t = await getTranslations('AuthActions.registerProvider')
 

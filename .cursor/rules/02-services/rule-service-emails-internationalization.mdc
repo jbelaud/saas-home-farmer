@@ -118,6 +118,7 @@ Utilisez `getTranslations` dans les services pour traduire le subject et le text
 ```tsx
 // src/services/email-service.ts
 import {getTranslations} from 'next-intl/server'
+import {env} from '@/env'
 
 export const sendMagicLinkEmailService = async ({
   email,
@@ -127,7 +128,7 @@ export const sendMagicLinkEmailService = async ({
   url: string
 }) => {
   const t = await getTranslations('email.user.verify')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
   
   await sendEmailService({
     to: email,
@@ -146,7 +147,7 @@ export const sendResetPasswordLinkEmailService = async ({
   url: string
 }) => {
   const t = await getTranslations('email.user.resetPassword')
-  const fromEmail = process.env.EMAIL_FROM ?? 'onboarding@resend.dev'
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
 
   await sendEmailService({
     to: email,

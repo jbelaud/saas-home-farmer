@@ -13,6 +13,7 @@ export const AuthMethodSchema = z.enum([
   'magiclink',
   'google',
   'apple',
+  'github',
 ])
 export type AuthMethod = z.infer<typeof AuthMethodSchema>
 

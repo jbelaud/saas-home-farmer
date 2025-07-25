@@ -41,7 +41,9 @@ Le service d'envoi d'email est défini dans [email-service.ts](mdc:src/services/
 ### Utilisation de Resend
 
 ```tsx
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { env } from '@/env'
+
+const resend = new Resend(env.RESEND_API_KEY)
 
 export const sendEmailService = async (
   payload: CreateEmailOptions,
@@ -57,7 +59,7 @@ export const sendEmailService = async (
 await sendEmailService({
   to: email,
   subject: 'Sujet de l\'email',
-  from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
+  from: env.EMAIL_FROM ?? 'onboarding@resend.dev',
   text: 'Version texte de l\'email',
   react: MonTemplateReact({
     // Props du template
@@ -99,7 +101,7 @@ export const sendCustomEmail = async ({
   await sendEmailService({
     to: email,
     subject: 'Sujet',
-    from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
+    from: env.EMAIL_FROM ?? 'onboarding@resend.dev',
     text: 'Version texte',
     react: MonTemplateReact({
       // Props
