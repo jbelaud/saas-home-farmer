@@ -139,7 +139,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: z.string().url(),
 
     // Tailwind
-    NEXT_PUBLIC_NEXT_PUBLIC_MAX_FILE_SIZE: z
+    NEXT_PUBLIC_MAX_FILE_SIZE: z
       .string()
       .transform((val) => Number(val))
       .default('5242880'),
@@ -222,8 +222,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
 
     // Variables client
-    NEXT_PUBLIC_NEXT_PUBLIC_MAX_FILE_SIZE:
-      process.env.NEXT_PUBLIC_NEXT_PUBLIC_MAX_FILE_SIZE,
+    NEXT_PUBLIC_MAX_FILE_SIZE: process.env.NEXT_PUBLIC_MAX_FILE_SIZE,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
