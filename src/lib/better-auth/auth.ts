@@ -273,7 +273,7 @@ const options = {
       onEvent: onStripeEvent,
     }),
   ],
-  trustedOrigins: ['http://localhost:3000'],
+  trustedOrigins: env.BETTER_AUTH_TRUSTED_ORIGINS,
   hooks: {
     after: createAuthRedirectMiddleware(),
   },

@@ -76,6 +76,20 @@ export const EnabledPagesSchema = z
   )
   .pipe(z.array(EnabledPageSchema))
 
+// Trusted Origins Schema
+export const TrustedOriginsSchema = z
+  .string()
+  .optional()
+  .transform((val) =>
+    val
+      ? val
+          .split(',')
+          .map((origin) => origin.trim())
+          .filter(Boolean)
+      : ['http://localhost:3000']
+  )
+  .pipe(z.array(z.string().url()))
+
 // Types de checkout Stripe disponibles
 
 export const env = createEnv({
@@ -90,6 +104,7 @@ export const env = createEnv({
     // Authentification
     BETTER_AUTH_SECRET: z.string().min(1),
     BETTER_AUTH_URL: z.string().url(),
+    BETTER_AUTH_TRUSTED_ORIGINS: TrustedOriginsSchema,
 
     // Email
     RESEND_API_KEY: z.string().min(1),
@@ -202,6 +217,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+    BETTER_AUTH_TRUSTED_ORIGINS: process.env.BETTER_AUTH_TRUSTED_ORIGINS,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM,
     EMAIL_TO: process.env.EMAIL_TO,
