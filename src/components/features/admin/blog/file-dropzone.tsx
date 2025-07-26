@@ -118,8 +118,34 @@ export function FileDropzone({
   React.useEffect(() => {
     if (defaultFiles && defaultFiles.length > 0) {
       setFiles((prevFiles) => {
-        const defaultFileNames = new Set(defaultFiles.map((file) => file.name))
-        return prevFiles.filter((file) => !defaultFileNames.has(file.name))
+        // Créer une map des fichiers serveur par taille et type pour la correspondance
+        const serverFileMap = new Map()
+        defaultFiles.forEach((serverFile) => {
+          const key = `${serverFile.size}-${serverFile.type}`
+          serverFileMap.set(key, serverFile)
+        })
+
+        // Filtrer les fichiers locaux qui ont une correspondance sur le serveur
+        return prevFiles.filter((localFile) => {
+          const localKey = `${localFile.size}-${localFile.type}`
+          const hasServerMatch = serverFileMap.has(localKey)
+
+          // Si on trouve une correspondance, supprimer le fichier local
+          if (hasServerMatch) {
+            // Nettoyer l'URL de preview
+            if (localFile.preview) {
+              URL.revokeObjectURL(localFile.preview)
+            }
+            // Supprimer du uploadProgress
+            setUploadProgress((prev) => {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const {[localFile.name]: _, ...rest} = prev
+              return rest
+            })
+            return false // Supprimer ce fichier local
+          }
+          return true // Garder ce fichier local
+        })
       })
     }
   }, [defaultFiles])
