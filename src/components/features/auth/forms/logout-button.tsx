@@ -4,9 +4,9 @@ import {useRouter} from 'next/navigation'
 import {useTranslations} from 'next-intl'
 import {useState} from 'react'
 
-//import {logoutAction} from '@/app/[locale]/(auth)/action'
+import {logoutAction} from '@/app/[locale]/(auth)/action'
 import {Button} from '@/components/ui/button'
-import {authClient} from '@/lib/better-auth/auth-client'
+//import {authClient} from '@/lib/better-auth/auth-client'
 
 export default function LogoutButton() {
   const t = useTranslations('Auth.LogoutForm')
@@ -15,10 +15,12 @@ export default function LogoutButton() {
 
   const handleClick = async () => {
     setPending(true)
-    // await logoutAction()
-    await authClient.signOut()
-    setPending(false)
+
+    await logoutAction()
+    //authClient.signOut() // bug with safari
     router.push('/login/')
+
+    setPending(false)
   }
 
   return (
