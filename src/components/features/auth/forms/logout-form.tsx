@@ -24,7 +24,7 @@ export default async function Logout() {
   const t = await getTranslations('Auth.LogoutForm')
 
   return (
-    <Card className="mx-auto min-w-xl">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle className="text-2xl">{t('title')}</CardTitle>
         <CardDescription>
