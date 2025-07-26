@@ -2,6 +2,8 @@ import Link from 'next/link'
 import {getTranslations, setRequestLocale} from 'next-intl/server'
 import {PropsWithChildren} from 'react'
 
+import {PublicMobileMenu} from '@/components/features/layouts/public-mobile-menu'
+import {LangToggle} from '@/components/lang-toggle'
 import {ModeToggle} from '@/components/theme-toggle'
 import {Button} from '@/components/ui/button'
 import {PagesConst} from '@/env'
@@ -38,21 +40,21 @@ export default function PublicLayout({children}: PropsWithChildren) {
                 <span>Home</span>
               </Link>
               <Link
-                className="flex items-center space-x-2 font-bold"
+                className="hidden items-center space-x-2 font-bold sm:flex"
                 href="/privacy"
               >
                 <span>Privacy</span>
               </Link>
 
               <Link
-                className="flex items-center space-x-2 font-bold"
+                className="hidden items-center space-x-2 font-bold sm:flex"
                 href="/terms"
               >
                 <span>Terms</span>
               </Link>
               {isPageEnabled(PagesConst.DOCS) && (
                 <Link
-                  className="flex items-center space-x-2 font-bold"
+                  className="hidden items-center space-x-2 font-bold sm:flex"
                   href="/docs"
                 >
                   <span>Docs</span>
@@ -60,21 +62,24 @@ export default function PublicLayout({children}: PropsWithChildren) {
               )}
               {isPageEnabled(PagesConst.BLOG) && (
                 <Link
-                  className="flex items-center space-x-2 font-bold"
+                  className="hidden items-center space-x-2 font-bold sm:flex"
                   href="/blog"
                 >
                   <span>Blog</span>
                 </Link>
               )}
-
-              <div className="hidden items-center space-x-2 md:flex"></div>
             </div>
 
             <div className="flex flex-1 items-center justify-end space-x-2">
               <div className="flex items-center gap-2">
-                <Button asChild>
+                <LangToggle />
+                <Button asChild className="hidden sm:flex">
                   <Link href="/login">Connexion</Link>
                 </Button>
+                <div className="sm:hidden">
+                  <PublicMobileMenu />
+                </div>
+
                 <ModeToggle />
               </div>
             </div>
