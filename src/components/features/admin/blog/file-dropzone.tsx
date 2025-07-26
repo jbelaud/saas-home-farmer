@@ -154,9 +154,9 @@ export function FileDropzone({
 
       {files.length > 0 && (
         <div className="space-y-2">
-          {files.map((file) => (
+          {files.map((file, id) => (
             <div
-              key={file.name}
+              key={id}
               className="flex items-center gap-4 rounded-lg border p-4"
             >
               <File className="h-8 w-8 shrink-0 text-blue-500" />

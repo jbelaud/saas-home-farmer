@@ -42,7 +42,8 @@ const generateFilePath = (
   entityId: string,
   file: File
 ): string => {
-  return `${entityType}s/${entityId}/${file.name}`
+  const timestamp = `${Date.now()}`.slice(5, 10)
+  return `${entityType}s/${entityId}/${timestamp}-${file.name}`
 }
 
 const getFileUrl = (path: string) => {

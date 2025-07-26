@@ -55,7 +55,9 @@ export default async function Home({
             height={32}
             priority
           />
-          <span className="text-xl font-bold tracking-tight">{APP_NAME}</span>
+          <span className="hidden text-xl font-bold tracking-tight sm:inline">
+            {APP_NAME}
+          </span>
         </div>
         <nav className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 gap-8 text-sm font-medium md:flex">
           <Link href="#features" className="hover:text-primary transition">

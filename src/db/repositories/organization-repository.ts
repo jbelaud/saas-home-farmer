@@ -14,6 +14,7 @@ import {
   OrganizationRoleEnumModel,
   UpdateOrganizationModel,
 } from '@/db/models/organization-model'
+import {generateSlug} from '@/lib/helper/common-helper'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 import {
   Invitation,
@@ -30,9 +31,6 @@ import {UserModel} from '../models/user-model'
  */
 export const generateUniqueSlug = async (name: string): Promise<string> => {
   // Fonction pour générer un slug à partir d'un nom
-  const generateSlug = (baseName: string): string => {
-    return `${baseName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Math.random().toString(36).substring(2, 6)}`
-  }
 
   // Générer le premier slug
   let slug = generateSlug(name)

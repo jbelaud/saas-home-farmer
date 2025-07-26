@@ -23,11 +23,10 @@ export const createSupabaseStorage = (
       })
 
     if (error) {
-      console.error('upload error', file, path)
       logger.error('Upload error:', error.message)
       throw FileErrors.UPLOAD_FAILED(error.message)
     }
-    console.error('upload success', file, path)
+
     return {path: data.path}
   }
 
