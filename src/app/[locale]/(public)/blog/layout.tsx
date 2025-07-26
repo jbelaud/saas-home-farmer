@@ -1,3 +1,4 @@
+import {Eye, FileText, FolderOpen, PenTool, Shield, User} from 'lucide-react'
 import Link from 'next/link'
 import {notFound} from 'next/navigation'
 import {getTranslations} from 'next-intl/server'
@@ -83,15 +84,17 @@ export default async function BlogLayout({
               <CardContent className="space-y-2">
                 <Link
                   href="/blog"
-                  className="text-muted-foreground hover:text-foreground block py-1 transition-colors"
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-2 py-1 transition-colors"
                 >
-                  📄 {t('navigation.allArticles')}
+                  <FileText className="h-4 w-4" />
+                  {t('navigation.allArticles')}
                 </Link>
                 <Link
                   href="/blog/mdx"
-                  className="text-muted-foreground hover:text-foreground block py-1 transition-colors"
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-2 py-1 transition-colors"
                 >
-                  📝 {t('navigation.mdxArticles')}
+                  <PenTool className="h-4 w-4" />
+                  {t('navigation.mdxArticles')}
                 </Link>
                 <Separator className="my-3" />
                 <Link
@@ -119,7 +122,7 @@ export default async function BlogLayout({
                       className="text-muted-foreground hover:text-foreground group flex items-center justify-between transition-colors"
                     >
                       <span className="flex items-center gap-2">
-                        <span className="text-lg">{category.icon || '📂'}</span>
+                        <FolderOpen className="h-4 w-4" />
                         <span className="group-hover:underline">
                           {category.name}
                         </span>
@@ -152,8 +155,9 @@ export default async function BlogLayout({
                         >
                           {post.title}
                         </Link>
-                        <p className="text-muted-foreground mt-1 text-xs">
-                          👁️ {post.views.toLocaleString()} {t('popular.views')}
+                        <p className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
+                          <Eye className="h-3 w-3" />
+                          {post.views.toLocaleString()} {t('popular.views')}
                         </p>
                       </div>
                     </div>
@@ -211,8 +215,9 @@ export default async function BlogLayout({
                     {t('newsletter.subscribe')}
                   </button>
                 </div>
-                <p className="text-muted-foreground text-xs">
-                  📊 {t('newsletter.privacy')}
+                <p className="text-muted-foreground flex items-center gap-1 text-xs">
+                  <Shield className="h-3 w-3" />
+                  {t('newsletter.privacy')}
                 </p>
               </CardContent>
             </Card>
@@ -224,26 +229,30 @@ export default async function BlogLayout({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">
-                    📊 {t('stats.articles')}
+                  <span className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <FileText className="h-4 w-4" />
+                    {t('stats.articles')}
                   </span>
                   <span className="font-medium">47</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">
-                    👤 {t('stats.authors')}
+                  <span className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <User className="h-4 w-4" />
+                    {t('stats.authors')}
                   </span>
                   <span className="font-medium">12</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">
-                    📊 {t('stats.categories')}
+                  <span className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <FolderOpen className="h-4 w-4" />
+                    {t('stats.categories')}
                   </span>
                   <span className="font-medium">{categories.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">
-                    👁️ {t('stats.totalViews')}
+                  <span className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <Eye className="h-4 w-4" />
+                    {t('stats.totalViews')}
                   </span>
                   <span className="font-medium">15.2k</span>
                 </div>

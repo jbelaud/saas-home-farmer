@@ -4,7 +4,9 @@ import {PropsWithChildren} from 'react'
 
 import {ModeToggle} from '@/components/theme-toggle'
 import {Button} from '@/components/ui/button'
+import {PagesConst} from '@/env'
 import {routing} from '@/i18n/routing'
+import {isPageEnabled} from '@/lib/utils'
 
 export async function generateMetadata({
   params,
@@ -48,18 +50,22 @@ export default function PublicLayout({children}: PropsWithChildren) {
               >
                 <span>Terms</span>
               </Link>
-              <Link
-                className="flex items-center space-x-2 font-bold"
-                href="/docs"
-              >
-                <span>Docs</span>
-              </Link>
-              <Link
-                className="flex items-center space-x-2 font-bold"
-                href="/blog"
-              >
-                <span>Blog</span>
-              </Link>
+              {isPageEnabled(PagesConst.DOCS) && (
+                <Link
+                  className="flex items-center space-x-2 font-bold"
+                  href="/docs"
+                >
+                  <span>Docs</span>
+                </Link>
+              )}
+              {isPageEnabled(PagesConst.BLOG) && (
+                <Link
+                  className="flex items-center space-x-2 font-bold"
+                  href="/blog"
+                >
+                  <span>Blog</span>
+                </Link>
+              )}
 
               <div className="hidden items-center space-x-2 md:flex"></div>
             </div>
