@@ -7,7 +7,7 @@ import {Card, CardContent, CardFooter, CardHeader, CardTitle} from './ui/card'
 export default function NotFoundComponent() {
   const t = useTranslations('NotFoundPage')
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center">
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <Card className="mx-auto w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center text-6xl font-bold">404</CardTitle>
