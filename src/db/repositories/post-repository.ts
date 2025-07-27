@@ -667,13 +667,6 @@ export const getPostStatsDao = async (): Promise<{
   return stats
 }
 
-export const incrementPostViewDao = async (postId: string): Promise<void> => {
-  await db
-    .update(posts)
-    .set({nbView: sql`${posts.nbView} + 1`})
-    .where(eq(posts.id, postId))
-}
-
 export const incrementPostLikeDao = async (postId: string): Promise<void> => {
   await db
     .update(posts)
@@ -685,6 +678,13 @@ export const decrementPostLikeDao = async (postId: string): Promise<void> => {
   await db
     .update(posts)
     .set({nbLike: sql`${posts.nbLike} - 1`})
+    .where(eq(posts.id, postId))
+}
+
+export const incrementPostViewDao = async (postId: string): Promise<void> => {
+  await db
+    .update(posts)
+    .set({nbView: sql`${posts.nbView} + 1`})
     .where(eq(posts.id, postId))
 }
 

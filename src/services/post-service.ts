@@ -862,6 +862,35 @@ export const likePostService = async (postId: string) => {
   return await getPostByIdDao(parsed.data)
 }
 
+/**
+ * Incrémenter les vues d'un post
+ */
+export const incrementViewPostService = async (postId: string) => {
+  // Validation
+  const parsed = postUuidSchema.safeParse(postId)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  // Vérifier que le post existe et est lisible
+  const granted = await canReadPost(parsed.data)
+  if (!granted) {
+    throw new AuthorizationError()
+  }
+
+  const post = await getPostByIdDao(parsed.data)
+  if (!post) {
+    throw new NotFoundError('Post non trouvé')
+  }
+
+  // Incrémenter les vues (seulement pour les posts publiés)
+  if (post.status === POST_STATUS.PUBLISHED) {
+    await incrementPostViewDao(parsed.data)
+  }
+
+  return await getPostByIdDao(parsed.data)
+}
+
 // ===== SERVICES BULK OPERATIONS =====
 
 /**
@@ -1038,7 +1067,7 @@ export const getPublishedPostBySlugAndLanguageService = async (
   }
 
   // Incrémenter les vues pour les posts publiés
-  await incrementPostViewDao(post.id)
+  // await incrementPostViewDao(post.id) //Fait coté client
 
   return post
 }

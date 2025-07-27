@@ -10,12 +10,9 @@ export const getPostBySlugAndLanguageService =
 export const updatePostService = postServiceInterceptor.updatePostService
 export const deletePostService = postServiceInterceptor.deletePostService
 
-// ===== ACTIONS POSTS =====
 export const publishPostService = postServiceInterceptor.publishPostService
 export const unpublishPostService = postServiceInterceptor.unpublishPostService
 export const archivePostService = postServiceInterceptor.archivePostService
-
-// ===== CRUD POST TRANSLATIONS =====
 export const createPostTranslationService =
   postServiceInterceptor.createPostTranslationService
 export const getPostTranslationByIdService =
@@ -59,6 +56,8 @@ export const generateSlugService = postServiceInterceptor.generateSlugService
 
 // ===== SERVICES D'INTERACTION =====
 export const likePostService = postServiceInterceptor.likePostService
+export const incrementViewPostService =
+  postServiceInterceptor.incrementViewPostService
 
 // ===== SERVICES BULK OPERATIONS =====
 export const bulkUpdatePostsService =

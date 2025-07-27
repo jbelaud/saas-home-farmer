@@ -6,6 +6,7 @@ import {MDXRemote} from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 
 import {getPublishedPostBySlugAndLanguageDal} from '@/app/dal/post-dal'
+import {LikeButton} from '@/components/features/blog/like-button'
 import {mdxComponents} from '@/components/mdx-components'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
@@ -114,8 +115,9 @@ export default async function BlogPostPage({
               {formatDate(post.createdAt || null)}
             </span>
             <span className="text-muted-foreground text-sm">
-              {post.nbView || 0} vues • {post.nbLike || 0} likes
+              {post.nbView || 0} vues
             </span>
+            <LikeButton postId={post.id} initialLikes={post.nbLike || 0} />
           </div>
 
           <h1 className="text-foreground mb-6 text-4xl leading-tight font-bold">
