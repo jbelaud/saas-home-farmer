@@ -132,7 +132,7 @@ export default function UsersManagement({
           <TableBody>
             {initialUsers.map((user) => (
               <TableRow key={user.id}>
-                <TableCell className="flex items-center gap-2">
+                <TableCell className="flex w-auto min-w-0 items-center gap-2">
                   <Avatar className="size-8">
                     <AvatarImage src={user.image || ''} alt={user.name} />
                     <AvatarFallback>
@@ -149,7 +149,9 @@ export default function UsersManagement({
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>{user.email}</TableCell>
+                <TableCell className="w-28 min-w-0 break-all md:w-auto">
+                  {user.email}
+                </TableCell>
                 <TableCell className="hidden lg:table-cell">
                   <Badge variant="outline">
                     {getUserRoleDisplay(user.role)}
