@@ -210,11 +210,12 @@ export function PostsManagement({
             <TableHeader>
               <TableRow>
                 <TableHead className="hidden">ID</TableHead>
+                <TableHead>Titre</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead className="hidden md:table-cell">
                   Catégorie
                 </TableHead>
-                <TableHead>Auteur</TableHead>
+                <TableHead className="hidden lg:table-cell">Auteur</TableHead>
                 <TableHead className="hidden lg:table-cell">Vues</TableHead>
                 <TableHead className="hidden lg:table-cell">Likes</TableHead>
                 <TableHead className="hidden md:table-cell">Créé le</TableHead>
@@ -227,12 +228,25 @@ export function PostsManagement({
                   <TableCell className="hidden font-mono text-xs">
                     {post.id.slice(0, 8)}...
                   </TableCell>
+                  <TableCell className="max-w-48 min-w-0">
+                    <button
+                      onClick={() => router.push(`/admin/blog/${post.id}/edit`)}
+                      className="hover:text-primary block w-full cursor-pointer text-left font-medium break-words hover:underline md:truncate"
+                    >
+                      {post.postTranslations?.find((t) => t.language === 'fr')
+                        ?.title ||
+                        post.postTranslations?.[0]?.title ||
+                        'Sans titre'}
+                    </button>
+                  </TableCell>
                   <TableCell>{getStatusBadge(post.status)}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     {categories.find((c) => c.id === post.categoryId)?.name ||
                       '-'}
                   </TableCell>
-                  <TableCell>{post.author?.name || 'Inconnu'}</TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {post.author?.name || 'Inconnu'}
+                  </TableCell>
                   <TableCell className="hidden lg:table-cell">
                     <div className="flex items-center gap-1">
                       <Eye className="text-muted-foreground h-4 w-4" />
@@ -286,7 +300,7 @@ export function PostsManagement({
               ))}
               {initialPosts.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="py-8 text-center">
+                  <TableCell colSpan={5} className="py-8 text-center">
                     Aucun post trouvé
                   </TableCell>
                 </TableRow>

@@ -37,7 +37,7 @@ export default async function EditPostPage({params}: PageProps) {
   ])
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto px-2 py-8 md:px-4">
       <div className="mx-auto max-w-4xl space-y-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
