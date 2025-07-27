@@ -15,6 +15,7 @@ import {
 } from './authorization-service'
 import {ActionsConst, SubjectsConst} from './casl-abilities'
 import {checkSubscriptionLimit} from './subscription-authorization'
+import {isAuthAdmin} from './user-authorization'
 
 /**
  * Système d'autorisation pour les organisations avec contexte organisationnel
@@ -219,8 +220,12 @@ export const canInviteToOrganization = async (
   resourceId: string,
   requestedAmount: number = 1
 ): Promise<boolean> => {
+  const isAdmin = await isAuthAdmin()
+  if (isAdmin) return true
+
   // 1️⃣ Vérification des permissions (rôle dans l'organisation)
   const hasPermission = await canManageOrganizationMembers(resourceId)
+
   if (!hasPermission) return false
 
   // 2️⃣ Vérification des limites d'abonnement
@@ -402,7 +407,11 @@ export const canManageOrganizationSubscriptions = async (
     orgContext
   )
 }
-
+/**
+ * Vérifie si l'utilisateur connecté peut inviter des membres dans une organisation (basé sur ReferenceId)
+ * @param requestedAmount - Nombre de membres à inviter (défaut: 1)
+ * @returns true si l'accès est autorisé
+ */
 export const checkMembersLimit = async (requestedAmount: number = 1) => {
   const limitCheck = await checkSubscriptionLimit(
     LimitTypeConst.USERS,

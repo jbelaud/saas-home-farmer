@@ -202,7 +202,7 @@ export async function searchUsersForOrganizationAction(
   if (!query || query.length < 2) return []
   const users = await searchUsersService(query, organizationId)
   // On retourne seulement les infos nécessaires pour l'autocomplete
-  console.log('users', users)
+
   return users.map((u: User) => ({
     id: u.id,
     name: u.name,
