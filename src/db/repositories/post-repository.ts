@@ -401,8 +401,32 @@ export const getPostsWithTranslationsAndPaginationDao = async (
   if (filters?.categoryId) {
     whereConditions.push(eq(posts.categoryId, filters.categoryId))
   }
+
+  // Pour la recherche par titre, on doit utiliser un JOIN
   if (filters?.title) {
-    whereConditions.push(ilike(postsTranslation.title, `%${filters.title}%`))
+    const postsWithTitle = await db
+      .select({postId: postsTranslation.postId})
+      .from(postsTranslation)
+      .where(ilike(postsTranslation.title, `%${filters.title}%`))
+
+    const postIds = postsWithTitle.map((p) => p.postId)
+    if (postIds.length > 0) {
+      whereConditions.push(inArray(posts.id, postIds))
+    } else {
+      // Si aucun post trouvé par titre, retourner vide
+      return {
+        data: [],
+        pagination: {
+          total: 0,
+          page: Math.max(
+            1,
+            Math.ceil(pagination.offset / pagination.limit) + 1
+          ),
+          limit: pagination.limit,
+          totalPages: 0,
+        },
+      }
+    }
   }
 
   const whereClause =
