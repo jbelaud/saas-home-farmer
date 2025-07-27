@@ -1,5 +1,6 @@
 import 'server-only'
 
+import {unstable_cache} from 'next/cache'
 import {cache} from 'react'
 
 import {getAuthUser} from '@/services/authentication/auth-service'
@@ -12,7 +13,6 @@ import {
   getAllCategoriesPublicService,
   getAllHashtagsService,
   getPostBySlugAndLanguageService,
-  getPostsWithPaginationService,
   getPostsWithTranslationsAndPaginationService,
   getPublishedPostBySlugAndLanguageService,
   getPublishedPostsWithTranslationsService,
@@ -23,7 +23,6 @@ import {
   Hashtag,
   PostData,
   PostFilters,
-  PostModel,
   SupportedLanguage,
 } from '@/services/types/domain/post-types'
 
@@ -86,11 +85,18 @@ export const getPostsWithTranslationsAndPaginationDal = cache(
 )
 
 /**
- * Récupérer toutes les catégories (avec cache)
+ * Récupérer toutes les catégories (avec cache Next.js)
  */
-export const getAllCategoriesDal = cache(async (): Promise<CategoryDTO[]> => {
-  return await getAllCategoriesPublicService()
-})
+export const getAllCategoriesDal = unstable_cache(
+  async (): Promise<CategoryDTO[]> => {
+    return await getAllCategoriesPublicService()
+  },
+  ['all-categories'],
+  {
+    tags: ['categories'],
+    revalidate: 3600, // Cache pendant 1 heure
+  }
+)
 
 /**
  * Récupérer tous les hashtags (avec cache)
