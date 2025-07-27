@@ -137,6 +137,9 @@ describe('[ADMIN] CRUD : Post Service', () => {
     slug: 'mon-premier-post',
     content: '# Mon Premier Post\n\nContenu du post...',
     description: 'Description du post',
+    metaTitle: 'Mon Premier Post',
+    metaDescription: 'Description du post',
+    metaKeywords: 'Mon Premier Post, Description du post',
   }
 
   const notificationData: NotificationModel = {
