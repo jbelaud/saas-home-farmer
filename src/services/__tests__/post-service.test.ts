@@ -32,6 +32,7 @@ import {
   getHashtagByNameDao,
   getPostByIdDao,
   getPostByIdWithRelationsDao,
+  getPostByIdWithTranslationsDao,
   getPostBySlugAndLanguageDao,
   getPostsByCategoryIdDao,
   getPostTranslationByPostIdAndLanguageDao,
@@ -154,6 +155,9 @@ describe('[ADMIN] CRUD : Post Service', () => {
     vi.mocked(createPostDao).mockResolvedValue(postData)
     vi.mocked(getPostByIdDao).mockResolvedValue(postData)
     vi.mocked(getPostByIdWithRelationsDao).mockResolvedValue(
+      postWithRelationsData
+    )
+    vi.mocked(getPostByIdWithTranslationsDao).mockResolvedValue(
       postWithRelationsData
     )
     vi.mocked(updatePostByIdDao).mockResolvedValue()
@@ -299,10 +303,13 @@ describe('[ADMIN] CRUD : Post Service', () => {
         ...postData,
         status: POST_STATUS.PUBLISHED,
       })
+      vi.mocked(getPostByIdWithTranslationsDao).mockResolvedValueOnce(
+        postWithRelationsData
+      )
 
       const result = await likePostService(postId)
 
-      expect(result).toEqual(postData)
+      expect(result).toEqual(postWithRelationsData)
     })
 
     it('should throw ValidationError for invalid post ID', async () => {
