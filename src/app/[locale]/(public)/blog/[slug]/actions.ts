@@ -20,8 +20,17 @@ const rateViewLimiter = new RateLimiterMemory({
 export async function incrementLikePostById(postId: string) {
   try {
     await rateLikeLimiter.consume(postId) // consume 1 point per id
-    await likePostService(postId)
-    revalidatePath('/blog/[slug]', 'page')
+    const result = await likePostService(postId)
+
+    // Revalider toutes les traductions du post
+    if (result?.postTranslations) {
+      result.postTranslations.forEach((translation) => {
+        if (translation.slug) {
+          revalidatePath(`/blog/${translation.slug}`)
+        }
+      })
+    }
+
     return {
       success: true,
     }
@@ -43,9 +52,16 @@ export async function incrementLikePostById(postId: string) {
 export async function incrementViewPostById(postId: string) {
   try {
     await rateViewLimiter.consume(postId) // consume 1 point per id
-    await incrementViewPostService(postId)
-    revalidatePath('/blog/[slug]', 'page')
+    const result = await incrementViewPostService(postId)
 
+    // Revalider toutes les traductions du post
+    if (result?.postTranslations) {
+      result.postTranslations.forEach((translation) => {
+        if (translation.slug) {
+          revalidatePath(`/blog/${translation.slug}`)
+        }
+      })
+    }
     return {
       success: true,
     }

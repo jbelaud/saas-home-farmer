@@ -45,6 +45,18 @@ export const getPostByIdDao = async (
   return row
 }
 
+export const getPostByIdWithTranslationsDao = async (
+  postId: string
+): Promise<PostData | undefined> => {
+  const row = await db.query.posts.findFirst({
+    where: (post, {eq}) => eq(post.id, postId),
+    with: {
+      postTranslations: true,
+    },
+  })
+  return row
+}
+
 export const getPostByIdWithRelationsDao = async (
   postId: string
 ): Promise<PostData | undefined> => {

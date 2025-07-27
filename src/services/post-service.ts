@@ -16,6 +16,7 @@ import {
   getHashtagByNameDao,
   getPostByIdDao,
   getPostByIdWithRelationsDao,
+  getPostByIdWithTranslationsDao,
   getPostBySlugAndLanguageDao,
   getPostsByCategoryIdDao,
   getPostStatsDao,
@@ -859,7 +860,7 @@ export const likePostService = async (postId: string) => {
     await incrementPostLikeDao(parsed.data)
   }
 
-  return await getPostByIdDao(parsed.data)
+  return await getPostByIdWithTranslationsDao(parsed.data)
 }
 
 /**
@@ -888,7 +889,7 @@ export const incrementViewPostService = async (postId: string) => {
     await incrementPostViewDao(parsed.data)
   }
 
-  return await getPostByIdDao(parsed.data)
+  return await getPostByIdWithTranslationsDao(parsed.data)
 }
 
 // ===== SERVICES BULK OPERATIONS =====
