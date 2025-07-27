@@ -36,6 +36,8 @@ import {
   getPostBySlugAndLanguageDao,
   getPostsByCategoryIdDao,
   getPostTranslationByPostIdAndLanguageDao,
+  incrementPostLikeDao,
+  incrementPostViewDao,
   updateCategoryByIdDao,
   updateHashtagByIdDao,
   updatePostByIdDao,
@@ -58,6 +60,7 @@ import {
   getPostByIdService,
   getPostByIdWithRelationsService,
   getPostBySlugAndLanguageService,
+  incrementViewPostService,
   likePostService,
   publishPostService,
   unpublishPostService,
@@ -165,6 +168,8 @@ describe('[ADMIN] CRUD : Post Service', () => {
     vi.mocked(getPostBySlugAndLanguageDao).mockResolvedValue(
       postWithRelationsData
     )
+    vi.mocked(incrementPostLikeDao).mockResolvedValue()
+    vi.mocked(incrementPostViewDao).mockResolvedValue()
 
     // Mock des méthodes DAO pour les catégories
     vi.mocked(createCategoryDao).mockResolvedValue(categoryData)
@@ -308,6 +313,20 @@ describe('[ADMIN] CRUD : Post Service', () => {
       )
 
       const result = await likePostService(postId)
+
+      expect(result).toEqual(postWithRelationsData)
+    })
+
+    it('should increment views of a post', async () => {
+      vi.mocked(getPostByIdDao).mockResolvedValueOnce({
+        ...postData,
+        status: POST_STATUS.PUBLISHED,
+      })
+      vi.mocked(getPostByIdWithTranslationsDao).mockResolvedValueOnce(
+        postWithRelationsData
+      )
+
+      const result = await incrementViewPostService(postId)
 
       expect(result).toEqual(postWithRelationsData)
     })
