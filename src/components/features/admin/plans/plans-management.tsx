@@ -115,7 +115,7 @@ export default function PlansManagement({
             {initialPlans.map((plan) => (
               <TableRow key={plan.id}>
                 <TableCell className="flex items-center gap-2">
-                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                  <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
                     <span className="text-sm font-medium">
                       {plan.planName?.charAt(0).toUpperCase() || 'P'}
                     </span>
