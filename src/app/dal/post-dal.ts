@@ -44,7 +44,7 @@ export const getPostsWithPaginationDal = cache(
     pagination: Pagination,
     filters?: PostFilters
   ): Promise<{
-    data: PostModel[]
+    data: PostData[]
     pagination: {
       total: number
       page: number
@@ -52,7 +52,11 @@ export const getPostsWithPaginationDal = cache(
       totalPages: number
     }
   }> => {
-    return await getPostsWithPaginationService(pagination, filters)
+    return await getPostsWithTranslationsAndPaginationService(
+      pagination,
+      'fr',
+      filters
+    )
   }
 )
 

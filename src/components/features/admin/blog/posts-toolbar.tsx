@@ -74,9 +74,9 @@ export function PostsToolbar({
 
   return (
     <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         {/* Recherche */}
-        <div className="relative flex w-[250px] items-center">
+        <div className="relative flex w-full items-center sm:w-[250px]">
           <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
           <Input
             placeholder="Rechercher dans les titres..."
@@ -101,7 +101,7 @@ export function PostsToolbar({
           value={initialStatus || 'all'}
           onValueChange={handleStatusChange}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue placeholder="Statut" />
           </SelectTrigger>
           <SelectContent>
@@ -117,7 +117,7 @@ export function PostsToolbar({
           value={initialCategory || 'all'}
           onValueChange={handleCategoryChange}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue placeholder="Catégorie" />
           </SelectTrigger>
           <SelectContent>
@@ -130,7 +130,7 @@ export function PostsToolbar({
           </SelectContent>
         </Select>
 
-        <span className="text-muted-foreground text-sm">
+        <span className="text-muted-foreground text-sm sm:whitespace-nowrap">
           {totalItems} post{totalItems > 1 ? 's' : ''} trouvé
           {totalItems > 1 ? 's' : ''}
         </span>

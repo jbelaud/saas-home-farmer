@@ -29,7 +29,7 @@ import {
 import {
   CategoryDTO,
   POST_STATUS,
-  PostModel,
+  PostData,
 } from '@/services/types/domain/post-types'
 
 import {DeletePostDialog} from './delete-post-dialog'
@@ -38,7 +38,7 @@ import {PostsPagination} from './posts-pagination'
 import {PostsToolbar} from './posts-toolbar'
 
 interface PostsManagementProps {
-  initialPosts: PostModel[]
+  initialPosts: PostData[]
   currentPage: number
   pageSize: number
   totalItems: number
@@ -167,8 +167,8 @@ export function PostsManagement({
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
+    <div className="flex-1 space-y-4 py-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">
             Gestion des Posts
@@ -178,7 +178,10 @@ export function PostsManagement({
           </p>
         </div>
         {permissions.canCreate && (
-          <Button onClick={() => router.push('/admin/blog/new')}>
+          <Button
+            onClick={() => router.push('/admin/blog/new')}
+            className="w-fit"
+          >
             <Plus className="mr-2 h-4 w-4" />
             Nouveau post
           </Button>
@@ -206,41 +209,45 @@ export function PostsManagement({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
+                <TableHead className="hidden">ID</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead>Catégorie</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Catégorie
+                </TableHead>
                 <TableHead>Auteur</TableHead>
-                <TableHead>Vues</TableHead>
-                <TableHead>Likes</TableHead>
-                <TableHead>Créé le</TableHead>
+                <TableHead className="hidden lg:table-cell">Vues</TableHead>
+                <TableHead className="hidden lg:table-cell">Likes</TableHead>
+                <TableHead className="hidden md:table-cell">Créé le</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {initialPosts.map((post) => (
                 <TableRow key={post.id}>
-                  <TableCell className="font-mono text-xs">
+                  <TableCell className="hidden font-mono text-xs">
                     {post.id.slice(0, 8)}...
                   </TableCell>
                   <TableCell>{getStatusBadge(post.status)}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {categories.find((c) => c.id === post.categoryId)?.name ||
                       '-'}
                   </TableCell>
-                  <TableCell>{post.authorId?.slice(0, 8) || '-'}...</TableCell>
-                  <TableCell>
+                  <TableCell>{post.author?.name || 'Inconnu'}</TableCell>
+                  <TableCell className="hidden lg:table-cell">
                     <div className="flex items-center gap-1">
                       <Eye className="text-muted-foreground h-4 w-4" />
                       {post.nbView || 0}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden lg:table-cell">
                     <div className="flex items-center gap-1">
                       <FileText className="text-muted-foreground h-4 w-4" />
                       {post.nbLike || 0}
                     </div>
                   </TableCell>
-                  <TableCell>{formatDate(post.createdAt)}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {formatDate(post.createdAt)}
+                  </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -279,7 +286,7 @@ export function PostsManagement({
               ))}
               {initialPosts.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-8 text-center">
+                  <TableCell colSpan={4} className="py-8 text-center">
                     Aucun post trouvé
                   </TableCell>
                 </TableRow>

@@ -21,7 +21,7 @@ export default async function AdminBlogPage({
   const suspenseKey = `page=${params.page || '1'}-limit=${params.limit || '10'}-search=${params.search || ''}-status=${params.status || ''}-categoryId=${params.categoryId || ''}`
 
   return (
-    <div className="bg-background">
+    <div className="bg-background px-2 md:px-4">
       <Suspense key={suspenseKey} fallback={<PostsSkeleton />}>
         <PostsContent searchParams={searchParams} />
       </Suspense>
