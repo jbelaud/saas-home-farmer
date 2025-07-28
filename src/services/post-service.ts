@@ -10,6 +10,7 @@ import {
   deletePostTranslationByIdDao,
   getAllCategoriesDao,
   getAllHashtagsDao,
+  getAllPublishedPostSlugsDao,
   getCategoryByIdDao,
   getCategoryByNameDao,
   getHashtagByIdDao,
@@ -25,6 +26,7 @@ import {
   getPostTranslationByIdDao,
   getPostTranslationByPostIdAndLanguageDao,
   getPostTranslationsByPostIdDao,
+  getPublishedPostBySlugDao,
   incrementPostLikeDao,
   incrementPostViewDao,
   updateCategoryByIdDao,
@@ -1064,6 +1066,37 @@ export const getPublishedPostBySlugAndLanguageService = async (
 
   // Vérifier que le post est publié
   if (post.status !== POST_STATUS.PUBLISHED) {
+    throw new NotFoundError('Post non trouvé')
+  }
+
+  // Incrémenter les vues pour les posts publiés
+  // await incrementPostViewDao(post.id) //Fait coté client
+
+  return post
+}
+
+/**
+ * Récupérer tous les slugs des posts publiés (VERSION PUBLIQUE)
+ */
+export const getAllPublishedPostSlugsService = async (): Promise<
+  {slug: string; language: string}[]
+> => {
+  return await getAllPublishedPostSlugsDao()
+}
+
+/**
+ * Récupérer un post publié par slug (VERSION PUBLIQUE)
+ */
+export const getPublishedPostBySlugService = async (
+  slug: string
+): Promise<PostData> => {
+  // Validation basique
+  if (!slug) {
+    throw new ValidationError('Slug est requis')
+  }
+
+  const post = await getPublishedPostBySlugDao(slug)
+  if (!post) {
     throw new NotFoundError('Post non trouvé')
   }
 
