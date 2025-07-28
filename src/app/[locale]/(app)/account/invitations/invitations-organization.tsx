@@ -127,8 +127,10 @@ export default function InvitationsOrganization() {
               <TableRow>
                 <TableHead>Email</TableHead>
                 <TableHead>Rôle</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Date d&apos;expiration</TableHead>
+                <TableHead className="hidden sm:table-cell">Statut</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  Date d&apos;expiration
+                </TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -142,11 +144,43 @@ export default function InvitationsOrganization() {
               ) : (
                 invitations.map((invitation) => (
                   <TableRow key={invitation.id}>
-                    <TableCell>{invitation.email}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{invitation.email}</span>
+                        <div className="text-muted-foreground flex flex-wrap gap-2 text-xs sm:hidden">
+                          {invitation.status === 'accepted' && (
+                            <Badge variant="default" className="text-xs">
+                              Acceptée
+                            </Badge>
+                          )}
+                          {invitation.status === 'rejected' && (
+                            <Badge variant="destructive" className="text-xs">
+                              Rejetée
+                            </Badge>
+                          )}
+                          {invitation.status === 'canceled' && (
+                            <Badge variant="destructive" className="text-xs">
+                              Annulée
+                            </Badge>
+                          )}
+                          {invitation.status === 'pending' && (
+                            <Badge variant="outline" className="text-xs">
+                              En attente
+                            </Badge>
+                          )}
+                          <span suppressHydrationWarning>
+                            Expire:{' '}
+                            {formatDate(
+                              new Date(invitation.expiresAt ?? new Date())
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="secondary">{invitation.role}</Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       {invitation.status === 'accepted' && (
                         <Badge variant="default" className="text-xs">
                           Acceptée
@@ -168,7 +202,10 @@ export default function InvitationsOrganization() {
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell suppressHydrationWarning>
+                    <TableCell
+                      className="hidden sm:table-cell"
+                      suppressHydrationWarning
+                    >
                       {formatDate(new Date(invitation.expiresAt ?? new Date()))}
                     </TableCell>
                     <TableCell>

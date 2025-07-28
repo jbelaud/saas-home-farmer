@@ -31,7 +31,7 @@ export default function InvitationsContent({
   }
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
+    <div className="flex-1 space-y-8 p-4 pt-6 sm:p-8">
       {/* Tableau des invitations reçues - Toujours visible */}
       <InvitationsUsers
         invitations={invitations}

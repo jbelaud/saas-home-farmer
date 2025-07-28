@@ -119,15 +119,17 @@ export default function InvitationsUsers({
                 <TableHead>Organisation</TableHead>
                 <TableHead>Inviteur</TableHead>
                 <TableHead>Rôle</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Date d&apos;expiration</TableHead>
+                <TableHead className="hidden sm:table-cell">Statut</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  Date d&apos;expiration
+                </TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {invitations.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
+                  <TableCell colSpan={6} className="text-center">
                     Aucune invitation reçue
                   </TableCell>
                 </TableRow>
@@ -135,7 +137,23 @@ export default function InvitationsUsers({
                 invitations.map((invitation) => (
                   <TableRow key={invitation.id}>
                     <TableCell>
-                      {invitation.organization?.name || 'Organisation inconnue'}
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          {invitation.organization?.name ||
+                            'Organisation inconnue'}
+                        </span>
+                        <div className="text-muted-foreground flex flex-wrap gap-2 text-xs sm:hidden">
+                          <Badge variant="outline" className="text-xs">
+                            {invitation.status}
+                          </Badge>
+                          <span suppressHydrationWarning>
+                            Expire:{' '}
+                            {formatDate(
+                              new Date(invitation.expiresAt ?? new Date())
+                            )}
+                          </span>
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
                       {invitation.inviter?.name || 'Inviteur inconnue'}
@@ -144,10 +162,13 @@ export default function InvitationsUsers({
                     <TableCell>
                       <Badge variant="secondary">{invitation.role}</Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge variant="outline">{invitation.status}</Badge>
                     </TableCell>
-                    <TableCell suppressHydrationWarning>
+                    <TableCell
+                      className="hidden sm:table-cell"
+                      suppressHydrationWarning
+                    >
                       {formatDate(new Date(invitation.expiresAt ?? new Date()))}
                     </TableCell>
                     <TableCell>
