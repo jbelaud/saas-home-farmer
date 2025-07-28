@@ -1,6 +1,6 @@
 'use server'
 
-import {revalidatePath} from 'next/cache'
+import {revalidatePath, revalidateTag} from 'next/cache'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
 import {
@@ -37,6 +37,7 @@ export async function createPlanAction(
 
     const newPlan = await createPlanService(validationResult.data)
     revalidatePath('/admin/plans')
+    revalidateTag('plans')
     return {
       success: true,
       message: 'Plan créé avec succès',
@@ -91,6 +92,7 @@ export async function updatePlanAction(
       ...validationResult.data,
     })
     revalidatePath('/admin/plans')
+    revalidateTag('plans')
     return {
       success: true,
       message: 'Plan mis à jour avec succès',
@@ -135,6 +137,7 @@ export async function softDeletePlanAction(
 
     await softDeletePlanService(planId)
     revalidatePath('/admin/plans')
+    revalidateTag('plans')
     return {
       success: true,
       message: 'Plan archivé avec succès',
@@ -171,6 +174,7 @@ export async function deletePlanAction(
 
     await deletePlanService(planId)
     revalidatePath('/admin/plans')
+    revalidateTag('plans')
     return {
       success: true,
       message: 'Plan supprimé définitivement',
