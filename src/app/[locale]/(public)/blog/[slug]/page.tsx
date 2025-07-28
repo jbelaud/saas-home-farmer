@@ -15,7 +15,6 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
 import {PagesConst} from '@/env'
 import {isPageEnabled} from '@/lib/utils'
-import {SupportedLanguage} from '@/services/types/domain/post-types'
 
 // Génération des paramètres statiques pour SSG
 export async function generateStaticParams() {
