@@ -705,6 +705,7 @@ export const getPlanByPriceIdPublicService = async (
     isRecurring: plan.isRecurring,
     status: plan.status,
     displayOrder: plan.displayOrder,
+    name: plan.planName,
   }
 
   return publicPlan
