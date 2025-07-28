@@ -52,30 +52,30 @@ export const isYearlyPrice = cache(async (priceId?: string | null) => {
 /**
  * Obtenir le plan PRO
  */
-export const getProPlan = async (): Promise<Plan | undefined> => {
+export const getProPlan = cache(async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.PRO)
-}
+})
 
 /**
  * Obtenir le plan FREE
  */
-export const getFreePlan = async (): Promise<Plan | undefined> => {
+export const getFreePlan = cache(async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.FREE)
-}
+})
 
 /**
  * Obtenir le plan ENTREPRISE
  */
-export const getEntreprisePlan = async (): Promise<Plan | undefined> => {
+export const getEntreprisePlan = cache(async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.ENTREPRISE)
-}
+})
 
 /**
  * Obtenir le plan LIFETIME
  */
-export const getLifetimePlan = async (): Promise<Plan | undefined> => {
+export const getLifetimePlan = cache(async (): Promise<Plan | undefined> => {
   return getPlanByCodeService(PlanConst.LIFETIME)
-}
+})
 
 // ========================================
 // DAL POUR LA GESTION ADMIN DES PLANS
@@ -121,6 +121,7 @@ export const getSubscriptionsWithPaginationDal = cache(
  */
 export const getSubscriptionAdminPermissionsDal = cache(async () => {
   // Retourne les permissions disponibles pour l'admin
+  console.warn('getSubscriptionAdminPermissionsDal todo')
   return {
     canView: true,
     canCancel: true,
