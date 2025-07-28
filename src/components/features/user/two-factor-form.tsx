@@ -221,8 +221,8 @@ export function TwoFactorForm({user}: {user: User}) {
         <h4 className="text-sm font-medium">{t('title')}</h4>
 
         {/* Statut actuel avec switch */}
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="space-y-0.5">
+        <div className="flex flex-col gap-4 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between sm:border">
+          <div className="flex-1 space-y-0.5">
             <p className="text-sm font-medium">{t('status.title')}</p>
             <p className="text-muted-foreground text-sm">
               {user.twoFactorEnabled
@@ -239,7 +239,7 @@ export function TwoFactorForm({user}: {user: User}) {
 
         {/* Sélection du type de 2FA - visible seulement si 2FA est activé */}
         {user.twoFactorEnabled && (
-          <div className="rounded-lg border p-4">
+          <div className="rounded-lg p-4 sm:border">
             <div className="space-y-3">
               <div>
                 <h5 className="text-sm font-medium">

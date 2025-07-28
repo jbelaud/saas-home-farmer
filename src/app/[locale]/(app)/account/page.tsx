@@ -20,18 +20,20 @@ export default async function Page() {
   }
 
   return (
-    <div className="flex-1 space-y-8 p-8 pt-6">
+    <div className="flex-1 space-y-8 p-4 pt-6 sm:p-8">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">{t('title')}</h2>
+        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          {t('title')}
+        </h2>
       </div>
 
       <div className="space-y-8">
-        <div className="rounded-lg border p-6">
+        <div className="rounded-lg border p-4 sm:p-6">
           <h3 className="mb-4 text-lg font-medium">{t('profile.title')}</h3>
           <EditUserProfileForm user={user} />
         </div>
 
-        <div className="rounded-lg border p-6">
+        <div className="rounded-lg border p-4 sm:p-6">
           <UserSecurityFactorSection user={user} />
         </div>
       </div>

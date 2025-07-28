@@ -87,8 +87,8 @@ export function ChangeEmailForm({user}: {user: User}) {
       <div className="space-y-4">
         <h4 className="text-sm font-medium">{t('title')}</h4>
 
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="space-y-0.5">
+        <div className="flex flex-col gap-4 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between sm:border">
+          <div className="flex-1 space-y-0.5">
             <p className="text-sm font-medium">{t('currentEmail')}</p>
             <p className="text-muted-foreground text-sm">{user.email}</p>
           </div>
@@ -96,6 +96,7 @@ export function ChangeEmailForm({user}: {user: User}) {
             variant="outline"
             onClick={() => setShowModal(true)}
             disabled={isSubmitting}
+            className="w-full sm:w-auto"
           >
             {t('submit')}
           </Button>
