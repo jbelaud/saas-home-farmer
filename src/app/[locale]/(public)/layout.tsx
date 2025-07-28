@@ -2,6 +2,7 @@ import Link from 'next/link'
 import {getTranslations, setRequestLocale} from 'next-intl/server'
 import {PropsWithChildren} from 'react'
 
+import PublicFooter from '@/components/features/layouts/public-footer'
 import {PublicMobileMenu} from '@/components/features/layouts/public-mobile-menu'
 import {LangToggle} from '@/components/lang-toggle'
 import {ModeToggle} from '@/components/theme-toggle'
@@ -89,14 +90,7 @@ export default function PublicLayout({children}: PropsWithChildren) {
 
       <main className="w-full flex-1">{children}</main>
 
-      <footer className="border-t">
-        <div className="container mx-auto flex h-14 items-center justify-center px-4 text-center sm:px-6 lg:px-8">
-          <div className="text-center">
-            © {new Date().getFullYear()} Mike Codeur SaaS boilerplate. All
-            rights reserved.
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   )
 }
