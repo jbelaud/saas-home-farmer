@@ -119,3 +119,11 @@ jobs:
           NEXT_PUBLIC_APP_URL: https://prod.example.com
           NEXT_PUBLIC_STRIPE_CHECKOUT_TYPE: EmbededForm
           NEXT_PUBLIC_BILLING_MODE: organization
+
+      - name: Install Drizzle Kit
+        run: npm install -g drizzle-kit
+
+      - name: Run database migrations
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
