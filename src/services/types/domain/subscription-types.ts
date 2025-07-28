@@ -41,6 +41,7 @@ export type UpdatePlan = {
 export type PlanDTO = {
   id: string
   name: string
+  code: string
   planName: string
   priceId: string
   annualDiscountPriceId?: string
