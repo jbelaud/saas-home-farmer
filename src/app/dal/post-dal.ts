@@ -12,6 +12,7 @@ import {AuthorizationError} from '@/services/errors/authorization-error'
 import {
   getAllCategoriesPublicService,
   getAllHashtagsService,
+  getAllPublishedPostSlugsService,
   getPostBySlugAndLanguageService,
   getPostsWithTranslationsAndPaginationService,
   getPublishedPostBySlugAndLanguageService,
@@ -167,5 +168,14 @@ export const getPublishedPostsWithTranslationsAndPaginationDal = cache(
 export const getPublishedPostBySlugAndLanguageDal = cache(
   async (slug: string, language: SupportedLanguage): Promise<PostData> => {
     return await getPublishedPostBySlugAndLanguageService(slug, language)
+  }
+)
+
+/**
+ * Récupérer tous les slugs des posts publiés (VERSION PUBLIQUE)
+ */
+export const getAllPublishedPostSlugsDal = cache(
+  async (): Promise<{slug: string; language: string}[]> => {
+    return await getAllPublishedPostSlugsService()
   }
 )

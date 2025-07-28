@@ -5,7 +5,10 @@ import {getTranslations} from 'next-intl/server'
 import {MDXRemote} from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 
-import {getPublishedPostBySlugAndLanguageDal} from '@/app/dal/post-dal'
+import {
+  getAllPublishedPostSlugsDal,
+  getPublishedPostBySlugAndLanguageDal,
+} from '@/app/dal/post-dal'
 import {LikeButton} from '@/components/features/blog/like-button'
 import {mdxComponents} from '@/components/mdx-components'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
@@ -13,6 +16,23 @@ import {Badge} from '@/components/ui/badge'
 import {PagesConst} from '@/env'
 import {isPageEnabled} from '@/lib/utils'
 import {SupportedLanguage} from '@/services/types/domain/post-types'
+
+// Génération des paramètres statiques pour SSG
+export async function generateStaticParams() {
+  if (!isPageEnabled(PagesConst.BLOG)) {
+    return []
+  }
+
+  try {
+    const slugs = await getAllPublishedPostSlugsDal()
+    return slugs.map(({slug, language}) => ({
+      locale: language,
+      slug: slug,
+    }))
+  } catch {
+    return []
+  }
+}
 
 // Génération des métadonnées
 export async function generateMetadata({

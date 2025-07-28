@@ -10,6 +10,7 @@ import {
   deletePostTranslationByIdDao,
   getAllCategoriesDao,
   getAllHashtagsDao,
+  getAllPublishedPostSlugsDao,
   getCategoryByIdDao,
   getCategoryByNameDao,
   getHashtagByIdDao,
@@ -1071,6 +1072,15 @@ export const getPublishedPostBySlugAndLanguageService = async (
   // await incrementPostViewDao(post.id) //Fait coté client
 
   return post
+}
+
+/**
+ * Récupérer tous les slugs des posts publiés (VERSION PUBLIQUE)
+ */
+export const getAllPublishedPostSlugsService = async (): Promise<
+  {slug: string; language: string}[]
+> => {
+  return await getAllPublishedPostSlugsDao()
 }
 
 // ===== SERVICES COMPLEXES =====

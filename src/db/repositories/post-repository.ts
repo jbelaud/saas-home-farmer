@@ -563,6 +563,21 @@ export const getPostBySlugAndLanguageDao = async (
   } as PostData
 }
 
+export const getAllPublishedPostSlugsDao = async (): Promise<
+  {slug: string; language: string}[]
+> => {
+  const translations = await db
+    .select({
+      slug: postsTranslation.slug,
+      language: postsTranslation.language,
+    })
+    .from(postsTranslation)
+    .innerJoin(posts, eq(postsTranslation.postId, posts.id))
+    .where(eq(posts.status, 'published'))
+
+  return translations
+}
+
 // ===== REQUÊTES CATEGORIES AVEC PAGINATION =====
 
 export const getCategoriesWithPaginationDao = async (

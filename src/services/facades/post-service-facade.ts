@@ -79,3 +79,5 @@ export const getPublishedPostsWithTranslationsService =
   postServiceInterceptor.getPublishedPostsWithTranslationsService
 export const getPublishedPostBySlugAndLanguageService =
   postServiceInterceptor.getPublishedPostBySlugAndLanguageService
+export const getAllPublishedPostSlugsService =
+  postServiceInterceptor.getAllPublishedPostSlugsService
