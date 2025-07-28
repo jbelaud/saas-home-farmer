@@ -140,7 +140,7 @@ export async function addUserToOrganizationAction(
         },
         asResponse: true,
       })
-      console.log('createInvitation response', response)
+
       if (!response.ok) {
         return {
           success: false,
@@ -181,7 +181,7 @@ export async function cancelMemberInvitationAction(
     },
     asResponse: true,
   })
-  console.log('createInvitation response', response)
+
   if (!response.ok) {
     return {
       success: false,

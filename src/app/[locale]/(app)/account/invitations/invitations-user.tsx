@@ -1,3 +1,4 @@
+import {useRouter} from 'next/navigation'
 import {useState} from 'react'
 import {toast} from 'sonner'
 
@@ -32,6 +33,7 @@ export default function InvitationsUsers({
   invitations: PartialInvitationWithUser[]
   onInvitationUpdate: (invitationId: string) => void
 }) {
+  const router = useRouter()
   const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false)
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false)
   const [invitationToAction, setInvitationToAction] =
@@ -72,6 +74,7 @@ export default function InvitationsUsers({
       onInvitationUpdate(invitationToAction.id)
       toast.success('Invitation acceptée avec succès')
       closeModals()
+      router.refresh()
     } catch (error) {
       console.error("Erreur lors de l'acceptation de l'invitation:", error)
       toast.error("Erreur lors de l'acceptation de l'invitation")

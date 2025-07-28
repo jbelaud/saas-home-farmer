@@ -17,7 +17,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import {isAuthAdmin} from '@/services/authorization/user-authorization'
 
 import {CancelAdminInvitationButton} from '../admin/organizations/cancel-admin-invitation-button'
 import {OrganizationAdminAddMemberForm} from '../admin/organizations/organization-admin-add-member-form'
@@ -35,25 +34,27 @@ function isInvitationExpired(joinedAt: Date | null): boolean {
 export default async function OrganizationMembersTable({
   organizationId,
   canManageMembers = false,
+  adminView = false,
 }: {
   organizationId: string
   canManageMembers?: boolean
+  adminView?: boolean
 }) {
-  const isAdmin = await isAuthAdmin()
+  //const isAdmin = await isAuthAdmin()
   const members = await getMembersAndInvitationsDal(organizationId)
 
   return (
     <div className="overflow-x-auto">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold">Membres</h3>
-        {canManageMembers && !isAdmin && (
+        {canManageMembers && !adminView && (
           <OrganizationAddMemberForm
             organizationId={organizationId}
             existingMemberIds={members.map((m) => m.memberId ?? m.userId ?? '')}
           />
         )}
 
-        {isAdmin && (
+        {adminView && (
           <OrganizationAdminAddMemberForm
             organizationId={organizationId}
             existingMemberIds={members.map((m) => m.memberId ?? m.userId ?? '')}
@@ -160,7 +161,7 @@ export default async function OrganizationMembersTable({
                     />
                   ) : (
                     <>
-                      {isAdmin ? (
+                      {adminView ? (
                         <CancelAdminInvitationButton
                           organizationId={organizationId}
                           invitationId={member.invitationId ?? ''}

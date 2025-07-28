@@ -538,12 +538,10 @@ export async function registerProviderAction(
 }
 
 export async function logoutAction() {
-  const response = await auth.api.signOut({
+  await auth.api.signOut({
     headers: await headers(),
     asResponse: true,
   })
-  console.log('response', response)
-  //return response
 }
 
 /**
