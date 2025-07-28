@@ -26,6 +26,7 @@ import {
   getPostTranslationByIdDao,
   getPostTranslationByPostIdAndLanguageDao,
   getPostTranslationsByPostIdDao,
+  getPublishedPostBySlugDao,
   incrementPostLikeDao,
   incrementPostViewDao,
   updateCategoryByIdDao,
@@ -1081,6 +1082,28 @@ export const getAllPublishedPostSlugsService = async (): Promise<
   {slug: string; language: string}[]
 > => {
   return await getAllPublishedPostSlugsDao()
+}
+
+/**
+ * Récupérer un post publié par slug (VERSION PUBLIQUE)
+ */
+export const getPublishedPostBySlugService = async (
+  slug: string
+): Promise<PostData> => {
+  // Validation basique
+  if (!slug) {
+    throw new ValidationError('Slug est requis')
+  }
+
+  const post = await getPublishedPostBySlugDao(slug)
+  if (!post) {
+    throw new NotFoundError('Post non trouvé')
+  }
+
+  // Incrémenter les vues pour les posts publiés
+  // await incrementPostViewDao(post.id) //Fait coté client
+
+  return post
 }
 
 // ===== SERVICES COMPLEXES =====

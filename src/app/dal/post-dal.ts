@@ -16,6 +16,7 @@ import {
   getPostBySlugAndLanguageService,
   getPostsWithTranslationsAndPaginationService,
   getPublishedPostBySlugAndLanguageService,
+  getPublishedPostBySlugService,
   getPublishedPostsWithTranslationsService,
 } from '@/services/facades/post-service-facade'
 import {Pagination} from '@/services/types/common-type'
@@ -168,6 +169,15 @@ export const getPublishedPostsWithTranslationsAndPaginationDal = cache(
 export const getPublishedPostBySlugAndLanguageDal = cache(
   async (slug: string, language: SupportedLanguage): Promise<PostData> => {
     return await getPublishedPostBySlugAndLanguageService(slug, language)
+  }
+)
+
+/**
+ * Récupérer un post publié par slug (VERSION PUBLIQUE)
+ */
+export const getPublishedPostBySlugDal = cache(
+  async (slug: string): Promise<PostData> => {
+    return await getPublishedPostBySlugService(slug)
   }
 )
 

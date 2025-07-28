@@ -578,6 +578,39 @@ export const getAllPublishedPostSlugsDao = async (): Promise<
   return translations
 }
 
+export const getPublishedPostBySlugDao = async (
+  slug: string
+): Promise<PostData | undefined> => {
+  const translation = await db.query.postsTranslation.findFirst({
+    where: (translation, {eq}) => eq(translation.slug, slug),
+    with: {
+      post: {
+        with: {
+          author: true,
+          category: true,
+          postTranslations: true,
+          postHashtags: {
+            with: {
+              hashtag: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  if (!translation?.post) return undefined
+
+  // Vérifier que le post est publié
+  if (translation.post.status !== 'published') return undefined
+
+  return {
+    ...translation.post,
+    author: translation.post.author || undefined,
+    category: translation.post.category || undefined,
+  } as PostData
+}
+
 // ===== REQUÊTES CATEGORIES AVEC PAGINATION =====
 
 export const getCategoriesWithPaginationDao = async (

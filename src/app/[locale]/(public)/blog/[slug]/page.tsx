@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm'
 
 import {
   getAllPublishedPostSlugsDal,
-  getPublishedPostBySlugAndLanguageDal,
+  getPublishedPostBySlugDal,
 } from '@/app/dal/post-dal'
 import {LikeButton} from '@/components/features/blog/like-button'
 import {mdxComponents} from '@/components/mdx-components'
@@ -44,10 +44,7 @@ export async function generateMetadata({
   const t = await getTranslations({locale, namespace: 'BlogPostPage'})
 
   try {
-    const post = await getPublishedPostBySlugAndLanguageDal(
-      slug,
-      locale as SupportedLanguage
-    )
+    const post = await getPublishedPostBySlugDal(slug)
 
     // Trouver la traduction pour la langue actuelle
     const translation = post.postTranslations?.find(
@@ -99,16 +96,20 @@ export default async function BlogPostPage({
   const t = await getTranslations({locale, namespace: 'BlogPostPage'})
 
   try {
-    // Récupérer l'article par slug et langue
-    const post = await getPublishedPostBySlugAndLanguageDal(
-      slug,
-      locale as SupportedLanguage
-    )
+    // Récupérer l'article par slug (toutes langues)
+    const post = await getPublishedPostBySlugDal(slug)
 
-    // Trouver la traduction pour la langue actuelle
-    const translation = post.postTranslations?.find(
-      (t) => t.language === locale
-    )
+    // Trouver la traduction pour la langue actuelle ou la première disponible
+    let translation = post.postTranslations?.find((t) => t.language === locale)
+
+    // Si pas de traduction dans la langue actuelle, prendre la première disponible
+    if (
+      !translation &&
+      post.postTranslations &&
+      post.postTranslations.length > 0
+    ) {
+      translation = post.postTranslations[0]
+    }
 
     if (!translation) {
       notFound()
