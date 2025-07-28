@@ -4,6 +4,11 @@ import {formatDistanceToNow} from 'date-fns'
 import {fr} from 'date-fns/locale'
 import {useState} from 'react'
 
+import {
+  deleteNotificationAction,
+  markNotificationAsReadAction,
+  markNotificationAsUnreadAction,
+} from '@/app/[locale]/(app)/account/notifications/actions'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader} from '@/components/ui/card'
@@ -35,9 +40,6 @@ export default function NotificationItem({
 
     setLoading(true)
     try {
-      const {markNotificationAsReadAction} = await import(
-        '../../../app/[locale]/(app)/notifications/actions'
-      )
       const result = await markNotificationAsReadAction(notification.id)
       if (result.success) {
         await onUpdate(notification.id, true)
@@ -54,9 +56,6 @@ export default function NotificationItem({
 
     setLoading(true)
     try {
-      const {markNotificationAsUnreadAction} = await import(
-        '../../../app/[locale]/(app)/notifications/actions'
-      )
       const result = await markNotificationAsUnreadAction(notification.id)
       if (result.success) {
         await onUpdate(notification.id, false)
@@ -71,9 +70,6 @@ export default function NotificationItem({
   const handleDelete = async () => {
     setLoading(true)
     try {
-      const {deleteNotificationAction} = await import(
-        '../../../app/[locale]/(app)/notifications/actions'
-      )
       const result = await deleteNotificationAction(notification.id)
       if (result.success) {
         onDelete(notification.id)

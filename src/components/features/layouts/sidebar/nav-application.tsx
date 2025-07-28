@@ -64,12 +64,12 @@ export function NavApplication({
     },
     {
       title: t('account.organizations'),
-      url: '/organizations',
+      url: '/account/organizations',
       icon: Building2,
     },
     {
       title: t('account.invitations'),
-      url: '/invitations',
+      url: '/account/invitations',
       icon: Mail,
     },
   ]

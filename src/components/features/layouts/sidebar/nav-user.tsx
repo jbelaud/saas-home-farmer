@@ -146,7 +146,7 @@ export function NavUser({user}: {user?: User}) {
                 <DropdownMenuItem>
                   <div className="flex items-center gap-2">
                     <Bell />
-                    <Link href="/notifications" className="flex-1">
+                    <Link href="/account/notifications" className="flex-1">
                       {t('notifications')}
                     </Link>
                     {unreadCount > 0 && (

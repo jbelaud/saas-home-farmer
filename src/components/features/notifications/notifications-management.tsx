@@ -2,7 +2,10 @@
 
 import {useEffect, useState} from 'react'
 
-import {getNotificationsByFilterAction} from '@/app/[locale]/(app)/notifications/actions'
+import {
+  getNotificationsByFilterAction,
+  markAllNotificationsAsReadAction,
+} from '@/app/[locale]/(app)/account/notifications/actions'
 import {useUnreadNotifications} from '@/components/hooks/use-unread-notifications'
 import {Card} from '@/components/ui/card'
 import {PaginatedResponse} from '@/services/types/common-type'
@@ -60,9 +63,6 @@ export default function NotificationsManagement({
   const handleMarkAllAsRead = async () => {
     setLoading(true)
     try {
-      const {markAllNotificationsAsReadAction} = await import(
-        '../../../app/[locale]/(app)/notifications/actions'
-      )
       const result = await markAllNotificationsAsReadAction(userId)
       if (result.success) {
         // Marquer toutes les notifications comme lues dans le state local
