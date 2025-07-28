@@ -7,7 +7,7 @@ import {
 } from '@/services/authentication/auth-service'
 import {checkSubscriptionLimit} from '@/services/authorization/subscription-authorization'
 import {
-  getPlanByCodeService,
+  getPlanByCodePublicService,
   getPlanByPriceIdPublicService,
   getPlansWithPaginationService,
   getSubscriptionsWithPaginationService,
@@ -16,7 +16,6 @@ import {
 import {Pagination} from '@/services/types/common-type'
 import {
   LimitType,
-  Plan,
   PlanConst,
   PlanDTO,
 } from '@/services/types/domain/subscription-types'
@@ -55,6 +54,18 @@ export const isYearlyPrice = cache(async (priceId?: string | null) => {
   return isYearlyPriceService(priceId)
 })
 
+export const getPlanByCodeDal = (code: string) =>
+  nextCache(
+    async (): Promise<PlanDTO | undefined> => {
+      return getPlanByCodePublicService(code)
+    },
+    ['plan-by-code', code],
+    {
+      tags: ['plans'],
+      revalidate: 3600, // 1 heure
+    }
+  )()
+
 // ========================================
 // SERVICES HELPER POUR LES PLANS SPÉCIFIQUES
 // ========================================
@@ -62,29 +73,31 @@ export const isYearlyPrice = cache(async (priceId?: string | null) => {
 /**
  * Obtenir le plan PRO
  */
-export const getProPlan = cache(async (): Promise<Plan | undefined> => {
-  return getPlanByCodeService(PlanConst.PRO)
+export const getProPlan = cache(async (): Promise<PlanDTO | undefined> => {
+  return getPlanByCodeDal(PlanConst.PRO)
 })
 
 /**
  * Obtenir le plan FREE
  */
-export const getFreePlan = cache(async (): Promise<Plan | undefined> => {
-  return getPlanByCodeService(PlanConst.FREE)
+export const getFreePlan = cache(async (): Promise<PlanDTO | undefined> => {
+  return getPlanByCodeDal(PlanConst.FREE)
 })
 
 /**
  * Obtenir le plan ENTREPRISE
  */
-export const getEntreprisePlan = cache(async (): Promise<Plan | undefined> => {
-  return getPlanByCodeService(PlanConst.ENTREPRISE)
-})
+export const getEntreprisePlan = cache(
+  async (): Promise<PlanDTO | undefined> => {
+    return getPlanByCodeDal(PlanConst.ENTREPRISE)
+  }
+)
 
 /**
  * Obtenir le plan LIFETIME
  */
-export const getLifetimePlan = cache(async (): Promise<Plan | undefined> => {
-  return getPlanByCodeService(PlanConst.LIFETIME)
+export const getLifetimePlan = cache(async (): Promise<PlanDTO | undefined> => {
+  return getPlanByCodeDal(PlanConst.LIFETIME)
 })
 
 // ========================================

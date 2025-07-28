@@ -712,6 +712,46 @@ export const getPlanByPriceIdPublicService = async (
 }
 
 /**
+ * Obtenir un plan par code (version publique sans autorisation)
+ */
+export const getPlanByCodePublicService = async (
+  code: string
+): Promise<PlanDTO | undefined> => {
+  const parsed = planNameSchema.safeParse(code)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.message)
+  }
+
+  const plan = await getPlanByCodeDao(code)
+
+  if (!plan) {
+    return undefined
+  }
+
+  // Transformer en DTO public (sans champs techniques)
+  const publicPlan: PlanDTO = {
+    id: plan.id,
+    code: plan.code,
+    planName: plan.planName,
+    priceId: plan.priceId,
+    annualDiscountPriceId: plan.annualDiscountPriceId || undefined,
+    limits: plan.limits as PlanLimits,
+    freeTrial: plan.freeTrial as PlanFreeTrial,
+    features: plan.features as unknown[],
+    description: plan.description || undefined,
+    price: plan.price || undefined,
+    yearlyPrice: plan.yearlyPrice || undefined,
+    currency: plan.currency,
+    isRecurring: plan.isRecurring,
+    status: plan.status,
+    displayOrder: plan.displayOrder,
+    name: plan.planName,
+  }
+
+  return publicPlan
+}
+
+/**
  * Obtenir tous les plans actifs
  */
 export const getActivePlansService = async (): Promise<Plan[]> => {
