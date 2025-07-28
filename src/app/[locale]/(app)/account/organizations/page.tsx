@@ -15,6 +15,7 @@ import {
 import {PagesConst} from '@/env'
 import {sortOrganizationsByRole} from '@/lib/helper/organization-helper'
 import {isPageEnabled} from '@/lib/utils'
+import {canUpdateOrganization} from '@/services/authorization/organization-authorization'
 import {getOrganizationsByUserIdService} from '@/services/facades/organization-service-facade'
 import {UserOrganizationRoleConst} from '@/services/types/domain/auth-types'
 
@@ -28,13 +29,19 @@ export default async function OrganizationsPage() {
   // Trier les organisations par rôle : OWNER en premier, puis ADMIN, puis les autres
   const sortedOrganizations = sortOrganizationsByRole(organizations)
 
+  const permissions = Object.fromEntries(
+    await Promise.all(
+      sortedOrganizations.map(async (org) => [
+        org.id,
+        await canUpdateOrganization(org.id),
+      ])
+    )
+  )
+
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mes Organisations</h1>
-        {/* <Button asChild>
-          <Link href="/account/organizations/new">Créer une organisation</Link>
-        </Button> */}
       </div>
 
       {sortedOrganizations.length === 0 ? (
@@ -101,11 +108,15 @@ export default async function OrganizationsPage() {
                     Voir les détails
                   </Link>
                 </Button>
-                <Button asChild>
-                  <Link href={`/account/organizations/${organization.id}/edit`}>
-                    Modifier
-                  </Link>
-                </Button>
+                {permissions[organization.id] && (
+                  <Button asChild>
+                    <Link
+                      href={`/account/organizations/${organization.id}/edit`}
+                    >
+                      Modifier
+                    </Link>
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           ))}
