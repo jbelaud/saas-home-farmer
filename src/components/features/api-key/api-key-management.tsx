@@ -118,6 +118,7 @@ export function ApiKeyManagement() {
       }
 
       const response = await authClient.apiKey.create(createData)
+      //alert(JSON.stringify(response))
 
       if (response.data) {
         setNewlyCreatedKey(response.data.key) // Use key property
@@ -307,7 +308,9 @@ export function ApiKeyManagement() {
           <TableHeader>
             <TableRow>
               <TableHead>{t('table.name')}</TableHead>
-              <TableHead>{t('table.key')}</TableHead>
+              <TableHead className="hidden sm:table-cell">
+                {t('table.key')}
+              </TableHead>
               <TableHead>{t('table.created')}</TableHead>
               <TableHead>{t('table.expires')}</TableHead>
               <TableHead className="text-right">{t('table.actions')}</TableHead>
@@ -316,7 +319,10 @@ export function ApiKeyManagement() {
           <TableBody>
             {apiKeys.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center">
+                <TableCell
+                  colSpan={4}
+                  className="py-8 text-center sm:col-span-5"
+                >
                   <div className="text-muted-foreground">
                     {t('table.noKeys')}
                   </div>
@@ -328,7 +334,7 @@ export function ApiKeyManagement() {
                   <TableCell className="font-medium">
                     {key.name || 'Unnamed Key'}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <code className="text-sm">{key.key}</code>
                     <p className="text-muted-foreground mt-1 text-xs">
                       {t('table.keyHidden')}
