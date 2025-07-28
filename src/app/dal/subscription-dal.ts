@@ -1,3 +1,4 @@
+import {unstable_cache as nextCache} from 'next/cache'
 import {cache} from 'react'
 
 import {
@@ -7,7 +8,7 @@ import {
 import {checkSubscriptionLimit} from '@/services/authorization/subscription-authorization'
 import {
   getPlanByCodeService,
-  getPlanByPriceIdService,
+  getPlanByPriceIdPublicService,
   getPlansWithPaginationService,
   getSubscriptionsWithPaginationService,
   isYearlyPriceService,
@@ -17,6 +18,7 @@ import {
   LimitType,
   Plan,
   PlanConst,
+  PlanDTO,
 } from '@/services/types/domain/subscription-types'
 
 export const getActiveSubscriptionsDal = cache(async () => {
@@ -34,9 +36,17 @@ export const checkSubscriptionLimitDal = cache(
   }
 )
 
-export const getPlanByPriceId = cache(async (priceId: string) => {
-  return getPlanByPriceIdService(priceId)
-})
+export const getPlanByPriceId = (priceId: string) =>
+  nextCache(
+    async (): Promise<PlanDTO | undefined> => {
+      return getPlanByPriceIdPublicService(priceId)
+    },
+    ['plan-by-price-id', priceId],
+    {
+      tags: ['plans'],
+      revalidate: 3600, // 1 heure
+    }
+  )()
 
 export const isYearlyPrice = cache(async (priceId?: string | null) => {
   if (!priceId) {

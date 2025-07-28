@@ -163,3 +163,57 @@ export const getUserDataDal = cache(async (userId: string) => {
   return await getUserDataService(userId)
 })
 ```
+
+## Next.js `unstable_cache()` avec paramètres dynamiques
+
+### Règle importante pour les clés de cache avec ID
+
+Quand vous utilisez `unstable_cache` avec des paramètres dynamiques (comme un ID), **toujours inclure le paramètre dans la clé de cache** :
+
+```typescript
+// ✅ CORRECT - Clé de cache avec ID
+export const getPlanByPriceId = (priceId: string) =>
+  unstable_cache(
+    async (): Promise<PlanDTO | undefined> => {
+      return getPlanByPriceIdPublicService(priceId)
+    },
+    ['plan-by-price-id', priceId], // ✅ Clé unique par priceId
+    {
+      tags: ['plans'],
+      revalidate: 3600,
+    }
+  )()
+
+// ❌ INCORRECT - Clé de cache sans ID
+export const getPlanByPriceId = unstable_cache(
+  async (priceId: string) => {
+    return getPlanByPriceIdPublicService(priceId)
+  },
+  ['plan-by-price-id'], // ❌ Tous les priceId partageraient le même cache
+  { tags: ['plans'], revalidate: 3600 }
+)
+```
+
+### Pourquoi cette règle ?
+
+- **Sans l'ID** : Tous les appels `getPlanByPriceId('price_123')` et `getPlanByPriceId('price_456')` partageraient le même cache
+- **Avec l'ID** : Chaque priceId a son propre cache : `['plan-by-price-id', 'price_123']`, `['plan-by-price-id', 'price_456']`
+
+### Pattern pour fonctions avec paramètres
+
+```typescript
+// Pattern recommandé pour unstable_cache avec paramètres
+export const getItemById = (id: string) =>
+  unstable_cache(
+    async () => getItemPublicService(id),
+    ['item-by-id', id],
+    { tags: ['items'], revalidate: 3600 }
+  )()
+
+export const getUserPosts = (userId: string, category: string) =>
+  unstable_cache(
+    async () => getUserPostsPublicService(userId, category),
+    ['user-posts', userId, category],
+    { tags: ['posts'], revalidate: 1800 }
+  )()
+```

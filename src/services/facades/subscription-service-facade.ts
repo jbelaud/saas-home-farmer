@@ -33,6 +33,8 @@ export const getPlanByCodeService =
   subscriptionServiceInterceptor.getPlanByCodeService
 export const getPlanByPriceIdService =
   subscriptionServiceInterceptor.getPlanByPriceIdService
+export const getPlanByPriceIdPublicService =
+  subscriptionServiceInterceptor.getPlanByPriceIdPublicService
 export const getActivePlansService =
   subscriptionServiceInterceptor.getActivePlansService
 export const getPlansWithPaginationService =
