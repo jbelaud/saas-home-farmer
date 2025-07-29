@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true,
     taint: true,
+    useCache: true,
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
   },
 }
 
