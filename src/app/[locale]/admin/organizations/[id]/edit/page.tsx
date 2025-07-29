@@ -37,6 +37,7 @@ export default async function EditOrganizationPage({
             <OrganizationMembersTable
               organizationId={organization.id}
               canManageMembers={canManageMembers}
+              adminView={true}
             />
           </Suspense>
         ) : (
