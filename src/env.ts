@@ -151,7 +151,7 @@ export const env = createEnv({
    */
   client: {
     // URL de l'application
-    NEXT_PUBLIC_APP_URL: z.string().url(),
+    NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
 
     // Tailwind
     NEXT_PUBLIC_MAX_FILE_SIZE: z

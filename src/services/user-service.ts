@@ -1,3 +1,5 @@
+import {getLocale} from 'next-intl/server'
+
 import {generateUniqueSlug} from '@/db/repositories/organization-repository'
 import {
   createUserDao,
@@ -15,6 +17,8 @@ import {
   upsertUserSettingsDao,
 } from '@/db/repositories/user-repository'
 import {auth} from '@/lib/better-auth/auth'
+import {triggerInngestWelcomeFollowUpEmail} from '@/lib/inngest/events'
+import {logger} from '@/lib/logger'
 
 import {
   canManageUsers,
@@ -26,7 +30,7 @@ import {
   ValidationError,
   ValidationParsedZodError,
 } from './errors/validation-error'
-import {Pagination} from './types/common-type'
+import {Pagination, SupportedLanguage} from './types/common-type'
 import {RoleConst} from './types/domain/auth-types'
 import {CreateOrganization} from './types/domain/organization-types'
 import {
@@ -204,6 +208,22 @@ export const initializeRegisterUserDataService = async (
 
   if (!user) {
     throw new ValidationError('Failed to retrieve user')
+  }
+
+  // Déclencher l'email de suivi 24h après inscription si userId fourni
+  if (user.id) {
+    try {
+      const locale = await getLocale()
+      await triggerInngestWelcomeFollowUpEmail({
+        userId: user.id,
+        userName: user.name || user.email.split('@')[0],
+        userEmail: user.email,
+        language: locale as SupportedLanguage,
+      })
+    } catch (error) {
+      // Log l'erreur mais ne pas faire échouer l'inscription
+      logger.error("Erreur lors du déclenchement de l'email de suivi:", error)
+    }
   }
 
   // Vérifier si l'utilisateur a déjà une organisation

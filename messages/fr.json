@@ -1280,5 +1280,20 @@
       "categories": "Catégories",
       "totalViews": "Vues Totales"
     }
+  },
+  "WelcomeFollowUpEmail": {
+    "preview": "Comment ça se passe avec votre nouvelle plateforme ?",
+    "title": "Comment ça se passe ?",
+    "greeting": "Bonjour {name},",
+    "message": "Cela fait maintenant 24 heures que vous avez rejoint notre plateforme ! Nous espérons que tout se passe bien et que vous commencez à découvrir toutes les fonctionnalités disponibles.",
+    "ctaButton": "Accéder à mon tableau de bord",
+    "tips": {
+      "title": "Voici quelques conseils pour bien commencer :",
+      "tip1": "Explorez votre tableau de bord pour avoir une vue d'ensemble",
+      "tip2": "Configurez votre profil et vos préférences",
+      "tip3": "N'hésitez pas à consulter notre documentation"
+    },
+    "support": "Si vous avez des questions ou besoin d'aide, notre équipe support est là pour vous accompagner. Répondez simplement à cet email !",
+    "footer": "Vous recevez cet email car vous vous êtes inscrit sur notre plateforme avec l'adresse {email}."
   }
 }

@@ -85,7 +85,7 @@ export async function loginCredentialAction(
   try {
     // 1. Validation Server Zod des données du formulaire
     const validationResult = authLoginFormSchema.safeParse({
-      email: formData.get('email'),
+      email: formData.get('email')?.toString().toLowerCase(),
       password: formData.get('password'),
     })
 
@@ -211,7 +211,7 @@ export async function loginMagicLinkAction(
   try {
     // 1. Validation Server Zod des données du formulaire
     const validationResult = authMagicLinkFormSchema.safeParse({
-      email: formData.get('email'),
+      email: formData.get('email')?.toString().toLowerCase(),
     })
 
     if (!validationResult.success) {
@@ -287,7 +287,7 @@ export async function registerCredentialAction(
   // 1. Validation server  Zod des données du formulaire
   const validationResult = authRegisterFormSchema.safeParse({
     name: formData.get('name'),
-    email: formData.get('email'),
+    email: formData.get('email')?.toString().toLowerCase(),
     password: formData.get('password'),
     confirmPassword: formData.get('confirmPassword'),
   })
@@ -449,7 +449,7 @@ export async function registerMagicLinkAction(
 
   // 1. Validation server  Zod des données du formulaire
   const validationResult = authMagicLinkFormSchema.safeParse({
-    email: formData.get('email'),
+    email: formData.get('email')?.toString().toLowerCase(),
   })
 
   if (!validationResult.success) {

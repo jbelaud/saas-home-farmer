@@ -25,3 +25,5 @@ export const sendSubscriptionDeletedEmailService =
   emailServiceInterceptor.sendSubscriptionDeletedEmailService
 export const sendNotificationEmailService =
   emailServiceInterceptor.sendNotificationEmailService
+export const sendWelcomeFollowUpEmailService =
+  emailServiceInterceptor.sendWelcomeFollowUpEmailService

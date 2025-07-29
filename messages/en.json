@@ -1280,5 +1280,20 @@
       "categories": "Categories",
       "totalViews": "Total Views"
     }
+  },
+  "WelcomeFollowUpEmail": {
+    "preview": "How are you getting on with your new platform?",
+    "title": "How are things going?",
+    "greeting": "Hello {name},",
+    "message": "It's been 24 hours since you joined our platform! We hope everything is going well and that you're starting to discover all the available features.",
+    "ctaButton": "Access my dashboard",
+    "tips": {
+      "title": "Here are some tips to get you started:",
+      "tip1": "Explore your dashboard to get an overview",
+      "tip2": "Configure your profile and preferences",
+      "tip3": "Don't hesitate to check out our documentation"
+    },
+    "support": "If you have any questions or need help, our support team is here to assist you. Just reply to this email!",
+    "footer": "You are receiving this email because you signed up on our platform with the address {email}."
   }
 }

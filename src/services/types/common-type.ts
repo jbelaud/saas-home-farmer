@@ -20,6 +20,7 @@ export type ActionResponse<T = unknown> = {
   data?: T
 }
 export const SUPPORTED_LANGUAGES = routing.locales
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]
 
 export type FileObject = {
   name: string // Nom du fichier

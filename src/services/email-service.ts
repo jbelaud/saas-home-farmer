@@ -19,6 +19,7 @@ import SubscriptionCompletedMail from '@/lib/emails/subscription-completed-email
 import SubscriptionDeletedMail from '@/lib/emails/subscription-deleted-email'
 import SubscriptionUpdatedMail from '@/lib/emails/subscription-updated-email'
 import VerificationEmail from '@/lib/emails/verification-email'
+import WelcomeFollowUpEmail from '@/lib/emails/welcome-follow-up-email'
 import {
   getFormattedPriceFromSubscription,
   getSubscriptionDetails,
@@ -480,6 +481,37 @@ export const sendSubscriptionDeletedEmailService = async (
       price,
       limits,
       deletedAt,
+    }),
+  })
+}
+
+export const sendWelcomeFollowUpEmailService = async ({
+  email,
+  userName,
+  appUrl,
+  language = 'fr',
+}: {
+  email: string
+  userName: string
+  appUrl: string
+  language?: 'fr' | 'en' | 'es'
+}) => {
+  const t = await getTranslations({
+    locale: language,
+    namespace: 'WelcomeFollowUpEmail',
+  })
+  const fromEmail = env.EMAIL_FROM ?? 'onboarding@resend.dev'
+
+  await sendEmailService({
+    to: email,
+    subject: t('title'),
+    from: fromEmail,
+    text: t('message'),
+    react: WelcomeFollowUpEmail({
+      userName,
+      userEmail: email,
+      appUrl,
+      language,
     }),
   })
 }
