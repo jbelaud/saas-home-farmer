@@ -177,7 +177,7 @@ export const env = createEnv({
     NEXT_PUBLIC_BETTER_AUTH_2FA_ENABLE: z
       .string()
       .transform((val) => val === 'true')
-      .default('false'),
+      .default('true'),
     NEXT_PUBLIC_BETTER_AUTH_TOKEN_MANAGEMENT: z
       .string()
       .transform((val) => val === 'true')
@@ -202,7 +202,7 @@ export const env = createEnv({
       .string()
       .transform((val) => val.split(',').map((method) => method.trim()))
       .pipe(AuthMethodsSchema)
-      .default('credential,magiclink'),
+      .default('credential,magiclink,google'),
 
     // Pages optionnelles activées
     NEXT_PUBLIC_ENABLED_PAGES: EnabledPagesSchema,
