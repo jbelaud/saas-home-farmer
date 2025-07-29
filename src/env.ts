@@ -195,7 +195,7 @@ export const env = createEnv({
     NEXT_PUBLIC_API_URL: z.string().url().optional(),
     NEXT_PUBLIC_BILLING_MODE: z
       .enum([BillingModes.USER, BillingModes.ORGANIZATION])
-      .default(BillingModes.USER),
+      .default(BillingModes.ORGANIZATION),
 
     // Méthodes d'authentification
     NEXT_PUBLIC_AUTH_METHODS: z
