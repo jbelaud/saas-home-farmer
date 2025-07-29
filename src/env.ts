@@ -108,8 +108,8 @@ export const env = createEnv({
 
     // Email
     RESEND_API_KEY: z.string().min(1),
-    EMAIL_FROM: z.string().email(),
-    EMAIL_TO: z.string().email(),
+    EMAIL_FROM: z.string().email().default('onboarding@resend.dev'),
+    EMAIL_TO: z.string().email().default('onboarding@resend.dev'),
 
     // Logging
     LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
