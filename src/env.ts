@@ -156,8 +156,8 @@ export const env = createEnv({
     // Tailwind
     NEXT_PUBLIC_MAX_FILE_SIZE: z
       .string()
-      .transform((val) => Number(val))
-      .default('5242880'),
+      .default('5242880')
+      .transform((val) => Number(val)),
 
     // Stripe (client)
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
@@ -168,28 +168,28 @@ export const env = createEnv({
     // Better Auth (client)
     NEXT_PUBLIC_BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION: z
       .string()
-      .transform((val) => val === 'true')
-      .default('true'),
+      .default('true')
+      .transform((val) => val === 'true'),
     NEXT_PUBLIC_BETTER_AUTH_2FA_SKIP_VERIFICATION_ON_ENABLE: z
       .string()
-      .transform((val) => val === 'true')
-      .default('true'),
+      .default('true')
+      .transform((val) => val === 'true'),
     NEXT_PUBLIC_BETTER_AUTH_2FA_ENABLE: z
       .string()
-      .transform((val) => val === 'true')
-      .default('true'),
+      .default('true')
+      .transform((val) => val === 'true'),
     NEXT_PUBLIC_BETTER_AUTH_TOKEN_MANAGEMENT: z
       .string()
-      .transform((val) => val === 'true')
-      .default('true'),
+      .default('true')
+      .transform((val) => val === 'true'),
     NEXT_PUBLIC_BETTER_AUTH_CHANGE_PASSWORD: z
       .string()
-      .transform((val) => val === 'true')
-      .default('true'),
+      .default('true')
+      .transform((val) => val === 'true'),
     NEXT_PUBLIC_BETTER_AUTH_CHANGE_EMAIL: z
       .string()
-      .transform((val) => val === 'true')
-      .default('true'),
+      .default('true')
+      .transform((val) => val === 'true'),
 
     // API URL (optionnel)
     NEXT_PUBLIC_API_URL: z.string().url().optional(),
@@ -200,9 +200,10 @@ export const env = createEnv({
     // Méthodes d'authentification
     NEXT_PUBLIC_AUTH_METHODS: z
       .string()
-      .transform((val) => val.split(',').map((method) => method.trim()))
-      .pipe(AuthMethodsSchema)
-      .default('credential,magiclink,google'),
+      .default('credential,magiclink,google')
+      .transform((val) =>
+        val.split(',').map((method) => method.trim() as AuthMethod)
+      ),
 
     // Pages optionnelles activées
     NEXT_PUBLIC_ENABLED_PAGES: EnabledPagesSchema,
