@@ -5,7 +5,6 @@ import React, {ReactNode} from 'react'
 
 import {AppProviders} from '@/components/context/app-providers'
 import {env} from '@/env'
-import {routing} from '@/i18n/routing'
 
 type Props = {
   children: ReactNode
@@ -28,7 +27,4 @@ export default async function BaseLayout({children, locale}: Props) {
       )}
     </html>
   )
-}
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({locale}))
 }
