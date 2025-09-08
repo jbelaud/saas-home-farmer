@@ -93,6 +93,10 @@ export const TrustedOriginsSchema = z
 // Types de checkout Stripe disponibles
 
 export const env = createEnv({
+  onValidationError: (error) => {
+    console.error('❌ Environment validation failed:', error)
+    throw new Error('Invalid environment variables')
+  },
   /*
    * Variables serveur. Celles-ci ne sont accessibles que du côté serveur.
    * Ne commencent pas par NEXT_PUBLIC_.
