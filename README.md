@@ -8,6 +8,7 @@ Un boilerplate moderne pour les applications SaaS utilisant Next.js 15, React 19
 - admin - Affilites
 - admin - Analytics
 - MCP
+- upfetch
 
 ## Technologies
 

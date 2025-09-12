@@ -26,7 +26,7 @@
   "EMAIL_TO": "admin@mikecodeur.com",
   "LOG_LEVEL": "info",
   "NEXT_PUBLIC_BILLING_MODE": "organization",
-  "NEXT_PUBLIC_ENABLED_PAGES": "blog,contact,about,docs,apikey,organization,invitation,account,settings,subscription,notifications,admin",
+  "NEXT_PUBLIC_ENABLED_PAGES": "contact,about,apikey,organization,invitation,account,settings,subscription,notifications,admin,docs,blog",
   "NEXT_PUBLIC_AUTH_METHODS": "credential,magiclink,google",
   "NEXT_PUBLIC_GOOGLE_ANALYTICS_ID": "GA_XXXXX"
 }
