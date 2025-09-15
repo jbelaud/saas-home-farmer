@@ -137,7 +137,14 @@ Required environment variables:
 
 Always use `pnpm` over `npm` for this project.
 
-## CURSOR RULES
+## RULES
+
+Never propose or generate new code unless you have first verified that there is already at least one existing rule, pattern, or piece of code that does the same thing.
+
+Before suggesting or writing any solution, you must check **at least three existing examples** (rules, configurations, or code snippets) that solve a similar problem.  
+If no such examples exist, explicitly state that fact and stop, instead of inventing something from scratch.
+
+you can check in .cursor/rules
 
 Read the .cursor/rules folder for the rules to follow.
 
