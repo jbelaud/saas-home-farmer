@@ -35,14 +35,9 @@ export const EnabledPagesSchema = z
   .string()
   .optional()
   .transform((val) =>
-    val
-      ? val
-          .split(',')
-          .map((page) => page.trim() as EnabledPage)
-          .filter((page) => page !== 'none')
-      : []
+    val ? val.split(',').map((page) => page.trim() as EnabledPage) : []
   )
-  .pipe(z.array(EnabledPageSchema.exclude(['none'])))
+  .pipe(z.array(EnabledPageSchema))
 
 export const TrustedOriginsSchema = z
   .string()
