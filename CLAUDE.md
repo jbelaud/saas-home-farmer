@@ -85,6 +85,16 @@ This is a Next.js 15 SaaS boilerplate with a strict layered architecture:
 - `src/db/` - Database layer
 - `src/lib/` - Utilities and helpers
 
+## 🧑‍💻 Coding Style Rule: Functional over OOP
+
+**Always prefer functional programming over object-oriented programming (OOP).**
+
+- Write **pure functions** instead of classes.
+- Favor **composition, immutability, and stateless services**.
+- Use functional modules (`export function`) rather than singletons or global objects.
+- Wrap external SDKs (e.g., Stripe, Resend) in **functional adapters** when they expose OOP APIs.
+- OOP should only be used when handling truly **complex, persistent state** that is hard to model otherwise (rare in SaaS web apps).
+
 ### Development Guidelines
 
 #### Authentication
