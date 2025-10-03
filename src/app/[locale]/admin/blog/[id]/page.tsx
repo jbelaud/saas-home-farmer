@@ -6,7 +6,7 @@ type PageProps = {
   params: Promise<{id: string}>
 }
 
-async function Page({params}: PageProps) {
+async function Page({params}: PageProps): Promise<never> {
   const {id} = await params
   redirect(`/admin/blog/${id}/edit`)
 }
