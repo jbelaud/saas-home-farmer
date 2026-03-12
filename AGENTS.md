@@ -68,3 +68,86 @@ Use Conventional Commits (e.g., `feat:`, `fix:`, `chore:`); Husky hooks will lin
 ## Security & Configuration Tips
 
 Bootstrap environment files with `pnpm init:env`, then fill values from `env.example`. Generate secrets such as `AUTH_SECRET` and Stripe keys using the scripts referenced in `README.md`, and never commit `.env`. When validating Stripe webhooks locally, run `pnpm stripe:listen` alongside `pnpm dev`.
+
+## Instructions Associé IA : Projet My Home Farmer (SaaS Home Farmer)
+
+## 1. Vision & Objectif
+
+My Home Farmer(pour le moment, je vais peut-être changer de nom plus tard) est un SaaS B2B2B conçu pour structurer le métier de "Home Farmer" (entrepreneur jardinier).
+**L'objectif principal** est de digitaliser l'activité des entrepreneurs jardiniers du réseau "Home Farmer" pour :
+
+1. Automatiser leur gestion administrative (gain de temps de 20%).
+2. Justifier la valeur de leur prestation (150€/mois) via un calcul de ROI pour le client final.
+3. Sécuriser les revenus sur 12 mois en cassant la saisonnalité du jardinage.
+
+## 2. Écosystème d'Utilisateurs
+
+> ⚠️ **Attention à la confusion de nommage** : "Home Farmer" désigne à la fois la franchise (maison mère) ET le métier de l'entrepreneur. Dans le code, utiliser les noms ci-dessous.
+
+### Les 4 rôles distincts
+
+- **`SuperAdmin` (Moi, le créateur du SaaS) :** Accès au panel admin du boilerplate. Suit tous les abonnés (`Farmer`), le CA, le MRR, les stats globales. C'est MON outil de pilotage business.
+
+- **`Franchisor` (La Franchise "Home Farmer", la maison mère) :** Vend une formation + accompagnement 6 mois à 6000€ (one-shot, pas d'abonnement). N'a PAS d'espace dans l'app pour le MVP. Son objectif : former les entrepreneurs à réussir leur activité. Pas de commission sur les clients des Farmers.
+
+- **`Farmer` (L'Entrepreneur Jardinier) :** Utilisateur principal de l'app. Abonnement mensuel (99€/mois FR, 69€/mois BE/CH). Gère ses tournées, ses fiches clients et ses rapports d'entretien. Correspond au concept `Organization` du boilerplate.
+
+- **`Client` (Le Particulier) :** Le client du Farmer. Accède à son espace pour voir les photos du pro, saisir ses récoltes et consulter son dashboard ROI. Correspond au concept `Member` du boilerplate.
+
+## 3. Architecture Technique (Stack)
+
+Ce projet utilise le boilerplate **Ship-SaaS** :
+
+- **Framework :** Next.js (App Router).
+- **Style :** Tailwind CSS + ShadcnUI (Composants Mobile-First impératifs).
+- **Backend/Base de données :** Supabase (PostgreSQL + Auth + Storage).
+- **Paiements :** Stripe (Abonnements SaaS Pros).
+- **Mobile :** Web-App responsive (Capacitor.js prévu en Phase 2).
+
+## 4. Logique Métier Critique (Core Logic)
+
+L'IA doit toujours garder en tête ces règles métiers lors de la génération de code :
+
+### A. Tarification & Plans d'Abonnement
+
+| Offre               | Année 1 "Early Bird" | Année 2+ Standard | Capacité               |
+| ------------------- | -------------------- | ----------------- | ---------------------- |
+| **Graine**          | 0 €                  | 0 €               | 1 client (Test)        |
+| **Pousse**          | 19 € / mois          | 49 € / mois       | Jusqu'à 20 clients     |
+| **Récolte (FR)**    | 49 € / mois          | 99 € / mois       | Illimité + API Fiscale |
+| **Récolte (BE/CH)** | 39 € / mois          | 69 € / mois       | Illimité               |
+
+**Règle de Pricing Early Bird :** Appliquer un tarif "Early Bird" pendant les 12 premiers mois suivant l'inscription du `Farmer`. Après 12 mois, le tarif standard s'applique automatiquement via Stripe (upgrade de price_id sur la subscription).
+
+**Stratégie :** L'offre "Graine" gratuite permet un accès sans risque (psychologiquement indolore après les 6000€ de formation). Le lock-in se crée naturellement une fois que le Farmer a ses clients, photos et historique fiscal dans l'app.
+
+### B. Segmentation Géographique & Fiscale
+
+- **France :** Activation du module "Service à la Personne". Calcul du crédit d'impôt de 50%. Plan "Récolte FR" à 49€/mois (an 1) puis 99€/mois (inclut API fiscale).
+- **Belgique/Suisse :** Pas de crédit d'impôt. Plan "Récolte BE/CH" à 39€/mois (an 1) puis 69€/mois.
+- **Autre :** Dans quelques années, Home Farmer voudra développer leur concept dans l'Europe entier et dans le monde.
+
+### C. Le Calculateur de ROI (Le coeur de la valeur)
+
+- Le Pro entretient, mais ne récolte pas.
+- Le Client saisit ses récoltes (kg) dans l'app.
+- L'app doit calculer : `Poids (kg) x Prix Bio Marché = Valeur Récoltée`.
+- L'app affiche : `Valeur Récoltée` (Valorisation de la production au prix du marché bio).
+- **Note importante :** Ne PAS comparer avec le coût de l'abonnement du Farmer. Le service est un accompagnement, pas uniquement une rentabilité financière directe. L'objectif est de montrer la valeur produite par le jardin.
+
+### D. Justification de la Saisonnalité
+
+- L'app doit proposer des checklists de tâches pour les 12 mois de l'année (même en hiver : planification, amendement, semis intérieurs) pour justifier l'abonnement mensuel constant.
+
+## 5. Roadmap MVP
+
+1. **Module Pro :** CRUD Clients, Fiche technique terrain (exposition, sol), Log d'intervention (Checklist + Photo).
+2. **Module Client :** Saisie des récoltes simplifiée, Dashboard de gains (ROI).
+3. **Module Admin/Fiscal :** Génération de factures et d'attestations fiscales PDF.
+
+## 6. Tes Responsabilités en tant qu'Associé
+
+- **Mobile-First :** Chaque interface doit être utilisable d'une seule main avec des "gros boutons" (mains sales/gants).
+- **Performance :** Optimisation du chargement des images (photos du potager).
+- **Cohérence :** Toujours vérifier que les tables Drizzle correspondent aux besoins des quatre rôles utilisateurs (`SuperAdmin`, `Franchisor`, `Farmer`, `Client`).
+- **Proactivité :** Si une fonctionnalité peut simplifier la vie de l'entrepreneur (ex: itinéraire Maps), suggère-la.

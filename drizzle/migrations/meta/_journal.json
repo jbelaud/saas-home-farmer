@@ -8,6 +8,20 @@
       "when": 1769570066501,
       "tag": "0000_minor_kylun",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773265966376,
+      "tag": "0001_striped_magik",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773346035227,
+      "tag": "0002_freezing_magneto",
+      "breakpoints": true
     }
   ]
 }

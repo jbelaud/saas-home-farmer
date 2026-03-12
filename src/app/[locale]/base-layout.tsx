@@ -6,6 +6,8 @@ import React, {ReactNode} from 'react'
 
 import {AppProviders} from '@/components/context/app-providers'
 import {env} from '@/env'
+import {inter, outfit} from '@/lib/fonts'
+import {cn} from '@/lib/utils'
 
 type Props = {
   children: ReactNode
@@ -18,8 +20,10 @@ export default async function BaseLayout({children, locale}: Props) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body>
-        <NextTopLoader showSpinner={false} color="#2563eb" height={3} />
+      <body
+        className={cn(inter.variable, outfit.variable, 'font-sans antialiased')}
+      >
+        <NextTopLoader showSpinner={false} color="#047857" height={3} />
         <NextIntlClientProvider>
           <AppProviders>{children}</AppProviders>
         </NextIntlClientProvider>

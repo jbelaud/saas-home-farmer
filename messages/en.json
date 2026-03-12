@@ -29,41 +29,122 @@
     }
   },
   "HomePage": {
-    "title": "Modern SaaS platform to boost your business",
-    "description": "Manage, analyze and grow your business with powerful tools and an intuitive interface.",
+    "title": "My Home Farmer - Live your passion, all year long",
+    "description": "The all-in-one platform for garden entrepreneurs: management, profitability and client satisfaction.",
     "metadata": {
-      "title": "Home - Next SaaS Boilerplate",
-      "description": "Modern SaaS platform to boost your business"
+      "title": "My Home Farmer - The SaaS for Garden Entrepreneurs",
+      "description": "Digitize your gardening business: admin management, job tracking and ROI calculation for your clients."
     },
     "navigation": {
       "features": "Features",
+      "serenity": "Serenity",
       "pricing": "Pricing",
-      "contact": "Contact"
+      "contact": "Contact",
+      "about": "About"
     },
     "hero": {
-      "title": "Modern SaaS platform to boost your business",
-      "description": "Manage, analyze and grow your business with powerful tools and an intuitive interface.",
-      "cta": "Try for free"
+      "badge": "The #1 tool for Garden Entrepreneurs",
+      "title": "Digitize your Home Farmer business",
+      "description": "Save 20% on admin time, secure your annual income and offer premium client follow-up. All from your smartphone.",
+      "cta": "Start now",
+      "ctaSecondary": "Watch demo",
+      "socialProof": "Already adopted by 50+ network entrepreneurs"
     },
     "features": {
-      "title": "Features",
-      "subtitle": "Discover what makes our platform unique",
+      "title": "More than a tool, your field partner",
+      "subtitle": "Designed for hands in the dirt, optimized for profitability.",
       "automation": {
-        "title": "Automation",
-        "description": "Automate your repetitive tasks and save time daily."
+        "title": "Admin Management",
+        "description": "No more paperwork in the evening. Generate invoices and intervention reports in 2 clicks from the garden."
       },
       "analytics": {
-        "title": "Advanced Analytics",
-        "description": "Get detailed reports to drive your growth."
+        "title": "Proof of Value (ROI)",
+        "description": "Show your clients how much their garden earns them. Transform your cost into an investment."
       },
       "security": {
-        "title": "Optimal Security",
-        "description": "Your data is protected with our secure infrastructure."
+        "title": "Secured Revenue",
+        "description": "Spread your activity over 12 months with the subscription model and annual planning."
+      },
+      "intervention": {
+        "title": "Job Tracking",
+        "description": "Mobile-adapted photo log and checklists. Keep track of every visit."
       }
     },
+    "serenity": {
+      "badge": "Serenity & Trust",
+      "title": "A unique bond of trust\nwith your clients.",
+      "description": "Your clients don't just buy vegetables, they buy peace of mind. Give them total transparency without extra effort.",
+      "features": [
+        "Automatic intervention reports",
+        "Dedicated client space (Web & Mobile)",
+        "Valorization of your technical expertise"
+      ],
+      "mockCard": {
+        "title": "Dedicated Client Space",
+        "subtitle": "Owner View",
+        "lastVisit": "Last visit",
+        "lastVisitValue": "Today, 2:30 PM",
+        "actionsLabel": "Actions done",
+        "note": "The garden is doing well! I mulched the tomatoes to retain moisture.",
+        "photoPlaceholder": "Garden photo"
+      }
+    },
+    "pricing": {
+      "title": "Pricing adapted to your growth",
+      "subtitle": "Early Bird offer: enjoy these prices for 12 months",
+      "popular": "Popular",
+      "graine": {
+        "name": "Seed",
+        "description": "To test without risk",
+        "price": "0 €",
+        "features": ["1 included client", "Mobile app", "Client dashboard"],
+        "cta": "Create account"
+      },
+      "pousse": {
+        "name": "Sprout",
+        "description": "To start your business",
+        "price": "19 €",
+        "priceSuffix": "/month",
+        "originalPrice": "instead of 49€",
+        "features": [
+          "Up to 20 clients",
+          "Tour management",
+          "Photos & Checklists",
+          "Email support"
+        ],
+        "cta": "Choose this plan"
+      },
+      "recolte": {
+        "name": "Harvest",
+        "description": "For established pros",
+        "price": "49 €",
+        "priceSuffix": "/month",
+        "originalPrice": "instead of 99€",
+        "features": [
+          "Unlimited clients",
+          "Tax API (FR)",
+          "Priority support",
+          "Multi-users"
+        ],
+        "cta": "Contact team"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "Is it difficult to use?",
+      "a1": "Not at all! The app is designed to be used with one hand in the field. Big buttons, clear interface.",
+      "q2": "Do my clients have access to the app?",
+      "a2": "Yes, each client has a free personal space (Web & Mobile) to find your reports, photos and advice. It's a great plus for your brand image.",
+      "q3": "I'm in Belgium, is the offer adapted?",
+      "a3": "Absolutely! We have a specific offer for Belgium and Switzerland (without the French tax module), at an adapted rate."
+    },
+    "cta": {
+      "title": "Ready to grow your business?",
+      "description": "Join the entrepreneurs who are changing the landscaping model.",
+      "button": "Create my free account"
+    },
     "footer": {
-      "byMike": "By Mike Codeur",
-      "allRightsReserved": "All rights reserved.",
+      "copyright": "© 2024 MyHomeFarmer. All rights reserved.",
       "product": {
         "title": "Product",
         "features": "Features",

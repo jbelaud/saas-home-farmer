@@ -29,41 +29,125 @@
     }
   },
   "HomePage": {
-    "title": "La plateforme SaaS moderne pour booster votre business",
-    "description": "Gérez, analysez et développez votre activité avec des outils puissants et une interface intuitive.",
+    "title": "My Home Farmer - Vivez de votre passion, toute l'année",
+    "description": "La plateforme tout-en-un pour les entrepreneurs jardiniers : gestion, rentabilité et satisfaction client.",
     "metadata": {
-      "title": "Accueil - Next SaaS Boilerplate",
-      "description": "La plateforme SaaS moderne pour booster votre business"
+      "title": "My Home Farmer - Le SaaS des Entrepreneurs Jardiniers",
+      "description": "Digitalisez votre activité de jardinier : gestion administrative, suivi de chantier et calcul de ROI pour vos clients."
     },
     "navigation": {
       "features": "Fonctionnalités",
       "pricing": "Tarifs",
-      "contact": "Contact"
+      "contact": "Contact",
+      "about": "À propos"
     },
     "hero": {
-      "title": "La plateforme SaaS moderne pour booster votre business",
-      "description": "Gérez, analysez et développez votre activité avec des outils puissants et une interface intuitive.",
-      "cta": "Essayez gratuitement"
+      "badge": "L'outil n°1 des Entrepreneurs Jardiniers",
+      "title": "Digitalisez votre activité de Home Farmer",
+      "description": "Gagnez 20% de temps administratif, sécurisez vos revenus à l'année et offrez un suivi premium à vos clients. Tout ça, depuis votre smartphone.",
+      "cta": "Commencer maintenant",
+      "ctaSecondary": "Voir la démo",
+      "socialProof": "Déjà adopté par +50 entrepreneurs du réseau"
     },
     "features": {
-      "title": "Fonctionnalités",
-      "subtitle": "Découvrez ce qui rend notre plateforme unique",
+      "title": "Plus qu'un outil, votre partenaire terrain",
+      "subtitle": "Conçu pour les mains dans la terre, optimisé pour la rentabilité.",
       "automation": {
-        "title": "Automatisation",
-        "description": "Automatisez vos tâches répétitives et gagnez du temps au quotidien."
+        "title": "Gestion Administrative",
+        "description": "Fini la paperasse le soir. Générez factures et rapports d'intervention en 2 clics depuis le jardin."
       },
       "analytics": {
-        "title": "Analyse avancée",
-        "description": "Obtenez des rapports détaillés pour piloter votre croissance."
+        "title": "Preuve de Valeur (ROI)",
+        "description": "Montrez à vos clients combien leur potager leur rapporte. Transformez votre coût en investissement."
       },
       "security": {
-        "title": "Sécurité optimale",
-        "description": "Vos données sont protégées grâce à notre infrastructure sécurisée."
+        "title": "Revenus Sécurisés",
+        "description": "Lissez votre activité sur 12 mois grâce au modèle par abonnement et au planning annuel."
+      },
+      "intervention": {
+        "title": "Suivi de Chantier",
+        "description": "Log photo et checklists adaptés au mobile. Gardez une trace de chaque passage."
       }
     },
+    "serenity": {
+      "badge": "Sérénité & Confiance",
+      "title": "Un lien de confiance unique\navec vos clients.",
+      "description": "Vos clients n'achètent pas seulement des légumes, ils achètent la tranquillité d'esprit. Offrez-leur une transparence totale sans effort supplémentaire.",
+      "features": [
+        "Rapports d'intervention automatiques",
+        "Espace client dédié (Web & Mobile)",
+        "Valorisation de votre expertise technique"
+      ],
+      "mockCard": {
+        "title": "Espace Client Dédié",
+        "subtitle": "Vue Propriétaire",
+        "lastVisit": "Dernière visite",
+        "lastVisitValue": "Aujourd'hui, 14:30",
+        "actionsLabel": "Actions réalisées",
+        "note": "Le potager se porte bien ! J'ai paillé les tomates pour garder l'humidité.",
+        "photoPlaceholder": "Photo du potager"
+      }
+    },
+    "pricing": {
+      "title": "Des tarifs adaptés à votre croissance",
+      "subtitle": "Offre Early Bird : Profitez de ces tarifs pendant 12 mois",
+      "popular": "Populaire",
+      "graine": {
+        "name": "Graine",
+        "description": "Pour tester sans risque",
+        "price": "0 €",
+        "features": [
+          "1 client inclus",
+          "Application Mobile",
+          "Dashboard Client"
+        ],
+        "cta": "Créer un compte"
+      },
+      "pousse": {
+        "name": "Pousse",
+        "description": "Pour démarrer l'activité",
+        "price": "19 €",
+        "priceSuffix": "/mois",
+        "originalPrice": "au lieu de 49€",
+        "features": [
+          "Jusqu'à 20 Clients",
+          "Gestion de tournée",
+          "Photos & Checklists",
+          "Support Email"
+        ],
+        "cta": "Choisir ce plan"
+      },
+      "recolte": {
+        "name": "Récolte",
+        "description": "Pour les pros établis",
+        "price": "49 €",
+        "priceSuffix": "/mois",
+        "originalPrice": "au lieu de 99€",
+        "features": [
+          "Clients Illimités",
+          "API Fiscale (FR)",
+          "Support Prioritaire",
+          "Multi-utilisateurs"
+        ],
+        "cta": "Contacter l'équipe"
+      }
+    },
+    "cta": {
+      "title": "Prêt à faire germer votre business ?",
+      "description": "Rejoignez les entrepreneurs qui changent le modèle du paysagisme.",
+      "button": "Créer mon compte gratuit"
+    },
+    "faq": {
+      "title": "Questions Fréquentes",
+      "q1": "Est-ce compliqué à utiliser ?",
+      "a1": "Non ! L'application est conçue pour être utilisée d'une seule main sur le terrain. Gros boutons, interface claire.",
+      "q2": "Comment fonctionne le calcul de ROI ?",
+      "a2": "Vos clients saisissent leurs récoltes, et l'app calcule automatiquement la valeur marchande bio équivalente.",
+      "q3": "Puis-je changer d'offre ?",
+      "a3": "À tout moment. Vous pouvez passer de Graine à Pousse dès que vous signez vos premiers clients."
+    },
     "footer": {
-      "byMike": "By Mike Codeur",
-      "allRightsReserved": "Tous droits réservés.",
+      "copyright": "© 2024 MyHomeFarmer. Tous droits réservés.",
       "product": {
         "title": "Produit",
         "features": "Fonctionnalités",
