@@ -27,20 +27,23 @@ export const metadata: Metadata = {
 
 async function AppLayout({children}: {children: React.ReactNode}) {
   const user = await getAuthUser()
-  let sessionAuth = await getSessionAuth()
+  const sessionAuth = await getSessionAuth()
 
   let organizationId = sessionAuth?.session?.activeOrganizationId
 
-  // Si pas d'org active (ex: refresh après magic link), activer la première org Farmer
+  // Si pas d'org active (ex: refresh après magic link), activer la première org silencieusement
   if (!organizationId && user?.organizations?.length) {
     const firstOrg = user.organizations[0]?.organization
     if (firstOrg?.id) {
-      await auth.api.setActiveOrganization({
-        headers: await headers(),
-        body: {organizationId: firstOrg.id},
-      })
       organizationId = firstOrg.id
-      sessionAuth = await getSessionAuth()
+      // Fire-and-forget : activer l'org sans bloquer le render
+      const requestHeaders = await headers()
+      auth.api
+        .setActiveOrganization({
+          headers: requestHeaders,
+          body: {organizationId: firstOrg.id},
+        })
+        .catch(() => {})
     }
   }
 
