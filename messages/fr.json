@@ -37,6 +37,7 @@
     },
     "navigation": {
       "features": "Fonctionnalités",
+      "serenity": "Sérénité",
       "pricing": "Tarifs",
       "contact": "Contact",
       "about": "À propos"
@@ -106,7 +107,7 @@
       "pousse": {
         "name": "Pousse",
         "description": "Pour démarrer l'activité",
-        "price": "19 €",
+        "price": "9 €",
         "priceSuffix": "/mois",
         "originalPrice": "au lieu de 49€",
         "features": [
@@ -120,15 +121,17 @@
       "recolte": {
         "name": "Récolte",
         "description": "Pour les pros établis",
-        "price": "49 €",
+        "priceFr": "39 €",
+        "priceIntl": "29 €",
         "priceSuffix": "/mois",
-        "originalPrice": "au lieu de 99€",
+        "originalPriceFr": "au lieu de 99€",
+        "originalPriceIntl": "au lieu de 69€",
         "features": [
           "Clients Illimités",
-          "API Fiscale (FR)",
           "Support Prioritaire",
           "Multi-utilisateurs"
         ],
+        "featureFr": "API Fiscale (Service à la personne)",
         "cta": "Contacter l'équipe"
       }
     },

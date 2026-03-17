@@ -103,7 +103,7 @@
       "pousse": {
         "name": "Sprout",
         "description": "To start your business",
-        "price": "19 €",
+        "price": "9 €",
         "priceSuffix": "/month",
         "originalPrice": "instead of 49€",
         "features": [
@@ -117,15 +117,13 @@
       "recolte": {
         "name": "Harvest",
         "description": "For established pros",
-        "price": "49 €",
+        "priceFr": "39 €",
+        "priceIntl": "29 €",
         "priceSuffix": "/month",
-        "originalPrice": "instead of 99€",
-        "features": [
-          "Unlimited clients",
-          "Tax API (FR)",
-          "Priority support",
-          "Multi-users"
-        ],
+        "originalPriceFr": "instead of 99€",
+        "originalPriceIntl": "instead of 69€",
+        "features": ["Unlimited clients", "Priority support", "Multi-users"],
+        "featureFr": "Tax API (Personal Services)",
         "cta": "Contact team"
       }
     },

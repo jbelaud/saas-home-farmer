@@ -1,5 +1,5 @@
 import {BarChart2, FileText, Shield, Smartphone} from 'lucide-react'
-import {useTranslations} from 'next-intl'
+import {getTranslations} from 'next-intl/server'
 
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 
@@ -25,8 +25,8 @@ function FeatureCard({icon, title, description}: FeatureCardProps) {
   )
 }
 
-export function FeaturesSection() {
-  const t = useTranslations('HomePage')
+export async function FeaturesSection({locale}: {locale: string}) {
+  const t = await getTranslations({locale, namespace: 'HomePage'})
 
   const features = [
     {

@@ -1,10 +1,10 @@
 import {Check, Users} from 'lucide-react'
-import {useTranslations} from 'next-intl'
+import {getTranslations} from 'next-intl/server'
 
 import {Badge} from '@/components/ui/badge'
 
-export function SerenitySection() {
-  const t = useTranslations('HomePage.serenity')
+export async function SerenitySection({locale}: {locale: string}) {
+  const t = await getTranslations({locale, namespace: 'HomePage.serenity'})
 
   return (
     <section id="serenity" className="bg-stone-900 py-20 text-white">

@@ -1,12 +1,12 @@
 import {ArrowRight, Check, Play, Smartphone, Sprout} from 'lucide-react'
 import Link from 'next/link'
-import {useTranslations} from 'next-intl'
+import {getTranslations} from 'next-intl/server'
 
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 
-export function HeroSection() {
-  const t = useTranslations('HomePage')
+export async function HeroSection({locale}: {locale: string}) {
+  const t = await getTranslations({locale, namespace: 'HomePage'})
 
   return (
     <section className="relative overflow-hidden bg-stone-50 pt-16 pb-20 lg:pt-24 lg:pb-32">

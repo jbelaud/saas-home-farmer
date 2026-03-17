@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import {useTranslations} from 'next-intl'
+import {getTranslations} from 'next-intl/server'
 
 import {Button} from '@/components/ui/button'
 
-export function CtaSection() {
-  const t = useTranslations('HomePage.cta')
+export async function CtaSection({locale}: {locale: string}) {
+  const t = await getTranslations({locale, namespace: 'HomePage.cta'})
 
   return (
     <section className="bg-primary py-20 text-center text-white">

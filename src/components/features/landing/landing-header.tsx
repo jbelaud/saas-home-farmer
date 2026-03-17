@@ -1,12 +1,12 @@
 import {Leaf} from 'lucide-react'
 import Link from 'next/link'
-import {useTranslations} from 'next-intl'
+import {getTranslations} from 'next-intl/server'
 
 import ButtonConnexionDashboard from '@/components/features/auth/button-connexion-dashboard'
 import {Button} from '@/components/ui/button'
 
-export function LandingHeader() {
-  const t = useTranslations('HomePage')
+export async function LandingHeader({locale}: {locale: string}) {
+  const t = await getTranslations({locale, namespace: 'HomePage'})
 
   return (
     <header className="fixed top-0 z-50 w-full border-b bg-white/90 backdrop-blur-md">

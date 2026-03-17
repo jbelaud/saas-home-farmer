@@ -42,16 +42,16 @@ export default async function Home({
 
   return (
     <div className="flex min-h-screen flex-col font-sans">
-      <LandingHeader />
+      <LandingHeader locale={locale} />
       <main className="flex-1 pt-16">
-        <HeroSection />
-        <FeaturesSection />
-        <SerenitySection />
-        <PricingSection />
-        <FaqSection />
-        <CtaSection />
+        <HeroSection locale={locale} />
+        <FeaturesSection locale={locale} />
+        <SerenitySection locale={locale} />
+        <PricingSection locale={locale} />
+        <FaqSection locale={locale} />
+        <CtaSection locale={locale} />
       </main>
-      <LandingFooter />
+      <LandingFooter locale={locale} />
     </div>
   )
 }

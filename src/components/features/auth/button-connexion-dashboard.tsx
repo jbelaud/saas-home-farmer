@@ -7,13 +7,13 @@ export default async function ButtonConnexionDashboard() {
   const user = await getAuthUser()
   if (user) {
     return (
-      <Button asChild>
-        <Link href="/dashboard">Dashboard</Link>
+      <Button asChild variant="outline" size="sm">
+        <Link href="/dashboard">Mon tableau de bord</Link>
       </Button>
     )
   }
   return (
-    <Button asChild>
+    <Button asChild variant="ghost" size="sm">
       <Link href="/login">Connexion</Link>
     </Button>
   )

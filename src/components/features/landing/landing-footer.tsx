@@ -1,9 +1,9 @@
 import {Leaf} from 'lucide-react'
 import Link from 'next/link'
-import {useTranslations} from 'next-intl'
+import {getTranslations} from 'next-intl/server'
 
-export function LandingFooter() {
-  const t = useTranslations('HomePage.footer')
+export async function LandingFooter({locale}: {locale: string}) {
+  const t = await getTranslations({locale, namespace: 'HomePage.footer'})
 
   return (
     <footer className="border-t bg-stone-50 py-12 text-stone-600">

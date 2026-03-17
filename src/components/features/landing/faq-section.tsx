@@ -1,4 +1,4 @@
-import {useTranslations} from 'next-intl'
+import {getTranslations} from 'next-intl/server'
 
 import {
   Accordion,
@@ -7,8 +7,8 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 
-export function FaqSection() {
-  const t = useTranslations('HomePage.faq')
+export async function FaqSection({locale}: {locale: string}) {
+  const t = await getTranslations({locale, namespace: 'HomePage.faq'})
 
   const items = [
     {q: t('q1'), a: t('a1')},

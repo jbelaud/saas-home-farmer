@@ -90,7 +90,7 @@ My Home Farmer(pour le moment, je vais peut-être changer de nom plus tard) est 
 
 - **`Franchisor` (La Franchise "Home Farmer", la maison mère) :** Vend une formation + accompagnement 6 mois à 6000€ (one-shot, pas d'abonnement). N'a PAS d'espace dans l'app pour le MVP. Son objectif : former les entrepreneurs à réussir leur activité. Pas de commission sur les clients des Farmers.
 
-- **`Farmer` (L'Entrepreneur Jardinier) :** Utilisateur principal de l'app. Abonnement mensuel (99€/mois FR, 69€/mois BE/CH). Gère ses tournées, ses fiches clients et ses rapports d'entretien. Correspond au concept `Organization` du boilerplate.
+- **`Farmer` (L'Entrepreneur Jardinier) :** Utilisateur principal de l'app. Abonnement mensuel Early Bird (9€/mois Pousse, 39€/mois Récolte FR, 29€/mois Récolte BE/CH) puis tarif standard (49€/mois Pousse, 99€/mois Récolte FR, 69€/mois Récolte BE/CH) après 12 mois. Gère ses tournées, ses fiches clients et ses rapports d'entretien. Correspond au concept `Organization` du boilerplate.
 
 - **`Client` (Le Particulier) :** Le client du Farmer. Accède à son espace pour voir les photos du pro, saisir ses récoltes et consulter son dashboard ROI. Correspond au concept `Member` du boilerplate.
 
@@ -113,9 +113,9 @@ L'IA doit toujours garder en tête ces règles métiers lors de la génération 
 | Offre               | Année 1 "Early Bird" | Année 2+ Standard | Capacité               |
 | ------------------- | -------------------- | ----------------- | ---------------------- |
 | **Graine**          | 0 €                  | 0 €               | 1 client (Test)        |
-| **Pousse**          | 19 € / mois          | 49 € / mois       | Jusqu'à 20 clients     |
-| **Récolte (FR)**    | 49 € / mois          | 99 € / mois       | Illimité + API Fiscale |
-| **Récolte (BE/CH)** | 39 € / mois          | 69 € / mois       | Illimité               |
+| **Pousse**          | 9 € / mois           | 49 € / mois       | Jusqu'à 20 clients     |
+| **Récolte (FR)**    | 39 € / mois          | 99 € / mois       | Illimité + API Fiscale |
+| **Récolte (BE/CH)** | 29 € / mois          | 69 € / mois       | Illimité               |
 
 **Règle de Pricing Early Bird :** Appliquer un tarif "Early Bird" pendant les 12 premiers mois suivant l'inscription du `Farmer`. Après 12 mois, le tarif standard s'applique automatiquement via Stripe (upgrade de price_id sur la subscription).
 
@@ -123,8 +123,10 @@ L'IA doit toujours garder en tête ces règles métiers lors de la génération 
 
 ### B. Segmentation Géographique & Fiscale
 
-- **France :** Activation du module "Service à la Personne". Calcul du crédit d'impôt de 50%. Plan "Récolte FR" à 49€/mois (an 1) puis 99€/mois (inclut API fiscale).
-- **Belgique/Suisse :** Pas de crédit d'impôt. Plan "Récolte BE/CH" à 39€/mois (an 1) puis 69€/mois.
+- **France :** Activation du module "Service à la Personne". Calcul du crédit d'impôt de 50%. Plan "Récolte FR" à 39€/mois (an 1) puis 99€/mois (inclut API fiscale).
+- **Belgique/Suisse/Autre :** Pas de crédit d'impôt, pas d'API Fiscale. Plan "Récolte non-FR" à 29€/mois (an 1) puis 69€/mois.
+- La différence entre Récolte FR et Récolte non-FR est **uniquement le module API Fiscale** (Service à la Personne). Le prix reflète ce module supplémentaire.
+- La landing page affiche un **switch FR / non-FR** sur la section pricing pour montrer les deux tarifs.
 - **Autre :** Dans quelques années, Home Farmer voudra développer leur concept dans l'Europe entier et dans le monde.
 
 ### C. Le Calculateur de ROI (Le coeur de la valeur)
