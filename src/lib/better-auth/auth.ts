@@ -29,6 +29,7 @@ import {onStripeEvent} from '@/lib/stripe/stripe-events'
 import {allocateCreditsOnSubscriptionService} from '@/services/facades/credit-service-facade'
 import {
   sendInternalEmailService,
+  sendMagicLinkEmailService,
   sendOrganizationInvitationService,
 } from '@/services/facades/email-service-facade'
 import {subscribeToNewsletterService} from '@/services/facades/newsletter-service-facade'
@@ -147,22 +148,16 @@ const options = {
     }),
     magicLink({
       sendMagicLink: async ({email, url}) => {
-        console.log('sendMagicLink', email, url)
-        // Find user by email for notification service
-        let user = await getUserByEmailDao(email)
-        if (!user) {
-          // Regsiter with magic Link
-          //await initializeRegisterUserDataService(email, true)
-          user = await getUserByEmailDao(email)
-        }
+        // Envoyer le magic link par email (fonctionne aussi pour les nouveaux inscrits)
+        await sendMagicLinkEmailService({email, url})
+
+        // Créer une notification interne si l'utilisateur existe déjà
+        const user = await getUserByEmailDao(email)
         if (user) {
           await createTypedNotificationService({
             userId: user.id,
             type: NotificationTypeConst.magic_link,
-            metadata: {
-              url,
-              email,
-            },
+            metadata: {url, email},
           })
         }
       },
