@@ -1,4 +1,5 @@
 import {Metadata} from 'next'
+import {headers} from 'next/headers'
 import React from 'react'
 
 import AuthProvider from '@/components/context/auth-provider'
@@ -12,6 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import {auth} from '@/lib/better-auth/auth'
 import {APP_NAME} from '@/lib/constants'
 import {
   getAuthUser,
@@ -25,9 +27,23 @@ export const metadata: Metadata = {
 
 async function AppLayout({children}: {children: React.ReactNode}) {
   const user = await getAuthUser()
-  const sessionAuth = await getSessionAuth()
+  let sessionAuth = await getSessionAuth()
 
-  const organizationId = sessionAuth?.session?.activeOrganizationId
+  let organizationId = sessionAuth?.session?.activeOrganizationId
+
+  // Si pas d'org active (ex: refresh après magic link), activer la première org Farmer
+  if (!organizationId && user?.organizations?.length) {
+    const firstOrg = user.organizations[0]?.organization
+    if (firstOrg?.id) {
+      await auth.api.setActiveOrganization({
+        headers: await headers(),
+        body: {organizationId: firstOrg.id},
+      })
+      organizationId = firstOrg.id
+      sessionAuth = await getSessionAuth()
+    }
+  }
+
   const activeOrganization = user?.organizations?.find(
     (org) => org.organization?.id === organizationId
   )?.organization
