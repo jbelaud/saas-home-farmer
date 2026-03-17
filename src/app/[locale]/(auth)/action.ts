@@ -3,7 +3,7 @@
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import {headers} from 'next/headers'
 import {redirect} from 'next/navigation'
-import {getTranslations} from 'next-intl/server'
+import {getLocale, getTranslations} from 'next-intl/server'
 import {z} from 'zod'
 
 import {
@@ -465,11 +465,12 @@ export async function registerMagicLinkAction(
     }
   }
   // 3. Envoi du magic link avec better auth
+  const locale = await getLocale()
   const response = await auth.api.signInMagicLink({
     headers: await headers(),
     body: {
       email,
-      callbackURL: '/dashboard',
+      callbackURL: `/${locale}/dashboard`,
     },
   })
 
@@ -482,7 +483,7 @@ export async function registerMagicLinkAction(
 
   // 4. Créer son organisation dans la base de données
   try {
-    redirect('/verify-request')
+    redirect(`/${locale}/verify-request`)
   } catch (error) {
     if (isRedirectError(error)) {
       throw error

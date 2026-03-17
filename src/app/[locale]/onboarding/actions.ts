@@ -3,6 +3,7 @@
 import {isRedirectError} from 'next/dist/client/components/redirect-error'
 import {headers} from 'next/headers'
 import {redirect} from 'next/navigation'
+import {getLocale} from 'next-intl/server'
 import {z} from 'zod'
 
 import {auth} from '@/lib/better-auth/auth'
@@ -78,7 +79,14 @@ export async function completeOnboardingAction(
       country,
     })
 
-    redirect('/dashboard')
+    // Activer l'organisation dans la session pour éviter la boucle onboarding
+    await auth.api.setActiveOrganization({
+      headers: await headers(),
+      body: {organizationId: organization.id},
+    })
+
+    const locale = await getLocale()
+    redirect(`/${locale}/dashboard`)
   } catch (error) {
     if (isRedirectError(error)) throw error
     console.error('Onboarding error:', error)
