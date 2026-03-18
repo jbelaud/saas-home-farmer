@@ -1,4 +1,8 @@
-import {AddGardenClientModel, GardenClientModel} from '@/db/models/farmer-model'
+import {
+  AddGardenClientModel,
+  GardenClientModel,
+  UpdateGardenClientModel,
+} from '@/db/models/farmer-model'
 import {
   createGardenClientDao,
   deleteGardenClientDao,
@@ -62,7 +66,16 @@ export const updateGardenClientService = async (
   if (!existing) {
     throw new AuthorizationError('Client introuvable')
   }
-  await updateGardenClientDao({...data, id})
+  await updateGardenClientDao({
+    ...data,
+    id,
+    organizationId,
+    firstName: data.firstName ?? existing.firstName,
+    lastName: data.lastName ?? existing.lastName,
+    addressStreet: data.addressStreet ?? existing.addressStreet,
+    addressCity: data.addressCity ?? existing.addressCity,
+    addressZip: data.addressZip ?? existing.addressZip,
+  })
 }
 
 export const deleteGardenClientService = async (id: string): Promise<void> => {

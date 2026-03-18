@@ -116,6 +116,15 @@ export const getGardenClientsByOrganizationDao = async (
   }
 }
 
+export const getGardenClientByAccessTokenDao = async (
+  accessToken: string
+): Promise<GardenClientModel | undefined> => {
+  return db.query.gardenClients.findFirst({
+    where: (gc, {eq, and}) =>
+      and(eq(gc.accessToken, accessToken), eq(gc.isActive, true)),
+  })
+}
+
 export const getActiveClientsCountByOrganizationDao = async (
   organizationId: string
 ): Promise<number> => {

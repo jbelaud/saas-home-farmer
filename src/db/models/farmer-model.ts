@@ -123,6 +123,10 @@ export const gardenClients = pgTable(
     photoUrls: text('photo_urls').array().default([]).notNull(),
     // Avantage fiscal (crédit d'impôt 50% SAP - France uniquement)
     hasTaxAdvantage: boolean('has_tax_advantage').default(false).notNull(),
+    // Token d'accès au portail client (magic link simplifié)
+    accessToken: uuid('access_token')
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
     // Statut du client
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: timestamp('created_at', {mode: 'date'}).defaultNow().notNull(),
@@ -132,6 +136,7 @@ export const gardenClients = pgTable(
     index('garden_client_organization_id_idx').on(table.organizationId),
     index('garden_client_is_active_idx').on(table.isActive),
     index('garden_client_created_at_idx').on(table.createdAt),
+    uniqueIndex('garden_client_access_token_unique').on(table.accessToken),
   ]
 )
 

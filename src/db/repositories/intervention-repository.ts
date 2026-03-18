@@ -135,6 +135,21 @@ export const getInterventionsByGardenClientDao = async (
   }
 }
 
+export const getLastCompletedInterventionByClientDao = async (
+  gardenClientId: string,
+  organizationId: string
+): Promise<InterventionModel | undefined> => {
+  return db.query.interventions.findFirst({
+    where: (i, {eq, and}) =>
+      and(
+        eq(i.gardenClientId, gardenClientId),
+        eq(i.organizationId, organizationId),
+        eq(i.status, 'completed')
+      ),
+    orderBy: (i, {desc}) => [desc(i.scheduledDate)],
+  })
+}
+
 export const getInterventionsByDateRangeDao = async (
   organizationId: string,
   startDate: Date,

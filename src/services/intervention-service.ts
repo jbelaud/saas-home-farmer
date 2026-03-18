@@ -96,7 +96,13 @@ export const updateInterventionService = async (
   if (!existing) {
     throw new AuthorizationError('Intervention introuvable')
   }
-  await updateInterventionDao({...data, id})
+  await updateInterventionDao({
+    ...data,
+    id,
+    organizationId,
+    gardenClientId: data.gardenClientId ?? existing.gardenClientId,
+    scheduledDate: data.scheduledDate ?? existing.scheduledDate,
+  })
 }
 
 export const updateInterventionStatusService = async (
