@@ -153,7 +153,7 @@ export const clientSchema = {
   // Méthodes d'authentification
   NEXT_PUBLIC_AUTH_METHODS: z
     .string()
-    .default('credential,magiclink,google')
+    .default('credential,google')
     .transform((val) =>
       val.split(',').map((method) => method.trim() as AuthMethod)
     ),

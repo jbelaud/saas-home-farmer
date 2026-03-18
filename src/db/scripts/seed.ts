@@ -76,8 +76,8 @@ const seed = async () => {
   await client.query(`
     INSERT INTO "user" (email, name, email_verified, image, visibility, role)
     VALUES
-      ('superadmin@myhomefarmer.com', 'SuperAdmin MHF', true, NULL, 'public', 'super_admin'),
-      ('jean@homefarmer.com', 'Jean Dupont', true, 'https://randomuser.me/api/portraits/med/men/32.jpg', 'public', 'user')
+      ('superadmin@myhomefarmer.fr', 'SuperAdmin MHF', true, NULL, 'public', 'super_admin'),
+      ('jean.dupont@myhomefarmer.fr', 'Jean Dupont', true, 'https://randomuser.me/api/portraits/med/men/32.jpg', 'public', 'user')
     ON CONFLICT (email) DO NOTHING;
   `)
 
@@ -93,7 +93,7 @@ const seed = async () => {
       '48ea88853800794bc5312d8ad65fe149:d8503b790be4373e803d663b895438fa1e8f0b809a1b86a2b3fb6290f7f2310c4acb82dfe3737d2a3dd318a786653af3438022f24286ee0e9e8b2dda9b91f8f9',
       NOW(), NOW()
     FROM "user" u
-    WHERE u.email IN ('superadmin@myhomefarmer.com', 'jean@homefarmer.com')
+    WHERE u.email IN ('superadmin@myhomefarmer.fr', 'jean.dupont@myhomefarmer.fr')
     ON CONFLICT ("account_id", "provider_id") DO NOTHING;
   `)
 
@@ -113,7 +113,7 @@ const seed = async () => {
     INSERT INTO "member" (organization_id, user_id, role, created_at)
     SELECT o.id, u.id, 'owner'::organization_role, NOW()
     FROM "user" u, "organization" o
-    WHERE u.email = 'jean@homefarmer.com' AND o.slug = 'jean-dupont-jardinage'
+    WHERE u.email = 'jean.dupont@myhomefarmer.fr' AND o.slug = 'jean-dupont-jardinage'
     ON CONFLICT (organization_id, user_id) DO NOTHING;
   `)
 
@@ -285,7 +285,7 @@ const seed = async () => {
       ('email.enabled', 'true', 'boolean', 'email', 'Activer emails', 'Toggle principal envoi emails', NOW()),
       ('email.enabled_for_admins', 'true', 'boolean', 'email', 'Emails admin', 'Envoyer les emails aux admins', NOW()),
       ('email.enabled_for_clients', 'true', 'boolean', 'email', 'Emails clients', 'Envoyer les emails aux clients', NOW()),
-      ('email.communication_email', 'contact@myhomefarmer.com', 'string', 'email', 'Email de communication', 'Adresse reply-to', NOW()),
+      ('email.communication_email', 'contact@myhomefarmer.fr', 'string', 'email', 'Email de communication', 'Adresse reply-to', NOW()),
       ('general.maintenance_mode', 'false', 'boolean', 'general', 'Mode maintenance', 'Afficher page maintenance', NOW()),
       ('general.maintenance_message', '', 'string', 'general', 'Message maintenance', 'Message affiché en maintenance', NOW())
     ON CONFLICT (key) DO NOTHING;
@@ -303,14 +303,14 @@ const seed = async () => {
     )
     SELECT
       u.id,
-      CASE WHEN u.email = 'superadmin@myhomefarmer.com' THEN 'system' ELSE 'light' END::theme_type,
+      CASE WHEN u.email = 'superadmin@myhomefarmer.fr' THEN 'system' ELSE 'light' END::theme_type,
       'fr'::language_type,
       'Europe/Paris',
       'otp'::two_factor_type,
       true, true, 'both'::notification_channel, true, false,
       NOW(), NOW()
     FROM "user" u
-    WHERE u.email IN ('superadmin@myhomefarmer.com', 'jean@homefarmer.com')
+    WHERE u.email IN ('superadmin@myhomefarmer.fr', 'jean.dupont@myhomefarmer.fr')
     ON CONFLICT (user_id) DO NOTHING;
   `)
 
@@ -325,8 +325,8 @@ const seed = async () => {
   console.log('  Récolte BE/CH (29€/mois early bird → 69€/mois, illimité)')
   console.log('')
   console.log('👤 Comptes (mot de passe = "password") :')
-  console.log('  superadmin@myhomefarmer.com  (SuperAdmin)')
-  console.log('  jean@homefarmer.com          (Farmer — Jean Dupont)')
+  console.log('  superadmin@myhomefarmer.fr  (SuperAdmin)')
+  console.log('  jean.dupont@myhomefarmer.fr          (Farmer — Jean Dupont)')
   console.log('')
   console.log('🏢 Organisation : Jean Dupont Jardinage (Versailles)')
   console.log('')
