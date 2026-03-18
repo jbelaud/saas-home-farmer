@@ -4,11 +4,17 @@ import {revalidatePath} from 'next/cache'
 import {z} from 'zod'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
+import {uploadImageForEntityService} from '@/services/facades/file-service-facade'
 import {
   createGardenClientService,
   deleteGardenClientService,
+  getGardenClientByIdService,
   updateGardenClientService,
 } from '@/services/facades/garden-client-service-facade'
+import {
+  EntityTypeConst,
+  FileCategoryConst,
+} from '@/services/types/domain/file-types'
 
 // ============================================================
 // Validation schemas
@@ -48,6 +54,12 @@ export type ClientFormState = {
   success: boolean
   message?: string
   errors?: {field: string; message: string}[]
+}
+
+export type UploadPhotoState = {
+  success: boolean
+  message?: string
+  imageUrl?: string
 }
 
 // ============================================================
@@ -179,6 +191,83 @@ export async function deleteGardenClientAction(
       success: false,
       message:
         error instanceof Error ? error.message : 'Une erreur est survenue',
+    }
+  }
+}
+
+// ============================================================
+// Upload / Suppression photos jardin
+// ============================================================
+
+export async function uploadGardenPhotoAction(
+  clientId: string,
+  formData: FormData
+): Promise<UploadPhotoState> {
+  try {
+    await requireActionAuth()
+
+    const file = formData.get('file') as File
+    if (!file || file.size === 0) {
+      return {success: false, message: 'Aucun fichier fourni'}
+    }
+
+    const result = await uploadImageForEntityService({
+      file,
+      entityType: EntityTypeConst.GARDEN_CLIENT,
+      entityId: clientId,
+      category: FileCategoryConst.GARDEN_PHOTO,
+    })
+
+    // Ajouter l'URL au tableau photoUrls du client
+    const client = await getGardenClientByIdService(clientId)
+    if (!client) {
+      return {success: false, message: 'Client introuvable'}
+    }
+
+    const updatedPhotos = [...(client.photoUrls ?? []), result.url]
+    await updateGardenClientService(clientId, {photoUrls: updatedPhotos})
+
+    revalidatePath(`/clients/${clientId}`)
+    revalidatePath('/clients')
+    return {
+      success: true,
+      message: 'Photo ajoutée',
+      imageUrl: result.url,
+    }
+  } catch (error) {
+    console.error('uploadGardenPhotoAction error:', error)
+    return {
+      success: false,
+      message: "Impossible d'uploader la photo. Réessayez.",
+    }
+  }
+}
+
+export async function removeGardenPhotoAction(
+  clientId: string,
+  photoUrl: string
+): Promise<ClientFormState> {
+  try {
+    await requireActionAuth()
+
+    const client = await getGardenClientByIdService(clientId)
+    if (!client) {
+      return {success: false, message: 'Client introuvable'}
+    }
+
+    const updatedPhotos = (client.photoUrls ?? []).filter(
+      (url) => url !== photoUrl
+    )
+    await updateGardenClientService(clientId, {photoUrls: updatedPhotos})
+
+    revalidatePath(`/clients/${clientId}`)
+    revalidatePath('/clients')
+    return {success: true, message: 'Photo supprimée'}
+  } catch (error) {
+    console.error('removeGardenPhotoAction error:', error)
+    return {
+      success: false,
+      message: 'Impossible de supprimer la photo.',
     }
   }
 }

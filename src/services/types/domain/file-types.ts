@@ -8,9 +8,16 @@ export type EntityType =
   | 'product'
   | 'generic'
   | 'post'
+  | 'garden_client'
 
 // Types de fichiers pour une entité
-export type FileCategory = 'profile' | 'logo' | 'banner' | 'document' | 'image'
+export type FileCategory =
+  | 'profile'
+  | 'logo'
+  | 'banner'
+  | 'document'
+  | 'image'
+  | 'garden_photo'
 
 // Constantes pour les types d'entités
 export const EntityTypeConst = {
@@ -19,6 +26,7 @@ export const EntityTypeConst = {
   PRODUCT: 'product' as EntityType,
   GENERIC: 'generic' as EntityType,
   POST: 'post' as EntityType,
+  GARDEN_CLIENT: 'garden_client' as EntityType,
 } as const
 
 // Constantes pour les catégories de fichiers
@@ -28,6 +36,7 @@ export const FileCategoryConst = {
   BANNER: 'banner' as FileCategory,
   DOCUMENT: 'document' as FileCategory,
   IMAGE: 'image' as FileCategory,
+  GARDEN_PHOTO: 'garden_photo' as FileCategory,
 } as const
 
 // Types MIME autorisés pour les images

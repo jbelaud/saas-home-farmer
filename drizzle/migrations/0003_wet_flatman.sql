@@ -1,0 +1,1 @@
+ALTER TABLE "garden_client" ADD COLUMN "photo_urls" text[] DEFAULT '{}' NOT NULL;

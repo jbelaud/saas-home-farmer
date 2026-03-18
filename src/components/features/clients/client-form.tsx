@@ -1,14 +1,20 @@
 'use client'
 
-import {useActionState} from 'react'
+import {Camera, X} from 'lucide-react'
+import Image from 'next/image'
+import {useActionState, useState} from 'react'
+import {toast} from 'sonner'
 
 import {
   ClientFormState,
   createGardenClientAction,
+  removeGardenPhotoAction,
   updateGardenClientAction,
+  uploadGardenPhotoAction,
 } from '@/app/[locale]/(app)/clients/actions'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {FileUpload} from '@/components/ui/file-upload'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {
@@ -39,8 +45,47 @@ export function ClientForm({client, onSuccess}: ClientFormProps) {
     FormData
   >(action, {success: false})
 
+  // Photos du jardin
+  const [photos, setPhotos] = useState<string[]>(client?.photoUrls ?? [])
+  const [isUploading, setIsUploading] = useState(false)
+
   if (state.success && onSuccess) {
     onSuccess()
+  }
+
+  async function handlePhotoUpload(files: File[]) {
+    if (!client?.id || files.length === 0) return
+
+    setIsUploading(true)
+    try {
+      for (const file of files) {
+        const formData = new FormData()
+        formData.append('file', file)
+        const result = await uploadGardenPhotoAction(client.id, formData)
+        if (result.success && result.imageUrl) {
+          const newUrl = result.imageUrl
+          setPhotos((prev) => [...prev, newUrl])
+          toast('Photo ajoutée')
+        } else {
+          toast.error(result.message || "Erreur lors de l'upload")
+        }
+      }
+    } catch {
+      toast.error("Impossible d'uploader la photo")
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  async function handleRemovePhoto(photoUrl: string) {
+    if (!client?.id) return
+    const result = await removeGardenPhotoAction(client.id, photoUrl)
+    if (result.success) {
+      setPhotos((prev) => prev.filter((url) => url !== photoUrl))
+      toast('Photo supprimée')
+    } else {
+      toast.error(result.message || 'Erreur')
+    }
   }
 
   return (
@@ -248,6 +293,60 @@ export function ClientForm({client, onSuccess}: ClientFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Photos du jardin — uniquement en mode édition */}
+      {isEdit && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Camera className="h-5 w-5" />
+              Photos du jardin
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {photos.length > 0 && (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {photos.map((url) => (
+                  <div
+                    key={url}
+                    className="group relative aspect-square overflow-hidden rounded-lg border"
+                  >
+                    <Image
+                      src={url}
+                      alt="Photo du jardin"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePhoto(url)}
+                      className="absolute top-1 right-1 rounded-full bg-red-600 p-1.5 text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <FileUpload
+              onChange={handlePhotoUpload}
+              onlyimage={true}
+              multi={true}
+              isUploading={isUploading}
+            />
+            {isUploading && (
+              <p className="text-sm text-stone-500">Upload en cours...</p>
+            )}
+            {!isEdit && (
+              <p className="text-sm text-stone-400">
+                Les photos pourront être ajoutées après la création du client.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Avantage fiscal */}
       <Card>

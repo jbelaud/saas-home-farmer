@@ -22,6 +22,13 @@
       "when": 1773346035227,
       "tag": "0002_freezing_magneto",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773814450509,
+      "tag": "0003_wet_flatman",
+      "breakpoints": true
     }
   ]
 }

@@ -1,3 +1,4 @@
+import {getGardenClientByIdDao} from '@/db/repositories/garden-client-repository'
 import {getOrganizationByIdDao} from '@/db/repositories/organization-repository'
 import {getPostByIdDao} from '@/db/repositories/post-repository'
 import {getUserByIdDao} from '@/db/repositories/user-repository'
@@ -152,6 +153,26 @@ async function checkFileOwnership(
       })
     }
 
+    case EntityTypeConst.GARDEN_CLIENT: {
+      // Vérifier que le garden_client appartient à une organisation du Farmer
+      const gardenClient = await getGardenClientByIdDao(entityId)
+      if (!gardenClient) return false
+
+      const orgContext: OrganizationContext = {
+        organizationId: gardenClient.organizationId,
+      }
+
+      return userCanOnResource(
+        authUser,
+        action,
+        SubjectsConst.FILE,
+        {
+          organizationId: gardenClient.organizationId,
+        },
+        orgContext
+      )
+    }
+
     case EntityTypeConst.PRODUCT:
     case EntityTypeConst.GENERIC:
       // Pour les produits et fichiers génériques, vérifier si l'utilisateur connecté
@@ -197,6 +218,9 @@ export const canAccessFileByPath = async (path: string): Promise<boolean> => {
       break
     case 'posts':
       entityType = EntityTypeConst.POST
+      break
+    case 'garden_clients':
+      entityType = EntityTypeConst.GARDEN_CLIENT
       break
     default:
       entityType = EntityTypeConst.GENERIC

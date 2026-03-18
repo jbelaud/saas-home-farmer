@@ -119,6 +119,8 @@ export const gardenClients = pgTable(
     accessPortalCode: text('access_portal_code'),
     accessKeyLocation: text('access_key_location'),
     accessNotes: text('access_notes'),
+    // Photos du jardin avant intervention (URLs Supabase Storage)
+    photoUrls: text('photo_urls').array().default([]).notNull(),
     // Avantage fiscal (crédit d'impôt 50% SAP - France uniquement)
     hasTaxAdvantage: boolean('has_tax_advantage').default(false).notNull(),
     // Statut du client
