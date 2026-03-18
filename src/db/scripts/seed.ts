@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-restricted-properties */
 
+import {hashPassword} from 'better-auth/crypto'
 import pg from 'pg'
 
 import initDotEnv from './env'
@@ -84,18 +85,22 @@ const seed = async () => {
   // ============================================================
   // 2. Comptes avec mot de passe (password = "password")
   // ============================================================
-  await client.query(`
+  const passwordHash = await hashPassword('password')
+  await client.query(
+    `
     INSERT INTO "account" ("account_id", "provider_id", "user_id", "password", "created_at", "updated_at")
     SELECT
       uuid_generate_v4(),
       'credential',
       u.id,
-      '48ea88853800794bc5312d8ad65fe149:d8503b790be4373e803d663b895438fa1e8f0b809a1b86a2b3fb6290f7f2310c4acb82dfe3737d2a3dd318a786653af3438022f24286ee0e9e8b2dda9b91f8f9',
+      $1,
       NOW(), NOW()
     FROM "user" u
     WHERE u.email IN ('superadmin@myhomefarmer.fr', 'jean.dupont@myhomefarmer.fr')
     ON CONFLICT ("account_id", "provider_id") DO NOTHING;
-  `)
+  `,
+    [passwordHash]
+  )
 
   // ============================================================
   // 3. Organisation du Farmer (= son entreprise)
