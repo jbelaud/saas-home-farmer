@@ -7,17 +7,18 @@ import initDotEnv from './env'
 
 initDotEnv()
 
-// Stripe Price IDs constants
+// ============================================================
+// SEED MyHomeFarmer — Données réalistes
+// 1 SuperAdmin, 1 Farmer (Jean Dupont), 12 clients jardin
+// Interventions passées + futures, récoltes
+// ============================================================
+
+// Stripe Price IDs constants (MHF plans)
 const STRIPE_PRICE_IDS = {
-  PRO_MONTHLY: 'price_1SnvdpEHimv7LwBY6Ur2FGfP',
-  PRO_YEARLY: 'price_1SnveLEHimv7LwBYRmnBtFIc',
-  ENTREPRISE_MONTHLY: 'price_1SnvcGEHimv7LwBYGVsTWzYx',
-  ENTREPRISE_YEARLY: 'price_1SnvclEHimv7LwBYHHa8wpTd',
-  LIFETIME: 'price_1Snvh3EHimv7LwBYb8ph8vrH',
-  // Credit Packs (one-time payments)
-  CREDIT_PACK_10: 'price_1SnxbyEHimv7LwBYznUE0U3p',
-  CREDIT_PACK_50: 'price_1SnxJQEHimv7LwBY9mndKqmY',
-  CREDIT_PACK_150: 'price_1Snxd6EHimv7LwBYS3dX77xT',
+  GRAINE: 'free',
+  POUSSE_MONTHLY: 'price_mhf_pousse_monthly',
+  RECOLTE_FR_MONTHLY: 'price_mhf_recolte_fr_monthly',
+  RECOLTE_EU_MONTHLY: 'price_mhf_recolte_eu_monthly',
 } as const
 
 const seed = async () => {
@@ -31,658 +32,334 @@ const seed = async () => {
     connectionString: process.env.DATABASE_URL,
   })
 
-  console.log('⏳ Checking connexion ...')
+  console.log('⏳ Connexion à la base de données...')
   console.log(`🗄️  URL : ${process.env.DATABASE_URL}`)
 
   await client.connect()
 
   const start = Date.now()
 
-  // 0. Insérer les plans de subscription
+  // ============================================================
+  // 0. Plans d'abonnement MyHomeFarmer
+  // ============================================================
   await client.query(`
     INSERT INTO "subscription_plan" (
-      "code",
-      "price_id", 
-      "annual_discount_price_id",
-      "plan_name",
-      "description",
-      "limits",
-      "free_trial",
-      "features",
-      "price",
-      "yearly_price",
-      "currency",
-      "is_recurring",
-      "status",
-      "display_order",
-      "created_at",
-      "updated_at"
-    )
-    VALUES
-      -- Plan FREE
-      (
-        'free',
-        'free',
-        NULL,
-        'Free',
-        'Idéal pour débuter',
-        '{"projects": 1, "storage": 1, "organizationMembers": 2, "credits": 5}',
-        NULL,
-        '["1 utilisateur", "1 projet", "1 GB stockage", "50 crédits/mois", "Support communautaire"]',
-        0,
-        0,
-        'EUR',
-        true,
-        'active',
-        1,
-        NOW(),
-        NOW()
-      ),
-      -- Plan PRO
-      (
-        'pro',
-        '${STRIPE_PRICE_IDS.PRO_MONTHLY}',
-        '${STRIPE_PRICE_IDS.PRO_YEARLY}',
-        'Pro',
-        'Parfait pour les équipes en croissance',
-        '{"projects": 2, "storage": 10, "organizationMembers": 3, "credits": 500}',
-        NULL,
-        '["Jusqu''à 5 utilisateurs", "2 projets", "10 GB stockage", "500 crédits/mois", "Support prioritaire", "Intégrations avancées"]',
-        29,
-        249,
-        'EUR',
-        true,
-        'active',
-        2,
-        NOW(),
-        NOW()
-      ),
-      -- Plan ENTREPRISE
-      (
-        'enterprise',
-        '${STRIPE_PRICE_IDS.ENTREPRISE_MONTHLY}',
-        '${STRIPE_PRICE_IDS.ENTREPRISE_YEARLY}',
-        'Enterprise',
-        'Pour les grandes organisations',
-        '{"projects": 3, "storage": 50, "organizationMembers": 5, "credits": 2000}',
-        NULL,
-        '["Utilisateurs illimités", "3 projets", "50 GB stockage", "2000 crédits/mois", "Support 24/7", "SSO & sécurité avancée"]',
-        99,
-        990,
-        'EUR',
-        true,
-        'active',
-        3,
-        NOW(),
-        NOW()
-      ),
-      -- Plan LIFETIME
-      (
-        'lifetime',
-        '${STRIPE_PRICE_IDS.LIFETIME}',
-        NULL,
-        'Lifetime',
-        'Pour les longues durées',
-        '{"projects": 20, "storage": 50, "credits": 5000}',
-        '{"days": 14}',
-        '["Introduction Course / Components", "PRO: Complete Email Integration Guide", "PRO: All Features Access", "PRO: Code Review Sessions", "PRO: 100% Money Back Guarantee", "20 projets", "50 GB stockage", "5000 crédits/mois"]',
-        70,
-        NULL,
-        'EUR',
-        false,
-        'active',
-        4,
-        NOW(),
-        NOW()
-      ),
-      -- Credit Pack 10 tokens
-      (
-        '10tokens',
-        '${STRIPE_PRICE_IDS.CREDIT_PACK_10}',
-        NULL,
-        '10 crédits',
-        'Pack de 10 crédits',
-        '{"credits": 10}',
-        NULL,
-        '["10 crédits", "Pas d''expiration", "Usage immédiat"]',
-        2.99,
-        NULL,
-        'USD',
-        false,
-        'active',
-        10,
-        NOW(),
-        NOW()
-      ),
-      -- Credit Pack 50 tokens
-      (
-        '50tokens',
-        '${STRIPE_PRICE_IDS.CREDIT_PACK_50}',
-        NULL,
-        '50 crédits',
-        'Pack de 50 crédits - Populaire',
-        '{"credits": 50}',
-        NULL,
-        '["50 crédits", "Pas d''expiration", "Usage immédiat", "Économisez 13%"]',
-        12.99,
-        NULL,
-        'USD',
-        false,
-        'active',
-        11,
-        NOW(),
-        NOW()
-      ),
-      -- Credit Pack 150 tokens
-      (
-        '150tokens',
-        '${STRIPE_PRICE_IDS.CREDIT_PACK_150}',
-        NULL,
-        '150 crédits',
-        'Pack de 150 crédits - Meilleure valeur',
-        '{"credits": 150}',
-        NULL,
-        '["150 crédits", "Pas d''expiration", "Usage immédiat", "Économisez 22%"]',
-        34.99,
-        NULL,
-        'USD',
-        false,
-        'active',
-        12,
-        NOW(),
-        NOW()
-      )
+      "code", "price_id", "annual_discount_price_id", "plan_name", "description",
+      "limits", "free_trial", "features", "price", "yearly_price",
+      "currency", "is_recurring", "status", "display_order", "created_at", "updated_at"
+    ) VALUES
+      ('graine', '${STRIPE_PRICE_IDS.GRAINE}', NULL, 'Graine', 'Testez gratuitement avec 1 client',
+       '{"clients": 1, "storage": 1}', NULL,
+       '["1 client", "Rapport d''intervention", "Photos jardin", "Support communautaire"]',
+       0, 0, 'EUR', true, 'active', 1, NOW(), NOW()),
+
+      ('pousse', '${STRIPE_PRICE_IDS.POUSSE_MONTHLY}', NULL, 'Pousse', 'Jusqu''à 20 clients',
+       '{"clients": 20, "storage": 5}', NULL,
+       '["Jusqu''à 20 clients", "Rapports illimités", "Photos jardin", "Agenda & tournées", "Support prioritaire"]',
+       9, 49, 'EUR', true, 'active', 2, NOW(), NOW()),
+
+      ('recolte_fr', '${STRIPE_PRICE_IDS.RECOLTE_FR_MONTHLY}', NULL, 'Récolte (France)', 'Clients illimités + API Fiscale SAP',
+       '{"clients": -1, "storage": 20}', NULL,
+       '["Clients illimités", "Module SAP (crédit d''impôt 50%)", "Attestations fiscales PDF", "API Fiscale", "Support 24/7"]',
+       39, 99, 'EUR', true, 'active', 3, NOW(), NOW()),
+
+      ('recolte_eu', '${STRIPE_PRICE_IDS.RECOLTE_EU_MONTHLY}', NULL, 'Récolte (BE/CH)', 'Clients illimités',
+       '{"clients": -1, "storage": 20}', NULL,
+       '["Clients illimités", "Rapports illimités", "Photos jardin", "Agenda & tournées", "Support 24/7"]',
+       29, 69, 'EUR', true, 'active', 4, NOW(), NOW())
     ON CONFLICT (code) DO NOTHING;
   `)
 
-  // 1. Insérer les utilisateurs avec leurs rôles directement
+  // ============================================================
+  // 1. Utilisateurs : SuperAdmin + Farmer Jean
+  // ============================================================
   await client.query(`
     INSERT INTO "user" (email, name, email_verified, image, visibility, role)
     VALUES
-      -- Rôles globaux purs (sans organisations)
-      ('superadmin@gmail.com', 'Frank', true, 'https://randomuser.me/api/portraits/med/men/9.jpg', 'public', 'super_admin'),
-      ('admin@gmail.com', 'Admin', true, 'https://randomuser.me/api/portraits/med/men/4.jpg', 'public', 'admin'),
-      ('moderator@gmail.com', 'David', true, 'https://randomuser.me/api/portraits/med/men/7.jpg', 'public', 'moderator'),
-      ('redactor@gmail.com', 'Grace', true, 'https://randomuser.me/api/portraits/med/women/11.jpg', 'public', 'redactor'),
-      ('public@gmail.com', 'Charlie', true, 'https://randomuser.me/api/portraits/med/men/5.jpg', 'public', 'public'),
-      
-      -- Utilisateur multi-organisations (cas complexe)
-      ('user@gmail.com', 'Bob', true, 'https://randomuser.me/api/portraits/med/men/3.jpg', 'public', 'user'),
-      
-      -- Utilisateurs spécialisés par rôle organisationnel
-      ('user-owner@gmail.com', 'Julien', true, 'https://randomuser.me/api/portraits/med/men/6.jpg', 'public', 'user'),
-      ('user-admin@gmail.com', 'Sophie', true, 'https://randomuser.me/api/portraits/med/women/12.jpg', 'public', 'user'),
-      ('user-member@gmail.com', 'Lucas', true, 'https://randomuser.me/api/portraits/med/men/13.jpg', 'public', 'user'),
-      
-      -- Cas de chevauchement intéressants
-      ('admin-owner@gmail.com', 'Emma', true, 'https://randomuser.me/api/portraits/med/women/14.jpg', 'public', 'admin'),
-      ('moderator-member@gmail.com', 'Julie', true, 'https://randomuser.me/api/portraits/med/women/10.jpg', 'public', 'moderator'),
-      
-      -- Utilisateur isolé (sans organisations)
-      ('user-isolated@gmail.com', 'Thomas', true, 'https://randomuser.me/api/portraits/med/men/15.jpg', 'public', 'user')
+      ('superadmin@myhomefarmer.com', 'SuperAdmin MHF', true, NULL, 'public', 'super_admin'),
+      ('jean@homefarmer.com', 'Jean Dupont', true, 'https://randomuser.me/api/portraits/med/men/32.jpg', 'public', 'user')
     ON CONFLICT (email) DO NOTHING;
   `)
 
-  // 2. Insérer les comptes avec mots de passe
+  // ============================================================
+  // 2. Comptes avec mot de passe (password = "password")
+  // ============================================================
   await client.query(`
-    INSERT INTO "account" (
-      "account_id",
-      "provider_id",
-      "user_id",
-      "password",
-      "created_at",
-      "updated_at"
-    )
-    SELECT 
-      uuid_generate_v4() as "account_id",
-      'credential' as "provider_id",
-      u.id as "user_id",
-      '48ea88853800794bc5312d8ad65fe149:d8503b790be4373e803d663b895438fa1e8f0b809a1b86a2b3fb6290f7f2310c4acb82dfe3737d2a3dd318a786653af3438022f24286ee0e9e8b2dda9b91f8f9' as "password",
-      NOW() as "created_at",
-      NOW() as "updated_at"
+    INSERT INTO "account" ("account_id", "provider_id", "user_id", "password", "created_at", "updated_at")
+    SELECT
+      uuid_generate_v4(),
+      'credential',
+      u.id,
+      '48ea88853800794bc5312d8ad65fe149:d8503b790be4373e803d663b895438fa1e8f0b809a1b86a2b3fb6290f7f2310c4acb82dfe3737d2a3dd318a786653af3438022f24286ee0e9e8b2dda9b91f8f9',
+      NOW(), NOW()
     FROM "user" u
-    WHERE u.email IN (
-      'superadmin@gmail.com',
-      'admin@gmail.com',
-      'moderator@gmail.com',
-      'redactor@gmail.com',
-      'public@gmail.com',
-      'user@gmail.com',
-      'user-owner@gmail.com',
-      'user-admin@gmail.com',
-      'user-member@gmail.com',
-      'admin-owner@gmail.com',
-      'moderator-member@gmail.com',
-      'user-isolated@gmail.com'
-    )
+    WHERE u.email IN ('superadmin@myhomefarmer.com', 'jean@homefarmer.com')
     ON CONFLICT ("account_id", "provider_id") DO NOTHING;
   `)
 
-  // 2.5 Insérer les paramètres utilisateur pour les 4 premiers utilisateurs
-  await client.query(`
-    INSERT INTO "user_settings" (
-      "user_id",
-      "theme",
-      "language",
-      "timezone",
-      "two_factor_type",
-      "enable_email_notifications",
-      "enable_push_notifications",
-      "notification_channel",
-      "email_digest",
-      "marketing_emails",
-      "created_at",
-      "updated_at"
-    )
-    SELECT 
-      u.id as "user_id",
-      CASE 
-        WHEN u.email = 'superadmin@gmail.com' THEN 'system'
-        ELSE 'dark'
-      END::theme_type as "theme",
-      CASE 
-        WHEN u.email = 'superadmin@gmail.com' THEN 'en'
-        ELSE 'fr'
-      END::language_type as "language",
-      'Europe/Paris' as "timezone",
-      CASE 
-        WHEN u.email = 'superadmin@gmail.com' THEN 'totp'
-        ELSE 'otp'
-      END::two_factor_type as "two_factor_type",
-      true as "enable_email_notifications",
-      true as "enable_push_notifications",
-      CASE 
-        WHEN u.email = 'superadmin@gmail.com' THEN 'both'
-        ELSE 'push'
-      END::notification_channel as "notification_channel",
-      true as "email_digest",
-      CASE 
-        WHEN u.email = 'superadmin@gmail.com' THEN true
-        ELSE false
-      END as "marketing_emails",
-      NOW() as "created_at",
-      NOW() as "updated_at"
-    FROM "user" u
-    WHERE u.email IN (
-      'superadmin@gmail.com',
-      'admin@gmail.com'
-    )
-    ON CONFLICT (user_id) DO NOTHING;
-  `)
-
-  // 3. Insérer les organisations
+  // ============================================================
+  // 3. Organisation du Farmer (= son entreprise)
+  // ============================================================
   await client.query(`
     INSERT INTO "organization" (name, slug, description, logo, created_at, updated_at)
-    VALUES
-      ('TechCorp Solutions', 'techcorp-solutions', 'Une entreprise de développement logiciel innovante', 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400', NOW(), NOW()),
-      ('Marketing Pro', 'marketing-pro', 'Agence de marketing digital et communication', 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=400', NOW(), NOW()),
-      ('Acme Corp.', 'acme-corp', 'Startup innovante en technologie', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400', NOW(), NOW()),
-      ('Evil Corp.', 'evil-corp', 'Entreprise de cybersécurité', 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400', NOW(), NOW())
+    VALUES ('Jean Dupont Jardinage', 'jean-dupont-jardinage', 'Entrepreneur jardinier Home Farmer — Île-de-France', NULL, NOW(), NOW())
     ON CONFLICT (slug) DO NOTHING;
   `)
 
-  // 4. Assigner les utilisateurs aux organisations avec des rôles
+  // ============================================================
+  // 4. Membre : Jean = owner de son org
+  // ============================================================
   await client.query(`
     INSERT INTO "member" (organization_id, user_id, role, created_at)
-    SELECT 
-      o.id as "organization_id",
-      u.id as "user_id",
-      CASE 
-        -- admin@gmail.com dans 3 organisations avec rôles différents
-        WHEN u.email = 'admin@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'member'
-        WHEN u.email = 'admin@gmail.com' AND o.slug = 'marketing-pro' THEN 'admin'
-        WHEN u.email = 'admin@gmail.com' AND o.slug = 'acme-corp' THEN 'owner'
-        
-        -- user@gmail.com : Cas multi-organisations complexe
-        -- MEMBER dans TechCorp, ADMIN dans Acme Corp, OWNER dans Evil Corp
-        WHEN u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'member'
-        WHEN u.email = 'user@gmail.com' AND o.slug = 'acme-corp' THEN 'admin'
-        WHEN u.email = 'user@gmail.com' AND o.slug = 'evil-corp' THEN 'owner'
-        
-        -- Utilisateurs spécialisés par rôle organisationnel
-        WHEN u.email = 'user-owner@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'owner'
-        WHEN u.email = 'user-admin@gmail.com' AND o.slug = 'marketing-pro' THEN 'admin'
-        WHEN u.email = 'user-member@gmail.com' AND o.slug = 'acme-corp' THEN 'member'
-        
-        -- Cas de chevauchement (rôle global élevé + rôle org)
-        WHEN u.email = 'admin-owner@gmail.com' AND o.slug = 'marketing-pro' THEN 'owner'
-        WHEN u.email = 'moderator-member@gmail.com' AND o.slug = 'techcorp-solutions' THEN 'member'
-        
-        ELSE 'member'
-      END::organization_role,
-      NOW()
+    SELECT o.id, u.id, 'owner'::organization_role, NOW()
     FROM "user" u, "organization" o
-    WHERE 
-      -- admin@gmail.com dans 3 organisations
-      (u.email = 'admin@gmail.com' AND o.slug = 'techcorp-solutions') OR
-      (u.email = 'admin@gmail.com' AND o.slug = 'marketing-pro') OR
-      (u.email = 'admin@gmail.com' AND o.slug = 'acme-corp') OR
-      
-      -- user@gmail.com dans 3 organisations avec rôles différents
-      (u.email = 'user@gmail.com' AND o.slug = 'techcorp-solutions') OR
-      (u.email = 'user@gmail.com' AND o.slug = 'acme-corp') OR
-      (u.email = 'user@gmail.com' AND o.slug = 'evil-corp') OR
-      
-      -- Utilisateurs spécialisés (1 org chacun)
-      (u.email = 'user-owner@gmail.com' AND o.slug = 'techcorp-solutions') OR
-      (u.email = 'user-admin@gmail.com' AND o.slug = 'marketing-pro') OR
-      (u.email = 'user-member@gmail.com' AND o.slug = 'acme-corp') OR
-      
-      -- Cas de chevauchement
-      (u.email = 'admin-owner@gmail.com' AND o.slug = 'marketing-pro') OR
-      (u.email = 'moderator-member@gmail.com' AND o.slug = 'techcorp-solutions')
-      
-      -- Note: user-isolated@gmail.com n'est dans aucune organisation (test isolation)
+    WHERE u.email = 'jean@homefarmer.com' AND o.slug = 'jean-dupont-jardinage'
     ON CONFLICT (organization_id, user_id) DO NOTHING;
   `)
 
-  // 5. Insérer des projets pour tester les permissions
+  // ============================================================
+  // 5. Profil Farmer
+  // ============================================================
   await client.query(`
-    INSERT INTO "project" (name, description, "organization_id", "created_by")
-    SELECT 
-      project_data.name,
-      project_data.description,
-      o.id as "organization_id",
-      u.id as "created_by"
-    FROM (
-      VALUES 
-        -- 1 projet pour TechCorp Solutions
-        ('Plateforme E-commerce', 'Développement d''une plateforme de vente en ligne moderne avec Next.js', 'techcorp-solutions', 'user-owner@gmail.com'),
-        
-        -- 2 projets pour Marketing Pro
-        ('Campagne Digitale 2024', 'Stratégie marketing complète pour les réseaux sociaux', 'marketing-pro', 'user-admin@gmail.com'),
-        ('Site Web Corporate', 'Refonte complète du site vitrine de l''entreprise', 'marketing-pro', 'admin-owner@gmail.com'),
-        
-        -- 0 projet pour Acme Corp (comme demandé - vide)
-        
-        -- 1 projet pour Evil Corp
-        ('Audit Sécurité', 'Audit complet de la sécurité informatique', 'evil-corp', 'user@gmail.com')
-    ) AS project_data(name, description, org_slug, creator_email)
-    JOIN "organization" o ON o.slug = project_data.org_slug
-    JOIN "user" u ON u.email = project_data.creator_email
-    ON CONFLICT DO NOTHING;
-  `)
-
-  // 6. Insérer des tâches pour tester différents états de projets
-  await client.query(`
-    INSERT INTO "task" (title, description, status, "due_date", "project_id", "organization_id", "created_by")
-    SELECT 
-      task_data.title,
-      task_data.description,
-      task_data.status::task_status,
-      task_data.due_date::timestamp,
-      p.id as "project_id",
-      p."organization_id",
-      u.id as "created_by"
-    FROM (
-      VALUES 
-        -- 2 tâches pour TechCorp - Plateforme E-commerce
-        ('Configuration Next.js', 'Mise en place de l''architecture Next.js avec TypeScript', 'done', '2024-09-15', 'Plateforme E-commerce', 'user-owner@gmail.com'),
-        ('Intégration Stripe', 'Implémentation du système de paiement avec Stripe', 'in_progress', '2024-12-01', 'Plateforme E-commerce', 'user@gmail.com'),
-        
-        -- 1 tâche pour Marketing Pro - Campagne Digitale
-        ('Création des visuels', 'Design des bannières pour les réseaux sociaux', 'todo', '2024-11-15', 'Campagne Digitale 2024', 'user-admin@gmail.com'),
-        
-        -- 0 tâche pour Marketing Pro - Site Web Corporate (pas de VALUES pour ce projet)
-        
-        -- 1 tâche pour Evil Corp - Audit Sécurité  
-        ('Scan des vulnérabilités', 'Analyse complète des failles de sécurité', 'in_progress', '2024-10-30', 'Audit Sécurité', 'user@gmail.com')
-    ) AS task_data(title, description, status, due_date, project_name, creator_email)
-    JOIN "project" p ON p.name = task_data.project_name
-    JOIN "user" u ON u.email = task_data.creator_email
-    ON CONFLICT DO NOTHING;
-  `)
-
-  // 7. Insérer des catégories de blog
-  await client.query(`
-    INSERT INTO "categories" (name, description, icon, image)
-    VALUES
-      ('Tech', 'Articles sur les technologies web et développement', '💻', 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400'),
-      ('Tutorial', 'Tutoriels et guides pratiques', '📚', 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400')
-    ON CONFLICT (name) DO NOTHING;
-  `)
-
-  // 7.5. Insérer des hashtags
-  await client.query(`
-    INSERT INTO "hashtags" (name)
-    VALUES
-      ('javascript'),
-      ('react'),
-      ('nextjs'),
-      ('typescript'),
-      ('css'),
-      ('backend'),
-      ('frontend'),
-      ('tutorial'),
-      ('tips'),
-      ('webdev')
-    ON CONFLICT (name) DO NOTHING;
-  `)
-
-  // 8. Insérer des posts avec traductions
-  await client.query(`
-    INSERT INTO "posts" (status, "authorid", "categoryid", "nbview", "nblike")
-    SELECT 
-      'published'::post_status,
-      u.id as "authorid",
-      c.id as "categoryid",
-      post_data.nb_view,
-      post_data.nb_like
-    FROM (
-      VALUES 
-        ('user@gmail.com', 'Tech', 150, 12),
-        ('admin@gmail.com', 'Tutorial', 89, 8)
-    ) AS post_data(author_email, category_name, nb_view, nb_like)
-    JOIN "user" u ON u.email = post_data.author_email
-    JOIN "categories" c ON c.name = post_data.category_name
-    ON CONFLICT DO NOTHING;
-  `)
-
-  // 9. Insérer les traductions des posts
-  await client.query(`
-    INSERT INTO "posts_translation" ("postid", language, title, slug, content, description)
-    SELECT 
-      p.id as "postid",
-      trans_data.language,
-      trans_data.title,
-      trans_data.slug,
-      trans_data.content,
-      trans_data.description
-    FROM (
-      VALUES 
-        -- Post 1 - Tech (par user@gmail.com)
-        ('user@gmail.com', 'Tech', 'fr', 'Les Nouveautés de React 19', 'nouveautes-react-19', '# Les Nouveautés de React 19\n\nReact 19 introduit des changements majeurs qui révolutionnent la façon de développer avec React.\n\n## Comparaison des versions\n\n| Feature        | React 18 | React 19 |\n| -------------- | -------- | -------- |\n| Ref as prop    | ❌        | ✅        |\n| Server Actions | ❌        | ✅        |\n| Actions        | ❌        | ✅        |\n| use() Hook     | 🚧       | ✅        |\n\n![React 19 Features](https://images.unsplash.com/photo-1633356122544-f134324a6cee)\n\n## Migration\n\nPour migrer vers React 19, suivez ces étapes :\n\n1. Mettre à jour les dépendances\n2. Retirer les forwardRef inutiles\n3. Adopter les Server Actions\n4. Utiliser le hook use() pour les promesses', 'Découvrez les nouvelles fonctionnalités révolutionnaires de React 19'),
-        ('user@gmail.com', 'Tech', 'en', 'React 19 New Features', 'react-19-new-features', '# React 19 New Features\n\nReact 19 introduces major changes that revolutionize the way we develop with React.\n\n## Version Comparison\n\n| Feature        | React 18 | React 19 |\n| -------------- | -------- | -------- |\n| Ref as prop    | ❌        | ✅        |\n| Server Actions | ❌        | ✅        |\n| Actions        | ❌        | ✅        |\n| use() Hook     | 🚧       | ✅        |\n\n![React 19 Features](https://images.unsplash.com/photo-1633356122544-f134324a6cee)\n\n## Migration\n\nTo migrate to React 19, follow these steps:\n\n1. Update dependencies\n2. Remove unnecessary forwardRef\n3. Adopt Server Actions\n4. Use the use() hook for promises', 'Discover the revolutionary new features of React 19'),
-        ('user@gmail.com', 'Tech', 'es', 'Novedades de React 19', 'novedades-react-19', '# Novedades de React 19\n\nReact 19 introduce cambios importantes que revolucionan la forma de desarrollar con React.\n\n## Comparación de versiones\n\n| Feature        | React 18 | React 19 |\n| -------------- | -------- | -------- |\n| Ref as prop    | ❌        | ✅        |\n| Server Actions | ❌        | ✅        |\n| Actions        | ❌        | ✅        |\n| use() Hook     | 🚧       | ✅        |\n\n![React 19 Features](https://images.unsplash.com/photo-1633356122544-f134324a6cee)\n\n## Migración\n\nPara migrar a React 19, sigue estos pasos:\n\n1. Actualizar las dependencias\n2. Eliminar los forwardRef innecesarios\n3. Adoptar las Server Actions\n4. Usar el hook use() para las promesas', 'Descubre las nuevas características revolucionarias de React 19'),
-        
-        -- Post 2 - Tutorial (par admin@gmail.com)
-        ('admin@gmail.com', 'Tutorial', 'fr', 'Guide Next.js pour Débutants', 'guide-nextjs-debutants', '# Guide Next.js pour Débutants\n\nApprenez les bases de Next.js...', 'Un guide complet pour débuter avec Next.js'),
-        ('admin@gmail.com', 'Tutorial', 'en', 'Next.js Guide for Beginners', 'nextjs-guide-beginners', '# Next.js Guide for Beginners\n\nLearn the basics of Next.js...', 'A complete guide to get started with Next.js'),
-        ('admin@gmail.com', 'Tutorial', 'es', 'Guía de Next.js para Principiantes', 'guia-nextjs-principiantes', '# Guía de Next.js para Principiantes\n\nAprende lo básico de Next.js...', 'Una guía completa para empezar con Next.js')
-    ) AS trans_data(author_email, category_name, language, title, slug, content, description)
-    JOIN "user" u ON u.email = trans_data.author_email
-    JOIN "posts" p ON p."authorid" = u.id
-    JOIN "categories" c ON c.name = trans_data.category_name AND p."categoryid" = c.id
-    ON CONFLICT ("postid", language) DO NOTHING;
-  `)
-
-  // 9.5. Associer des hashtags aux posts
-  await client.query(`
-    INSERT INTO "post_hashtags" ("postid", "hashtagid")
-    SELECT 
-      p.id as "postid",
-      h.id as "hashtagid"
-    FROM (
-      VALUES 
-        -- Post 1 (React 19) : javascript, react, frontend, tips
-        ('user@gmail.com', 'Tech', 'javascript'),
-        ('user@gmail.com', 'Tech', 'react'),
-        ('user@gmail.com', 'Tech', 'frontend'),
-        ('user@gmail.com', 'Tech', 'tips'),
-        
-        -- Post 2 (Guide Next.js) : nextjs, typescript, tutorial, webdev
-        ('admin@gmail.com', 'Tutorial', 'nextjs'),
-        ('admin@gmail.com', 'Tutorial', 'typescript'),
-        ('admin@gmail.com', 'Tutorial', 'tutorial'),
-        ('admin@gmail.com', 'Tutorial', 'webdev')
-    ) AS hashtag_data(author_email, category_name, hashtag_name)
-    JOIN "user" u ON u.email = hashtag_data.author_email
-    JOIN "posts" p ON p."authorid" = u.id
-    JOIN "categories" c ON c.name = hashtag_data.category_name AND p."categoryid" = c.id
-    JOIN "hashtags" h ON h.name = hashtag_data.hashtag_name
-    ON CONFLICT ("postid", "hashtagid") DO NOTHING;
-  `)
-
-  // 10. Insérer des notifications de test
-  await client.query(`
-    INSERT INTO "notifications" (
-      "user_id",
-      "type", 
-      "title",
-      "message",
-      "metadata",
-      "read",
-      "created_at"
+    INSERT INTO "farmer_profile" (
+      organization_id, company_name, siret, vat_number,
+      address_street, address_city, address_zip, country,
+      is_sap_enabled, subscription_start_date, created_at, updated_at
     )
-    SELECT 
-      u.id as "user_id",
-      notif_data.type,
-      notif_data.title,
-      notif_data.message,
-      notif_data.metadata::jsonb,
-      notif_data.read::boolean,
-      (NOW() - (notif_data.days_ago || ' days')::interval)::timestamp as "created_at"
-    FROM (
-      VALUES 
-        -- Notifications pour user@gmail.com (utilisateur multi-organisations)
-        ('user@gmail.com', 'organization_invitation', 'Nouvelle invitation', 'Vous avez été invité à rejoindre Evil Corp en tant que propriétaire.', '{"organization": "evil-corp", "role": "owner"}', 'true', '7'),
-        ('user@gmail.com', 'project_created', 'Projet Audit Sécurité', 'Votre projet Audit Sécurité a été créé dans Evil Corp.', '{"project_id": "uuid", "organization": "evil-corp"}', 'false', '3'),
-        ('user@gmail.com', 'security_alert', 'Connexion suspecte détectée', 'Une tentative de connexion depuis un nouvel appareil a été détectée.', '{"ip": "192.168.1.100", "device": "Chrome/Linux"}', 'false', '1'),
-        
-        -- Notifications pour admin@gmail.com (admin global)
-        ('admin@gmail.com', 'system_maintenance', 'Maintenance programmée', 'Une maintenance du système est programmée ce week-end.', '{"scheduled_date": "2024-11-16", "duration": "2 hours"}', 'true', '4'),
-        ('admin@gmail.com', 'user_banned', 'Utilisateur suspendu', 'Utilisateur test@spam.com a été suspendu pour violation des conditions.', '{"banned_user": "test@spam.com", "reason": "spam"}', 'true', '6'),
-        
-        -- Notifications pour user-admin@gmail.com 
-        ('user-admin@gmail.com', 'project_created', 'Campagne Digitale créée', 'Votre projet Campagne Digitale 2024 a été créé dans Marketing Pro.', '{"project_id": "uuid", "organization": "marketing-pro"}', 'false', '4'),
-        ('user-admin@gmail.com', 'subscription_updated', 'Plan mis à jour', 'Votre organisation a migré vers le plan Pro.', '{"old_plan": "free", "new_plan": "pro"}', 'true', '8'),
-        
-        -- Notifications pour user-owner@gmail.com
-        ('user-owner@gmail.com', 'payment_succeeded', 'Paiement confirmé', 'Votre paiement de 29€ pour le plan Pro a été traité avec succès.', '{"amount": 29, "currency": "EUR", "plan": "pro"}', 'true', '10'),
-        ('user-owner@gmail.com', 'subscription_created', 'Abonnement créé', 'Votre abonnement Pro a été activé pour TechCorp Solutions.', '{"plan": "pro", "organization": "techcorp-solutions"}', 'true', '10'),
-        
-        -- Notifications système pour superadmin@gmail.com
-        ('superadmin@gmail.com', 'system', 'Rapport hebdomadaire', 'Rapport activité de la plateforme - 45 nouveaux utilisateurs cette semaine.', '{"new_users": 45, "active_projects": 127, "revenue": 2340}', 'false', '1'),
-        ('superadmin@gmail.com', 'security_alert', 'Tentatives de piratage', 'Plusieurs tentatives de connexion suspectes détectées sur le système.', '{"attempts": 23, "blocked_ips": ["1.2.3.4", "5.6.7.8"]}', 'false', '2'),
-        
-        -- Notifications pour user-member@gmail.com
-        ('user-member@gmail.com', 'organization_invitation', 'Bienvenue dans Acme Corp', 'Vous avez rejoint Acme Corp en tant que membre.', '{"organization": "acme-corp", "role": "member"}', 'true', '15'),
-        
-        -- Notifications de paiement pour différents utilisateurs
-        ('admin-owner@gmail.com', 'payment_failed', 'Échec du paiement', 'Le paiement pour votre abonnement Enterprise a échoué. Veuillez mettre à jour votre carte.', '{"amount": 99, "currency": "EUR", "retry_date": "2024-11-20"}', 'false', '1'),
-        ('moderator-member@gmail.com', 'subscription_canceled', 'Abonnement annulé', 'Votre abonnement a été annulé. Vous garderez accès jusqu''au 30 novembre.', '{"plan": "pro", "access_until": "2024-11-30"}', 'false', '3'),
-        
-        -- Notifications anciennes (lues) pour tester l'historique
-        ('user@gmail.com', 'project_updated', 'Tâche terminée', 'La tâche Configuration Next.js a été marquée comme terminée.', '{"task": "Configuration Next.js", "project": "Plateforme E-commerce"}', 'true', '20'),
-        ('admin@gmail.com', 'user_unbanned', 'Utilisateur réactivé', 'Utilisateur previously-banned@test.com a été réactivé.', '{"unbanned_user": "previously-banned@test.com"}', 'true', '30')
-    ) AS notif_data(user_email, type, title, message, metadata, read, days_ago)
-    JOIN "user" u ON u.email = notif_data.user_email
+    SELECT
+      o.id,
+      'Jean Dupont Jardinage',
+      '12345678900012',
+      'FR12345678900',
+      '5 Rue du Potager',
+      'Versailles',
+      '78000',
+      'FR',
+      true,
+      NOW() - interval '3 months',
+      NOW(), NOW()
+    FROM "organization" o
+    WHERE o.slug = 'jean-dupont-jardinage'
+    ON CONFLICT (organization_id) DO NOTHING;
+  `)
+
+  // ============================================================
+  // 6. 12 clients jardin réalistes
+  // ============================================================
+  await client.query(`
+    INSERT INTO "garden_client" (
+      organization_id, first_name, last_name, email, phone,
+      address_street, address_city, address_zip,
+      surface_sqm, exposure, soil_type, has_water_access, water_access_notes,
+      access_digicode, access_portal_code, access_key_location, access_notes,
+      photo_urls, has_tax_advantage, is_active, created_at, updated_at
+    )
+    SELECT
+      o.id,
+      c.first_name, c.last_name, c.email, c.phone,
+      c.address_street, c.address_city, c.address_zip,
+      c.surface_sqm::double precision, c.exposure::garden_exposure, c.soil_type::soil_type,
+      c.has_water_access::boolean, c.water_access_notes,
+      c.access_digicode, c.access_portal_code, c.access_key_location, c.access_notes,
+      '{}'::text[], c.has_tax_advantage::boolean, c.is_active::boolean,
+      (NOW() - (c.created_days_ago || ' days')::interval), NOW()
+    FROM "organization" o,
+    (VALUES
+      ('Marie',    'Dupont',    'marie.dupont@email.com',    '06 12 34 56 78', '12 Rue des Lilas',       'Versailles',     '78000', 45,  'full_sun',      'loamy',  'true',  'Robinet extérieur côté garage',    '1234',  NULL,    NULL,                           'Chien gentil dans le jardin',       'true',  'true',  '90'),
+      ('Pierre',   'Martin',    'pierre.martin@email.com',   '06 23 45 67 89', '45 Avenue de la Gare',   'Saint-Germain',  '78100', 80,  'partial_shade', 'clay',   'true',  'Récupérateur eau de pluie 500L',   NULL,    'A567',  NULL,                           NULL,                                 'true',  'true',  '85'),
+      ('Sophie',   'Leroy',     'sophie.leroy@email.com',    '06 34 56 78 90', '8 Impasse Verte',        'Le Chesnay',     '78150', 30,  'full_sun',      'sandy',  'true',  'Tuyau arrosage en place',          NULL,    NULL,    'Sous le pot à droite du portail', NULL,                                 'true',  'true',  '75'),
+      ('Michel',   'Bernard',   'michel.bernard@email.com',  '06 45 67 89 01', '22 Rue du Château',      'Versailles',     '78000', 120, 'full_sun',      'loamy',  'true',  'Arrosage automatique installé',    '5678',  '9012',  NULL,                           'Grand terrain, prévoir 2h',          'true',  'true',  '70'),
+      ('Isabelle', 'Moreau',    'isabelle.moreau@email.com', '06 56 78 90 12', '15 Allée des Cerisiers', 'Bougival',       '78380', 55,  'partial_shade', 'chalky', 'false', NULL,                               NULL,    NULL,    NULL,                           'Apporter de l''eau. Pas de point d''eau', 'true', 'true', '60'),
+      ('François', 'Petit',     'francois.petit@email.com',  '06 67 89 01 23', '3 Rue de la Fontaine',   'Marly-le-Roi',   '78160', 65,  'full_sun',      'silty',  'true',  'Robinet au fond du jardin',        NULL,    'B789',  NULL,                           'Portail automatique',                'true',  'true',  '55'),
+      ('Catherine','Roux',      'catherine.roux@email.com',  '06 78 90 12 34', '28 Boulevard Victor Hugo','Rueil-Malmaison','92500', 40,  'full_shade',    'peaty',  'true',  'Tuyau fourni',                     '3456',  NULL,    'Boîte aux lettres',           'Potager en terrasses',               'true',  'true',  '50'),
+      ('Alain',    'Fournier',  'alain.fournier@email.com',  '06 89 01 23 45', '17 Rue des Vignes',      'Chatou',         '78400', 90,  'full_sun',      'loamy',  'true',  'Double robinet + récupérateur',    NULL,    NULL,    NULL,                           'Terrain en pente légère',            'true',  'true',  '40'),
+      ('Nathalie', 'Girard',    'nathalie.girard@email.com', '06 90 12 34 56', '6 Place du Marché',      'Louveciennes',   '78430', 35,  'partial_shade', 'sandy',  'true',  'Robinet cuisine accessible',       NULL,    'C123',  NULL,                           'Cour intérieure, accès par l''arrière', 'true', 'true', '30'),
+      ('Philippe', 'Bonnet',    'philippe.bonnet@email.com', '06 01 23 45 67', '41 Rue de Paris',        'Garches',        '92380', 70,  'full_sun',      'clay',   'true',  'Goutte à goutte installé',         '7890',  NULL,    NULL,                           'Serre en fond de jardin',            'true',  'true',  '25'),
+      ('Christine','Lambert',   'christine.lambert@email.com','06 11 22 33 44', '9 Chemin des Bois',     'Ville-d''Avray', '92410', 50,  'partial_shade', 'loamy',  'false', NULL,                               NULL,    NULL,    'Voisine Mme Garcia a la clé',  'Jardin partagé entre 2 voisins',     'true',  'true',  '15'),
+      ('Robert',   'Thomas',    'robert.thomas@email.com',   '06 55 66 77 88', '33 Rue Nationale',       'Sèvres',         '92310', 25,  'full_shade',    'chalky', 'true',  'Petit robinet terrasse',           NULL,    'D456',  NULL,                           'Petit potager urbain en bacs',       'true',  'true',  '10')
+    ) AS c(first_name, last_name, email, phone, address_street, address_city, address_zip, surface_sqm, exposure, soil_type, has_water_access, water_access_notes, access_digicode, access_portal_code, access_key_location, access_notes, has_tax_advantage, is_active, created_days_ago)
+    WHERE o.slug = 'jean-dupont-jardinage'
     ON CONFLICT DO NOTHING;
   `)
 
-  // 11. Insérer les paramètres d'application
+  // ============================================================
+  // 7. Interventions passées (completed) + futures (scheduled)
+  // ============================================================
   await client.query(`
-    INSERT INTO "app_settings" (
-      "key",
-      "value",
-      "type",
-      "category",
-      "label",
-      "description",
-      "updated_at"
+    INSERT INTO "intervention" (
+      organization_id, garden_client_id, scheduled_date, duration_minutes,
+      status, type, pro_notes, photo_urls, checklist_items, checklist_done,
+      created_at, updated_at
     )
+    SELECT
+      o.id,
+      gc.id,
+      i.scheduled_date::timestamp,
+      i.duration_minutes::double precision,
+      i.status::intervention_status,
+      i.type::intervention_type,
+      i.pro_notes,
+      '{}'::text[],
+      i.checklist_items::text[],
+      i.checklist_done::boolean[],
+      i.scheduled_date::timestamp,
+      i.scheduled_date::timestamp
+    FROM "organization" o
+    JOIN "garden_client" gc ON gc.organization_id = o.id
+    JOIN (VALUES
+      -- Interventions passées (completed)
+      ('Marie',    'Dupont',   (NOW() - interval '21 days')::text,  90,  'completed', 'maintenance',      'Tonte pelouse, désherbage massifs, taille rosiers. Pucerons traités.',                        '{"Tonte pelouse","Désherbage massifs","Taille rosiers","Traitement pucerons"}', '{true,true,true,true}'),
+      ('Pierre',   'Martin',   (NOW() - interval '18 days')::text,  120, 'completed', 'plantation',       'Plantation tomates, courgettes et basilic. Paillage installé.',                                '{"Plantation tomates","Plantation courgettes","Plantation basilic","Paillage"}', '{true,true,true,true}'),
+      ('Sophie',   'Leroy',    (NOW() - interval '15 days')::text,  60,  'completed', 'maintenance',      'Entretien courant. Arrosage et vérification tuteurs.',                                          '{"Arrosage","Vérification tuteurs","Désherbage","Amendement"}', '{true,true,true,false}'),
+      ('Michel',   'Bernard',  (NOW() - interval '14 days')::text,  150, 'completed', 'setup',            'Installation de 4 carrés potagers surélevés. Remplissage terre végétale.',                      '{"Montage carrés","Remplissage terre","Installation géotextile","Nivellement"}', '{true,true,true,true}'),
+      ('Isabelle', 'Moreau',   (NOW() - interval '12 days')::text,  75,  'completed', 'maintenance',      'Entretien rosiers et arbustes. Ramassage feuilles mortes.',                                    '{"Taille rosiers","Ramassage feuilles","Binage","Compostage"}', '{true,true,true,true}'),
+      ('François', 'Petit',    (NOW() - interval '10 days')::text,  90,  'completed', 'maintenance',      'Tonte et bordures. Nettoyage allées.',                                                          '{"Tonte","Bordures","Nettoyage allées","Arrosage"}', '{true,true,true,true}'),
+      ('Marie',    'Dupont',   (NOW() - interval '7 days')::text,   90,  'completed', 'maintenance',      'Deuxième passage. Semis laitues et radis. Arrosage copieux.',                                  '{"Semis laitues","Semis radis","Arrosage","Vérification compost"}', '{true,true,true,true}'),
+      ('Catherine','Roux',     (NOW() - interval '5 days')::text,   60,  'completed', 'consultation',     'Visite conseil pour aménagement potager en terrasses. Devis établi.',                           '{"Diagnostic terrain","Plan aménagement","Conseil variétés","Devis"}', '{true,true,true,true}'),
+      ('Alain',    'Fournier', (NOW() - interval '3 days')::text,   120, 'completed', 'plantation',       'Plantation fraisiers et aromatiques. Installation petit tunnel.',                               '{"Plantation fraisiers","Plantation aromatiques","Installation tunnel","Paillage"}', '{true,true,true,true}'),
+
+      -- Intervention en cours
+      ('Pierre',   'Martin',   (NOW())::text,                        90,  'in_progress', 'maintenance',   'Entretien en cours. Taille haies commencée.',                                                   '{"Taille haies","Désherbage","Arrosage","Vérification tuteurs"}', '{true,false,false,false}'),
+
+      -- Interventions futures (scheduled)
+      ('Sophie',   'Leroy',    (NOW() + interval '1 day')::text,    60,  'scheduled', 'maintenance',      NULL,                                                                                             '{"Arrosage","Désherbage","Vérification semis","Récolte radis"}', '{false,false,false,false}'),
+      ('Michel',   'Bernard',  (NOW() + interval '2 days')::text,   120, 'scheduled', 'plantation',       NULL,                                                                                             '{"Plantation salades","Plantation poireaux","Amendement","Paillage"}', '{false,false,false,false}'),
+      ('Nathalie', 'Girard',   (NOW() + interval '3 days')::text,   75,  'scheduled', 'maintenance',      NULL,                                                                                             '{"Tonte","Taille arbustes","Arrosage","Nettoyage"}', '{false,false,false,false}'),
+      ('Philippe', 'Bonnet',   (NOW() + interval '4 days')::text,   90,  'scheduled', 'maintenance',      NULL,                                                                                             '{"Entretien serre","Arrosage","Récolte tomates","Taille gourmands"}', '{false,false,false,false}'),
+      ('Marie',    'Dupont',   (NOW() + interval '7 days')::text,   90,  'scheduled', 'maintenance',      NULL,                                                                                             '{"Tonte","Désherbage","Récolte","Arrosage"}', '{false,false,false,false}'),
+      ('Christine','Lambert',  (NOW() + interval '8 days')::text,   60,  'scheduled', 'consultation',     NULL,                                                                                             '{"Diagnostic","Conseil rotation","Plan été","Devis complémentaire"}', '{false,false,false,false}'),
+      ('Robert',   'Thomas',   (NOW() + interval '10 days')::text,  45,  'scheduled', 'maintenance',      NULL,                                                                                             '{"Arrosage bacs","Taille aromatiques","Vérification drainage"}', '{false,false,false,false}'),
+      ('François', 'Petit',    (NOW() + interval '12 days')::text,  90,  'scheduled', 'harvest_support',  NULL,                                                                                             '{"Récolte pommes de terre","Récolte oignons","Stockage","Préparation sol"}', '{false,false,false,false}')
+    ) AS i(first_name, last_name, scheduled_date, duration_minutes, status, type, pro_notes, checklist_items, checklist_done)
+    ON gc.first_name = i.first_name AND gc.last_name = i.last_name
+    WHERE o.slug = 'jean-dupont-jardinage'
+    ON CONFLICT DO NOTHING;
+  `)
+
+  // ============================================================
+  // 8. Récoltes (saisies par les clients)
+  // ============================================================
+  await client.query(`
+    INSERT INTO "harvest" (
+      organization_id, garden_client_id, harvest_date, crop_name,
+      weight_kg, market_price_per_kg, calculated_value_eur, photo_url, created_at
+    )
+    SELECT
+      o.id,
+      gc.id,
+      h.harvest_date::timestamp,
+      h.crop_name,
+      h.weight_kg::double precision,
+      h.market_price_per_kg::decimal,
+      h.calculated_value_eur::decimal,
+      NULL,
+      h.harvest_date::timestamp
+    FROM "organization" o
+    JOIN "garden_client" gc ON gc.organization_id = o.id
+    JOIN (VALUES
+      ('Marie',    'Dupont',   (NOW() - interval '10 days')::text, 'Tomates',          2.5,   5.00,  12.50),
+      ('Marie',    'Dupont',   (NOW() - interval '8 days')::text,  'Basilic',           0.3,   25.00, 7.50),
+      ('Marie',    'Dupont',   (NOW() - interval '3 days')::text,  'Radis',             0.8,   4.50,  3.60),
+      ('Pierre',   'Martin',   (NOW() - interval '12 days')::text, 'Courgettes',        3.2,   3.50,  11.20),
+      ('Pierre',   'Martin',   (NOW() - interval '5 days')::text,  'Tomates cerises',   1.0,   8.00,  8.00),
+      ('Sophie',   'Leroy',    (NOW() - interval '7 days')::text,  'Laitue',            0.6,   6.00,  3.60),
+      ('Michel',   'Bernard',  (NOW() - interval '6 days')::text,  'Haricots verts',    1.5,   7.50,  11.25),
+      ('Michel',   'Bernard',  (NOW() - interval '2 days')::text,  'Fraises',           0.8,  12.00,  9.60),
+      ('Alain',    'Fournier', (NOW() - interval '4 days')::text,  'Fraises',           1.2,  12.00,  14.40),
+      ('Philippe', 'Bonnet',   (NOW() - interval '9 days')::text,  'Tomates',           4.0,   5.00,  20.00),
+      ('Philippe', 'Bonnet',   (NOW() - interval '1 day')::text,   'Poivrons',          1.8,   6.50,  11.70),
+      ('Nathalie', 'Girard',   (NOW() - interval '6 days')::text,  'Persil',            0.2,  20.00,  4.00),
+      ('Catherine','Roux',     (NOW() - interval '11 days')::text, 'Menthe',            0.15, 30.00,  4.50)
+    ) AS h(first_name, last_name, harvest_date, crop_name, weight_kg, market_price_per_kg, calculated_value_eur)
+    ON gc.first_name = h.first_name AND gc.last_name = h.last_name
+    WHERE o.slug = 'jean-dupont-jardinage'
+    ON CONFLICT DO NOTHING;
+  `)
+
+  // ============================================================
+  // 9. Paramètres d'application
+  // ============================================================
+  await client.query(`
+    INSERT INTO "app_settings" ("key", "value", "type", "category", "label", "description", "updated_at")
     VALUES
-      -- Email settings
-      ('email.enabled', 'true', 'boolean', 'email', 'Enable emails', 'Master toggle for all email sending', NOW()),
-      ('email.enabled_for_admins', 'true', 'boolean', 'email', 'Admin emails', 'Send emails to administrators', NOW()),
-      ('email.enabled_for_clients', 'true', 'boolean', 'email', 'Client emails', 'Send emails to clients', NOW()),
-      ('email.communication_email', 'onboarding@resend.dev', 'string', 'email', 'Communication email', 'Reply-to address for emails', NOW()),
-      -- General settings
-      ('general.maintenance_mode', 'false', 'boolean', 'general', 'Maintenance mode', 'Show maintenance page to users', NOW()),
-      ('general.maintenance_message', '', 'string', 'general', 'Maintenance message', 'Message shown during maintenance', NOW())
+      ('email.enabled', 'true', 'boolean', 'email', 'Activer emails', 'Toggle principal envoi emails', NOW()),
+      ('email.enabled_for_admins', 'true', 'boolean', 'email', 'Emails admin', 'Envoyer les emails aux admins', NOW()),
+      ('email.enabled_for_clients', 'true', 'boolean', 'email', 'Emails clients', 'Envoyer les emails aux clients', NOW()),
+      ('email.communication_email', 'contact@myhomefarmer.com', 'string', 'email', 'Email de communication', 'Adresse reply-to', NOW()),
+      ('general.maintenance_mode', 'false', 'boolean', 'general', 'Mode maintenance', 'Afficher page maintenance', NOW()),
+      ('general.maintenance_message', '', 'string', 'general', 'Message maintenance', 'Message affiché en maintenance', NOW())
     ON CONFLICT (key) DO NOTHING;
+  `)
+
+  // ============================================================
+  // 10. Paramètres utilisateur
+  // ============================================================
+  await client.query(`
+    INSERT INTO "user_settings" (
+      "user_id", "theme", "language", "timezone", "two_factor_type",
+      "enable_email_notifications", "enable_push_notifications",
+      "notification_channel", "email_digest", "marketing_emails",
+      "created_at", "updated_at"
+    )
+    SELECT
+      u.id,
+      CASE WHEN u.email = 'superadmin@myhomefarmer.com' THEN 'system' ELSE 'light' END::theme_type,
+      'fr'::language_type,
+      'Europe/Paris',
+      'otp'::two_factor_type,
+      true, true, 'both'::notification_channel, true, false,
+      NOW(), NOW()
+    FROM "user" u
+    WHERE u.email IN ('superadmin@myhomefarmer.com', 'jean@homefarmer.com')
+    ON CONFLICT (user_id) DO NOTHING;
   `)
 
   const end = Date.now()
 
-  console.log('✅ Seed inserted in', end - start, 'ms')
+  console.log(`✅ Seed MyHomeFarmer inséré en ${end - start}ms`)
   console.log('')
-  console.log('💎 Plans de subscription créés :')
-  console.log('🔹 FREE : 1 projet, 1 GB stockage, 50 crédits/mois (€0)')
-  console.log(
-    '🔹 PRO : 2 projets, 10 GB stockage, 500 crédits/mois (€29/mois, €249/an)'
-  )
-  console.log(
-    '🔹 ENTERPRISE : 3 projets, 50 GB stockage, 2000 crédits/mois (€99/mois, €990/an)'
-  )
-  console.log(
-    '🔹 LIFETIME : 20 projets, 50 GB stockage, 5000 crédits/mois (€70 unique, 14j trial)'
-  )
+  console.log('🌱 Plans MHF :')
+  console.log('  Graine (gratuit, 1 client)')
+  console.log('  Pousse (9€/mois early bird → 49€/mois, ≤20 clients)')
+  console.log('  Récolte FR (39€/mois early bird → 99€/mois, illimité + SAP)')
+  console.log('  Récolte BE/CH (29€/mois early bird → 69€/mois, illimité)')
   console.log('')
-  console.log('📊 Jeu de test créé avec succès :')
-  console.log(
-    '🔹 Rôles globaux purs : superadmin, admin, moderator, redactor, public'
-  )
-  console.log('🔹 Utilisateur multi-org : user@gmail.com (MEMBER→ADMIN→OWNER)')
-  console.log(
-    '🔹 Utilisateurs spécialisés : user-owner, user-admin, user-member'
-  )
-  console.log('🔹 Cas de chevauchement : admin-owner, moderator-member')
-  console.log('🔹 Utilisateur isolé : user-isolated (aucune organisation)')
+  console.log('👤 Comptes (mot de passe = "password") :')
+  console.log('  superadmin@myhomefarmer.com  (SuperAdmin)')
+  console.log('  jean@homefarmer.com          (Farmer — Jean Dupont)')
   console.log('')
-  console.log('📝 Projets et tâches créés par organisation :')
-  console.log('🔹 TechCorp Solutions : 1 projet (2 tâches)')
-  console.log('  └─ Plateforme E-commerce: Configuration ✅ + Intégration 🔄')
-  console.log('🔹 Marketing Pro : 2 projets (1 tâche total)')
-  console.log('  ├─ Campagne Digitale: Création visuels 📋')
-  console.log('  └─ Site Web Corporate: 0 tâche (vide)')
-  console.log('🔹 Acme Corp : 0 projet (vide pour tests)')
-  console.log('🔹 Evil Corp : 1 projet (1 tâche)')
-  console.log('  └─ Audit Sécurité: Scan vulnérabilités 🔄')
+  console.log('🏢 Organisation : Jean Dupont Jardinage (Versailles)')
   console.log('')
-  console.log('📊 Statuts des tâches : ✅ Done | 🔄 In Progress | 📋 Todo')
+  console.log('👥 12 clients jardin :')
+  console.log(
+    '  Marie Dupont (Versailles)        — 45m², plein soleil, limoneux'
+  )
+  console.log('  Pierre Martin (Saint-Germain)     — 80m², mi-ombre, argileux')
+  console.log(
+    '  Sophie Leroy (Le Chesnay)         — 30m², plein soleil, sablonneux'
+  )
+  console.log(
+    '  Michel Bernard (Versailles)       — 120m², plein soleil, limoneux'
+  )
+  console.log('  Isabelle Moreau (Bougival)         — 55m², mi-ombre, calcaire')
+  console.log(
+    '  François Petit (Marly-le-Roi)     — 65m², plein soleil, silteux'
+  )
+  console.log('  Catherine Roux (Rueil-Malmaison)  — 40m², ombre, tourbeux')
+  console.log(
+    '  Alain Fournier (Chatou)            — 90m², plein soleil, limoneux'
+  )
+  console.log(
+    '  Nathalie Girard (Louveciennes)     — 35m², mi-ombre, sablonneux'
+  )
+  console.log(
+    '  Philippe Bonnet (Garches)          — 70m², plein soleil, argileux'
+  )
+  console.log("  Christine Lambert (Ville-d'Avray) — 50m², mi-ombre, limoneux")
+  console.log('  Robert Thomas (Sèvres)             — 25m², ombre, calcaire')
   console.log('')
-  console.log('📝 Articles de blog créés :')
-  console.log('🔹 2 catégories : Tech et Tutorial')
-  console.log(
-    '🔹 10 hashtags : javascript, react, nextjs, typescript, css, backend, frontend, tutorial, tips, webdev'
-  )
-  console.log('🔹 2 posts traduits en 3 langues (fr, en, es)')
-  console.log(
-    '  └─ "Les Nouveautés de React 19" par user@gmail.com (hashtags: javascript, react, frontend, tips)'
-  )
-  console.log(
-    '  └─ "Guide Next.js pour Débutants" par admin@gmail.com (hashtags: nextjs, typescript, tutorial, webdev)'
-  )
-  console.log('')
-  console.log('🔔 Notifications de test créées :')
-  console.log('🔹 22 notifications réparties sur tous les utilisateurs')
-  console.log(
-    '🔹 Types : system, project_*, subscription_*, organization_*, payment_*, security_alert, user_*'
-  )
-  console.log('🔹 Métadonnées typées pour chaque type de notification')
-  console.log(
-    '🔹 Mix de notifications lues/non lues avec dates étalées (0 à 30 jours)'
-  )
-  console.log('🔹 Cas de test : notifications récentes, moyennes et anciennes')
-  console.log('')
-  console.log("⚙️  Paramètres d'application créés :")
-  console.log('🔹 email.enabled : true')
-  console.log('🔹 email.enabled_for_admins : true')
-  console.log('🔹 email.enabled_for_clients : true')
-  console.log('🔹 email.communication_email : (empty)')
-  console.log('🔹 general.maintenance_mode : false')
-  console.log('🔹 general.maintenance_message : (empty)')
+  console.log('📋 18 interventions : 9 terminées, 1 en cours, 8 planifiées')
+  console.log('🥬 13 récoltes saisies (tomates, courgettes, fraises, etc.)')
   console.log('')
 
   process.exit(0)
@@ -693,7 +370,7 @@ export default seed
 try {
   await seed()
 } catch (error) {
-  console.error('❌ Connexion failed')
+  console.error('❌ Seed failed')
   console.error(error)
   process.exit(1)
 }
