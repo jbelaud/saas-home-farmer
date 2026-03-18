@@ -8,6 +8,7 @@ import {
   deleteInterventionDao,
   getInterventionByIdAndOrganizationDao,
   getInterventionsByDateRangeDao,
+  getInterventionsByDateRangeWithClientDao,
   getInterventionsByGardenClientDao,
   getInterventionsByOrganizationDao,
   getInterventionsByStatusDao,
@@ -135,4 +136,27 @@ export const deleteInterventionService = async (id: string): Promise<void> => {
 export const getInterventionsCountService = async (): Promise<number> => {
   const organizationId = await getActiveOrganizationId()
   return getInterventionsCountByOrganizationDao(organizationId)
+}
+
+export const getTodayInterventionsWithClientService = async () => {
+  const organizationId = await getActiveOrganizationId()
+  const today = new Date()
+  const startOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  )
+  const endOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+    23,
+    59,
+    59
+  )
+  return getInterventionsByDateRangeWithClientDao(
+    organizationId,
+    startOfDay,
+    endOfDay
+  )
 }

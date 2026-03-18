@@ -8,6 +8,7 @@ import {AppBreadcrumb} from '@/components/features/app-breadcrumb'
 import withAuth from '@/components/features/auth/with-auth'
 import {AppSidebar} from '@/components/features/layouts/sidebar/app-sidebar'
 import {QuickFeedbackButton} from '@/components/features/quick-feedback-button'
+import {FarmerMobileNav} from '@/components/layouts/farmer-mobile-nav'
 import {
   SidebarInset,
   SidebarProvider,
@@ -55,10 +56,14 @@ async function AppLayout({children}: {children: React.ReactNode}) {
     <AuthProvider initialUser={user} initialSession={sessionAuth?.session}>
       <OrganizationProvider initialOrganization={activeOrganization}>
         <SidebarProvider>
-          <AppSidebar />
+          {/* Desktop sidebar — hidden on mobile */}
+          <div className="hidden md:contents">
+            <AppSidebar />
+          </div>
           <SidebarInset>
-            <div className="flex min-h-screen flex-col">
-              <main className="flex-1">
+            <div className="flex min-h-screen flex-col bg-stone-50">
+              {/* Desktop header — hidden on mobile */}
+              <div className="hidden md:block">
                 <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
                   <div className="flex h-14 items-center gap-2">
                     <SidebarTrigger />
@@ -67,12 +72,14 @@ async function AppLayout({children}: {children: React.ReactNode}) {
                       <QuickFeedbackButton />
                     </div>
                   </div>
-                  <div className="pt-6 pb-8">{children}</div>
                 </div>
-              </main>
+              </div>
+              <main className="flex-1 pb-24 md:pb-8">{children}</main>
             </div>
           </SidebarInset>
         </SidebarProvider>
+        {/* Mobile bottom nav */}
+        <FarmerMobileNav />
       </OrganizationProvider>
     </AuthProvider>
   )

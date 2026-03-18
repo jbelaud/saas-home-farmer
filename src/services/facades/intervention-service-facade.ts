@@ -7,6 +7,7 @@ import {
   getInterventionsByOrganizationService,
   getInterventionsCountService,
   getScheduledInterventionsService,
+  getTodayInterventionsWithClientService,
   updateInterventionService,
   updateInterventionStatusService,
 } from '@/services/intervention-service'
@@ -20,6 +21,7 @@ export {
   getInterventionsByOrganizationService,
   getInterventionsCountService,
   getScheduledInterventionsService,
+  getTodayInterventionsWithClientService,
   updateInterventionService,
   updateInterventionStatusService,
 }

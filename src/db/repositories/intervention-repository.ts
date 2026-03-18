@@ -168,6 +168,25 @@ export const getInterventionsByDateRangeDao = async (
     .orderBy(interventions.scheduledDate)
 }
 
+export const getInterventionsByDateRangeWithClientDao = async (
+  organizationId: string,
+  startDate: Date,
+  endDate: Date
+) => {
+  return db.query.interventions.findMany({
+    where: (i, {eq, and, gte, lte}) =>
+      and(
+        eq(i.organizationId, organizationId),
+        gte(i.scheduledDate, startDate),
+        lte(i.scheduledDate, endDate)
+      ),
+    with: {
+      gardenClient: true,
+    },
+    orderBy: (i, {asc}) => [asc(i.scheduledDate)],
+  })
+}
+
 export const getInterventionsByStatusDao = async (
   organizationId: string,
   status: InterventionStatusEnumModel
