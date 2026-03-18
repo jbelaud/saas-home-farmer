@@ -138,6 +138,18 @@ export const getInterventionsCountService = async (): Promise<number> => {
   return getInterventionsCountByOrganizationDao(organizationId)
 }
 
+export const getInterventionsByDateRangeWithClientService = async (
+  startDate: Date,
+  endDate: Date
+) => {
+  const organizationId = await getActiveOrganizationId()
+  return getInterventionsByDateRangeWithClientDao(
+    organizationId,
+    startDate,
+    endDate
+  )
+}
+
 export const getTodayInterventionsWithClientService = async () => {
   const organizationId = await getActiveOrganizationId()
   const today = new Date()
