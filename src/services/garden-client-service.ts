@@ -1,8 +1,4 @@
-import {
-  AddGardenClientModel,
-  GardenClientModel,
-  UpdateGardenClientModel,
-} from '@/db/models/farmer-model'
+import {AddGardenClientModel, GardenClientModel} from '@/db/models/farmer-model'
 import {
   createGardenClientDao,
   deleteGardenClientDao,
@@ -11,8 +7,13 @@ import {
   getGardenClientsByOrganizationDao,
   updateGardenClientDao,
 } from '@/db/repositories/garden-client-repository'
-import {getAuthUser} from '@/services/authentication/auth-service'
+import {getPlanByCodeDao} from '@/db/repositories/subscription-repository'
+import {
+  getActiveSubscriptions,
+  getAuthUser,
+} from '@/services/authentication/auth-service'
 import {AuthorizationError} from '@/services/errors/authorization-error'
+import {ValidationError} from '@/services/errors/validation-error'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 
 // ============================================================
@@ -28,6 +29,36 @@ const getActiveOrganizationId = async (): Promise<string> => {
   return orgId
 }
 
+/**
+ * Vérifie si le Farmer peut ajouter un nouveau client selon son plan.
+ * Lève une ValidationError si la limite est atteinte.
+ */
+const checkClientLimitOrThrow = async (
+  organizationId: string
+): Promise<void> => {
+  const subscriptions = await getActiveSubscriptions(organizationId)
+  const activeSub = subscriptions?.[0] as
+    | {plan: string; status: string}
+    | undefined
+
+  const planCode = activeSub?.plan ?? 'graine'
+
+  const plan = await getPlanByCodeDao(planCode)
+  const limits = plan?.limits as Record<string, number> | null
+  const clientLimit = limits?.clients ?? 1
+
+  if (clientLimit === -1) return
+
+  const currentCount =
+    await getActiveClientsCountByOrganizationDao(organizationId)
+
+  if (currentCount >= clientLimit) {
+    throw new ValidationError(
+      `Limite de ${clientLimit} client${clientLimit > 1 ? 's' : ''} atteinte pour votre plan "${plan?.planName ?? planCode}". Passez à un plan supérieur pour ajouter plus de clients.`
+    )
+  }
+}
+
 // ============================================================
 // CRUD : garden_client service
 // ============================================================
@@ -36,6 +67,7 @@ export const createGardenClientService = async (
   data: Omit<AddGardenClientModel, 'organizationId'>
 ): Promise<GardenClientModel> => {
   const organizationId = await getActiveOrganizationId()
+  await checkClientLimitOrThrow(organizationId)
   return createGardenClientDao({...data, organizationId})
 }
 

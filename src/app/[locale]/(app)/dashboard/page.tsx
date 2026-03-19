@@ -3,6 +3,7 @@ import Link from 'next/link'
 import {redirect} from 'next/navigation'
 
 import withAuth, {WithAuthProps} from '@/components/features/auth/with-auth'
+import {PlanBanner} from '@/components/features/subscription/plan-banner'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent} from '@/components/ui/card'
@@ -131,10 +132,14 @@ const MONTH_NAMES = [
 // Page
 // ============================================================
 
-async function Page(_props: WithAuthProps) {
+async function Page({
+  params,
+}: WithAuthProps & {params?: Promise<{locale?: string}>}) {
   const session = await getSessionAuth()
   const user = await getAuthUser()
   const organizationId = session?.session?.activeOrganizationId
+  const resolvedParams = await params
+  const locale = resolvedParams?.locale ?? 'fr'
 
   if (!organizationId) {
     redirect('/onboarding')
@@ -241,6 +246,13 @@ async function Page(_props: WithAuthProps) {
           </Card>
         </section>
 
+        {/* Bannière Plan */}
+        <PlanBanner
+          organizationId={organizationId}
+          clientsCount={clientsCount}
+          locale={locale}
+        />
+
         {/* Alerte Météo (info statique pour le moment) */}
         <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-800">
           <AlertTriangle className="h-5 w-5 shrink-0" />
@@ -343,32 +355,6 @@ async function Page(_props: WithAuthProps) {
               })}
             </div>
           )}
-        </section>
-
-        {/* Section: Tâches de Saison */}
-        <section>
-          <h2 className="font-heading mb-4 text-xl font-bold text-stone-800">
-            À faire en {currentMonth}
-          </h2>
-          <Card>
-            <CardContent className="p-0">
-              {monthTasks.map((task, index) => (
-                <div
-                  key={index}
-                  className={`flex items-center gap-3 p-4 ${index < monthTasks.length - 1 ? 'border-b' : ''}`}
-                >
-                  <div
-                    className={`h-2 w-2 rounded-full ${task.done ? 'bg-stone-300' : 'bg-primary'}`}
-                  />
-                  <span
-                    className={`text-sm font-medium ${task.done ? 'text-muted-foreground line-through' : ''}`}
-                  >
-                    {task.label}
-                  </span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </section>
       </main>
     </div>
