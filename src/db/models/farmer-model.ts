@@ -4,6 +4,7 @@ import {
   decimal,
   doublePrecision,
   index,
+  integer,
   pgEnum,
   pgTable,
   text,
