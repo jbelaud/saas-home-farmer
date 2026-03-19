@@ -17,8 +17,8 @@ initDotEnv()
 // Stripe Price IDs constants (MHF plans)
 const STRIPE_PRICE_IDS = {
   GRAINE: 'free',
-  POUSSE_MONTHLY: 'price_mhf_pousse_monthly',
-  RECOLTE_FR_MONTHLY: 'price_mhf_recolte_fr_monthly',
+  POUSSE_MONTHLY: 'price_1TCo7jDNFQcoJN1NoK5Go7Xx',
+  RECOLTE_FR_MONTHLY: 'price_1TCo8ADNFQcoJN1NDz177aLz',
   RECOLTE_EU_MONTHLY: 'price_mhf_recolte_eu_monthly',
 } as const
 
@@ -62,7 +62,7 @@ const seed = async () => {
       ('recolte_fr', '${STRIPE_PRICE_IDS.RECOLTE_FR_MONTHLY}', NULL, 'Récolte (France)', 'Clients illimités + API Fiscale SAP',
        '{"clients": -1, "storage": 20}', NULL,
        '["Clients illimités", "Module SAP (crédit d''impôt 50%)", "Attestations fiscales PDF", "API Fiscale", "Support 24/7"]',
-       39, 99, 'EUR', true, 'active', 3, NOW(), NOW()),
+       29, 99, 'EUR', true, 'active', 3, NOW(), NOW()),
 
       ('recolte_eu', '${STRIPE_PRICE_IDS.RECOLTE_EU_MONTHLY}', NULL, 'Récolte (BE/CH)', 'Clients illimités',
        '{"clients": -1, "storage": 20}', NULL,
