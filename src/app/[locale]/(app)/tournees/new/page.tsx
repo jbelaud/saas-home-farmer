@@ -1,9 +1,5 @@
-import {ArrowLeft} from 'lucide-react'
-import Link from 'next/link'
-
 import withAuth from '@/components/features/auth/with-auth'
-import {InterventionForm} from '@/components/features/interventions/intervention-form'
-import {Button} from '@/components/ui/button'
+import {InterventionReportForm} from '@/components/features/interventions/intervention-report-form'
 import {getGardenClientsByOrganizationService} from '@/services/facades/garden-client-service-facade'
 
 async function Page() {
@@ -16,29 +12,10 @@ async function Page() {
     id: c.id,
     firstName: c.firstName,
     lastName: c.lastName,
+    addressStreet: c.addressStreet,
   }))
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/tournees">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900">
-            Nouvelle intervention
-          </h1>
-          <p className="text-stone-500">
-            Planifiez une visite chez un de vos clients.
-          </p>
-        </div>
-      </div>
-
-      <InterventionForm clients={clientOptions} />
-    </div>
-  )
+  return <InterventionReportForm clients={clientOptions} />
 }
 
 export default withAuth(Page)
