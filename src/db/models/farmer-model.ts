@@ -127,6 +127,10 @@ export const gardenClients = pgTable(
     accessToken: uuid('access_token')
       .default(sql`uuid_generate_v4()`)
       .notNull(),
+    // Fréquence de visite cible (en jours, par défaut ~21 jours = 3 semaines)
+    visitFrequencyDays: integer('visit_frequency_days').default(21).notNull(),
+    // Date de la prochaine visite prévue (calculée ou saisie manuellement)
+    nextVisitDate: timestamp('next_visit_date', {mode: 'date'}),
     // Statut du client
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: timestamp('created_at', {mode: 'date'}).defaultNow().notNull(),

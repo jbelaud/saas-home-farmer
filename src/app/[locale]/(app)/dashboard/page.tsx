@@ -1,4 +1,12 @@
-import {AlertTriangle, ChevronRight, CloudSun, MapPin} from 'lucide-react'
+import {
+  AlertTriangle,
+  CalendarPlus,
+  ChevronRight,
+  Clock,
+  CloudSun,
+  MapPin,
+  Users,
+} from 'lucide-react'
 import Link from 'next/link'
 import {redirect} from 'next/navigation'
 
@@ -10,7 +18,11 @@ import {Card, CardContent} from '@/components/ui/card'
 import {getSessionAuth} from '@/services/authentication/auth-service'
 import {getAuthUser} from '@/services/authentication/auth-service'
 import {getFarmerProfileByOrganizationIdService} from '@/services/facades/farmer-service-facade'
-import {getActiveClientsCountService} from '@/services/facades/garden-client-service-facade'
+import {
+  getActiveClientsCountService,
+  getClientsNeedingVisitService,
+  getClientsWithoutNextVisitService,
+} from '@/services/facades/garden-client-service-facade'
 import {
   getScheduledInterventionsService,
   getTodayInterventionsWithClientService,
@@ -35,6 +47,29 @@ function formatDate(): string {
   }).format(new Date())
 }
 
+function formatRelativeDate(date: Date): string {
+  const now = new Date()
+  const target = new Date(date)
+  const diffMs = target.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffDays < -1) return `En retard de ${Math.abs(diffDays)}j`
+  if (diffDays === -1) return 'Hier'
+  if (diffDays === 0) return "Aujourd'hui"
+  if (diffDays === 1) return 'Demain'
+  if (diffDays <= 7) return `Dans ${diffDays}j`
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+  }).format(target)
+}
+
+function isOverdue(date: Date): boolean {
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  return new Date(date) < now
+}
+
 function getInterventionTypeLabel(type: string): string {
   const labels: Record<string, string> = {
     maintenance: 'Entretien',
@@ -45,88 +80,6 @@ function getInterventionTypeLabel(type: string): string {
   }
   return labels[type] ?? type
 }
-
-function getMonthTasks(): {label: string; done: boolean}[] {
-  const month = new Date().getMonth()
-  const tasksByMonth: Record<number, {label: string; done: boolean}[]> = {
-    0: [
-      {label: 'Planification des cultures', done: false},
-      {label: 'Commande de graines', done: false},
-      {label: 'Amendement du sol (si hors gel)', done: false},
-    ],
-    1: [
-      {label: 'Semis sous abri (tomates, poivrons)', done: false},
-      {label: 'Taille des arbres fruitiers', done: false},
-      {label: 'Préparation des planches de culture', done: false},
-    ],
-    2: [
-      {label: 'Taille des rosiers', done: false},
-      {label: 'Semis tomates (intérieur)', done: false},
-      {label: 'Amendement du sol', done: true},
-    ],
-    3: [
-      {label: 'Plantation des pommes de terre', done: false},
-      {label: 'Semis en pleine terre (radis, carottes)', done: false},
-      {label: 'Installation des tuteurs', done: false},
-    ],
-    4: [
-      {label: 'Repiquage des tomates', done: false},
-      {label: 'Paillage des massifs', done: false},
-      {label: 'Semis haricots et courgettes', done: false},
-    ],
-    5: [
-      {label: 'Arrosage régulier', done: false},
-      {label: 'Taille des gourmands (tomates)', done: false},
-      {label: 'Récolte fraises et radis', done: false},
-    ],
-    6: [
-      {label: 'Arrosage intensif', done: false},
-      {label: 'Récolte tomates et courgettes', done: false},
-      {label: 'Semis pour cultures automne', done: false},
-    ],
-    7: [
-      {label: 'Récolte été (tomates, aubergines)', done: false},
-      {label: 'Semis engrais vert', done: false},
-      {label: 'Préparation cultures automne', done: false},
-    ],
-    8: [
-      {label: 'Plantation poireaux et choux', done: false},
-      {label: 'Récolte courges et potirons', done: false},
-      {label: 'Nettoyage des parcelles vides', done: false},
-    ],
-    9: [
-      {label: 'Plantation ail et oignons', done: false},
-      {label: 'Protection hivernale', done: false},
-      {label: 'Dernières récoltes', done: false},
-    ],
-    10: [
-      {label: 'Paillage hivernal', done: false},
-      {label: 'Nettoyage du potager', done: false},
-      {label: 'Entretien des outils', done: false},
-    ],
-    11: [
-      {label: 'Planification saison prochaine', done: false},
-      {label: 'Bilan annuel récoltes', done: false},
-      {label: 'Commande de compost', done: false},
-    ],
-  }
-  return tasksByMonth[month] ?? []
-}
-
-const MONTH_NAMES = [
-  'Janvier',
-  'Février',
-  'Mars',
-  'Avril',
-  'Mai',
-  'Juin',
-  'Juillet',
-  'Août',
-  'Septembre',
-  'Octobre',
-  'Novembre',
-  'Décembre',
-]
 
 // ============================================================
 // Page
@@ -152,23 +105,36 @@ async function Page({
     redirect('/onboarding')
   }
 
-  const [clientsCount, todayInterventions, scheduledInterventions] =
-    await Promise.all([
-      getActiveClientsCountService(),
-      getTodayInterventionsWithClientService(),
-      getScheduledInterventionsService(),
-    ])
+  const [
+    clientsCount,
+    todayInterventions,
+    scheduledInterventions,
+    clientsNeedingVisit,
+    clientsWithoutVisit,
+  ] = await Promise.all([
+    getActiveClientsCountService(),
+    getTodayInterventionsWithClientService(),
+    getScheduledInterventionsService(),
+    getClientsNeedingVisitService(7),
+    getClientsWithoutNextVisitService(),
+  ])
 
   const firstName = user?.name?.split(' ')[0] ?? 'Farmer'
   const completedToday = todayInterventions.filter(
     (i) => i.status === 'completed'
   ).length
   const totalToday = todayInterventions.length
-  const currentMonth = MONTH_NAMES[new Date().getMonth()]
-  const monthTasks = getMonthTasks()
+  const overdueClients = clientsNeedingVisit.filter(
+    (c) => c.nextVisitDate && isOverdue(c.nextVisitDate)
+  )
+  const upcomingClients = clientsNeedingVisit.filter(
+    (c) => c.nextVisitDate && !isOverdue(c.nextVisitDate)
+  )
+  const toPlanCount =
+    overdueClients.length + upcomingClients.length + clientsWithoutVisit.length
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 pb-24">
       {/* Header Mobile — vert avec KPI tournée */}
       <header className="bg-primary text-primary-foreground rounded-b-3xl p-6 shadow-md md:hidden">
         <div className="mb-4 flex items-start justify-between">
@@ -187,12 +153,12 @@ async function Page({
         {/* KPI Tournée */}
         <div className="mt-2 flex gap-4">
           <div className="w-full rounded-lg bg-white/10 px-3 py-2">
-            <span className="block text-xs opacity-80">Tournée</span>
+            <span className="block text-xs opacity-80">Tournée du jour</span>
             <div className="flex items-end justify-between">
               <span className="text-lg font-bold">
                 {completedToday}/{totalToday}
               </span>
-              <span className="mb-1 text-xs opacity-80">Terminé</span>
+              <span className="mb-1 text-xs opacity-80">terminé</span>
             </div>
             <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-black/20">
               <div
@@ -221,26 +187,47 @@ async function Page({
 
       <main className="space-y-6 px-4 py-6 md:px-8">
         {/* KPI Cards */}
-        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <section className="grid grid-cols-3 gap-3 md:grid-cols-4">
           <Card className="border-none bg-white shadow-sm">
             <CardContent className="p-3">
-              <p className="text-muted-foreground text-[10px] font-bold uppercase">
-                Clients Actifs
-              </p>
+              <div className="mb-1 flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5 text-blue-600" />
+                <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                  Clients
+                </p>
+              </div>
               <p className="text-xl font-bold text-stone-900">{clientsCount}</p>
-              <p className="text-[10px] font-medium text-blue-600">en suivi</p>
             </CardContent>
           </Card>
           <Card className="border-none bg-white shadow-sm">
             <CardContent className="p-3">
-              <p className="text-muted-foreground text-[10px] font-bold uppercase">
-                Planifiées
-              </p>
+              <div className="mb-1 flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-emerald-600" />
+                <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                  Planifiées
+                </p>
+              </div>
               <p className="text-xl font-bold text-stone-900">
                 {scheduledInterventions.length}
               </p>
-              <p className="text-[10px] font-medium text-emerald-600">
-                interventions à venir
+            </CardContent>
+          </Card>
+          <Card
+            className={`border-none shadow-sm ${toPlanCount > 0 ? 'bg-amber-50' : 'bg-white'}`}
+          >
+            <CardContent className="p-3">
+              <div className="mb-1 flex items-center gap-1.5">
+                <CalendarPlus
+                  className={`h-3.5 w-3.5 ${toPlanCount > 0 ? 'text-amber-600' : 'text-stone-400'}`}
+                />
+                <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                  À planifier
+                </p>
+              </div>
+              <p
+                className={`text-xl font-bold ${toPlanCount > 0 ? 'text-amber-700' : 'text-stone-900'}`}
+              >
+                {toPlanCount}
               </p>
             </CardContent>
           </Card>
@@ -253,45 +240,36 @@ async function Page({
           locale={locale}
         />
 
-        {/* Alerte Météo (info statique pour le moment) */}
-        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-800">
-          <AlertTriangle className="h-5 w-5 shrink-0" />
-          <p className="text-sm font-medium">
-            Pensez à vérifier la météo avant chaque tournée. Les prévisions
-            seront intégrées prochainement.
-          </p>
-        </div>
-
-        {/* Section: Ma Tournée du jour */}
+        {/* Section: Aujourd'hui */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-heading text-xl font-bold text-stone-800">
-              Ma Tournée
+            <h2 className="font-heading text-lg font-bold text-stone-800">
+              Aujourd&apos;hui
             </h2>
             <Button variant="ghost" size="sm" className="text-primary" asChild>
-              <Link href="/tournees">Voir tout</Link>
+              <Link href="/agenda">Agenda</Link>
             </Button>
           </div>
 
           {totalToday === 0 ? (
             <Card className="border-none shadow-sm">
               <CardContent className="flex flex-col items-center gap-3 p-6 text-center">
-                <p className="text-stone-500">
+                <p className="text-sm text-stone-500">
                   Aucune intervention prévue aujourd&apos;hui
                 </p>
-                <Button asChild>
-                  <Link href="/tournees/new">Planifier une intervention</Link>
+                <Button size="sm" asChild>
+                  <Link href="/tournees/new">Planifier une visite</Link>
                 </Button>
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {todayInterventions.map((intervention) => {
                 const client = intervention.gardenClient
                 const clientName = client
                   ? `${client.firstName} ${client.lastName}`
                   : 'Client inconnu'
-                const address = client?.addressStreet ?? ''
+                const address = client?.addressCity ?? ''
                 const isCurrent = intervention.status === 'in_progress'
                 const isDone = intervention.status === 'completed'
 
@@ -301,11 +279,11 @@ async function Page({
                     href={`/tournees/${intervention.id}`}
                   >
                     <Card
-                      className={`border-none shadow-sm ${isCurrent ? 'ring-primary ring-2 ring-offset-2' : ''}`}
+                      className={`border-none shadow-sm transition-shadow hover:shadow-md ${isCurrent ? 'ring-primary ring-2 ring-offset-1' : ''}`}
                     >
-                      <CardContent className="flex items-center gap-4 p-4">
+                      <CardContent className="flex items-center gap-3 p-3">
                         <div
-                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                             isDone
                               ? 'bg-emerald-100 text-emerald-700'
                               : isCurrent
@@ -316,34 +294,34 @@ async function Page({
                           {formatTime(intervention.scheduledDate)}
                         </div>
 
-                        <div className="flex-1">
-                          <h3 className="font-bold text-stone-900">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="truncate text-sm font-bold text-stone-900">
                             {clientName}
                           </h3>
-                          <div className="text-muted-foreground flex items-center text-sm">
-                            <MapPin className="mr-1 h-3 w-3" />
-                            {address}
+                          <div className="text-muted-foreground flex items-center text-xs">
+                            <MapPin className="mr-1 h-3 w-3 shrink-0" />
+                            <span className="truncate">{address}</span>
                           </div>
                         </div>
 
                         {isCurrent ? (
                           <Button
                             size="icon"
-                            className="bg-accent hover:bg-accent/90 text-accent-foreground h-10 w-10 rounded-full"
+                            className="bg-accent hover:bg-accent/90 text-accent-foreground h-9 w-9 shrink-0 rounded-full"
                           >
-                            <ChevronRight />
+                            <ChevronRight className="h-4 w-4" />
                           </Button>
                         ) : isDone ? (
                           <Badge
                             variant="outline"
-                            className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                            className="shrink-0 border-emerald-200 bg-emerald-50 text-emerald-700"
                           >
                             Fait
                           </Badge>
                         ) : (
                           <Badge
                             variant="secondary"
-                            className="bg-stone-100 text-stone-500"
+                            className="shrink-0 bg-stone-100 text-stone-500"
                           >
                             {getInterventionTypeLabel(intervention.type)}
                           </Badge>
@@ -355,6 +333,153 @@ async function Page({
               })}
             </div>
           )}
+        </section>
+
+        {/* Section: À planifier */}
+        {toPlanCount > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading text-lg font-bold text-stone-800">
+                À planifier
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary"
+                asChild
+              >
+                <Link href="/clients">Voir tous</Link>
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {/* Clients en retard (rouge) */}
+              {overdueClients.map((client) => (
+                <Link
+                  key={client.id}
+                  href={`/tournees/new?clientId=${client.id}`}
+                >
+                  <Card className="border-l-4 border-none border-l-red-400 shadow-sm transition-shadow hover:shadow-md">
+                    <CardContent className="flex items-center gap-3 p-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-bold text-stone-900">
+                          {client.firstName} {client.lastName}
+                        </h3>
+                        <p className="text-xs font-medium text-red-600">
+                          {client.nextVisitDate &&
+                            formatRelativeDate(client.nextVisitDate)}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="shrink-0 border-red-200 text-red-700 hover:bg-red-50"
+                      >
+                        Planifier
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+
+              {/* Clients à venir cette semaine (amber) */}
+              {upcomingClients.map((client) => (
+                <Link
+                  key={client.id}
+                  href={`/tournees/new?clientId=${client.id}`}
+                >
+                  <Card className="border-none shadow-sm transition-shadow hover:shadow-md">
+                    <CardContent className="flex items-center gap-3 p-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                        <Clock className="h-4 w-4 text-amber-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-bold text-stone-900">
+                          {client.firstName} {client.lastName}
+                        </h3>
+                        <p className="text-xs font-medium text-amber-600">
+                          {client.nextVisitDate &&
+                            formatRelativeDate(client.nextVisitDate)}
+                        </p>
+                      </div>
+                      <Button size="sm" variant="outline" className="shrink-0">
+                        Planifier
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+
+              {/* Clients jamais planifiés (stone) */}
+              {clientsWithoutVisit.slice(0, 3).map((client) => (
+                <Link
+                  key={client.id}
+                  href={`/tournees/new?clientId=${client.id}`}
+                >
+                  <Card className="border-none shadow-sm transition-shadow hover:shadow-md">
+                    <CardContent className="flex items-center gap-3 p-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-100">
+                        <CalendarPlus className="h-4 w-4 text-stone-500" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-bold text-stone-900">
+                          {client.firstName} {client.lastName}
+                        </h3>
+                        <p className="text-xs text-stone-500">
+                          Jamais planifié
+                        </p>
+                      </div>
+                      <Button size="sm" variant="outline" className="shrink-0">
+                        Planifier
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+
+              {clientsWithoutVisit.length > 3 && (
+                <p className="text-center text-xs text-stone-500">
+                  + {clientsWithoutVisit.length - 3} autre
+                  {clientsWithoutVisit.length - 3 > 1 ? 's' : ''} client
+                  {clientsWithoutVisit.length - 3 > 1 ? 's' : ''} sans prochaine
+                  visite
+                </p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Section: Mon activité */}
+        <section className="space-y-4">
+          <h2 className="font-heading text-lg font-bold text-stone-800">
+            Mon activité
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="border-none bg-white shadow-sm">
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-emerald-600">
+                  {
+                    todayInterventions.filter((i) => i.status === 'completed')
+                      .length
+                  }
+                </p>
+                <p className="text-xs text-stone-500">
+                  visites aujourd&apos;hui
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-none bg-white shadow-sm">
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-blue-600">
+                  {scheduledInterventions.length}
+                </p>
+                <p className="text-xs text-stone-500">à venir</p>
+              </CardContent>
+            </Card>
+          </div>
         </section>
       </main>
     </div>

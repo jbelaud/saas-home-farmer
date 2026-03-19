@@ -139,3 +139,59 @@ export const getActiveClientsCountByOrganizationDao = async (
     )
   return count
 }
+
+/**
+ * Clients dont la prochaine visite est dans le passé ou dans les N prochains jours.
+ * Triés par urgence (les plus en retard d'abord).
+ */
+export const getClientsNeedingVisitDao = async (
+  organizationId: string,
+  withinDays: number = 7
+): Promise<GardenClientModel[]> => {
+  const limitDate = new Date()
+  limitDate.setDate(limitDate.getDate() + withinDays)
+
+  return db
+    .select()
+    .from(gardenClients)
+    .where(
+      and(
+        eq(gardenClients.organizationId, organizationId),
+        eq(gardenClients.isActive, true),
+        sql`${gardenClients.nextVisitDate} IS NOT NULL AND ${gardenClients.nextVisitDate} <= ${limitDate}`
+      )
+    )
+    .orderBy(gardenClients.nextVisitDate)
+}
+
+/**
+ * Clients actifs sans nextVisitDate (jamais planifié).
+ */
+export const getClientsWithoutNextVisitDao = async (
+  organizationId: string
+): Promise<GardenClientModel[]> => {
+  return db
+    .select()
+    .from(gardenClients)
+    .where(
+      and(
+        eq(gardenClients.organizationId, organizationId),
+        eq(gardenClients.isActive, true),
+        sql`${gardenClients.nextVisitDate} IS NULL`
+      )
+    )
+    .orderBy(gardenClients.createdAt)
+}
+
+/**
+ * Met à jour la nextVisitDate d'un client.
+ */
+export const updateClientNextVisitDateDao = async (
+  clientId: string,
+  nextVisitDate: Date
+): Promise<void> => {
+  await db
+    .update(gardenClients)
+    .set({nextVisitDate, updatedAt: new Date()})
+    .where(eq(gardenClients.id, clientId))
+}

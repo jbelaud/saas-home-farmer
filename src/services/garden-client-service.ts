@@ -3,8 +3,11 @@ import {
   createGardenClientDao,
   deleteGardenClientDao,
   getActiveClientsCountByOrganizationDao,
+  getClientsNeedingVisitDao,
+  getClientsWithoutNextVisitDao,
   getGardenClientByIdAndOrganizationDao,
   getGardenClientsByOrganizationDao,
+  updateClientNextVisitDateDao,
   updateGardenClientDao,
 } from '@/db/repositories/garden-client-repository'
 import {getPlanByCodeDao} from '@/db/repositories/subscription-repository'
@@ -125,4 +128,29 @@ export const deleteGardenClientService = async (id: string): Promise<void> => {
 export const getActiveClientsCountService = async (): Promise<number> => {
   const organizationId = await getActiveOrganizationId()
   return getActiveClientsCountByOrganizationDao(organizationId)
+}
+
+export const getClientsNeedingVisitService = async (withinDays: number = 7) => {
+  const organizationId = await getActiveOrganizationId()
+  return getClientsNeedingVisitDao(organizationId, withinDays)
+}
+
+export const getClientsWithoutNextVisitService = async () => {
+  const organizationId = await getActiveOrganizationId()
+  return getClientsWithoutNextVisitDao(organizationId)
+}
+
+export const updateClientNextVisitDateService = async (
+  clientId: string,
+  nextVisitDate: Date
+): Promise<void> => {
+  const organizationId = await getActiveOrganizationId()
+  const existing = await getGardenClientByIdAndOrganizationDao(
+    clientId,
+    organizationId
+  )
+  if (!existing) {
+    throw new AuthorizationError('Client introuvable')
+  }
+  await updateClientNextVisitDateDao(clientId, nextVisitDate)
 }
