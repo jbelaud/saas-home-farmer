@@ -1,4 +1,4 @@
-import {Leaf} from 'lucide-react'
+import {Camera, Home, Leaf} from 'lucide-react'
 import Link from 'next/link'
 import {setRequestLocale} from 'next-intl/server'
 import {PropsWithChildren} from 'react'
@@ -25,8 +25,7 @@ export default async function ClientPortalLayout({
             Lien invalide
           </h1>
           <p className="text-stone-500">
-            Ce lien d&apos;acc&egrave;s n&apos;est plus valide ou a
-            expir&eacute;.
+            Ce lien d&apos;accès n&apos;est plus valide ou a expiré.
           </p>
           <p className="mt-2 text-sm text-stone-400">
             Contactez votre jardinier pour obtenir un nouveau lien.
@@ -37,89 +36,32 @@ export default async function ClientPortalLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50">
-      {/* Header */}
-      <header className="border-b border-emerald-100 bg-emerald-700 text-white">
-        <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
-          <Link
-            href={`/${locale}/client-portal/${token}`}
-            className="flex items-center gap-2"
-          >
-            <Leaf className="h-5 w-5" />
-            <span className="font-semibold">Mon Potager</span>
-          </Link>
-          <span className="text-sm text-emerald-100">
-            {client.firstName} {client.lastName}
-          </span>
-        </div>
-      </header>
+    <div className="min-h-screen bg-stone-50 pb-20">
+      {children}
 
-      {/* Main content */}
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-6">
-        {children}
-      </main>
-
-      {/* Bottom nav */}
-      <nav className="sticky bottom-0 border-t border-stone-200 bg-white">
-        <div className="mx-auto flex max-w-lg items-center justify-around py-2">
-          <Link
-            href={`/${locale}/client-portal/${token}`}
-            className="flex flex-col items-center gap-0.5 px-3 py-1 text-xs text-stone-600 hover:text-emerald-700"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"
-              />
-            </svg>
-            Accueil
-          </Link>
-          <Link
-            href={`/${locale}/client-portal/${token}/harvests`}
-            className="flex flex-col items-center gap-0.5 px-3 py-1 text-xs text-stone-600 hover:text-emerald-700"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            R&eacute;coltes
-          </Link>
-          <Link
-            href={`/${locale}/client-portal/${token}/visits`}
-            className="flex flex-col items-center gap-0.5 px-3 py-1 text-xs text-stone-600 hover:text-emerald-700"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
-            Visites
-          </Link>
-        </div>
+      {/* Client Bottom Nav */}
+      <nav className="pb-safe fixed right-0 bottom-0 left-0 z-50 flex items-center justify-between border-t bg-white px-6 py-2">
+        <Link
+          href={`/${locale}/client-portal/${token}`}
+          className="text-primary hover:text-primary hover:bg-primary/5 flex flex-col items-center gap-1 rounded-lg px-3 py-2"
+        >
+          <Home className="h-6 w-6" />
+          <span className="text-[10px] font-medium">Accueil</span>
+        </Link>
+        <Link
+          href={`/${locale}/client-portal/${token}/visits`}
+          className="flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-stone-400 hover:text-stone-600"
+        >
+          <Camera className="h-6 w-6" />
+          <span className="text-[10px] font-medium">Photos</span>
+        </Link>
+        <Link
+          href={`/${locale}/client-portal/${token}/harvests`}
+          className="flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-stone-400 hover:text-stone-600"
+        >
+          <Leaf className="h-6 w-6" />
+          <span className="text-[10px] font-medium">Récoltes</span>
+        </Link>
       </nav>
     </div>
   )

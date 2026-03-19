@@ -1,17 +1,18 @@
 import {
-  CalendarDays,
+  Calendar,
   CheckCircle2,
+  CloudSun,
   Leaf,
   Plus,
   Scale,
   Sprout,
+  TrendingUp,
 } from 'lucide-react'
 import Link from 'next/link'
 import {setRequestLocale} from 'next-intl/server'
 
-import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card, CardContent} from '@/components/ui/card'
 import {getClientPortalDashboardService} from '@/services/facades/client-portal-service-facade'
 
 type Params = {locale: string; token: string}
@@ -29,9 +30,9 @@ export default async function ClientPortalDashboard({
 
   const formatDate = (date: Date) =>
     new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'long',
       day: 'numeric',
       month: 'long',
-      year: 'numeric',
     }).format(new Date(date))
 
   const formatShortDate = (date: Date) =>
@@ -40,180 +41,186 @@ export default async function ClientPortalDashboard({
       month: 'short',
     }).format(new Date(date))
 
-  return (
-    <div className="space-y-6">
-      {/* Greeting */}
-      <div>
-        <h1 className="text-2xl font-bold text-stone-900">
-          Bonjour, {client.firstName} !
-        </h1>
-        <p className="text-sm text-stone-500">
-          Bienvenue sur votre espace potager
-        </p>
-      </div>
+  const currentYear = new Date().getFullYear()
 
-      {/* KPI: Valeur Produite */}
-      <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
+  return (
+    <div>
+      {/* Header Mobile — Emerald avec ROI hero */}
+      <header className="relative overflow-hidden rounded-b-3xl bg-emerald-800 p-6 text-white shadow-md">
+        <div className="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 transform opacity-10">
+          <Sprout className="h-48 w-48" />
+        </div>
+
+        <div className="relative z-10">
+          <div className="mb-6 flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-emerald-700">
-                Valeur produite
-              </p>
-              <p className="text-3xl font-bold text-emerald-800">
-                {harvestStats.totalValueEur.toFixed(2)} &euro;
-              </p>
-              <p className="mt-1 text-xs text-emerald-600">
-                {harvestStats.totalWeightKg.toFixed(1)} kg
-                r&eacute;colt&eacute;s &middot; {harvestStats.count}{' '}
-                r&eacute;coltes
+              <h1 className="font-heading text-2xl font-bold">
+                Bonjour, {client.firstName} 👋
+              </h1>
+              <p className="text-sm text-emerald-100">
+                Votre potager se porte à merveille !
               </p>
             </div>
-            <div className="rounded-full bg-emerald-200 p-3">
-              <Sprout className="h-8 w-8 text-emerald-700" />
+            <div className="flex flex-col items-center rounded-xl bg-white/10 p-2 backdrop-blur-sm">
+              <CloudSun className="mb-1 h-6 w-6" />
+              <span className="text-xs font-bold">—</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3">
-        <Button
-          asChild
-          size="lg"
-          className="h-14 bg-emerald-700 hover:bg-emerald-800"
-        >
-          <Link href={`/${locale}/client-portal/${token}/harvests/new`}>
-            <Plus className="mr-2 h-5 w-5" />
-            Ajouter r&eacute;colte
-          </Link>
-        </Button>
-        <Button
-          asChild
-          size="lg"
-          variant="outline"
-          className="h-14 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-        >
-          <Link href={`/${locale}/client-portal/${token}/visits`}>
-            <CalendarDays className="mr-2 h-5 w-5" />
-            Mes visites
-          </Link>
-        </Button>
-      </div>
+          {/* ROI Card (Hero) */}
+          <div className="rounded-2xl bg-white p-4 text-stone-900 shadow-lg">
+            <div className="mb-2 flex items-start justify-between">
+              <div className="flex items-center gap-2 text-sm font-medium text-emerald-700">
+                <TrendingUp className="h-4 w-4" />
+                Valeur Produite ({currentYear})
+              </div>
+            </div>
+            <div className="mb-1 flex items-end gap-2">
+              <span className="font-heading text-4xl font-bold">
+                {harvestStats.totalValueEur.toFixed(0)}€
+              </span>
+              <span className="mb-1.5 text-sm text-stone-500">
+                d&apos;économie estimée
+              </span>
+            </div>
+            <p className="text-xs leading-tight text-stone-400">
+              {harvestStats.totalWeightKg.toFixed(1)} kg récoltés ·{' '}
+              {harvestStats.count} récoltes · Prix du marché Bio
+            </p>
+          </div>
+        </div>
+      </header>
 
-      {/* Dernier passage */}
-      {lastIntervention && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-              Dernier passage
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-stone-500">
+      <main className="space-y-6 px-4 py-6">
+        {/* Actions Rapides */}
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            asChild
+            className="flex h-auto flex-col gap-2 bg-emerald-600 py-4 shadow-md shadow-emerald-200 hover:bg-emerald-700"
+            size="lg"
+          >
+            <Link href={`/${locale}/client-portal/${token}/harvests/new`}>
+              <Plus className="h-6 w-6" />
+              <span>Ajouter une récolte</span>
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="flex h-auto flex-col gap-2 border-emerald-200 bg-emerald-50 py-4 text-emerald-800 hover:bg-emerald-100"
+          >
+            <Link href={`/${locale}/client-portal/${token}/visits`}>
+              <Calendar className="h-6 w-6" />
+              <span>Mes visites</span>
+            </Link>
+          </Button>
+        </div>
+
+        {/* Dernière Visite */}
+        {lastIntervention && (
+          <section>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-heading text-lg font-bold text-stone-800">
+                Dernier passage
+              </h2>
+              <span className="text-xs text-stone-500">
                 {formatDate(lastIntervention.scheduledDate)}
               </span>
-              <Badge variant="secondary" className="capitalize">
-                {lastIntervention.type === 'maintenance'
-                  ? 'Entretien'
-                  : lastIntervention.type === 'plantation'
-                    ? 'Plantation'
-                    : lastIntervention.type === 'setup'
-                      ? 'Installation'
-                      : lastIntervention.type === 'consultation'
-                        ? 'Conseil'
-                        : 'Aide r\u00e9colte'}
-              </Badge>
             </div>
-
-            {/* Checklist */}
-            {lastIntervention.checklistItems.length > 0 && (
-              <div className="space-y-1.5">
-                <p className="text-xs font-medium text-stone-500 uppercase">
-                  T&acirc;ches effectu&eacute;es
-                </p>
-                <div className="space-y-1">
-                  {lastIntervention.checklistItems.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 text-sm text-stone-700"
-                    >
-                      {lastIntervention.checklistDone[i] ? (
-                        <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-500" />
-                      ) : (
-                        <div className="h-4 w-4 flex-shrink-0 rounded-full border-2 border-stone-300" />
-                      )}
-                      <span>{item}</span>
-                    </div>
-                  ))}
+            <Card className="overflow-hidden border-none shadow-sm">
+              {/* Photo placeholder */}
+              <div className="relative h-48 bg-stone-200">
+                <div className="absolute inset-0 flex items-center justify-center bg-stone-300">
+                  <Leaf className="h-12 w-12 text-stone-400 opacity-50" />
+                  <span className="ml-2 font-medium text-stone-500">
+                    Photo à venir
+                  </span>
+                </div>
+                <div className="absolute bottom-3 left-3 rounded bg-black/60 px-2 py-1 text-xs text-white backdrop-blur-md">
+                  Après intervention
                 </div>
               </div>
-            )}
+              <CardContent className="p-4">
+                {/* Checklist */}
+                {lastIntervention.checklistItems.length > 0 && (
+                  <div className="mb-4 space-y-2">
+                    {lastIntervention.checklistItems.map((item, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-sm text-stone-700"
+                      >
+                        {lastIntervention.checklistDone[i] ? (
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                        ) : (
+                          <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                        )}
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-            {/* Notes du pro */}
-            {lastIntervention.proNotes && (
-              <div className="rounded-lg bg-emerald-50 p-3">
-                <p className="text-xs font-medium text-emerald-700 uppercase">
-                  Conseil du pro
-                </p>
-                <p className="mt-1 text-sm text-emerald-800">
-                  {lastIntervention.proNotes}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+                {/* Conseil du pro */}
+                {lastIntervention.proNotes && (
+                  <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
+                    <span className="mb-1 block text-xs font-bold tracking-wide uppercase opacity-70">
+                      Conseil du pro
+                    </span>
+                    &ldquo;{lastIntervention.proNotes}&rdquo;
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        )}
 
-      {/* Récoltes récentes */}
-      {recentHarvests.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Leaf className="h-5 w-5 text-amber-500" />
-                R&eacute;coltes r&eacute;centes
-              </CardTitle>
+        {/* Récoltes récentes */}
+        {recentHarvests.length > 0 && (
+          <section>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-heading text-lg font-bold text-stone-800">
+                Récoltes récentes
+              </h2>
               <Link
                 href={`/${locale}/client-portal/${token}/harvests`}
-                className="text-sm text-emerald-600 hover:text-emerald-700"
+                className="text-primary text-xs font-medium hover:underline"
               >
-                Tout voir
+                Voir l&apos;historique
               </Link>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {recentHarvests.map((harvest) => (
                 <div
                   key={harvest.id}
-                  className="flex items-center justify-between rounded-lg border border-stone-100 p-3"
+                  className="flex items-center justify-between rounded-xl border bg-white p-4"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100">
                       <Scale className="h-5 w-5 text-amber-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-stone-900">
+                      <p className="font-bold text-stone-900">
                         {harvest.cropName}
                       </p>
                       <p className="text-xs text-stone-500">
-                        {formatShortDate(harvest.harvestDate)} &middot;{' '}
-                        {harvest.weightKg} kg
+                        {formatShortDate(harvest.harvestDate)}
                       </p>
                     </div>
                   </div>
-                  <span className="text-sm font-semibold text-emerald-700">
-                    {Number(harvest.calculatedValueEur).toFixed(2)} &euro;
-                  </span>
+                  <div className="text-right">
+                    <p className="font-bold text-stone-900">
+                      {harvest.weightKg} kg
+                    </p>
+                    <p className="text-xs font-medium text-emerald-600">
+                      +{Number(harvest.calculatedValueEur).toFixed(2)}€
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </section>
+        )}
+      </main>
     </div>
   )
 }
