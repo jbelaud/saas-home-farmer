@@ -7,7 +7,15 @@ import {
 
 // Types de domaine découplés des types Drizzle - Aligned with Better Auth
 export type Subscription = SubscriptionModel
-export type SubscriptionPlan = 'pro' | 'enterprise' | 'lifetime' | 'free'
+export type SubscriptionPlan =
+  | 'graine'
+  | 'pousse'
+  | 'recolte_fr'
+  | 'recolte_eu'
+  | 'free'
+  | 'pro'
+  | 'enterprise'
+  | 'lifetime'
 
 // Types pour les plans de subscription - Compatible avec StripePlan
 export type Plan = SubscriptionPlanModel
@@ -59,6 +67,11 @@ export type PlanDTO = {
 
 // Constantes pour les rôles globaux
 export const PlanConst = {
+  GRAINE: 'graine' as SubscriptionPlan,
+  POUSSE: 'pousse' as SubscriptionPlan,
+  RECOLTE_FR: 'recolte_fr' as SubscriptionPlan,
+  RECOLTE_EU: 'recolte_eu' as SubscriptionPlan,
+  // Legacy boilerplate codes
   PRO: 'pro' as SubscriptionPlan,
   ENTREPRISE: 'enterprise' as SubscriptionPlan,
   LIFETIME: 'lifetime' as SubscriptionPlan,

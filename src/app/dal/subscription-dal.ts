@@ -76,32 +76,48 @@ export const getPlanByCodeDal = cache((code: string) =>
 // SERVICES HELPER POUR LES PLANS SPÉCIFIQUES
 // ========================================
 
-/**
- * Obtenir le plan PRO
- */
+// ========================================
+// MHF PLANS
+// ========================================
+
+export const getGrainePlan = cache(async (): Promise<PlanDTO | undefined> => {
+  return getPlanByCodeDal(PlanConst.GRAINE)
+})
+
+export const getPoussePlan = cache(async (): Promise<PlanDTO | undefined> => {
+  return getPlanByCodeDal(PlanConst.POUSSE)
+})
+
+export const getRecolteFrPlan = cache(
+  async (): Promise<PlanDTO | undefined> => {
+    return getPlanByCodeDal(PlanConst.RECOLTE_FR)
+  }
+)
+
+export const getRecolteEuPlan = cache(
+  async (): Promise<PlanDTO | undefined> => {
+    return getPlanByCodeDal(PlanConst.RECOLTE_EU)
+  }
+)
+
+// ========================================
+// LEGACY BOILERPLATE PLANS
+// ========================================
+
 export const getProPlan = cache(async (): Promise<PlanDTO | undefined> => {
   return getPlanByCodeDal(PlanConst.PRO)
 })
 
-/**
- * Obtenir le plan FREE
- */
 export const getFreePlan = cache(async (): Promise<PlanDTO | undefined> => {
   return getPlanByCodeDal(PlanConst.FREE)
 })
 
-/**
- * Obtenir le plan ENTREPRISE
- */
 export const getEntreprisePlan = cache(
   async (): Promise<PlanDTO | undefined> => {
     return getPlanByCodeDal(PlanConst.ENTREPRISE)
   }
 )
 
-/**
- * Obtenir le plan LIFETIME
- */
 export const getLifetimePlan = cache(async (): Promise<PlanDTO | undefined> => {
   return getPlanByCodeDal(PlanConst.LIFETIME)
 })

@@ -532,16 +532,16 @@ export const getActiveSubscriptionsOrFreePlanDao = async (
 
   if (subscriptions.length === 0) {
     const freePlan = await db.query.subscriptionPlan.findFirst({
-      where: (plan, {eq}) => eq(plan.code, 'free'),
+      where: (plan, {eq}) => eq(plan.code, 'graine'),
     })
 
     const limits = freePlan?.limits as Record<string, number> | null
 
     return [
       {
-        id: 'free',
+        id: 'graine',
         referenceId,
-        plan: 'free',
+        plan: 'graine',
         status: 'active' as const,
         limits: freePlan?.limits as Record<string, number> | null,
         periodStart: null,
