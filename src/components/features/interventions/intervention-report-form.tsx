@@ -1,14 +1,23 @@
 'use client'
 
-import {ArrowLeft, Camera, Check, Leaf, Send} from 'lucide-react'
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CalendarCheck,
+  Camera,
+  Check,
+  CheckCircle2,
+  Clock,
+  Leaf,
+} from 'lucide-react'
 import Link from 'next/link'
 import {useRouter} from 'next/navigation'
 import {useLocale} from 'next-intl'
-import {useActionState, useEffect, useState} from 'react'
+import {useActionState, useEffect, useMemo, useState} from 'react'
 import {toast} from 'sonner'
 
 import {
-  createInterventionAction,
+  completeInterventionAction,
   InterventionFormState,
 } from '@/app/[locale]/(app)/tournees/actions'
 import {Button} from '@/components/ui/button'
@@ -16,57 +25,81 @@ import {Card, CardContent} from '@/components/ui/card'
 import {Checkbox} from '@/components/ui/checkbox'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {Textarea} from '@/components/ui/textarea'
 
-type ClientOption = {
-  id: string
-  firstName: string
-  lastName: string
-  addressStreet: string | null
-}
-
 type InterventionReportFormProps = {
-  clients: ClientOption[]
+  interventionId: string
+  gardenClientId: string
+  clientName: string
+  clientAddress: string
+  interventionType: string
+  visitFrequencyDays: number
+  existingNotes?: string | null
 }
 
 const DEFAULT_TASKS = [
   {id: '1', label: 'Tonte de la pelouse', checked: false},
-  {id: '2', label: 'Taille des rosiers', checked: false},
+  {id: '2', label: 'Taille des haies / rosiers', checked: false},
   {id: '3', label: 'Désherbage massifs', checked: false},
   {id: '4', label: 'Arrosage', checked: false},
   {id: '5', label: 'Semis / Plantation', checked: false},
   {id: '6', label: 'Amendement / Compost', checked: false},
+  {id: '7', label: 'Traitement (pucerons, maladies)', checked: false},
+  {id: '8', label: 'Récolte', checked: false},
 ]
+
+const TYPE_LABELS: Record<string, string> = {
+  maintenance: 'Entretien',
+  plantation: 'Plantation',
+  setup: 'Installation',
+  harvest_support: 'Aide récolte',
+  consultation: 'Consultation',
+}
 
 function formatTodayDate(): string {
   return new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long',
     day: 'numeric',
     month: 'long',
   }).format(new Date())
 }
 
-export function InterventionReportForm({clients}: InterventionReportFormProps) {
+function getDefaultNextVisitDate(frequencyDays: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() + frequencyDays)
+  return d.toISOString().slice(0, 10)
+}
+
+export function InterventionReportForm({
+  interventionId,
+  gardenClientId,
+  clientName,
+  clientAddress,
+  interventionType,
+  visitFrequencyDays,
+  existingNotes,
+}: InterventionReportFormProps) {
   const locale = useLocale()
   const router = useRouter()
-  const [selectedClient, setSelectedClient] = useState<string>('')
   const [tasks, setTasks] = useState(DEFAULT_TASKS)
   const [customTask, setCustomTask] = useState('')
+  const [nextVisitDate, setNextVisitDate] = useState(
+    getDefaultNextVisitDate(visitFrequencyDays)
+  )
+
+  const boundAction = useMemo(
+    () => completeInterventionAction.bind(null, interventionId, gardenClientId),
+    [interventionId, gardenClientId]
+  )
 
   const [state, formAction, isPending] = useActionState<
     InterventionFormState,
     FormData
-  >(createInterventionAction, {success: false})
+  >(boundAction, {success: false})
 
   useEffect(() => {
     if (state.success) {
-      toast.success('Rapport créé avec succès')
+      toast.success('Visite terminée ! Prochain passage planifié.')
       router.push(`/${locale}/tournees`)
     }
   }, [state.success, router, locale])
@@ -88,127 +121,105 @@ export function InterventionReportForm({clients}: InterventionReportFormProps) {
     setCustomTask('')
   }
 
-  const selectedClientData = clients.find((c) => c.id === selectedClient)
-  const initials = selectedClientData
-    ? `${selectedClientData.firstName[0]}${selectedClientData.lastName[0]}`
-    : ''
+  const initials = clientName
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 
-  const checkedTasksText = tasks
-    .filter((t) => t.checked)
-    .map((t) => t.label)
-    .join(', ')
+  const checkedTasks = tasks.filter((t) => t.checked)
+  const checkedTasksText = checkedTasks.map((t) => t.label).join(', ')
+  const hasNextVisitDate = nextVisitDate.length > 0
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 pb-32">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-3">
+      <header className="bg-primary text-primary-foreground sticky top-0 z-10 px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2">
           <Link href={`/${locale}/tournees`}>
-            <Button variant="ghost" size="icon" className="-ml-2">
-              <ArrowLeft className="h-6 w-6 text-stone-600" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="-ml-2 text-white hover:bg-white/10"
+            >
+              <ArrowLeft className="h-6 w-6" />
             </Button>
           </Link>
-          <h1 className="font-heading text-lg font-bold text-stone-900">
-            Rapport de Visite
-          </h1>
-        </div>
-        <div className="rounded bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">
-          {formatTodayDate()}
+          <div className="flex-1">
+            <h1 className="font-heading text-lg font-bold">
+              Rapport de visite
+            </h1>
+            <p className="text-xs opacity-80">{formatTodayDate()}</p>
+          </div>
         </div>
       </header>
 
       <form action={formAction}>
-        <main className="mx-auto max-w-lg space-y-6 p-4">
+        <main className="mx-auto max-w-lg space-y-5 p-4">
           {state.message && !state.success && (
-            <p className="mb-4 text-sm text-red-600">{state.message}</p>
+            <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+              <p className="text-sm text-red-700">{state.message}</p>
+            </div>
           )}
 
-          {/* Client Selector */}
-          <div className="rounded-xl border bg-white p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              {selectedClientData ? (
-                <>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 font-bold text-stone-600">
-                    {initials}
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="font-bold text-stone-900">
-                      {selectedClientData.firstName}{' '}
-                      {selectedClientData.lastName}
-                    </h2>
-                    <p className="text-muted-foreground text-xs">
-                      {selectedClientData.addressStreet ?? ''}
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <div className="flex-1">
-                  <p className="text-sm text-stone-500">
-                    Sélectionnez un client
-                  </p>
-                </div>
-              )}
+          {/* Client card */}
+          <div className="flex items-center gap-3 rounded-xl border bg-white p-4 shadow-sm">
+            <div className="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold">
+              {initials}
             </div>
-            <div className="mt-3">
-              <Select
-                name="gardenClientId"
-                value={selectedClient}
-                onValueChange={setSelectedClient}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Choisir un client" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.firstName} {c.lastName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex-1">
+              <h2 className="font-bold text-stone-900">{clientName}</h2>
+              <p className="text-xs text-stone-500">{clientAddress}</p>
+            </div>
+            <div className="rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-600">
+              {TYPE_LABELS[interventionType] ?? interventionType}
             </div>
           </div>
 
-          {/* Hidden fields for planification */}
-          <input
-            type="hidden"
-            name="scheduledDate"
-            value={new Date().toISOString().slice(0, 16)}
-          />
-          <input type="hidden" name="durationMinutes" value="90" />
-          <input type="hidden" name="type" value="maintenance" />
-
-          {/* Tâches Réalisées */}
+          {/* Tâches Réalisées — big tap targets */}
           <section className="space-y-3">
-            <h3 className="font-heading flex items-center gap-2 font-bold text-stone-800">
-              <Check className="text-primary h-5 w-5" />
+            <h3 className="font-heading flex items-center gap-2 text-sm font-bold text-stone-800">
+              <Check className="text-primary h-4 w-4" />
               Tâches effectuées
             </h3>
-            <Card>
-              <CardContent className="space-y-4 p-4">
+            <Card className="border-none shadow-sm">
+              <CardContent className="space-y-1 p-2">
                 {tasks.map((task) => (
-                  <div key={task.id} className="flex items-center space-x-3">
+                  <button
+                    key={task.id}
+                    type="button"
+                    onClick={() => toggleTask(task.id)}
+                    className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
+                      task.checked ? 'bg-emerald-50' : 'hover:bg-stone-50'
+                    }`}
+                  >
                     <Checkbox
                       id={task.id}
                       checked={task.checked}
                       onCheckedChange={() => toggleTask(task.id)}
-                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary h-6 w-6 border-2"
+                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary pointer-events-none h-6 w-6 border-2"
                     />
-                    <label
-                      htmlFor={task.id}
-                      className={`text-base leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${task.checked ? 'text-stone-900' : 'text-stone-500'}`}
+                    <span
+                      className={`text-sm font-medium ${
+                        task.checked ? 'text-stone-900' : 'text-stone-500'
+                      }`}
                     >
                       {task.label}
-                    </label>
-                  </div>
+                    </span>
+                    {task.checked && (
+                      <CheckCircle2 className="ml-auto h-4 w-4 text-emerald-500" />
+                    )}
+                  </button>
                 ))}
 
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-2 px-3 pt-2">
                   <Input
                     value={customTask}
                     onChange={(e) => setCustomTask(e.target.value)}
-                    placeholder="Ajouter une tâche..."
-                    className="h-10"
+                    placeholder="Autre tâche..."
+                    className="h-11"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
@@ -219,8 +230,7 @@ export function InterventionReportForm({clients}: InterventionReportFormProps) {
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
-                    className="shrink-0 border-dashed text-stone-500"
+                    className="h-11 shrink-0"
                     onClick={addCustomTask}
                   >
                     + Ajouter
@@ -232,43 +242,104 @@ export function InterventionReportForm({clients}: InterventionReportFormProps) {
 
           {/* Photo du résultat */}
           <section className="space-y-3">
-            <h3 className="font-heading flex items-center gap-2 font-bold text-stone-800">
-              <Camera className="text-primary h-5 w-5" />
+            <h3 className="font-heading flex items-center gap-2 text-sm font-bold text-stone-800">
+              <Camera className="text-primary h-4 w-4" />
               Photo du jour
             </h3>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-stone-300 text-stone-500 transition-colors hover:border-emerald-400 hover:text-emerald-600">
-                <Camera className="mb-2 h-8 w-8" />
+              <div className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-stone-300 text-stone-400 transition-colors hover:border-emerald-400 hover:text-emerald-600">
+                <Camera className="mb-1 h-8 w-8" />
                 <span className="text-xs font-medium">Ajouter photo</span>
               </div>
             </div>
-            <p className="text-xs text-stone-400">
-              Les photos pourront être ajoutées après la création du rapport.
+            <p className="text-[11px] text-stone-400">
+              Bientôt disponible. Les photos seront visibles par le client.
             </p>
           </section>
 
           {/* Note / Conseil */}
           <section className="space-y-3">
-            <h3 className="font-heading flex items-center gap-2 font-bold text-stone-800">
-              <Leaf className="text-primary h-5 w-5" />
-              Note &amp; Conseil
+            <h3 className="font-heading flex items-center gap-2 text-sm font-bold text-stone-800">
+              <Leaf className="text-primary h-4 w-4" />
+              Note pour le client
             </h3>
-            <Card>
-              <CardContent className="p-4">
+            <Card className="border-none shadow-sm">
+              <CardContent className="p-3">
                 <Textarea
                   name="proNotes"
-                  placeholder="Ex: J'ai traité les pucerons sur les rosiers. Pensez à bien arroser ce week-end s'il fait chaud."
+                  defaultValue={existingNotes ?? ''}
+                  placeholder="Ex: Pucerons traités sur les rosiers. Pensez à arroser ce week-end."
                   className="min-h-[100px] resize-none border-none p-0 text-base focus-visible:ring-0"
                 />
               </CardContent>
             </Card>
           </section>
 
-          {/* Hidden: tasks summary in proNotes — append checked tasks */}
-          <input type="hidden" name="tasksSummary" value={checkedTasksText} />
+          {/* Prochain passage — OBLIGATOIRE */}
+          <section className="space-y-3">
+            <h3 className="font-heading flex items-center gap-2 text-sm font-bold text-stone-800">
+              <CalendarCheck className="h-4 w-4 text-amber-600" />
+              Prochain passage *
+            </h3>
+            <Card
+              className={`border-none shadow-sm ${
+                !hasNextVisitDate ? 'ring-2 ring-amber-400 ring-offset-1' : ''
+              }`}
+            >
+              <CardContent className="p-4">
+                <Label
+                  htmlFor="nextVisitDate"
+                  className="mb-2 block text-xs text-stone-500"
+                >
+                  Quand revenez-vous chez {clientName.split(' ')[0]} ?
+                </Label>
+                <Input
+                  id="nextVisitDate"
+                  name="nextVisitDate"
+                  type="date"
+                  value={nextVisitDate}
+                  onChange={(e) => setNextVisitDate(e.target.value)}
+                  required
+                  className="h-14 text-center text-lg font-bold"
+                  min={new Date().toISOString().slice(0, 10)}
+                />
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {[7, 14, 21, 28].map((days) => (
+                    <button
+                      key={days}
+                      type="button"
+                      onClick={() => {
+                        const d = new Date()
+                        d.setDate(d.getDate() + days)
+                        setNextVisitDate(d.toISOString().slice(0, 10))
+                      }}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                        nextVisitDate === getDefaultNextVisitDate(days)
+                          ? 'bg-primary border-primary text-white'
+                          : 'border-stone-200 text-stone-600 hover:border-stone-400'
+                      }`}
+                    >
+                      <Clock className="mr-1 inline h-3 w-3" />
+                      {days}j
+                    </button>
+                  ))}
+                </div>
+                {visitFrequencyDays && (
+                  <p className="mt-2 text-[11px] text-stone-400">
+                    Fréquence habituelle : tous les {visitFrequencyDays} jours
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </section>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-4">
+          {/* Hidden: tasks summary appended to notes */}
+          <input type="hidden" name="tasksSummary" value={checkedTasksText} />
+        </main>
+
+        {/* Sticky bottom CTA — dirty hands mode */}
+        <div className="fixed right-0 bottom-0 left-0 z-20 border-t bg-white p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+          <div className="mx-auto flex max-w-lg gap-3">
             <Button
               type="button"
               variant="outline"
@@ -281,14 +352,20 @@ export function InterventionReportForm({clients}: InterventionReportFormProps) {
             <Button
               type="submit"
               size="lg"
-              className="h-14 flex-[2] bg-emerald-600 text-lg shadow-lg shadow-emerald-200 hover:bg-emerald-700"
-              disabled={isPending || !selectedClient}
+              className="h-14 flex-[2] bg-emerald-600 text-base font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700"
+              disabled={isPending || !hasNextVisitDate}
             >
-              <Send className="mr-2 h-5 w-5" />
-              {isPending ? 'Envoi...' : 'Envoyer au client'}
+              {isPending ? (
+                'Enregistrement...'
+              ) : (
+                <>
+                  <CheckCircle2 className="mr-2 h-5 w-5" />
+                  Terminer la visite
+                </>
+              )}
             </Button>
           </div>
-        </main>
+        </div>
       </form>
     </div>
   )

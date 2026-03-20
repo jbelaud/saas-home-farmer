@@ -4,8 +4,12 @@ import {notFound} from 'next/navigation'
 
 import withAuth from '@/components/features/auth/with-auth'
 import {InterventionForm} from '@/components/features/interventions/intervention-form'
+import {InterventionReportForm} from '@/components/features/interventions/intervention-report-form'
 import {Button} from '@/components/ui/button'
-import {getGardenClientsByOrganizationService} from '@/services/facades/garden-client-service-facade'
+import {
+  getGardenClientByIdService,
+  getGardenClientsByOrganizationService,
+} from '@/services/facades/garden-client-service-facade'
 import {getInterventionByIdService} from '@/services/facades/intervention-service-facade'
 
 async function Page({params}: {params: Promise<{id: string}>}) {
@@ -14,6 +18,28 @@ async function Page({params}: {params: Promise<{id: string}>}) {
 
   if (!intervention) {
     notFound()
+  }
+
+  const isCompleted = intervention.status === 'completed'
+
+  if (!isCompleted) {
+    const client = await getGardenClientByIdService(intervention.gardenClientId)
+
+    return (
+      <InterventionReportForm
+        interventionId={intervention.id}
+        gardenClientId={intervention.gardenClientId}
+        clientName={
+          client ? `${client.firstName} ${client.lastName}` : 'Client inconnu'
+        }
+        clientAddress={
+          client ? `${client.addressStreet}, ${client.addressCity}` : ''
+        }
+        interventionType={intervention.type}
+        visitFrequencyDays={client?.visitFrequencyDays ?? 21}
+        existingNotes={intervention.proNotes}
+      />
+    )
   }
 
   const clientsResult = await getGardenClientsByOrganizationService({

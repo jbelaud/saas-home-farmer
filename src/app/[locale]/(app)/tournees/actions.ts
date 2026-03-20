@@ -4,6 +4,7 @@ import {revalidatePath} from 'next/cache'
 import {z} from 'zod'
 
 import {requireActionAuth} from '@/app/dal/user-dal'
+import {updateClientNextVisitDateService} from '@/services/facades/garden-client-service-facade'
 import {
   createInterventionService,
   deleteInterventionService,
@@ -160,6 +161,66 @@ export async function deleteInterventionAction(
     return {success: true, message: 'Intervention supprimée'}
   } catch (error) {
     console.error('deleteInterventionAction error:', error)
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : 'Une erreur est survenue',
+    }
+  }
+}
+
+// ============================================================
+// Rapport de visite — compléter une intervention
+// ============================================================
+
+const completeInterventionSchema = z.object({
+  proNotes: z.string().optional().or(z.literal('')),
+  nextVisitDate: z.string().min(1, 'La date du prochain passage est requise'),
+  durationMinutes: z.coerce.number().positive().optional().or(z.literal(0)),
+})
+
+export async function completeInterventionAction(
+  interventionId: string,
+  gardenClientId: string,
+  _prev: InterventionFormState,
+  formData: FormData
+): Promise<InterventionFormState> {
+  try {
+    await requireActionAuth()
+
+    const raw = Object.fromEntries(formData.entries())
+    const parsed = completeInterventionSchema.safeParse(raw)
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        message: 'Données invalides',
+        errors: parsed.error.issues.map((i) => ({
+          field: String(i.path[0]),
+          message: i.message,
+        })),
+      }
+    }
+
+    const data = parsed.data
+
+    await updateInterventionService(interventionId, {
+      proNotes: data.proNotes || null,
+      durationMinutes: data.durationMinutes || null,
+    })
+
+    await updateInterventionStatusService(interventionId, 'completed')
+
+    await updateClientNextVisitDateService(
+      gardenClientId,
+      new Date(data.nextVisitDate)
+    )
+
+    revalidatePath('/tournees')
+    revalidatePath('/dashboard')
+    return {success: true, message: 'Visite terminée !'}
+  } catch (error) {
+    console.error('completeInterventionAction error:', error)
     return {
       success: false,
       message:
