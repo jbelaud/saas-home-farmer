@@ -90,9 +90,14 @@ async function Page({
 }: WithAuthProps & {params?: Promise<{locale?: string}>}) {
   const session = await getSessionAuth()
   const user = await getAuthUser()
-  const organizationId = session?.session?.activeOrganizationId
   const resolvedParams = await params
   const locale = resolvedParams?.locale ?? 'fr'
+
+  // Fallback : après reconnexion Google, activeOrganizationId peut être null
+  // car le cache React.cache() retourne la session initiale
+  const organizationId =
+    session?.session?.activeOrganizationId ??
+    user?.organizations?.[0]?.organization?.id
 
   if (!organizationId) {
     redirect('/onboarding')

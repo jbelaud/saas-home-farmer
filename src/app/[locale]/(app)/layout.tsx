@@ -32,19 +32,20 @@ async function AppLayout({children}: {children: React.ReactNode}) {
 
   let organizationId = sessionAuth?.session?.activeOrganizationId
 
-  // Si pas d'org active (ex: refresh après magic link), activer la première org silencieusement
+  // Si pas d'org active (ex: reconnexion Google), activer la première org avant le render
   if (!organizationId && user?.organizations?.length) {
     const firstOrg = user.organizations[0]?.organization
     if (firstOrg?.id) {
       organizationId = firstOrg.id
-      // Fire-and-forget : activer l'org sans bloquer le render
-      const requestHeaders = await headers()
-      auth.api
-        .setActiveOrganization({
+      try {
+        const requestHeaders = await headers()
+        await auth.api.setActiveOrganization({
           headers: requestHeaders,
           body: {organizationId: firstOrg.id},
         })
-        .catch(() => {})
+      } catch {
+        // Silencieux — on continue avec le fallback local
+      }
     }
   }
 
