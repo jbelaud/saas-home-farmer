@@ -1,5 +1,6 @@
 import {
   Calendar,
+  CalendarCheck,
   CheckCircle2,
   CloudSun,
   Leaf,
@@ -115,6 +116,29 @@ export default async function ClientPortalDashboard({
             </Link>
           </Button>
         </div>
+
+        {/* Prochain passage */}
+        {client.nextVisitDate && (
+          <Card className="border-none bg-emerald-50 shadow-sm">
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                <CalendarCheck className="h-6 w-6 text-emerald-700" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-medium tracking-wide text-emerald-600 uppercase">
+                  Prochain passage
+                </p>
+                <p className="font-heading text-lg font-bold text-emerald-900">
+                  {new Intl.DateTimeFormat('fr-FR', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                  }).format(new Date(client.nextVisitDate))}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Dernière Visite */}
         {lastIntervention && (
