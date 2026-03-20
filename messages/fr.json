@@ -25,7 +25,8 @@
     "errors": {
       "banned": "Votre compte a été suspendu.",
       "unknown": "Une erreur d'authentification s'est produite.",
-      "unable_to_create_user": "Impossible de créer votre compte. Veuillez réessayer."
+      "unable_to_create_user": "Impossible de créer votre compte. Veuillez réessayer.",
+      "please_restart_the_process": "La session a expiré. Veuillez réessayer la connexion."
     }
   },
   "HomePage": {

@@ -2,8 +2,9 @@
 
 import {Ban, GalleryVerticalEnd, ShieldAlert} from 'lucide-react'
 import Link from 'next/link'
-import {useSearchParams} from 'next/navigation'
-import {useTranslations} from 'next-intl'
+import {useRouter, useSearchParams} from 'next/navigation'
+import {useLocale, useTranslations} from 'next-intl'
+import {useEffect, useState} from 'react'
 
 import {Button} from '@/components/ui/button'
 import {
@@ -13,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {authClient} from '@/lib/better-auth/auth-client'
 import {APP_NAME} from '@/lib/constants'
 
 const ERROR_ICONS: Record<string, React.ReactNode> = {
@@ -23,9 +25,34 @@ const ERROR_ICONS: Record<string, React.ReactNode> = {
 export default function AuthErrorPage() {
   const searchParams = useSearchParams()
   const t = useTranslations('AuthErrorPage')
+  const router = useRouter()
+  const locale = useLocale()
+  const [checking, setChecking] = useState(true)
 
   const error = searchParams.get('error') || 'unknown'
   const message = searchParams.get('message')
+
+  // Si l'utilisateur a déjà une session active (ex: double callback Google OAuth),
+  // rediriger vers le dashboard au lieu d'afficher l'erreur
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const {data} = await authClient.getSession()
+        if (data?.session) {
+          router.replace(`/${locale}/dashboard`)
+          return
+        }
+      } catch {
+        // Pas de session — afficher l'erreur
+      }
+      setChecking(false)
+    }
+    checkSession()
+  }, [router, locale])
+
+  if (checking) {
+    return null
+  }
 
   const decodedMessage = message ? decodeURIComponent(message) : null
   const icon = ERROR_ICONS[error] || ERROR_ICONS.default
@@ -55,7 +82,11 @@ export default function AuthErrorPage() {
             {decodedMessage ? (
               <p className="text-muted-foreground">{decodedMessage}</p>
             ) : (
-              <p className="text-muted-foreground">{t(`errors.${error}`)}</p>
+              <p className="text-muted-foreground">
+                {t.has(`errors.${error}`)
+                  ? t(`errors.${error}`)
+                  : t('errors.unknown')}
+              </p>
             )}
           </CardContent>
           <CardFooter className="flex justify-center">

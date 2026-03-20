@@ -25,7 +25,8 @@
     "errors": {
       "banned": "Your account has been suspended.",
       "unknown": "An authentication error occurred.",
-      "unable_to_create_user": "Unable to create your account. Please try again."
+      "unable_to_create_user": "Unable to create your account. Please try again.",
+      "please_restart_the_process": "Your session has expired. Please try logging in again."
     }
   },
   "HomePage": {
