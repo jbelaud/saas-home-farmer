@@ -1,6 +1,7 @@
 import {headers} from 'next/headers'
 import {cache} from 'react'
 
+import {getFarmerProfileByOrganizationIdDao} from '@/db/repositories/farmer-repository'
 import {auth} from '@/lib/better-auth/auth'
 import {getReferenceIdByBillingMode} from '@/lib/helper/subscription-helper'
 
@@ -65,3 +66,43 @@ export const getAuthUserId = async () => {
   if (!user) return
   return user.id
 }
+
+/**
+ * Résout l'organizationId actif de manière fiable.
+ * 1. Utilise session.activeOrganizationId si celui-ci a un profil farmer
+ * 2. Sinon, cherche parmi toutes les orgs de l'utilisateur celle avec un profil
+ * 3. Fallback sur la première org
+ *
+ * Utilise le DAO directement (pas le service) pour éviter les dépendances circulaires.
+ */
+export const getActiveOrganizationId = cache(async (): Promise<string> => {
+  const session = await getSessionAuth()
+  const user = await getAuthUser()
+
+  // 1. Tenter l'org active de la session
+  const sessionOrgId = session?.session?.activeOrganizationId
+  if (sessionOrgId) {
+    const profile = await getFarmerProfileByOrganizationIdDao(sessionOrgId)
+    if (profile) return sessionOrgId
+  }
+
+  // 2. Chercher l'org avec un profil farmer parmi toutes les orgs
+  if (user?.organizations?.length) {
+    for (const orgMember of user.organizations) {
+      const orgId = orgMember.organization?.id
+      if (orgId && orgId !== sessionOrgId) {
+        const profile = await getFarmerProfileByOrganizationIdDao(orgId)
+        if (profile) return orgId
+      }
+    }
+  }
+
+  // 3. Fallback sur la première org (cas onboarding)
+  const fallbackOrgId =
+    sessionOrgId ?? user?.organizations?.[0]?.organization?.id
+
+  if (!fallbackOrgId) {
+    throw new Error('Aucune organisation active')
+  }
+  return fallbackOrgId
+})

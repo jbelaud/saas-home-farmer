@@ -15,8 +15,7 @@ import {PlanBanner} from '@/components/features/subscription/plan-banner'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent} from '@/components/ui/card'
-import {getSessionAuth} from '@/services/authentication/auth-service'
-import {getAuthUser} from '@/services/authentication/auth-service'
+import {getActiveOrganizationId} from '@/services/authentication/auth-service'
 import {getFarmerProfileByOrganizationIdService} from '@/services/facades/farmer-service-facade'
 import {
   getActiveClientsCountService,
@@ -88,39 +87,18 @@ function getInterventionTypeLabel(type: string): string {
 async function Page({
   params,
 }: WithAuthProps & {params?: Promise<{locale?: string}>}) {
-  const session = await getSessionAuth()
-  const user = await getAuthUser()
   const resolvedParams = await params
   const locale = resolvedParams?.locale ?? 'fr'
 
-  // Fallback : après reconnexion, activeOrganizationId peut pointer vers une org
-  // sans profil farmer (ex: org par défaut Better Auth vs org métier).
-  // On cherche la bonne org parmi toutes les orgs de l'utilisateur.
-  let organizationId =
-    session?.session?.activeOrganizationId ??
-    user?.organizations?.[0]?.organization?.id
+  // getActiveOrganizationId résout la bonne org (celle avec un profil farmer)
+  const organizationId = await getActiveOrganizationId()
 
   if (!organizationId) {
     redirect('/onboarding')
   }
 
-  let farmerProfile =
+  const farmerProfile =
     await getFarmerProfileByOrganizationIdService(organizationId)
-
-  // Si pas de profil sur l'org active, chercher parmi les autres orgs
-  if (!farmerProfile && user?.organizations && user.organizations.length > 1) {
-    for (const orgMember of user.organizations) {
-      const orgId = orgMember.organization?.id
-      if (orgId && orgId !== organizationId) {
-        const profile = await getFarmerProfileByOrganizationIdService(orgId)
-        if (profile) {
-          organizationId = orgId
-          farmerProfile = profile
-          break
-        }
-      }
-    }
-  }
 
   if (!farmerProfile) {
     redirect('/onboarding')

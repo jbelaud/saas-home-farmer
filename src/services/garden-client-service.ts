@@ -12,8 +12,8 @@ import {
 } from '@/db/repositories/garden-client-repository'
 import {getPlanByCodeDao} from '@/db/repositories/subscription-repository'
 import {
+  getActiveOrganizationId,
   getActiveSubscriptions,
-  getAuthUser,
 } from '@/services/authentication/auth-service'
 import {AuthorizationError} from '@/services/errors/authorization-error'
 import {ValidationError} from '@/services/errors/validation-error'
@@ -23,14 +23,7 @@ import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 // Helpers
 // ============================================================
 
-const getActiveOrganizationId = async (): Promise<string> => {
-  const user = await getAuthUser()
-  const orgId = user?.organizations?.[0]?.organization?.id
-  if (!orgId) {
-    throw new AuthorizationError('Aucune organisation active')
-  }
-  return orgId
-}
+// getActiveOrganizationId est centralisé dans auth-service.ts
 
 /**
  * Vérifie si le Farmer peut ajouter un nouveau client selon son plan.

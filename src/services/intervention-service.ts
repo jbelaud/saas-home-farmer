@@ -16,7 +16,7 @@ import {
   updateInterventionDao,
   updateInterventionStatusDao,
 } from '@/db/repositories/intervention-repository'
-import {getAuthUser} from '@/services/authentication/auth-service'
+import {getActiveOrganizationId} from '@/services/authentication/auth-service'
 import {AuthorizationError} from '@/services/errors/authorization-error'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 
@@ -24,14 +24,7 @@ import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 // Helpers
 // ============================================================
 
-const getActiveOrganizationId = async (): Promise<string> => {
-  const user = await getAuthUser()
-  const orgId = user?.organizations?.[0]?.organization?.id
-  if (!orgId) {
-    throw new AuthorizationError('Aucune organisation active')
-  }
-  return orgId
-}
+// getActiveOrganizationId est centralisé dans auth-service.ts
 
 // ============================================================
 // CRUD : intervention service

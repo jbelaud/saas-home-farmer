@@ -33,11 +33,18 @@ async function AppLayout({children}: {children: React.ReactNode}) {
 
   let organizationId = sessionAuth?.session?.activeOrganizationId
 
-  // Si pas d'org active (ex: reconnexion Google), trouver l'org avec un profil farmer
-  if (!organizationId && user?.organizations?.length) {
+  // Vérifier si l'org active a un profil farmer
+  let hasProfile = false
+  if (organizationId) {
+    const profile =
+      await getFarmerProfileByOrganizationIdService(organizationId)
+    hasProfile = !!profile
+  }
+
+  // Si pas d'org active OU org active sans profil farmer, chercher la bonne org
+  if ((!organizationId || !hasProfile) && user?.organizations?.length) {
     let targetOrgId: string | undefined
 
-    // Chercher l'org qui a un profil farmer
     for (const orgMember of user.organizations) {
       const orgId = orgMember.organization?.id
       if (orgId) {
@@ -49,10 +56,10 @@ async function AppLayout({children}: {children: React.ReactNode}) {
       }
     }
 
-    // Fallback sur la première org si aucune n'a de profil farmer
+    // Fallback sur la première org si aucune n'a de profil farmer (onboarding)
     targetOrgId = targetOrgId ?? user.organizations[0]?.organization?.id
 
-    if (targetOrgId) {
+    if (targetOrgId && targetOrgId !== organizationId) {
       organizationId = targetOrgId
       try {
         const requestHeaders = await headers()
@@ -63,6 +70,8 @@ async function AppLayout({children}: {children: React.ReactNode}) {
       } catch {
         // Silencieux — on continue avec le fallback local
       }
+    } else if (targetOrgId) {
+      organizationId = targetOrgId
     }
   }
 
