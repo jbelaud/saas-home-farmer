@@ -15,7 +15,10 @@ import {PlanBanner} from '@/components/features/subscription/plan-banner'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent} from '@/components/ui/card'
-import {getActiveOrganizationId} from '@/services/authentication/auth-service'
+import {
+  getActiveOrganizationId,
+  getAuthUser,
+} from '@/services/authentication/auth-service'
 import {getFarmerProfileByOrganizationIdService} from '@/services/facades/farmer-service-facade'
 import {
   getActiveClientsCountService,
@@ -89,6 +92,8 @@ async function Page({
 }: WithAuthProps & {params?: Promise<{locale?: string}>}) {
   const resolvedParams = await params
   const locale = resolvedParams?.locale ?? 'fr'
+
+  const user = await getAuthUser()
 
   // getActiveOrganizationId résout la bonne org (celle avec un profil farmer)
   const organizationId = await getActiveOrganizationId()
