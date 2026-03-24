@@ -93,9 +93,10 @@ async function Page({
   const resolvedParams = await params
   const locale = resolvedParams?.locale ?? 'fr'
 
-  // Fallback : après reconnexion Google, activeOrganizationId peut être null
-  // car le cache React.cache() retourne la session initiale
-  const organizationId =
+  // Fallback : après reconnexion, activeOrganizationId peut pointer vers une org
+  // sans profil farmer (ex: org par défaut Better Auth vs org métier).
+  // On cherche la bonne org parmi toutes les orgs de l'utilisateur.
+  let organizationId =
     session?.session?.activeOrganizationId ??
     user?.organizations?.[0]?.organization?.id
 
@@ -103,8 +104,23 @@ async function Page({
     redirect('/onboarding')
   }
 
-  const farmerProfile =
+  let farmerProfile =
     await getFarmerProfileByOrganizationIdService(organizationId)
+
+  // Si pas de profil sur l'org active, chercher parmi les autres orgs
+  if (!farmerProfile && user?.organizations && user.organizations.length > 1) {
+    for (const orgMember of user.organizations) {
+      const orgId = orgMember.organization?.id
+      if (orgId && orgId !== organizationId) {
+        const profile = await getFarmerProfileByOrganizationIdService(orgId)
+        if (profile) {
+          organizationId = orgId
+          farmerProfile = profile
+          break
+        }
+      }
+    }
+  }
 
   if (!farmerProfile) {
     redirect('/onboarding')

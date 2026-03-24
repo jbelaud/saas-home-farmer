@@ -20,6 +20,7 @@ import {
   getAuthUser,
   getSessionAuth,
 } from '@/services/authentication/auth-service'
+import {getFarmerProfileByOrganizationIdService} from '@/services/facades/farmer-service-facade'
 
 export const metadata: Metadata = {
   title: `Espace utilisateur ${APP_NAME}`,
@@ -32,16 +33,32 @@ async function AppLayout({children}: {children: React.ReactNode}) {
 
   let organizationId = sessionAuth?.session?.activeOrganizationId
 
-  // Si pas d'org active (ex: reconnexion Google), activer la première org avant le render
+  // Si pas d'org active (ex: reconnexion Google), trouver l'org avec un profil farmer
   if (!organizationId && user?.organizations?.length) {
-    const firstOrg = user.organizations[0]?.organization
-    if (firstOrg?.id) {
-      organizationId = firstOrg.id
+    let targetOrgId: string | undefined
+
+    // Chercher l'org qui a un profil farmer
+    for (const orgMember of user.organizations) {
+      const orgId = orgMember.organization?.id
+      if (orgId) {
+        const profile = await getFarmerProfileByOrganizationIdService(orgId)
+        if (profile) {
+          targetOrgId = orgId
+          break
+        }
+      }
+    }
+
+    // Fallback sur la première org si aucune n'a de profil farmer
+    targetOrgId = targetOrgId ?? user.organizations[0]?.organization?.id
+
+    if (targetOrgId) {
+      organizationId = targetOrgId
       try {
         const requestHeaders = await headers()
         await auth.api.setActiveOrganization({
           headers: requestHeaders,
-          body: {organizationId: firstOrg.id},
+          body: {organizationId: targetOrgId},
         })
       } catch {
         // Silencieux — on continue avec le fallback local
