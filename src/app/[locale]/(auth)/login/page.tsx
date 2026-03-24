@@ -32,7 +32,7 @@ export default async function LoginPage({
 
   const user = await getAuthUser()
   if (user) {
-    redirect('/logout')
+    redirect('/dashboard')
   }
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-stone-50 p-6 md:p-10">
