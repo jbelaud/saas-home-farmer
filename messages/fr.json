@@ -1,7 +1,7 @@
 {
   "LocaleLayout": {
-    "title": "Next SaaS Boilerplate",
-    "description": "Next SaaS Boilerplate"
+    "title": "MyHomeFarmer",
+    "description": "MyHomeFarmer"
   },
   "LangToggle": {
     "label": "Changer de langue",
@@ -731,7 +731,7 @@
     "LoginPage": {
       "title": "Connexion",
       "metadata": {
-        "title": "Connexion - Next SaaS Boilerplate",
+        "title": "Connexion - MyHomeFarmer",
         "description": "Connectez-vous à votre compte"
       }
     },
@@ -792,7 +792,7 @@
     "LogoutPage": {
       "title": "Déconnexion",
       "metadata": {
-        "title": "Déconnexion - Next SaaS Boilerplate",
+        "title": "Déconnexion - MyHomeFarmer",
         "description": "Se déconnecter de votre compte"
       }
     },
@@ -808,7 +808,7 @@
     "RegisterPage": {
       "title": "Inscription",
       "metadata": {
-        "title": "Inscription - Next SaaS Boilerplate",
+        "title": "Inscription - MyHomeFarmer",
         "description": "Créez votre compte"
       }
     },
@@ -868,7 +868,7 @@
     "ResetPasswordPage": {
       "title": "Réinitialisation du mot de passe",
       "metadata": {
-        "title": "Réinitialisation du mot de passe - Next SaaS Boilerplate",
+        "title": "Réinitialisation du mot de passe - MyHomeFarmer",
         "description": "Réinitialisez votre mot de passe"
       }
     },
@@ -1042,7 +1042,7 @@
         "title": "Connexion",
         "clickToConnect": "Cliquez ici pour vous connecter",
         "ignoreMessage": "Si vous n'avez pas demandé ce lien, veuillez ignorer cet email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "magicLink": {
         "subject": "Votre lien de connexion magique",
@@ -1050,7 +1050,7 @@
         "title": "Connexion magique",
         "clickToConnect": "Cliquez ici pour vous connecter",
         "ignoreMessage": "Si vous n'avez pas demandé ce lien, veuillez ignorer cet email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "resetPassword": {
         "subject": "Réinitialisation de votre mot de passe",
@@ -1059,7 +1059,7 @@
         "clickToReset": "Cliquez ici pour réinitialiser votre mot de passe",
         "ignoreMessage": "Si vous n'avez pas demandé cette réinitialisation, veuillez ignorer cet email.",
         "expirationWarning": "Ce lien expirera dans 24 heures.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "organizationInvitation": {
         "subject": "Invitation à rejoindre {teamName}",
@@ -1071,7 +1071,7 @@
         "clickToAccept": "Accepter l'invitation",
         "expirationWarning": "Ce lien expirera dans 24 heures.",
         "ignoreMessage": "Si vous n'avez pas initié cette demande, vous pouvez ignorer cet email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "welcome": {
         "subject": "Bienvenue sur {appName}",
@@ -1079,7 +1079,7 @@
         "title": "Bienvenue !",
         "welcomeMessage": "Merci de vous être inscrit sur {appName}. Votre compte a été créé avec succès.",
         "getStarted": "Commencer",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "emailChange": {
         "subject": "Confirmation de changement d'email",
@@ -1088,7 +1088,7 @@
         "clickToConfirm": "Cliquez ici pour confirmer votre nouvelle adresse email",
         "expirationWarning": "Ce lien expirera dans 24 heures.",
         "ignoreMessage": "Si vous n'avez pas demandé ce changement, veuillez ignorer cet email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "verification": {
         "subject": "Vérification de votre adresse email",
@@ -1098,7 +1098,7 @@
         "clickToVerify": "Vérifier mon adresse email",
         "expirationWarning": "Ce lien expirera dans 24 heures.",
         "ignoreMessage": "Si vous n'avez pas créé de compte, vous pouvez ignorer cet email en toute sécurité.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "otp": {
         "subject": "Code de vérification à deux facteurs",
@@ -1109,7 +1109,7 @@
         "verifyAutomatically": "Vérifier automatiquement",
         "orCopyCode": "Ou copiez le code ci-dessus dans l'application",
         "ignoreMessage": "Si vous n'avez pas demandé ce code, vous pouvez ignorer cet email en toute sécurité.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "subscriptionCompleted": {
         "subject": "Bienvenue ! Votre abonnement {planName} est actif",
@@ -1124,7 +1124,7 @@
         "limits": "Limites : {limits}",
         "nextBilling": "Prochaine facturation : {nextBilling}",
         "periodEnd": "Fin de période : {periodEnd}",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "subscriptionUpdated": {
         "subject": "Votre abonnement {planName} a été mis à jour",
@@ -1139,7 +1139,7 @@
         "limits": "Limites : {limits}",
         "nextBilling": "Prochaine facturation : {nextBilling}",
         "periodEnd": "Fin de période : {periodEnd}",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "subscriptionCanceled": {
         "subject": "Votre abonnement {planName} a été annulé",
@@ -1155,7 +1155,7 @@
         "canceledAt": "Annulé le : {canceledAt}",
         "periodEnd": "Accès jusqu'au : {periodEnd}",
         "reactivateInfo": "Vous pouvez réactiver votre abonnement à tout moment depuis votre tableau de bord.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "subscriptionDeleted": {
         "subject": "Votre abonnement {planName} a été supprimé",
@@ -1171,7 +1171,7 @@
         "deletedAt": "Supprimé le : {deletedAt}",
         "accessLost": "Votre accès aux fonctionnalités premium a été révoqué.",
         "resubscribeInfo": "Vous pouvez vous réabonner à tout moment depuis votre tableau de bord.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "notification": {
         "subject": "Notification - {title}",
@@ -1180,7 +1180,7 @@
         "timestamp": "Envoyé le {date}",
         "footer": {
           "greeting": "Cordialement,",
-          "signature": "L'équipe SaaS Mike Codeur",
+          "signature": "L'équipe MyHomeFarmer",
           "unsubscribe": "Vous pouvez modifier vos préférences de notification dans les paramètres de votre compte."
         }
       }
@@ -1192,14 +1192,14 @@
         "title": "Nouvel utilisateur",
         "userInfo": "Un nouvel utilisateur s'est inscrit :",
         "viewUser": "Voir l'utilisateur",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "userDeleted": {
         "subject": "Utilisateur supprimé",
         "preview": "Un utilisateur a été supprimé de la plateforme.",
         "title": "Utilisateur supprimé",
         "userInfo": "L'utilisateur suivant a été supprimé :",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "systemAlert": {
         "subject": "Alerte système",
@@ -1207,7 +1207,7 @@
         "title": "Alerte système",
         "alertMessage": "Une alerte système a été déclenchée :",
         "viewDetails": "Voir les détails",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "organizationInvitation": {
         "subject": "Invitation à rejoindre {teamName}",
@@ -1219,12 +1219,12 @@
         "clickToAccept": "Accepter l'invitation",
         "expirationWarning": "Ce lien expirera dans 24 heures.",
         "ignoreMessage": "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "internal": {
         "subject": "Email interne",
         "preview": "Email interne du système",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       }
     }
   },

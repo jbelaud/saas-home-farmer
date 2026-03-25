@@ -138,7 +138,7 @@ async function Page({
     overdueClients.length + upcomingClients.length + clientsWithoutVisit.length
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-24">
+    <div>
       {/* Header Mobile — vert avec KPI tournée */}
       <header className="bg-primary text-primary-foreground rounded-b-3xl p-6 shadow-md md:hidden">
         <div className="mb-4 flex items-start justify-between">

@@ -1,7 +1,7 @@
 {
   "LocaleLayout": {
-    "title": "Next SaaS Boilerplate",
-    "description": "Next SaaS Boilerplate"
+    "title": "MyHomeFarmer",
+    "description": "MyHomeFarmer"
   },
   "LangToggle": {
     "label": "Cambiar idioma",
@@ -33,7 +33,7 @@
     "title": "Plataforma SaaS moderna para impulsar tu negocio",
     "description": "Gestiona, analiza y desarrolla tu actividad con herramientas potentes y una interfaz intuitiva.",
     "metadata": {
-      "title": "Inicio - Next SaaS Boilerplate",
+      "title": "Inicio - MyHomeFarmer",
       "description": "Plataforma SaaS moderna para impulsar tu negocio"
     },
     "navigation": {
@@ -63,7 +63,7 @@
       }
     },
     "footer": {
-      "byMike": "By Mike Codeur",
+      "byMike": "By MyHomeFarmer",
       "allRightsReserved": "Todos los derechos reservados.",
       "product": {
         "title": "Producto",
@@ -644,7 +644,7 @@
     "LoginPage": {
       "title": "Iniciar Sesión",
       "metadata": {
-        "title": "Iniciar Sesión - Next SaaS Boilerplate",
+        "title": "Iniciar Sesión - MyHomeFarmer",
         "description": "Accede a tu cuenta"
       }
     },
@@ -705,7 +705,7 @@
     "LogoutPage": {
       "title": "Cerrar Sesión",
       "metadata": {
-        "title": "Cerrar Sesión - Next SaaS Boilerplate",
+        "title": "Cerrar Sesión - MyHomeFarmer",
         "description": "Salir de tu cuenta"
       }
     },
@@ -721,7 +721,7 @@
     "RegisterPage": {
       "title": "Registrarse",
       "metadata": {
-        "title": "Registrarse - Next SaaS Boilerplate",
+        "title": "Registrarse - MyHomeFarmer",
         "description": "Crea tu cuenta"
       }
     },
@@ -781,7 +781,7 @@
     "ResetPasswordPage": {
       "title": "Restablecer Contraseña",
       "metadata": {
-        "title": "Restablecer Contraseña - Next SaaS Boilerplate",
+        "title": "Restablecer Contraseña - MyHomeFarmer",
         "description": "Restablece tu contraseña"
       }
     },
@@ -955,7 +955,7 @@
         "title": "Iniciar sesión",
         "clickToConnect": "Haz clic aquí para conectarte",
         "ignoreMessage": "Si no solicitaste este enlace, por favor ignora este email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "magicLink": {
         "subject": "Tu enlace mágico para iniciar sesión",
@@ -963,7 +963,7 @@
         "title": "Conexión mágica",
         "clickToConnect": "Haz clic aquí para conectarte",
         "ignoreMessage": "Si no solicitaste este enlace, por favor ignora este email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "resetPassword": {
         "subject": "Restablece tu contraseña",
@@ -972,7 +972,7 @@
         "clickToReset": "Haz clic aquí para restablecer tu contraseña",
         "ignoreMessage": "Si no solicitaste este restablecimiento, por favor ignora este email.",
         "expirationWarning": "Este enlace expirará en 24 horas.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "organizationInvitation": {
         "subject": "Invitación para unirse a {teamName}",
@@ -984,7 +984,7 @@
         "clickToAccept": "Aceptar invitación",
         "expirationWarning": "Este enlace expirará en 24 horas.",
         "ignoreMessage": "Si no iniciaste esta solicitud, puedes ignorar este email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "welcome": {
         "subject": "Bienvenido a {appName}",
@@ -992,7 +992,7 @@
         "title": "¡Bienvenido!",
         "welcomeMessage": "Gracias por registrarte en {appName}. Tu cuenta ha sido creada exitosamente.",
         "getStarted": "Comenzar",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "emailChange": {
         "subject": "Confirmación de cambio de email",
@@ -1001,7 +1001,7 @@
         "clickToConfirm": "Haz clic aquí para confirmar tu nueva dirección de email",
         "expirationWarning": "Este enlace expirará en 24 horas.",
         "ignoreMessage": "Si no solicitaste este cambio, por favor ignora este email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "verification": {
         "subject": "Verifica tu dirección de email",
@@ -1011,7 +1011,7 @@
         "clickToVerify": "Verificar mi dirección de email",
         "expirationWarning": "Este enlace expirará en 24 horas.",
         "ignoreMessage": "Si no creaste una cuenta, puedes ignorar este email de forma segura.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "otp": {
         "subject": "Código de verificación de dos factores",
@@ -1022,7 +1022,7 @@
         "verifyAutomatically": "Verificar automáticamente",
         "orCopyCode": "O copia el código de arriba en la aplicación",
         "ignoreMessage": "Si no solicitaste este código, puedes ignorar este email de forma segura.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "subscriptionCompleted": {
         "subject": "¡Bienvenido! Tu suscripción {planName} está activa",
@@ -1037,7 +1037,7 @@
         "limits": "Límites: {limits}",
         "nextBilling": "Próxima facturación: {nextBilling}",
         "periodEnd": "Fin del período: {periodEnd}",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "subscriptionUpdated": {
         "subject": "Tu suscripción {planName} ha sido actualizada",
@@ -1052,7 +1052,7 @@
         "limits": "Límites: {limits}",
         "nextBilling": "Próxima facturación: {nextBilling}",
         "periodEnd": "Fin del período: {periodEnd}",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "subscriptionCanceled": {
         "subject": "Tu suscripción {planName} ha sido cancelada",
@@ -1068,7 +1068,7 @@
         "canceledAt": "Cancelada el: {canceledAt}",
         "periodEnd": "Acceso hasta: {periodEnd}",
         "reactivateInfo": "Puedes reactivar tu suscripción en cualquier momento desde tu panel de control.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "subscriptionDeleted": {
         "subject": "Tu suscripción {planName} ha sido eliminada",
@@ -1084,7 +1084,7 @@
         "deletedAt": "Eliminada el: {deletedAt}",
         "accessLost": "Tu acceso a las funciones premium ha sido revocado.",
         "resubscribeInfo": "Puedes suscribirte nuevamente en cualquier momento desde tu panel de control.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "notification": {
         "subject": "Notificación - {title}",
@@ -1093,7 +1093,7 @@
         "timestamp": "Enviado el {date}",
         "footer": {
           "greeting": "Saludos cordiales,",
-          "signature": "El equipo de SaaS Mike Codeur",
+          "signature": "El equipo de MyHomeFarmer",
           "unsubscribe": "Puedes modificar tus preferencias de notificación en la configuración de tu cuenta."
         }
       }
@@ -1105,14 +1105,14 @@
         "title": "Nuevo Usuario",
         "userInfo": "Un nuevo usuario se ha registrado:",
         "viewUser": "Ver Usuario",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "userDeleted": {
         "subject": "Usuario eliminado",
         "preview": "Un usuario ha sido eliminado de la plataforma.",
         "title": "Usuario Eliminado",
         "userInfo": "El siguiente usuario ha sido eliminado:",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "systemAlert": {
         "subject": "Alerta del sistema",
@@ -1120,7 +1120,7 @@
         "title": "Alerta del Sistema",
         "alertMessage": "Se ha activado una alerta del sistema:",
         "viewDetails": "Ver Detalles",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "organizationInvitation": {
         "subject": "Invitación a unirse a {teamName}",
@@ -1132,12 +1132,12 @@
         "clickToAccept": "Aceptar invitación",
         "expirationWarning": "Este enlace expirará en 24 horas.",
         "ignoreMessage": "Si no iniciaste esta solicitud, puedes ignorar este email.",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       },
       "internal": {
         "subject": "Email interno",
         "preview": "Email interno del sistema",
-        "footer": "SaaS Mike Codeur Stripe Boilerplate"
+        "footer": "MyHomeFarmer"
       }
     }
   },

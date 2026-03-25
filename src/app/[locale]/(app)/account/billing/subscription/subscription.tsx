@@ -2,7 +2,6 @@
 
 import {Subscription} from '@better-auth/stripe'
 import {Calendar, CheckCircle} from 'lucide-react'
-import Link from 'next/link'
 import React, {useEffect, useState} from 'react'
 import {toast} from 'sonner'
 
@@ -21,15 +20,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import {Label} from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {Switch} from '@/components/ui/switch'
-import {Tabs, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import {authClient} from '@/lib/better-auth/auth-client'
 import {AvailablePlan} from '@/lib/stripe/stripe-types'
 
@@ -53,13 +44,6 @@ export default function SubscriptionPage({
   const [activeSubscriptionIsYearly, setActiveSubscriptionIsYearly] =
     useState(false)
   const [realPriceId, setRealPriceId] = useState<string | null>(null)
-  const [selectedSeats, setSelectedSeats] = useState<{
-    [planId: string]: number
-  }>({
-    free: 1,
-    pro: 5,
-    enterprise: 10,
-  })
 
   const loadSubscriptions = async () => {
     try {
@@ -124,19 +108,6 @@ export default function SubscriptionPage({
     }
   }, [realPriceId])
 
-  // Initialiser les seats avec l'abonnement actuel
-  useEffect(() => {
-    const activeSubscription = subscriptions.find(
-      (sub) => sub.status === 'active' || sub.status === 'trialing'
-    )
-    if (activeSubscription) {
-      setSelectedSeats((prev) => ({
-        ...prev,
-        [activeSubscription.plan]: activeSubscription.seats || 1,
-      }))
-    }
-  }, [subscriptions])
-
   const handleUpgrade = async (planId: string, annual = false) => {
     try {
       setActionLoading(`upgrade-${planId}`)
@@ -145,7 +116,7 @@ export default function SubscriptionPage({
         (sub) => sub.status === 'active' || sub.status === 'trialing'
       )
 
-      const seats = selectedSeats[planId] || 1
+      const seats = 1
 
       // Déterminer le mode selon la présence d'une subscription active
       const isUpdateMode = activeSubscription?.id
@@ -277,14 +248,6 @@ export default function SubscriptionPage({
     return activeSubscription?.plan === planId
   }
 
-  const hasSeatsChanged = (planId: string) => {
-    if (!isCurrentPlan(planId)) return false
-    const activeSubscription = subscriptions.find(
-      (sub) => sub.status === 'active' || sub.status === 'trialing'
-    )
-    return selectedSeats[planId] !== activeSubscription?.seats
-  }
-
   const hasBillingChanged = (planId: string) => {
     if (!isCurrentPlan(planId)) return false
     // Détecter si le mode de facturation a changé
@@ -294,7 +257,7 @@ export default function SubscriptionPage({
   }
 
   const hasPlanChanged = (planId: string) => {
-    return hasSeatsChanged(planId) || hasBillingChanged(planId)
+    return hasBillingChanged(planId)
   }
 
   const getActionButton = (plan: (typeof availablePlans)[0]) => {
@@ -401,15 +364,10 @@ export default function SubscriptionPage({
     return new Date(dateString).toLocaleDateString('fr-FR')
   }
 
-  // Calcul des prix totaux avec le nombre de sièges
   const calculatePrice = (planId: string) => {
     const plan = availablePlans.find((p: AvailablePlan) => p.id === planId)
     if (!plan) return 0
-
-    const seats = selectedSeats[planId] || 1
-    const basePrice = isYearly ? plan.yearlyPrice : (plan.price ?? 0)
-
-    return basePrice * seats
+    return isYearly ? plan.yearlyPrice : (plan.price ?? 0)
   }
 
   const formatPrice = (price: number) => {
@@ -457,19 +415,6 @@ export default function SubscriptionPage({
 
   return (
     <div className="space-y-6">
-      {/* Tabs Navigation */}
-      <Tabs defaultValue="plans" className="w-fit">
-        <TabsList>
-          <TabsTrigger value="credits" asChild>
-            <Link href="/account/billing/credit">Credits</Link>
-          </TabsTrigger>
-          <TabsTrigger value="usage" asChild>
-            <Link href="/account/billing/usage">Usage</Link>
-          </TabsTrigger>
-          <TabsTrigger value="plans">Plans</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
       {/* Header */}
       <div className="flex flex-col space-y-2 text-center">
         <h1 className="text-3xl font-bold">Choisissez votre plan</h1>
@@ -486,11 +431,7 @@ export default function SubscriptionPage({
             {availablePlans.find(
               (p: AvailablePlan) => p.id === activeSubscription.plan
             )?.name || activeSubscription.plan}
-            &apos; ({activeSubscription.seats || 1} siège
-            {activeSubscription.seats && activeSubscription.seats > 1
-              ? 's'
-              : ''}
-            ) - {activeSubscriptionIsYearly ? 'Annuel' : 'Mensuel'} -{' '}
+            &apos; - {activeSubscriptionIsYearly ? 'Annuel' : 'Mensuel'} -{' '}
             {activeSubscription.cancelAtPeriodEnd
               ? 'se termine'
               : 'se renouvelle'}{' '}
@@ -595,14 +536,6 @@ export default function SubscriptionPage({
                       ✨ 2 mois gratuits
                     </div>
                   )}
-                  {plan.id !== 'free' && selectedSeats[plan.id] > 1 && (
-                    <div className="text-muted-foreground text-xs">
-                      {formatPrice(
-                        isYearly ? plan.yearlyPrice : (plan.price ?? 0)
-                      )}{' '}
-                      par utilisateur
-                    </div>
-                  )}
                 </div>
                 <CardDescription>{plan.description}</CardDescription>
 
@@ -631,50 +564,6 @@ export default function SubscriptionPage({
                     </div>
                   ))}
                 </div>
-
-                {/* Sélecteur de sièges - masqué pour le plan gratuit */}
-                {plan.id !== 'free' && (
-                  <div className="space-y-2 border-t pt-2">
-                    <Label className="text-sm font-medium">
-                      Nombre de sièges
-                    </Label>
-                    <div className="flex items-center space-x-2">
-                      <Select
-                        value={selectedSeats[plan.id]?.toString() || '1'}
-                        onValueChange={(value) =>
-                          setSelectedSeats((prev) => ({
-                            ...prev,
-                            [plan.id]: parseInt(value),
-                          }))
-                        }
-                      >
-                        <SelectTrigger className="w-20">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 50, 100].map(
-                            (seats) => (
-                              <SelectItem key={seats} value={seats.toString()}>
-                                {seats}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <span className="text-muted-foreground text-sm">
-                        utilisateur(s)
-                      </span>
-                      {hasSeatsChanged(plan.id) && (
-                        <Badge variant="outline" className="text-orange-600">
-                          Modifié
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-muted-foreground text-xs">
-                      Prix ajusté selon le nombre d&apos;utilisateurs
-                    </p>
-                  </div>
-                )}
               </CardContent>
 
               <CardFooter className="flex-col space-y-2">

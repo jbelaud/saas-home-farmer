@@ -101,7 +101,9 @@ async function AppLayout({children}: {children: React.ReactNode}) {
                   </div>
                 </div>
               </div>
-              <main className="flex-1 pb-24 md:pb-8">{children}</main>
+              <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-24 sm:px-6 md:pb-8 lg:px-8">
+                {children}
+              </main>
             </div>
           </SidebarInset>
         </SidebarProvider>
