@@ -180,7 +180,7 @@ async function Page({
       </header>
 
       {/* Desktop Header */}
-      <div className="hidden px-8 pt-6 md:block">
+      <div className="hidden pt-6 md:block">
         <h1 className="font-heading text-2xl font-bold text-stone-900">
           Bonjour, {firstName} 👋
         </h1>
@@ -189,7 +189,7 @@ async function Page({
         </p>
       </div>
 
-      <main className="space-y-6 px-4 py-6 md:px-8">
+      <main className="space-y-6 py-6">
         {/* KPI Cards */}
         <section className="grid grid-cols-3 gap-3 md:grid-cols-4">
           <Card className="border-none bg-white shadow-sm">
