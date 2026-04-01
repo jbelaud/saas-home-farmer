@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   Clock,
   Leaf,
-  Mail,
   MapPin,
   Phone,
   Plus,
@@ -224,7 +223,7 @@ export default async function ClientPortalDashboard({
                 {lastIntervention.proNotes && (
                   <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
                     <span className="mb-1 block text-xs font-bold tracking-wide uppercase opacity-70">
-                      Conseil de votre jardinier
+                      Conseil de votre Home Farmer
                     </span>
                     &ldquo;{lastIntervention.proNotes}&rdquo;
                   </div>
@@ -281,11 +280,11 @@ export default async function ClientPortalDashboard({
           </section>
         )}
 
-        {/* Carte contact du Farmer */}
+        {/* Carte contact du Home Farmer */}
         {farmerContact && (
           <section>
             <h2 className="font-heading mb-3 text-lg font-bold text-stone-800">
-              Votre jardinier
+              Votre Home Farmer
             </h2>
             <Card className="border-none bg-stone-50 shadow-sm">
               <CardContent className="p-4">
@@ -297,46 +296,19 @@ export default async function ClientPortalDashboard({
                     <p className="font-heading truncate text-lg font-bold text-stone-900">
                       {farmerContact.name}
                     </p>
-                    {farmerContact.companyName && (
-                      <p className="truncate text-sm text-stone-500">
-                        {farmerContact.companyName}
-                      </p>
-                    )}
                     {farmerContact.city && (
                       <p className="flex items-center gap-1 text-xs text-stone-400">
                         <MapPin className="h-3 w-3" />
                         {farmerContact.city}
                       </p>
                     )}
+                    {farmerContact.phone && (
+                      <p className="mt-1 flex items-center gap-1 text-sm font-medium text-stone-600">
+                        <Phone className="h-3.5 w-3.5" />
+                        {farmerContact.phone}
+                      </p>
+                    )}
                   </div>
-                </div>
-
-                {/* Boutons de contact */}
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  {farmerContact.phone && (
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="h-12 gap-2 border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
-                    >
-                      <a href={`tel:${farmerContact.phone}`}>
-                        <Phone className="h-4 w-4" />
-                        Appeler
-                      </a>
-                    </Button>
-                  )}
-                  {farmerContact.email && (
-                    <Button
-                      asChild
-                      variant="outline"
-                      className={`h-12 gap-2 border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50 ${!farmerContact.phone ? 'col-span-2' : ''}`}
-                    >
-                      <a href={`mailto:${farmerContact.email}`}>
-                        <Mail className="h-4 w-4" />
-                        Écrire
-                      </a>
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>

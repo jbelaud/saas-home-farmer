@@ -7,7 +7,9 @@ import {
   XCircle,
 } from 'lucide-react'
 import {setRequestLocale} from 'next-intl/server'
+import {Suspense} from 'react'
 
+import {DateFilter} from '@/components/features/client-portal/date-filter'
 import {Badge} from '@/components/ui/badge'
 import {Card, CardContent} from '@/components/ui/card'
 import {getClientInterventionsService} from '@/services/facades/client-portal-service-facade'
@@ -19,28 +21,24 @@ const STATUS_CONFIG = {
     label: 'Terminé',
     icon: CheckCircle2,
     badgeClass: 'bg-emerald-100 text-emerald-700',
-    dotClass: 'bg-emerald-500',
     borderClass: 'border-l-emerald-500',
   },
   in_progress: {
     label: 'En cours',
     icon: Clock,
     badgeClass: 'bg-blue-100 text-blue-700',
-    dotClass: 'bg-blue-500',
     borderClass: 'border-l-blue-500',
   },
   scheduled: {
     label: 'Planifié',
     icon: Clock,
     badgeClass: 'bg-amber-100 text-amber-700',
-    dotClass: 'bg-amber-500',
     borderClass: 'border-l-amber-500',
   },
   cancelled: {
     label: 'Annulé',
     icon: XCircle,
     badgeClass: 'bg-red-100 text-red-700',
-    dotClass: 'bg-red-400',
     borderClass: 'border-l-red-400',
   },
 } as const
@@ -55,19 +53,38 @@ const TYPE_LABELS: Record<string, string> = {
 
 export default async function ClientVisitsPage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>
+  searchParams: Promise<{year?: string; month?: string}>
 }) {
   const {locale, token} = await params
   setRequestLocale(locale)
+  const filters = await searchParams
 
-  const {data: interventions, pagination} = await getClientInterventionsService(
-    token,
-    {
-      limit: 50,
+  const {data: allInterventions, pagination} =
+    await getClientInterventionsService(token, {
+      limit: 200,
       offset: 0,
-    }
-  )
+    })
+
+  // Extraire les années disponibles
+  const availableYears = [
+    ...new Set(
+      allInterventions.map((i) => new Date(i.scheduledDate).getFullYear())
+    ),
+  ].sort((a, b) => b - a)
+
+  // Filtrer par année et mois
+  const filterYear = filters.year ? Number(filters.year) : null
+  const filterMonth = filters.month ? Number(filters.month) : null
+
+  const interventions = allInterventions.filter((i) => {
+    const d = new Date(i.scheduledDate)
+    if (filterYear && d.getFullYear() !== filterYear) return false
+    if (filterMonth && d.getMonth() + 1 !== filterMonth) return false
+    return true
+  })
 
   const formatDate = (date: Date) =>
     new Intl.DateTimeFormat('fr-FR', {
@@ -76,28 +93,25 @@ export default async function ClientVisitsPage({
       month: 'long',
     }).format(new Date(date))
 
-  const formatYear = (date: Date) =>
-    new Intl.DateTimeFormat('fr-FR', {year: 'numeric'}).format(new Date(date))
-
   // Grouper par année
   const interventionsByYear = interventions.reduce<
     Record<string, typeof interventions>
   >((acc, intervention) => {
-    const year = formatYear(intervention.scheduledDate)
+    const year = String(new Date(intervention.scheduledDate).getFullYear())
     if (!acc[year]) acc[year] = []
     acc[year].push(intervention)
     return acc
   }, {})
 
-  const completedCount = interventions.filter(
+  const completedCount = allInterventions.filter(
     (i) => i.status === 'completed'
   ).length
-  const scheduledCount = interventions.filter(
+  const scheduledCount = allInterventions.filter(
     (i) => i.status === 'scheduled'
   ).length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 py-6">
       {/* Header */}
       <div className="relative overflow-hidden rounded-2xl bg-emerald-800 p-5 text-white shadow-md">
         <div className="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 opacity-10">
@@ -129,15 +143,26 @@ export default async function ClientVisitsPage({
         </div>
       </div>
 
+      {/* Filtres */}
+      {availableYears.length > 0 && (
+        <Suspense>
+          <DateFilter availableYears={availableYears} />
+        </Suspense>
+      )}
+
       {interventions.length === 0 ? (
         <Card className="border-none shadow-sm">
           <CardContent className="py-16 text-center">
             <Leaf className="mx-auto mb-4 h-12 w-12 text-stone-300" />
             <p className="font-heading text-lg font-bold text-stone-500">
-              Aucune visite enregistrée
+              {filterYear || filterMonth
+                ? 'Aucune visite pour cette période'
+                : 'Aucune visite enregistrée'}
             </p>
             <p className="mt-1 text-sm text-stone-400">
-              Votre jardinier ajoutera ses visites ici.
+              {filterYear || filterMonth
+                ? 'Essayez un autre filtre.'
+                : 'Votre Home Farmer ajoutera ses visites ici.'}
             </p>
           </CardContent>
         </Card>
@@ -217,11 +242,11 @@ export default async function ClientVisitsPage({
                             </div>
                           )}
 
-                          {/* Notes du jardinier */}
+                          {/* Notes du Home Farmer */}
                           {intervention.proNotes && (
                             <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
                               <p className="text-xs font-bold tracking-wide text-amber-700/70 uppercase">
-                                Conseil de votre jardinier
+                                Conseil de votre Home Farmer
                               </p>
                               <p className="mt-1 text-sm leading-relaxed text-amber-800">
                                 &ldquo;{intervention.proNotes}&rdquo;
@@ -234,7 +259,7 @@ export default async function ClientVisitsPage({
                             intervention.status === 'scheduled' && (
                               <p className="text-sm text-stone-400 italic">
                                 Visite planifiée — les détails seront ajoutés
-                                après le passage de votre jardinier.
+                                après le passage de votre Home Farmer.
                               </p>
                             )}
                         </CardContent>

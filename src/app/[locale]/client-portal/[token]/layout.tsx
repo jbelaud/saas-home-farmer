@@ -28,7 +28,7 @@ export default async function ClientPortalLayout({
             Ce lien d&apos;accès n&apos;est plus valide ou a expiré.
           </p>
           <p className="mt-2 text-sm text-stone-400">
-            Contactez votre jardinier pour obtenir un nouveau lien.
+            Contactez votre Home Farmer pour obtenir un nouveau lien.
           </p>
         </div>
       </div>

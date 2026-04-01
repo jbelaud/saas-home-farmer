@@ -15,7 +15,7 @@ export default async function AddHarvestPage({
   setRequestLocale(locale)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 py-6">
       <div className="flex items-center gap-3">
         <Link
           href={`/${locale}/client-portal/${token}/harvests`}

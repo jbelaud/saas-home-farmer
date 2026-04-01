@@ -30,7 +30,6 @@ export const getClientByAccessTokenService = async (
 
 export type FarmerContactInfo = {
   name: string
-  email: string | null
   phone: string | null
   companyName: string | null
   city: string | null
@@ -45,14 +44,13 @@ export const getFarmerContactForPortalService = async (
     getOrganizationMembersDao(organizationId),
   ])
 
-  // Trouver le owner de l'organization
+  // Trouver le owner de l'organization (Prénom Nom)
   const owner = members.find((m) => m.role === 'owner')
 
   if (!org && !owner) return null
 
   return {
-    name: org?.name ?? owner?.user?.name ?? 'Votre jardinier',
-    email: owner?.user?.email ?? null,
+    name: owner?.user?.name ?? org?.name ?? 'Votre Home Farmer',
     phone: null, // Le phone n'est pas dans le modèle user, à enrichir plus tard
     companyName: farmerProfile?.companyName ?? null,
     city: farmerProfile?.addressCity ?? null,
