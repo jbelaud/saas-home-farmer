@@ -257,7 +257,7 @@ export function OnboardingWizard() {
                     Plan démarrage
                   </span>
                   <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-700">
-                    Graine — Gratuit
+                    Découverte — Gratuit
                   </span>
                 </div>
               </div>

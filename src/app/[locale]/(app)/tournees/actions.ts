@@ -19,7 +19,10 @@ import {
 const interventionSchema = z.object({
   gardenClientId: z.string().min(1, 'Le client est requis'),
   scheduledDate: z.string().min(1, 'La date est requise'),
-  durationMinutes: z.coerce.number().positive().optional().or(z.literal(0)),
+  durationMinutes: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
   type: z.enum([
     'maintenance',
     'plantation',
@@ -55,13 +58,21 @@ export async function createInterventionAction(
     const parsed = interventionSchema.safeParse(raw)
 
     if (!parsed.success) {
+      console.error(
+        'createInterventionAction validation errors:',
+        parsed.error.issues
+      )
+      const errors = parsed.error.issues.map((i) => ({
+        field: String(i.path[0]),
+        message: i.message,
+      }))
+      const fieldMessages = errors
+        .map((e) => `${e.field}: ${e.message}`)
+        .join(', ')
       return {
         success: false,
-        message: 'Données invalides',
-        errors: parsed.error.issues.map((i) => ({
-          field: String(i.path[0]),
-          message: i.message,
-        })),
+        message: `Données invalides — ${fieldMessages}`,
+        errors,
       }
     }
 

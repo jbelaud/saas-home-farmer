@@ -25,7 +25,7 @@ export async function PlanBanner({
   const clientLimit = limits?.clients ?? 1
 
   const isUnlimited = clientLimit === -1
-  const planName = plan?.planName ?? 'Graine'
+  const planName = plan?.planName ?? 'Découverte'
   const isGraine = planCode === 'graine'
   const isPousse = planCode === 'pousse'
 
@@ -94,9 +94,9 @@ export async function PlanBanner({
               {clientLimit > 1 ? 's' : ''}
               {isAtLimit &&
                 (isGraine
-                  ? " — Passez au plan Pousse pour ajouter jusqu'à 20 clients"
+                  ? " — Passez au plan Essentiel pour ajouter jusqu'à 20 clients"
                   : isPousse
-                    ? ' — Passez au plan Récolte pour des clients illimités'
+                    ? ' — Passez au plan Entreprise pour des clients illimités'
                     : '')}
             </p>
 

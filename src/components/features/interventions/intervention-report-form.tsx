@@ -22,7 +22,6 @@ import {
 } from '@/app/[locale]/(app)/tournees/actions'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent} from '@/components/ui/card'
-import {Checkbox} from '@/components/ui/checkbox'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Textarea} from '@/components/ui/textarea'
@@ -65,8 +64,10 @@ function formatTodayDate(): string {
 }
 
 function getDefaultNextVisitDate(frequencyDays: number): string {
+  const days =
+    Number.isFinite(frequencyDays) && frequencyDays > 0 ? frequencyDays : 21
   const d = new Date()
-  d.setDate(d.getDate() + frequencyDays)
+  d.setDate(d.getDate() + days)
   return d.toISOString().slice(0, 10)
 }
 
@@ -187,20 +188,30 @@ export function InterventionReportForm({
             <Card className="border-none shadow-sm">
               <CardContent className="space-y-1 p-2">
                 {tasks.map((task) => (
-                  <button
+                  <div
                     key={task.id}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => toggleTask(task.id)}
-                    className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        toggleTask(task.id)
+                      }
+                    }}
+                    className={`flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors ${
                       task.checked ? 'bg-emerald-50' : 'hover:bg-stone-50'
                     }`}
                   >
-                    <Checkbox
-                      id={task.id}
-                      checked={task.checked}
-                      onCheckedChange={() => toggleTask(task.id)}
-                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary pointer-events-none h-6 w-6 border-2"
-                    />
+                    <div
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
+                        task.checked
+                          ? 'border-primary bg-primary text-white'
+                          : 'border-stone-300 bg-white'
+                      }`}
+                    >
+                      {task.checked && <Check className="h-4 w-4" />}
+                    </div>
                     <span
                       className={`text-sm font-medium ${
                         task.checked ? 'text-stone-900' : 'text-stone-500'
@@ -211,7 +222,7 @@ export function InterventionReportForm({
                     {task.checked && (
                       <CheckCircle2 className="ml-auto h-4 w-4 text-emerald-500" />
                     )}
-                  </button>
+                  </div>
                 ))}
 
                 <div className="flex gap-2 px-3 pt-2">

@@ -2,12 +2,16 @@ import {
   Calendar,
   CalendarCheck,
   CheckCircle2,
-  CloudSun,
+  Clock,
   Leaf,
+  Mail,
+  MapPin,
+  Phone,
   Plus,
   Scale,
   Sprout,
   TrendingUp,
+  User,
 } from 'lucide-react'
 import Link from 'next/link'
 import {setRequestLocale} from 'next-intl/server'
@@ -18,6 +22,14 @@ import {getClientPortalDashboardService} from '@/services/facades/client-portal-
 
 type Params = {locale: string; token: string}
 
+const TYPE_LABELS: Record<string, string> = {
+  maintenance: 'Entretien',
+  plantation: 'Plantation',
+  setup: 'Installation',
+  harvest_support: 'Aide récolte',
+  consultation: 'Conseil',
+}
+
 export default async function ClientPortalDashboard({
   params,
 }: {
@@ -26,8 +38,13 @@ export default async function ClientPortalDashboard({
   const {locale, token} = await params
   setRequestLocale(locale)
 
-  const {client, harvestStats, lastIntervention, recentHarvests} =
-    await getClientPortalDashboardService(token)
+  const {
+    client,
+    harvestStats,
+    lastIntervention,
+    recentHarvests,
+    farmerContact,
+  } = await getClientPortalDashboardService(token)
 
   const formatDate = (date: Date) =>
     new Intl.DateTimeFormat('fr-FR', {
@@ -62,10 +79,6 @@ export default async function ClientPortalDashboard({
                 Votre potager se porte à merveille !
               </p>
             </div>
-            <div className="flex flex-col items-center rounded-xl bg-white/10 p-2 backdrop-blur-sm">
-              <CloudSun className="mb-1 h-6 w-6" />
-              <span className="text-xs font-bold">—</span>
-            </div>
           </div>
 
           {/* ROI Card (Hero) */}
@@ -81,7 +94,7 @@ export default async function ClientPortalDashboard({
                 {harvestStats.totalValueEur.toFixed(0)}€
               </span>
               <span className="mb-1.5 text-sm text-stone-500">
-                d&apos;économie estimée
+                de production valorisée
               </span>
             </div>
             <p className="text-xs leading-tight text-stone-400">
@@ -140,16 +153,19 @@ export default async function ClientPortalDashboard({
           </Card>
         )}
 
-        {/* Dernière Visite */}
+        {/* Dernière Visite — enrichie */}
         {lastIntervention && (
           <section>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-heading text-lg font-bold text-stone-800">
                 Dernier passage
               </h2>
-              <span className="text-xs text-stone-500">
-                {formatDate(lastIntervention.scheduledDate)}
-              </span>
+              <Link
+                href={`/${locale}/client-portal/${token}/visits`}
+                className="text-xs font-medium text-emerald-700 hover:underline"
+              >
+                Tout voir
+              </Link>
             </div>
             <Card className="overflow-hidden border-none shadow-sm">
               {/* Photo placeholder */}
@@ -164,10 +180,30 @@ export default async function ClientPortalDashboard({
                   Après intervention
                 </div>
               </div>
-              <CardContent className="p-4">
+              <CardContent className="space-y-4 p-4">
+                {/* Date + Type + Durée */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-stone-700">
+                    {formatDate(lastIntervention.scheduledDate)}
+                  </span>
+                  <span className="rounded-md bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600">
+                    {TYPE_LABELS[lastIntervention.type] ??
+                      lastIntervention.type}
+                  </span>
+                  {lastIntervention.durationMinutes && (
+                    <span className="flex items-center gap-1 text-xs text-stone-400">
+                      <Clock className="h-3 w-3" />
+                      {lastIntervention.durationMinutes} min
+                    </span>
+                  )}
+                </div>
+
                 {/* Checklist */}
                 {lastIntervention.checklistItems.length > 0 && (
-                  <div className="mb-4 space-y-2">
+                  <div className="space-y-2">
+                    <p className="text-xs font-bold tracking-wide text-stone-500 uppercase">
+                      Tâches réalisées
+                    </p>
                     {lastIntervention.checklistItems.map((item, i) => (
                       <div
                         key={i}
@@ -188,7 +224,7 @@ export default async function ClientPortalDashboard({
                 {lastIntervention.proNotes && (
                   <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
                     <span className="mb-1 block text-xs font-bold tracking-wide uppercase opacity-70">
-                      Conseil du pro
+                      Conseil de votre jardinier
                     </span>
                     &ldquo;{lastIntervention.proNotes}&rdquo;
                   </div>
@@ -207,7 +243,7 @@ export default async function ClientPortalDashboard({
               </h2>
               <Link
                 href={`/${locale}/client-portal/${token}/harvests`}
-                className="text-primary text-xs font-medium hover:underline"
+                className="text-xs font-medium text-emerald-700 hover:underline"
               >
                 Voir l&apos;historique
               </Link>
@@ -242,6 +278,68 @@ export default async function ClientPortalDashboard({
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Carte contact du Farmer */}
+        {farmerContact && (
+          <section>
+            <h2 className="font-heading mb-3 text-lg font-bold text-stone-800">
+              Votre jardinier
+            </h2>
+            <Card className="border-none bg-stone-50 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                    <User className="h-7 w-7 text-emerald-700" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-heading truncate text-lg font-bold text-stone-900">
+                      {farmerContact.name}
+                    </p>
+                    {farmerContact.companyName && (
+                      <p className="truncate text-sm text-stone-500">
+                        {farmerContact.companyName}
+                      </p>
+                    )}
+                    {farmerContact.city && (
+                      <p className="flex items-center gap-1 text-xs text-stone-400">
+                        <MapPin className="h-3 w-3" />
+                        {farmerContact.city}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Boutons de contact */}
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {farmerContact.phone && (
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="h-12 gap-2 border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
+                    >
+                      <a href={`tel:${farmerContact.phone}`}>
+                        <Phone className="h-4 w-4" />
+                        Appeler
+                      </a>
+                    </Button>
+                  )}
+                  {farmerContact.email && (
+                    <Button
+                      asChild
+                      variant="outline"
+                      className={`h-12 gap-2 border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50 ${!farmerContact.phone ? 'col-span-2' : ''}`}
+                    >
+                      <a href={`mailto:${farmerContact.email}`}>
+                        <Mail className="h-4 w-4" />
+                        Écrire
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </section>
         )}
       </main>

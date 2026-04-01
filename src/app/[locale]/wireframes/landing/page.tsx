@@ -5,7 +5,6 @@ import {
   Check,
   Leaf,
   Play,
-  ShieldCheck,
   Smartphone,
   Sprout,
   Star,
@@ -299,11 +298,11 @@ export default function LandingPageWireframe() {
             </div>
 
             <div className="grid gap-8 md:grid-cols-3 lg:gap-12">
-              {/* Plan Graine */}
+              {/* Plan Découverte */}
               <Card className="flex flex-col border-stone-200">
                 <CardHeader>
                   <CardTitle className="font-heading text-2xl">
-                    Graine
+                    Découverte
                   </CardTitle>
                   <CardDescription>Pour tester sans risque</CardDescription>
                 </CardHeader>
@@ -334,14 +333,14 @@ export default function LandingPageWireframe() {
                 </CardFooter>
               </Card>
 
-              {/* Plan Pousse */}
+              {/* Plan Essentiel */}
               <Card className="border-primary relative flex flex-col bg-stone-50 shadow-lg">
                 <div className="bg-primary absolute -top-4 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold text-white">
                   Populaire
                 </div>
                 <CardHeader>
                   <CardTitle className="font-heading text-primary text-2xl">
-                    Pousse
+                    Essentiel
                   </CardTitle>
                   <CardDescription>
                     Pour démarrer l&apos;activité
@@ -350,12 +349,12 @@ export default function LandingPageWireframe() {
                 <CardContent className="flex-1">
                   <div className="mb-2">
                     <span className="text-4xl font-bold text-stone-900">
-                      19 €
+                      9 €
                     </span>
                     <span className="text-stone-500">/mois</span>
                   </div>
                   <p className="mb-6 text-xs text-stone-500 line-through">
-                    au lieu de 49€
+                    90€/an (2 mois offerts)
                   </p>
 
                   <ul className="space-y-3 text-sm text-stone-600">
@@ -381,23 +380,23 @@ export default function LandingPageWireframe() {
                 </CardFooter>
               </Card>
 
-              {/* Plan Récolte */}
+              {/* Plan Entreprise */}
               <Card className="flex flex-col border-stone-200">
                 <CardHeader>
                   <CardTitle className="font-heading text-2xl">
-                    Récolte
+                    Entreprise
                   </CardTitle>
                   <CardDescription>Pour les pros établis</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1">
                   <div className="mb-2">
                     <span className="text-4xl font-bold text-stone-900">
-                      49 €
+                      29 €
                     </span>
                     <span className="text-stone-500">/mois</span>
                   </div>
                   <p className="mb-6 text-xs text-stone-500 line-through">
-                    au lieu de 99€
+                    290€/an (2 mois offerts)
                   </p>
 
                   <ul className="space-y-3 text-sm text-stone-600">

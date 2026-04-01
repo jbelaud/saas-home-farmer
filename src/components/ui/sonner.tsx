@@ -18,6 +18,12 @@ const SonnerToaster = ({...props}: ToasterProps) => {
           '--normal-border': 'var(--border)',
         } as React.CSSProperties
       }
+      toastOptions={{
+        classNames: {
+          success:
+            '!bg-emerald-600 !text-white !border-emerald-600 [&_[data-icon]]:!text-white',
+        },
+      }}
       {...props}
     />
   )

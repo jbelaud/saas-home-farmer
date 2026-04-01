@@ -1,4 +1,5 @@
 import {GardenClientModel, HarvestModel} from '@/db/models/farmer-model'
+import {getFarmerProfileByOrganizationIdDao} from '@/db/repositories/farmer-repository'
 import {getGardenClientByAccessTokenDao} from '@/db/repositories/garden-client-repository'
 import {
   createHarvestDao,
@@ -9,6 +10,10 @@ import {
   getInterventionsByGardenClientDao,
   getLastCompletedInterventionByClientDao,
 } from '@/db/repositories/intervention-repository'
+import {
+  getOrganizationByIdDao,
+  getOrganizationMembersDao,
+} from '@/db/repositories/organization-repository'
 import {PaginatedResponse, Pagination} from '@/services/types/common-type'
 
 // ============================================================
@@ -23,26 +28,60 @@ export const getClientByAccessTokenService = async (
   return client ?? null
 }
 
+export type FarmerContactInfo = {
+  name: string
+  email: string | null
+  phone: string | null
+  companyName: string | null
+  city: string | null
+}
+
+export const getFarmerContactForPortalService = async (
+  organizationId: string
+): Promise<FarmerContactInfo | null> => {
+  const [org, farmerProfile, members] = await Promise.all([
+    getOrganizationByIdDao(organizationId),
+    getFarmerProfileByOrganizationIdDao(organizationId),
+    getOrganizationMembersDao(organizationId),
+  ])
+
+  // Trouver le owner de l'organization
+  const owner = members.find((m) => m.role === 'owner')
+
+  if (!org && !owner) return null
+
+  return {
+    name: org?.name ?? owner?.user?.name ?? 'Votre jardinier',
+    email: owner?.user?.email ?? null,
+    phone: null, // Le phone n'est pas dans le modèle user, à enrichir plus tard
+    companyName: farmerProfile?.companyName ?? null,
+    city: farmerProfile?.addressCity ?? null,
+  }
+}
+
 export const getClientPortalDashboardService = async (accessToken: string) => {
   const client = await getGardenClientByAccessTokenDao(accessToken)
   if (!client) {
     throw new Error('Client introuvable ou inactif')
   }
 
-  const [harvestStats, lastIntervention, recentHarvests] = await Promise.all([
-    getHarvestStatsByClientDao(client.id, client.organizationId),
-    getLastCompletedInterventionByClientDao(client.id, client.organizationId),
-    getHarvestsByGardenClientDao(client.id, client.organizationId, {
-      limit: 5,
-      offset: 0,
-    }),
-  ])
+  const [harvestStats, lastIntervention, recentHarvests, farmerContact] =
+    await Promise.all([
+      getHarvestStatsByClientDao(client.id, client.organizationId),
+      getLastCompletedInterventionByClientDao(client.id, client.organizationId),
+      getHarvestsByGardenClientDao(client.id, client.organizationId, {
+        limit: 5,
+        offset: 0,
+      }),
+      getFarmerContactForPortalService(client.organizationId),
+    ])
 
   return {
     client,
     harvestStats,
     lastIntervention,
     recentHarvests: recentHarvests.data,
+    farmerContact,
   }
 }
 

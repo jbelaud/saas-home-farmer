@@ -37,8 +37,7 @@ Before generating ANY new code, you **MUST** complete these verification steps:
 
 3. **Follow the Rules Exactly**
    If a rule exists for your task, you **MUST** follow it exactly. The rules contain:
-   - Required patterns and code structure
-   - Security requirements (auth, validation)
+   - **Découverte** (ex-Graine) : 1 client, parfait pour tester - nom universellement compris (auth, validation)
    - File naming and organization conventions
    - Integration patterns with other layers
 
@@ -110,22 +109,24 @@ L'IA doit toujours garder en tête ces règles métiers lors de la génération 
 
 ### A. Tarification & Plans d'Abonnement
 
-| Offre               | Année 1 "Early Bird" | Année 2+ Standard | Capacité               |
-| ------------------- | -------------------- | ----------------- | ---------------------- |
-| **Graine**          | 0 €                  | 0 €               | 1 client (Test)        |
-| **Pousse**          | 9 € / mois           | 49 € / mois       | Jusqu'à 20 clients     |
-| **Récolte (FR)**    | 39 € / mois          | 99 € / mois       | Illimité + API Fiscale |
-| **Récolte (BE/CH)** | 29 € / mois          | 69 € / mois       | Illimité               |
+| Offre                        | Année 1 "Early Bird"      | Année 2+ Standard         | Capacité              |
+| ---------------------------- | ------------------------- | ------------------------- | --------------------- |
+| **Découverte**               | 0 €                       | 0 €                       | 1 client (Test)       |
+| **Essentiel**                | 9 € / mois ou 90 € / an   | 9 € / mois ou 90 € / an   | Jusqu'à 20 clients    |
+| **Entreprise FR (avec API)** | 29 € / mois ou 290 € / an | 29 € / mois ou 290 € / an | Illimité + API Urssaf |
+| **Entreprise FR (sans API)** | 19 € / mois ou 190 € / an | 19 € / mois ou 190 € / an | Illimité              |
+| **Entreprise BE/CH**         | 19 € / mois ou 190 € / an | 19 € / mois ou 190 € / an | Illimité              |
 
 **Règle de Pricing Early Bird :** Appliquer un tarif "Early Bird" pendant les 12 premiers mois suivant l'inscription du `Farmer`. Après 12 mois, le tarif standard s'applique automatiquement via Stripe (upgrade de price_id sur la subscription).
 
-**Stratégie :** L'offre "Graine" gratuite permet un accès sans risque (psychologiquement indolore après les 6000€ de formation). Le lock-in se crée naturellement une fois que le Farmer a ses clients, photos et historique fiscal dans l'app.
+**Stratégie :** L'offre "Découverte" gratuite permet un accès sans risque (psychologiquement indolore après les 6000€ de formation). Le lock-in se crée naturellement une fois que le Farmer a ses clients, photos et historique fiscal dans l'app.
 
 ### B. Segmentation Géographique & Fiscale
 
-- **France :** Activation du module "Service à la Personne". Calcul du crédit d'impôt de 50%. Plan "Récolte FR" à 39€/mois (an 1) puis 99€/mois (inclut API fiscale).
-- **Belgique/Suisse/Autre :** Pas de crédit d'impôt, pas d'API Fiscale. Plan "Récolte non-FR" à 29€/mois (an 1) puis 69€/mois.
-- La différence entre Récolte FR et Récolte non-FR est **uniquement le module API Fiscale** (Service à la Personne). Le prix reflète ce module supplémentaire.
+- **France avec API Urssaf :** Activation du module "Service à la Personne". Calcul du crédit d'impôt de 50%. Plan "Entreprise FR" à 29€/mois ou 290€/an (inclut API fiscale).
+- **France sans API Urssaf :** API indisponible temporairement. Prix réduit à 19€/mois ou 190€/an.
+- **Belgique/Suisse/Autre :** Pas de crédit d'impôt, pas d'API Fiscale. Plan "Entreprise BE/CH" à 19€/mois ou 190€/an.
+- La différence entre Entreprise FR et Entreprise non-FR est **uniquement le module API Fiscale** (Service à la Personne). Le prix reflète ce module supplémentaire.
 - La landing page affiche un **switch FR / non-FR** sur la section pricing pour montrer les deux tarifs.
 - **Autre :** Dans quelques années, Home Farmer voudra développer leur concept dans l'Europe entier et dans le monde.
 

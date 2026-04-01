@@ -1,6 +1,9 @@
 'use client'
 
-import {useActionState} from 'react'
+import {useRouter} from 'next/navigation'
+import {useLocale} from 'next-intl'
+import {useActionState, useEffect} from 'react'
+import {toast} from 'sonner'
 
 import {
   createInterventionAction,
@@ -38,6 +41,7 @@ type InterventionData = {
 type InterventionFormProps = {
   intervention?: InterventionData
   clients: ClientOption[]
+  defaultClientId?: string
   onSuccess?: () => void
 }
 
@@ -56,8 +60,11 @@ function formatDateForInput(date: Date): string {
 export function InterventionForm({
   intervention,
   clients,
+  defaultClientId,
   onSuccess,
 }: InterventionFormProps) {
+  const locale = useLocale()
+  const router = useRouter()
   const isEdit = !!intervention
 
   const action = isEdit
@@ -69,9 +76,17 @@ export function InterventionForm({
     FormData
   >(action, {success: false})
 
-  if (state.success && onSuccess) {
-    onSuccess()
-  }
+  useEffect(() => {
+    if (state.success) {
+      toast.success(
+        isEdit
+          ? 'Intervention mise à jour'
+          : 'Intervention planifiée avec succès'
+      )
+      if (onSuccess) onSuccess()
+      router.push(`/${locale}/tournees`)
+    }
+  }, [state.success, isEdit, onSuccess, router, locale])
 
   return (
     <form action={formAction} className="space-y-6">
@@ -88,7 +103,9 @@ export function InterventionForm({
             <Label htmlFor="gardenClientId">Client *</Label>
             <Select
               name="gardenClientId"
-              defaultValue={intervention?.gardenClientId ?? ''}
+              defaultValue={
+                intervention?.gardenClientId ?? defaultClientId ?? ''
+              }
             >
               <SelectTrigger className="h-12">
                 <SelectValue placeholder="Sélectionner un client" />
@@ -170,7 +187,7 @@ export function InterventionForm({
       <div className="flex justify-end gap-3">
         <Button
           type="submit"
-          className="h-12 min-w-[200px]"
+          className="h-12 min-w-[200px] bg-emerald-600 hover:bg-emerald-700"
           disabled={isPending}
         >
           {isPending

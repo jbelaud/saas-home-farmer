@@ -95,7 +95,7 @@
       "subtitle": "Offre Early Bird : Profitez de ces tarifs pendant 12 mois",
       "popular": "Populaire",
       "graine": {
-        "name": "Graine",
+        "name": "Découverte",
         "description": "Pour tester sans risque",
         "price": "0 €",
         "features": [
@@ -106,11 +106,11 @@
         "cta": "Créer un compte"
       },
       "pousse": {
-        "name": "Pousse",
+        "name": "Essentiel",
         "description": "Pour démarrer l'activité",
         "price": "9 €",
         "priceSuffix": "/mois",
-        "originalPrice": "au lieu de 49€",
+        "originalPrice": "90€/an (2 mois offerts)",
         "features": [
           "Jusqu'à 20 Clients",
           "Gestion de tournée",
@@ -120,19 +120,22 @@
         "cta": "Choisir ce plan"
       },
       "recolte": {
-        "name": "Récolte",
+        "name": "Entreprise",
         "description": "Pour les pros établis",
-        "priceFr": "39 €",
-        "priceIntl": "29 €",
+        "priceFr": "29 €",
+        "priceFrNoApi": "19 €",
+        "priceIntl": "19 €",
         "priceSuffix": "/mois",
-        "originalPriceFr": "au lieu de 99€",
-        "originalPriceIntl": "au lieu de 69€",
+        "originalPriceFr": "290€/an (2 mois offerts)",
+        "originalPriceFrNoApi": "190€/an (2 mois offerts)",
+        "originalPriceIntl": "190€/an (2 mois offerts)",
         "features": [
           "Clients Illimités",
           "Support Prioritaire",
           "Multi-utilisateurs"
         ],
-        "featureFr": "API Fiscale (Service à la personne)",
+        "featureFr": "API Fiscale Urssaf (Service à la personne)",
+        "featureFrNoApi": "API Fiscale indisponible - Prix réduit",
         "cta": "Contacter l'équipe"
       }
     },
@@ -148,7 +151,7 @@
       "q2": "Comment fonctionne le calcul de ROI ?",
       "a2": "Vos clients saisissent leurs récoltes, et l'app calcule automatiquement la valeur marchande bio équivalente.",
       "q3": "Puis-je changer d'offre ?",
-      "a3": "À tout moment. Vous pouvez passer de Graine à Pousse dès que vous signez vos premiers clients."
+      "a3": "À tout moment. Vous pouvez passer de Découverte à Essentiel dès que vous signez vos premiers clients."
     },
     "footer": {
       "copyright": "© 2024 MyHomeFarmer. Tous droits réservés.",

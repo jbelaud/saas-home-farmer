@@ -30,7 +30,12 @@ export default async function LoginPage({
   const {locale} = await params
   setRequestLocale(locale)
 
-  const user = await getAuthUser()
+  let user
+  try {
+    user = await getAuthUser()
+  } catch (error) {
+    console.error('[LOGIN PAGE] getAuthUser ERROR:', error)
+  }
   if (user) {
     redirect('/dashboard')
   }

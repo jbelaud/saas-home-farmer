@@ -1,9 +1,10 @@
-import {ArrowLeft, Trash2} from 'lucide-react'
+import {ArrowLeft, CalendarPlus} from 'lucide-react'
 import Link from 'next/link'
 import {notFound} from 'next/navigation'
 
 import withAuth from '@/components/features/auth/with-auth'
 import {ClientForm} from '@/components/features/clients/client-form'
+import {ShareClientPortalLink} from '@/components/features/clients/share-client-portal-link'
 import {Button} from '@/components/ui/button'
 import {getGardenClientByIdService} from '@/services/facades/garden-client-service-facade'
 
@@ -31,7 +32,21 @@ async function Page({params}: {params: Promise<{id: string}>}) {
             <p className="text-stone-500">Modifier la fiche client</p>
           </div>
         </div>
+        <Button
+          asChild
+          className="h-12 gap-2 bg-emerald-600 hover:bg-emerald-700"
+        >
+          <Link href={`/tournees/new?clientId=${client.id}`}>
+            <CalendarPlus className="h-5 w-5" />
+            <span className="hidden sm:inline">Planifier une tournée</span>
+          </Link>
+        </Button>
       </div>
+
+      <ShareClientPortalLink
+        accessToken={client.accessToken}
+        clientFirstName={client.firstName}
+      />
 
       <ClientForm client={client} />
     </div>

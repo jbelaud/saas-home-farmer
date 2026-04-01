@@ -29,7 +29,7 @@ export default async function Page() {
   const availablePlans = [
     {
       id: planGraine.code,
-      name: 'Graine',
+      name: 'Découverte',
       price: planGraine.price ? parseFloat(planGraine.price) : null,
       yearlyPrice: planGraine.yearlyPrice
         ? parseFloat(planGraine.yearlyPrice)
@@ -44,13 +44,13 @@ export default async function Page() {
     },
     {
       id: planPousse.code,
-      name: 'Pousse',
+      name: 'Essentiel',
       price: planPousse.price ? parseFloat(planPousse.price) : null,
       yearlyPrice: planPousse.yearlyPrice
         ? parseFloat(planPousse.yearlyPrice)
         : 0,
       priceDisplay: '9€/mois',
-      yearlyPriceDisplay: '49€/an',
+      yearlyPriceDisplay: '90€/an (2 mois offerts)',
       description: "Jusqu'à 20 clients",
       features: planPousse.features as string[],
       icon: <Zap className="h-5 w-5" />,
@@ -59,13 +59,13 @@ export default async function Page() {
     },
     {
       id: planRecolte.code,
-      name: 'Récolte',
+      name: 'Entreprise',
       price: planRecolte.price ? parseFloat(planRecolte.price) : null,
       yearlyPrice: planRecolte.yearlyPrice
         ? parseFloat(planRecolte.yearlyPrice)
         : 0,
       priceDisplay: '29€/mois',
-      yearlyPriceDisplay: '99€/an',
+      yearlyPriceDisplay: '290€/an (2 mois offerts)',
       description: 'Clients illimités + Module SAP',
       features: planRecolte.features as string[],
       icon: <Crown className="h-5 w-5" />,

@@ -12,6 +12,7 @@ import {
   updateGardenClientAction,
   uploadGardenPhotoAction,
 } from '@/app/[locale]/(app)/clients/actions'
+import {useSubscription} from '@/components/hooks/use-subscription'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {FileUpload} from '@/components/ui/file-upload'
@@ -27,6 +28,7 @@ import {
 import {Switch} from '@/components/ui/switch'
 import {Textarea} from '@/components/ui/textarea'
 import {GardenClientModel} from '@/db/models/farmer-model'
+import {PlanConst} from '@/services/types/domain/subscription-types'
 
 type ClientFormProps = {
   client?: GardenClientModel
@@ -35,6 +37,9 @@ type ClientFormProps = {
 
 export function ClientForm({client, onSuccess}: ClientFormProps) {
   const isEdit = !!client
+  const {plan} = useSubscription()
+  const isRecoltePlan =
+    plan === PlanConst.RECOLTE_FR || plan === PlanConst.RECOLTE_EU
 
   const action = isEdit
     ? updateGardenClientAction.bind(null, client.id)
@@ -353,18 +358,27 @@ export function ClientForm({client, onSuccess}: ClientFormProps) {
         <CardHeader>
           <CardTitle className="text-lg">Fiscalité</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <div className="flex items-center gap-3">
             <Switch
               id="hasTaxAdvantage"
               name="hasTaxAdvantage"
               defaultChecked={client?.hasTaxAdvantage ?? false}
               value="true"
+              disabled={!isRecoltePlan}
             />
-            <Label htmlFor="hasTaxAdvantage">
+            <Label
+              htmlFor="hasTaxAdvantage"
+              className={!isRecoltePlan ? 'text-stone-400' : ''}
+            >
               Crédit d&apos;impôt 50% (Service à la Personne - France)
             </Label>
           </div>
+          {!isRecoltePlan && (
+            <p className="text-xs text-stone-400">
+              Disponible uniquement avec le plan Récolte.
+            </p>
+          )}
         </CardContent>
       </Card>
 

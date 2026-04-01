@@ -95,18 +95,18 @@
       "subtitle": "Early Bird offer: enjoy these prices for 12 months",
       "popular": "Popular",
       "graine": {
-        "name": "Seed",
+        "name": "Discovery",
         "description": "To test without risk",
         "price": "0 €",
         "features": ["1 included client", "Mobile app", "Client dashboard"],
         "cta": "Create account"
       },
       "pousse": {
-        "name": "Sprout",
+        "name": "Essential",
         "description": "To start your business",
         "price": "9 €",
         "priceSuffix": "/month",
-        "originalPrice": "instead of 49€",
+        "originalPrice": "€90/year (2 months free)",
         "features": [
           "Up to 20 clients",
           "Tour management",
@@ -116,15 +116,18 @@
         "cta": "Choose this plan"
       },
       "recolte": {
-        "name": "Harvest",
+        "name": "Business",
         "description": "For established pros",
-        "priceFr": "39 €",
-        "priceIntl": "29 €",
+        "priceFr": "29 €",
+        "priceFrNoApi": "19 €",
+        "priceIntl": "19 €",
         "priceSuffix": "/month",
-        "originalPriceFr": "instead of 99€",
-        "originalPriceIntl": "instead of 69€",
+        "originalPriceFr": "€290/year (2 months free)",
+        "originalPriceFrNoApi": "€190/year (2 months free)",
+        "originalPriceIntl": "€190/year (2 months free)",
         "features": ["Unlimited clients", "Priority support", "Multi-users"],
-        "featureFr": "Tax API (Personal Services)",
+        "featureFr": "Tax API Urssaf (Personal Services)",
+        "featureFrNoApi": "Tax API unavailable - Reduced price",
         "cta": "Contact team"
       }
     },

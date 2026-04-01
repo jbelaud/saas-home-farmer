@@ -19,6 +19,7 @@ const STRIPE_PRICE_IDS = {
   GRAINE: 'free',
   POUSSE_MONTHLY: 'price_1TCo7jDNFQcoJN1NoK5Go7Xx',
   RECOLTE_FR_MONTHLY: 'price_1TCo8ADNFQcoJN1NDz177aLz',
+  RECOLTE_FR_NO_API_MONTHLY: 'price_mhf_recolte_fr_no_api_monthly',
   RECOLTE_EU_MONTHLY: 'price_mhf_recolte_eu_monthly',
 } as const
 
@@ -49,25 +50,30 @@ const seed = async () => {
       "limits", "free_trial", "features", "price", "yearly_price",
       "currency", "is_recurring", "status", "display_order", "created_at", "updated_at"
     ) VALUES
-      ('graine', '${STRIPE_PRICE_IDS.GRAINE}', NULL, 'Graine', 'Testez gratuitement avec 1 client',
+      ('graine', '${STRIPE_PRICE_IDS.GRAINE}', NULL, 'Découverte', 'Testez gratuitement avec 1 client',
        '{"clients": 1, "storage": 1}', NULL,
        '["1 client", "Rapport d''intervention", "Photos jardin", "Support communautaire"]',
        0, 0, 'EUR', true, 'active', 1, NOW(), NOW()),
 
-      ('pousse', '${STRIPE_PRICE_IDS.POUSSE_MONTHLY}', NULL, 'Pousse', 'Jusqu''à 20 clients',
+      ('pousse', '${STRIPE_PRICE_IDS.POUSSE_MONTHLY}', NULL, 'Essentiel', 'Jusqu''à 20 clients',
        '{"clients": 20, "storage": 5}', NULL,
        '["Jusqu''à 20 clients", "Rapports illimités", "Photos jardin", "Agenda & tournées", "Support prioritaire"]',
-       9, 49, 'EUR', true, 'active', 2, NOW(), NOW()),
+       9, 90, 'EUR', true, 'active', 2, NOW(), NOW()),
 
-      ('recolte_fr', '${STRIPE_PRICE_IDS.RECOLTE_FR_MONTHLY}', NULL, 'Récolte (France)', 'Clients illimités + API Fiscale SAP',
+      ('recolte_fr', '${STRIPE_PRICE_IDS.RECOLTE_FR_MONTHLY}', NULL, 'Entreprise (France)', 'Clients illimités + API Fiscale SAP',
        '{"clients": -1, "storage": 20}', NULL,
        '["Clients illimités", "Module SAP (crédit d''impôt 50%)", "Attestations fiscales PDF", "API Fiscale", "Support 24/7"]',
-       29, 99, 'EUR', true, 'active', 3, NOW(), NOW()),
+       29, 290, 'EUR', true, 'active', 3, NOW(), NOW()),
 
-      ('recolte_eu', '${STRIPE_PRICE_IDS.RECOLTE_EU_MONTHLY}', NULL, 'Récolte (BE/CH)', 'Clients illimités',
+      ('recolte_fr_no_api', '${STRIPE_PRICE_IDS.RECOLTE_FR_NO_API_MONTHLY}', NULL, 'Entreprise (France) - Sans API', 'Clients illimités - API Fiscale indisponible',
+       '{"clients": -1, "storage": 20}', NULL,
+       '["Clients illimités", "Rapports illimités", "Photos jardin", "Agenda & tournées", "Support 24/7", "API Fiscale indisponible - Prix réduit"]',
+       19, 190, 'EUR', true, 'active', 4, NOW(), NOW()),
+
+      ('recolte_eu', '${STRIPE_PRICE_IDS.RECOLTE_EU_MONTHLY}', NULL, 'Entreprise (BE/CH)', 'Clients illimités - Sans API Fiscale',
        '{"clients": -1, "storage": 20}', NULL,
        '["Clients illimités", "Rapports illimités", "Photos jardin", "Agenda & tournées", "Support 24/7"]',
-       29, 69, 'EUR', true, 'active', 4, NOW(), NOW())
+       19, 190, 'EUR', true, 'active', 5, NOW(), NOW())
     ON CONFLICT (code) DO NOTHING;
   `)
 
@@ -324,10 +330,19 @@ const seed = async () => {
   console.log(`✅ Seed MyHomeFarmer inséré en ${end - start}ms`)
   console.log('')
   console.log('🌱 Plans MHF :')
-  console.log('  Graine (gratuit, 1 client)')
-  console.log('  Pousse (9€/mois early bird → 49€/mois, ≤20 clients)')
-  console.log('  Récolte FR (39€/mois early bird → 99€/mois, illimité + SAP)')
-  console.log('  Récolte BE/CH (29€/mois early bird → 69€/mois, illimité)')
+  console.log('  Découverte (gratuit, 1 client)')
+  console.log(
+    '  Essentiel (9€/mois ou 90€/an avec 2 mois offerts, ≤20 clients)'
+  )
+  console.log(
+    '  Entreprise FR avec API (29€/mois ou 290€/an avec 2 mois offerts, illimité + SAP)'
+  )
+  console.log(
+    '  Entreprise FR sans API (19€/mois ou 190€/an avec 2 mois offerts, illimité)'
+  )
+  console.log(
+    '  Entreprise BE/CH (19€/mois ou 190€/an avec 2 mois offerts, illimité)'
+  )
   console.log('')
   console.log('👤 Comptes (mot de passe = "password") :')
   console.log('  superadmin@myhomefarmer.fr  (SuperAdmin)')
