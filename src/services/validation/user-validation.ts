@@ -55,6 +55,7 @@ export const createUserFromStripeServiceSchema = z.object({
 export const updateUserServiceSchema = createUserServiceSchema.extend({
   id: z.string(),
   image: z.string().nullable().optional(),
+  phone: z.string().max(20).nullable().optional(),
   visibility: z.enum(['public', 'private']) satisfies z.Schema<UserVisibility>,
   password: z.string().optional(),
   role: z

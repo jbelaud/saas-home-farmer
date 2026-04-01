@@ -51,6 +51,7 @@ export function EditUserProfileForm({user}: {user: User}) {
       name: user.name,
       email: user.email,
       image: user.image ?? '',
+      phone: user.phone ?? '',
       visibility: user.visibility,
     },
   })
@@ -172,6 +173,23 @@ export function EditUserProfileForm({user}: {user: User}) {
                   placeholder={t('email.placeholder')}
                   {...field}
                   disabled={true}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({field}) => (
+            <FormItem>
+              <FormLabel>{t('phone.label')}</FormLabel>
+              <FormControl>
+                <Input
+                  type="tel"
+                  placeholder={t('phone.placeholder')}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />

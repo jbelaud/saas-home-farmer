@@ -103,6 +103,13 @@ const options = {
     },
   },
   user: {
+    additionalFields: {
+      phone: {
+        type: 'string',
+        required: false,
+        input: true,
+      },
+    },
     changeEmail: {
       enabled: AuthAppConfig.changeEmail,
       sendChangeEmailConfirmation: async ({user, newEmail, url}) => {

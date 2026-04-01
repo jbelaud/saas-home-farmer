@@ -51,7 +51,7 @@ export const getFarmerContactForPortalService = async (
 
   return {
     name: owner?.user?.name ?? org?.name ?? 'Votre Home Farmer',
-    phone: null, // Le phone n'est pas dans le modèle user, à enrichir plus tard
+    phone: owner?.user?.phone ?? null,
     companyName: farmerProfile?.companyName ?? null,
     city: farmerProfile?.addressCity ?? null,
   }

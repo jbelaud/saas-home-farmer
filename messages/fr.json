@@ -316,6 +316,10 @@
         "label": "Email",
         "placeholder": "Votre email"
       },
+      "phone": {
+        "label": "Téléphone",
+        "placeholder": "06 12 34 56 78"
+      },
       "visibility": {
         "label": "Visibilité du profil",
         "placeholder": "Sélectionner la visibilité",

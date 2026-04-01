@@ -11,6 +11,7 @@ export const userFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   image: z.string().url('Invalid URL').optional().or(z.literal('')),
+  phone: z.string().max(20).optional().or(z.literal('')),
   visibility: z.enum(['public', 'private']),
 })
 
@@ -24,6 +25,7 @@ export function createUserFormSchema(t: (key: string) => string) {
       .url(t(`validation.image.invalid`))
       .optional()
       .or(z.literal('')),
+    phone: z.string().max(20).optional().or(z.literal('')),
     visibility: z.enum(['public', 'private']),
   })
 }

@@ -308,6 +308,10 @@
         "label": "Email",
         "placeholder": "Your email"
       },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "+33 6 12 34 56 78"
+      },
       "visibility": {
         "label": "Profile Visibility",
         "placeholder": "Select visibility",

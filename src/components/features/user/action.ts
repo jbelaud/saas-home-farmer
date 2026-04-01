@@ -105,6 +105,7 @@ export async function updateUserAction(
     name: formData.get('name') as string,
     email: formData.get('email') as string,
     image: formData.get('image') as string,
+    phone: (formData.get('phone') as string) || null,
     visibility: formData.get('visibility') as 'public' | 'private',
   }
   // STEP 1 : Valider les données avec le schéma Zod coté back avec traductions
