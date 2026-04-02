@@ -12,9 +12,9 @@ interface DocsPageProps {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Documentation ShipSaaS',
+    title: 'Documentation MyHomeFarmer',
     description:
-      'Découvrez toutes les règles et conventions de développement du projet Ship-SaaS.now',
+      'Découvrez toutes les règles et conventions de développement du projet MyHomeFarmer',
   }
 }
 

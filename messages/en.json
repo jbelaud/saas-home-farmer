@@ -146,7 +146,9 @@
       "button": "Create my free account"
     },
     "footer": {
-      "copyright": "© 2024 MyHomeFarmer. All rights reserved.",
+      "byMike": "MyHomeFarmer",
+      "allRightsReserved": "All rights reserved.",
+      "copyright": "© 2026 MyHomeFarmer. All rights reserved.",
       "product": {
         "title": "Product",
         "features": "Features",

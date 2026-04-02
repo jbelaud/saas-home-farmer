@@ -91,35 +91,37 @@ export async function generateMetadata({
 
   const title = frontmatter.title || docItem.title || 'Documentation'
   const description =
-    frontmatter.description || docItem.description || 'ShipSaaS Documentation'
+    frontmatter.description ||
+    docItem.description ||
+    'MyHomeFarmer Documentation'
 
-  const siteUrl = env.NEXT_PUBLIC_APP_URL || 'https://ship-saas.now'
-  const ogImage = `${siteUrl}/shipsaas/shipsaas.png`
+  const siteUrl = env.NEXT_PUBLIC_APP_URL || 'https://myhomefarmer.fr'
+  const ogImage = `${siteUrl}/og-image.png`
   const pageUrl = `${siteUrl}/${locale}/docs/${slug}`
 
   // Keywords from frontmatter or default SEO keywords
   const keywords =
     frontmatter.keywords ||
-    'ShipSaaS documentation, Next.js docs, SaaS boilerplate guide, React tutorial, TypeScript guide, Stripe integration, Auth documentation'
+    'MyHomeFarmer documentation, Next.js docs, SaaS boilerplate guide, React tutorial, TypeScript guide, Stripe integration, Auth documentation'
 
   return {
-    title: `${title} | ShipSaaS Documentation`,
+    title: `${title} | MyHomeFarmer Documentation`,
     description,
     keywords,
-    authors: [{name: 'ShipSaaS'}],
+    authors: [{name: 'MyHomeFarmer'}],
     openGraph: {
-      title: `${title} | ShipSaaS Documentation`,
+      title: `${title} | MyHomeFarmer Documentation`,
       description,
       type: 'article',
       url: pageUrl,
-      siteName: 'ShipSaaS',
+      siteName: 'MyHomeFarmer',
       locale,
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: `${title} - ShipSaaS Documentation`,
+          alt: `${title} - MyHomeFarmer Documentation`,
         },
       ],
       ...(frontmatter.publishedTime && {
@@ -134,10 +136,10 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${title} | ShipSaaS Docs`,
+      title: `${title} | MyHomeFarmer Docs`,
       description,
       images: [ogImage],
-      creator: '@shipsaas',
+      creator: '@myhomefarmer',
     },
     robots: {
       index: true,

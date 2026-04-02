@@ -95,7 +95,7 @@ My Home Farmer(pour le moment, je vais peut-être changer de nom plus tard) est 
 
 ## 3. Architecture Technique (Stack)
 
-Ce projet utilise le boilerplate **Ship-SaaS** :
+Ce projet utilise le boilerplate **MyHomeFarmer** :
 
 - **Framework :** Next.js (App Router).
 - **Style :** Tailwind CSS + ShadcnUI (Composants Mobile-First impératifs).

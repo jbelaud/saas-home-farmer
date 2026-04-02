@@ -154,7 +154,9 @@
       "a3": "À tout moment. Vous pouvez passer de Découverte à Essentiel dès que vous signez vos premiers clients."
     },
     "footer": {
-      "copyright": "© 2024 MyHomeFarmer. Tous droits réservés.",
+      "byMike": "MyHomeFarmer",
+      "allRightsReserved": "Tous droits réservés.",
+      "copyright": "© 2026 MyHomeFarmer. Tous droits réservés.",
       "product": {
         "title": "Produit",
         "features": "Fonctionnalités",

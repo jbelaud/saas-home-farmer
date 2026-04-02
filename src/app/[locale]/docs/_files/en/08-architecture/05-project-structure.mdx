@@ -1,7 +1,7 @@
 ---
 title: 'Project Structure'
 description: 'File organization, naming conventions, import rules, and monorepo structure for maintainable code'
-keywords: 'ShipSaaS, project structure, folder structure, file organization, monorepo structure, code organization'
+keywords: 'MyHomeFarmer, project structure, folder structure, file organization, monorepo structure, code organization'
 ---
 
 The boilerplate follows a carefully designed project structure that promotes maintainability, scalability, and developer productivity. The structure enforces clear boundaries between different concerns and provides consistent patterns across the entire codebase.
@@ -12,13 +12,13 @@ The boilerplate follows a carefully designed project structure that promotes mai
 
 ## Project Overview
 
-ShipSaaS is a **monolithic Next.js SaaS boilerplate** with a well-organized layered architecture. It emphasizes clear separation of concerns with dedicated layers for routing, components, services, and database access.
+MyHomeFarmer is a **monolithic Next.js SaaS boilerplate** with a well-organized layered architecture. It emphasizes clear separation of concerns with dedicated layers for routing, components, services, and database access.
 
 <Tabs defaultValue="root-structure">
   <Tab value="root-structure" label="🏗️ Root Structure">
     **Project Root Organization:**
     ```
-    shipsaas-ai-boilerplate/
+    MyHomeFarmer-ai-boilerplate/
     ├── src/                            # 📁 Application source code
     ├── public/                         # 📁 Static assets (images, fonts)
     ├── docs/                           # 📚 Documentation
@@ -260,7 +260,7 @@ Consistent naming patterns across the codebase improve readability and maintaina
 
 <Tabs defaultValue="file-naming">
   <Tab value="file-naming" label="📄 File Naming">
-    **File Naming Patterns (ShipSaaS Standard):**
+    **File Naming Patterns (MyHomeFarmer Standard):**
     ```
     ✅ GOOD FILE NAMES:
 
@@ -493,7 +493,7 @@ Consistent naming patterns across the codebase improve readability and maintaina
     export const UserProvider = ({ children }) => { }
     ```
 
-    **Component File Organization (ShipSaaS Structure):**
+    **Component File Organization (MyHomeFarmer Structure):**
     ```
     components/
     ├── ui/                               # Base reusable UI components
@@ -560,7 +560,7 @@ Consistent import patterns improve code readability and dependency tracking:
 
 <Tabs defaultValue="import-rules">
   <Tab value="import-rules" label="📥 Import Rules">
-    **Import Order and Grouping (ShipSaaS Standard):**
+    **Import Order and Grouping (MyHomeFarmer Standard):**
     ```typescript
     // ✅ GOOD: Organized import groups
     // 1. Node.js built-ins
@@ -724,7 +724,7 @@ Consistent import patterns improve code readability and dependency tracking:
   </Tab>
 
   <Tab value="export-patterns" label="📤 Export Patterns">
-    **Export Consistency (ShipSaaS Patterns):**
+    **Export Consistency (MyHomeFarmer Patterns):**
     ```typescript
     // ✅ GOOD: Named exports for utility functions
     // lib/helper/date-helper.ts
@@ -817,7 +817,7 @@ Consistent patterns for organizing code within files and directories:
 
 <Tabs defaultValue="file-structure">
   <Tab value="file-structure" label="📄 File Structure">
-    **Service File Organization (ShipSaaS Pattern):**
+    **Service File Organization (MyHomeFarmer Pattern):**
     ```typescript
     // src/services/user-service.ts
 
@@ -877,7 +877,7 @@ Consistent patterns for organizing code within files and directories:
     export type { User, CreateUserInput, UserUpdate } from '../types/domain'
     ```
 
-    **Component File Organization (ShipSaaS Pattern):**
+    **Component File Organization (MyHomeFarmer Pattern):**
     ```typescript
     // src/components/features/user/UserProfile.tsx
 
@@ -955,7 +955,7 @@ Consistent patterns for organizing code within files and directories:
   </Tab>
 
   <Tab value="directory-patterns" label="📁 Directory Patterns">
-    **Feature Component Organization (ShipSaaS):**
+    **Feature Component Organization (MyHomeFarmer):**
     ```
     components/features/
     ├── user/                              # User feature domain
@@ -990,7 +990,7 @@ Consistent patterns for organizing code within files and directories:
         └── hooks/
     ```
 
-    **Service Organization (ShipSaaS Monolith):**
+    **Service Organization (MyHomeFarmer Monolith):**
     ```
     services/
     ├── authentication/                    # Auth domain
@@ -1221,5 +1221,5 @@ Consistent patterns for organizing code within files and directories:
 </div>
 
 <Callout type="success">
-  **ShipSaaS structure mastered!** Your codebase follows clean, layered patterns that make development fast and maintainable. The monolithic structure with clear separation of concerns allows you to scale features efficiently while keeping the code organized and type-safe.
+  **MyHomeFarmer structure mastered!** Your codebase follows clean, layered patterns that make development fast and maintainable. The monolithic structure with clear separation of concerns allows you to scale features efficiently while keeping the code organized and type-safe.
 </Callout>

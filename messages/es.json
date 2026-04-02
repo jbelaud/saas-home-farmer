@@ -30,41 +30,133 @@
     }
   },
   "HomePage": {
-    "title": "Plataforma SaaS moderna para impulsar tu negocio",
-    "description": "Gestiona, analiza y desarrolla tu actividad con herramientas potentes y una interfaz intuitiva.",
+    "title": "My Home Farmer - Vive de tu pasión, todo el año",
+    "description": "La plataforma todo en uno para emprendedores jardineros: gestión, rentabilidad y satisfacción del cliente.",
     "metadata": {
-      "title": "Inicio - MyHomeFarmer",
-      "description": "Plataforma SaaS moderna para impulsar tu negocio"
+      "title": "My Home Farmer - El SaaS para Emprendedores Jardineros",
+      "description": "Digitaliza tu actividad de jardinero: gestión administrativa, seguimiento de obras y cálculo de ROI para tus clientes."
     },
     "navigation": {
       "features": "Características",
+      "serenity": "Serenidad",
       "pricing": "Precios",
-      "contact": "Contacto"
+      "contact": "Contacto",
+      "about": "Acerca de"
     },
     "hero": {
-      "title": "Plataforma SaaS moderna para impulsar tu negocio",
-      "description": "Gestiona, analiza y desarrolla tu actividad con herramientas potentes y una interfaz intuitiva.",
-      "cta": "Prueba gratis"
+      "badge": "La herramienta n°1 de los Emprendedores Jardineros",
+      "title": "Digitaliza tu actividad de Home Farmer",
+      "description": "Ahorra un 20% de tiempo administrativo, asegura tus ingresos anuales y ofrece un seguimiento premium a tus clientes. Todo desde tu smartphone.",
+      "cta": "Empezar ahora",
+      "ctaSecondary": "Ver la demo",
+      "socialProof": "Ya adoptado por más de 50 emprendedores de la red"
     },
     "features": {
-      "title": "Características",
-      "subtitle": "Descubre lo que hace única nuestra plataforma",
+      "title": "Más que una herramienta, tu compañero en el terreno",
+      "subtitle": "Diseñado para las manos en la tierra, optimizado para la rentabilidad.",
       "automation": {
-        "title": "Automatización",
-        "description": "Automatiza tus tareas repetitivas y ahorra tiempo diariamente."
+        "title": "Gestión Administrativa",
+        "description": "Se acabó el papeleo por la noche. Genera facturas e informes de intervención en 2 clics desde el jardín."
       },
       "analytics": {
-        "title": "Análisis Avanzado",
-        "description": "Obtén informes detallados para impulsar tu crecimiento."
+        "title": "Prueba de Valor (ROI)",
+        "description": "Muestra a tus clientes cuánto les aporta su huerto. Transforma tu coste en inversión."
       },
       "security": {
-        "title": "Seguridad Óptima",
-        "description": "Tus datos están protegidos con nuestra infraestructura segura."
+        "title": "Ingresos Seguros",
+        "description": "Distribuye tu actividad en 12 meses gracias al modelo de suscripción y a la planificación anual."
+      },
+      "intervention": {
+        "title": "Seguimiento de Obras",
+        "description": "Registro fotográfico y checklists adaptados al móvil. Lleva un control de cada visita."
       }
     },
+    "serenity": {
+      "badge": "Serenidad y Confianza",
+      "title": "Un vínculo de confianza único\ncon tus clientes.",
+      "description": "Tus clientes no solo compran verduras, compran tranquilidad. Ofréceles una transparencia total sin esfuerzo adicional.",
+      "features": [
+        "Informes de intervención automáticos",
+        "Espacio cliente dedicado (Web y Móvil)",
+        "Valorización de tu experiencia técnica"
+      ],
+      "mockCard": {
+        "title": "Espacio Cliente Dedicado",
+        "subtitle": "Vista Propietario",
+        "lastVisit": "Última visita",
+        "lastVisitValue": "Hoy, 14:30",
+        "actionsLabel": "Acciones realizadas",
+        "note": "¡El huerto va muy bien! He puesto acolchado en los tomates para conservar la humedad.",
+        "photoPlaceholder": "Foto del huerto"
+      }
+    },
+    "pricing": {
+      "title": "Precios adaptados a tu crecimiento",
+      "subtitle": "Oferta Early Bird: disfruta de estos precios durante 12 meses",
+      "popular": "Popular",
+      "graine": {
+        "name": "Descubrimiento",
+        "description": "Para probar sin riesgo",
+        "price": "0 €",
+        "features": [
+          "1 cliente incluido",
+          "Aplicación Móvil",
+          "Dashboard Cliente"
+        ],
+        "cta": "Crear una cuenta"
+      },
+      "pousse": {
+        "name": "Esencial",
+        "description": "Para iniciar la actividad",
+        "price": "9 €",
+        "priceSuffix": "/mes",
+        "originalPrice": "90€/año (2 meses gratis)",
+        "features": [
+          "Hasta 20 Clientes",
+          "Gestión de rutas",
+          "Fotos y Checklists",
+          "Soporte por Email"
+        ],
+        "cta": "Elegir este plan"
+      },
+      "recolte": {
+        "name": "Empresa",
+        "description": "Para profesionales establecidos",
+        "priceFr": "29 €",
+        "priceFrNoApi": "19 €",
+        "priceIntl": "19 €",
+        "priceSuffix": "/mes",
+        "originalPriceFr": "290€/año (2 meses gratis)",
+        "originalPriceFrNoApi": "190€/año (2 meses gratis)",
+        "originalPriceIntl": "190€/año (2 meses gratis)",
+        "features": [
+          "Clientes Ilimitados",
+          "Soporte Prioritario",
+          "Multiusuarios"
+        ],
+        "featureFr": "API Fiscal Urssaf (Servicio a la persona)",
+        "featureFrNoApi": "API Fiscal no disponible - Precio reducido",
+        "cta": "Contactar al equipo"
+      }
+    },
+    "cta": {
+      "title": "¿Listo para hacer crecer tu negocio?",
+      "description": "Únete a los emprendedores que están cambiando el modelo del paisajismo.",
+      "button": "Crear mi cuenta gratuita"
+    },
+    "faq": {
+      "title": "Preguntas Frecuentes",
+      "q1": "¿Es complicado de usar?",
+      "a1": "¡No! La aplicación está diseñada para usarse con una sola mano en el terreno. Botones grandes, interfaz clara.",
+      "q2": "¿Cómo funciona el cálculo del ROI?",
+      "a2": "Tus clientes registran sus cosechas, y la app calcula automáticamente el valor de mercado bio equivalente.",
+      "q3": "¿Puedo cambiar de plan?",
+      "a3": "En cualquier momento. Puedes pasar de Descubrimiento a Esencial en cuanto firmes tus primeros clientes."
+    },
     "footer": {
-      "byMike": "By MyHomeFarmer",
+      "byMike": "MyHomeFarmer",
       "allRightsReserved": "Todos los derechos reservados.",
+      "copyright": "© 2026 MyHomeFarmer. Todos los derechos reservados.",
       "product": {
         "title": "Producto",
         "features": "Características",

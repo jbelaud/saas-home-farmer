@@ -1,8 +1,8 @@
-# ShipSaaS a Next.js SaaS Boilerplate
+# MyHomeFarmer - SaaS pour Entrepreneurs Jardiniers
 
 Un boilerplate moderne pour les applications SaaS utilisant Next.js 16, React 19, et ShadCN UI.
 
-> **Documentation complète:** [https://ship-saas.now/fr/docs](https://ship-saas.now/fr/docs)
+> **Documentation complète:** [https://app.edgemy.fr/fr/docs](https://app.edgemy.fr/fr/docs)
 
 > **Feuille de route:** Pour consulter les fonctionnalités planifiées, voir [ROADMAP.md](ROADMAP.md)
 

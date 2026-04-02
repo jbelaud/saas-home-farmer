@@ -72,7 +72,7 @@ export function DocsSidebar({
                   <GalleryVerticalEnd className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">ShipSaaS</span>
+                  <span className="font-medium">MyHomeFarmer</span>
                   <span className="">Documentation</span>
                 </div>
               </Link>
