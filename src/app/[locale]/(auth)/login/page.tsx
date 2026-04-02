@@ -7,6 +7,8 @@ import {getTranslations, setRequestLocale} from 'next-intl/server'
 import {LoginForm} from '@/components/features/auth/forms/login'
 import {getAuthUser} from '@/services/authentication/auth-service'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata({
   params,
 }: {
@@ -33,8 +35,8 @@ export default async function LoginPage({
   let user
   try {
     user = await getAuthUser()
-  } catch (error) {
-    console.error('[LOGIN PAGE] getAuthUser ERROR:', error)
+  } catch {
+    // Session non disponible (utilisateur non connecté)
   }
   if (user) {
     redirect('/dashboard')
