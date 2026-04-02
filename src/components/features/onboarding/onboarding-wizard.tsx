@@ -47,6 +47,7 @@ export function OnboardingWizard() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [companyName, setCompanyName] = useState('')
+  const [phone, setPhone] = useState('')
   const [country, setCountry] = useState<string>('FR')
 
   const [state, formAction] = useActionState<OnboardingFormState, FormData>(
@@ -139,6 +140,22 @@ export function OnboardingWizard() {
                 />
                 <p className="text-xs text-stone-400">
                   Nom commercial ou nom + prénom si auto-entrepreneur
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Téléphone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="06 12 34 56 78"
+                  className="h-12 text-base"
+                  autoComplete="tel"
+                />
+                <p className="text-xs text-stone-400">
+                  Visible par vos clients sur leur espace
                 </p>
               </div>
             </div>
@@ -245,6 +262,13 @@ export function OnboardingWizard() {
                   value={companyName}
                   onEdit={() => setStep('infos')}
                 />
+                {phone.trim() && (
+                  <Row
+                    label="Téléphone"
+                    value={phone}
+                    onEdit={() => setStep('infos')}
+                  />
+                )}
                 <Row
                   label="Pays"
                   value={
@@ -273,6 +297,7 @@ export function OnboardingWizard() {
               <input type="hidden" name="firstName" value={firstName} />
               <input type="hidden" name="lastName" value={lastName} />
               <input type="hidden" name="companyName" value={companyName} />
+              <input type="hidden" name="phone" value={phone} />
               <input type="hidden" name="country" value={country} />
               <div className="flex gap-3">
                 <Button

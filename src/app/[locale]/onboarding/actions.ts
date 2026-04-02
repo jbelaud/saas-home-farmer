@@ -15,6 +15,7 @@ const onboardingSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   companyName: z.string().min(1),
+  phone: z.string().max(20).optional().or(z.literal('')),
   country: z.enum(['FR', 'BE', 'CH', 'OTHER']),
 })
 
@@ -38,6 +39,7 @@ export async function completeOnboardingAction(
       firstName: formData.get('firstName')?.toString() ?? '',
       lastName: formData.get('lastName')?.toString() ?? '',
       companyName: formData.get('companyName')?.toString() ?? '',
+      phone: formData.get('phone')?.toString() ?? '',
       country: formData.get('country')?.toString() ?? 'FR',
     }
 
@@ -53,12 +55,15 @@ export async function completeOnboardingAction(
       }
     }
 
-    const {firstName, lastName, companyName, country} = parsed.data
+    const {firstName, lastName, companyName, phone, country} = parsed.data
 
-    // Mettre à jour le nom de l'utilisateur
+    // Mettre à jour le nom et le téléphone de l'utilisateur
     await auth.api.updateUser({
       headers: await headers(),
-      body: {name: `${firstName} ${lastName}`},
+      body: {
+        name: `${firstName} ${lastName}`,
+        ...(phone ? {phone} : {}),
+      },
     })
 
     // Créer l'Organization (= le compte Farmer dans Better Auth)
