@@ -370,6 +370,7 @@ export const getUsersByOrganizationDao = async (
       banExpires: users.banExpires,
       visibility: users.visibility,
       twoFactorEnabled: users.twoFactorEnabled,
+      phone: users.phone,
       stripeCustomerId: users.stripeCustomerId,
     })
     .from(users)
