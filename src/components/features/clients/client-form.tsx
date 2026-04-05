@@ -353,6 +353,57 @@ export function ClientForm({client, onSuccess}: ClientFormProps) {
         </Card>
       )}
 
+      {/* Abonnement client */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Abonnement</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label htmlFor="monthlyAmount">Montant mensuel (€)</Label>
+            <Input
+              id="monthlyAmount"
+              name="monthlyAmount"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={client?.monthlyAmount ?? ''}
+              placeholder="150"
+              className="h-12"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="surfaceM2">Surface gérée (m²)</Label>
+            <Input
+              id="surfaceM2"
+              name="surfaceM2"
+              type="number"
+              step="1"
+              min="0"
+              defaultValue={client?.surfaceM2 ?? ''}
+              placeholder="50"
+              className="h-12"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="paymentType">Fréquence de paiement</Label>
+            <Select
+              name="paymentType"
+              defaultValue={client?.paymentType ?? 'monthly'}
+            >
+              <SelectTrigger className="h-12">
+                <SelectValue placeholder="Sélectionner" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="monthly">Mensuel</SelectItem>
+                <SelectItem value="quarterly">Trimestriel</SelectItem>
+                <SelectItem value="annual">Annuel</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Avantage fiscal */}
       <Card>
         <CardHeader>

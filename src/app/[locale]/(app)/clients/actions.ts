@@ -44,6 +44,12 @@ const gardenClientSchema = z.object({
   accessKeyLocation: z.string().optional().or(z.literal('')),
   accessNotes: z.string().optional().or(z.literal('')),
   hasTaxAdvantage: z.coerce.boolean().optional(),
+  monthlyAmount: z.coerce.number().positive().optional().or(z.literal(0)),
+  surfaceM2: z.coerce.number().int().positive().optional().or(z.literal(0)),
+  paymentType: z
+    .enum(['monthly', 'quarterly', 'annual'])
+    .optional()
+    .or(z.literal('')),
 })
 
 // ============================================================
@@ -107,6 +113,9 @@ export async function createGardenClientAction(
       accessKeyLocation: data.accessKeyLocation || null,
       accessNotes: data.accessNotes || null,
       hasTaxAdvantage: data.hasTaxAdvantage ?? false,
+      monthlyAmount: data.monthlyAmount || null,
+      surfaceM2: data.surfaceM2 || null,
+      paymentType: data.paymentType || null,
     })
 
     revalidatePath('/clients')
@@ -163,6 +172,9 @@ export async function updateGardenClientAction(
       accessKeyLocation: data.accessKeyLocation || null,
       accessNotes: data.accessNotes || null,
       hasTaxAdvantage: data.hasTaxAdvantage ?? false,
+      monthlyAmount: data.monthlyAmount || null,
+      surfaceM2: data.surfaceM2 || null,
+      paymentType: data.paymentType || null,
     })
 
     revalidatePath('/clients')

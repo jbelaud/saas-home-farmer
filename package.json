@@ -76,6 +76,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-email/components": "1.0.1",
     "@react-email/tailwind": "^2.0.1",
+    "@react-pdf/renderer": "^4.3.3",
     "@shikijs/rehype": "^3.19.0",
     "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.5.3",

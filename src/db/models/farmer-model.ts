@@ -39,6 +39,24 @@ export const soilTypeEnum = pgEnum('soil_type', [
   'silty',
 ])
 
+// Type de paiement client
+export const paymentTypeEnum = pgEnum('payment_type', [
+  'monthly',
+  'quarterly',
+  'annual',
+])
+
+// Catégorie de dépense
+export const expenseCategoryEnum = pgEnum('expense_category', [
+  'seeds',
+  'seedlings',
+  'tools',
+  'transport',
+  'platform_fees',
+  'marketing',
+  'other',
+])
+
 // ============================================================
 // TABLE: farmer_profile
 // Profil métier de l'entrepreneur jardinier (Farmer = Organization)
@@ -132,6 +150,10 @@ export const gardenClients = pgTable(
     visitFrequencyDays: integer('visit_frequency_days').default(21).notNull(),
     // Date de la prochaine visite prévue (calculée ou saisie manuellement)
     nextVisitDate: timestamp('next_visit_date', {mode: 'date'}),
+    // Abonnement client
+    monthlyAmount: doublePrecision('monthly_amount'),
+    surfaceM2: integer('surface_m2'),
+    paymentType: paymentTypeEnum('payment_type').default('monthly'),
     // Statut du client
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: timestamp('created_at', {mode: 'date'}).defaultNow().notNull(),
@@ -384,6 +406,46 @@ export const invoicesRelations = relations(invoices, ({one}) => ({
 }))
 
 // ============================================================
+// TABLE: expense
+// Dépenses du Farmer (semences, plants, outils, transport, etc.)
+// ============================================================
+export const expenses = pgTable(
+  'expense',
+  {
+    id: uuid('id')
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey(),
+    // Lien Farmer (tenant)
+    organizationId: uuid('organization_id')
+      .notNull()
+      .references(() => organization.id, {onDelete: 'cascade'}),
+    // Données de la dépense
+    date: timestamp('date', {mode: 'date'}).notNull(),
+    amount: doublePrecision('amount').notNull(),
+    label: text('label').notNull(),
+    category: expenseCategoryEnum('category').default('other').notNull(),
+    createdAt: timestamp('created_at', {mode: 'date'}).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', {mode: 'date'}).defaultNow().notNull(),
+  },
+  (table) => [
+    index('expense_organization_id_idx').on(table.organizationId),
+    index('expense_date_idx').on(table.date),
+    index('expense_category_idx').on(table.category),
+    index('expense_org_date_idx').on(table.organizationId, table.date),
+  ]
+)
+
+// ============================================================
+// RELATIONS : expense
+// ============================================================
+export const expensesRelations = relations(expenses, ({one}) => ({
+  organization: one(organization, {
+    fields: [expenses.organizationId],
+    references: [organization.id],
+  }),
+}))
+
+// ============================================================
 // TYPES TYPESCRIPT INFÉRÉS
 // ============================================================
 
@@ -407,11 +469,18 @@ export type InvoiceModel = typeof invoices.$inferSelect
 export type AddInvoiceModel = typeof invoices.$inferInsert
 export type UpdateInvoiceModel = typeof invoices.$inferInsert
 
+export type ExpenseModel = typeof expenses.$inferSelect
+export type AddExpenseModel = typeof expenses.$inferInsert
+export type UpdateExpenseModel = typeof expenses.$inferInsert
+
 // Enum types
 export type CountryEnumModel = (typeof countryEnum.enumValues)[number]
 export type GardenExposureEnumModel =
   (typeof gardenExposureEnum.enumValues)[number]
 export type SoilTypeEnumModel = (typeof soilTypeEnum.enumValues)[number]
+export type PaymentTypeEnumModel = (typeof paymentTypeEnum.enumValues)[number]
+export type ExpenseCategoryEnumModel =
+  (typeof expenseCategoryEnum.enumValues)[number]
 export type InterventionStatusEnumModel =
   (typeof interventionStatusEnum.enumValues)[number]
 export type InterventionTypeEnumModel =

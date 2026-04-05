@@ -43,6 +43,13 @@
       "when": 1775074607469,
       "tag": "0005_curvy_mephisto",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775379035164,
+      "tag": "0006_melted_sabretooth",
+      "breakpoints": true
     }
   ]
 }

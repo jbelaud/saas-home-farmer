@@ -6,6 +6,7 @@ import {
   Leaf,
   Settings2,
   Users,
+  Wallet,
 } from 'lucide-react'
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
@@ -44,6 +45,11 @@ const NAV_ITEMS = [
     title: 'Tournées',
     url: '/tournees',
     icon: CalendarDays,
+  },
+  {
+    title: 'Finances',
+    url: '/dashboard/finances',
+    icon: Wallet,
   },
 ]
 
@@ -91,7 +97,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         )}
         <SidebarMenu className="px-2 py-1">
           {NAV_ITEMS.map((item) => {
-            const active = pathname?.includes(item.url)
+            const active =
+              item.url === '/dashboard'
+                ? pathname?.endsWith('/dashboard')
+                : pathname?.includes(item.url)
             return (
               <SidebarMenuItem key={item.url}>
                 <SidebarMenuButton
