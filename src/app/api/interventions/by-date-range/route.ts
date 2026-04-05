@@ -1,8 +1,9 @@
 import {NextRequest, NextResponse} from 'next/server'
 
+import {withUserAuth} from '@/lib/api-auth'
 import {getInterventionsByDateRangeWithClientService} from '@/services/facades/intervention-service-facade'
 
-export async function GET(request: NextRequest) {
+export const GET = withUserAuth(async (request: NextRequest) => {
   try {
     const {searchParams} = new URL(request.url)
     const start = searchParams.get('start')
@@ -25,4 +26,4 @@ export async function GET(request: NextRequest) {
     console.error('Erreur GET /api/interventions/by-date-range:', error)
     return NextResponse.json({error: 'Erreur serveur'}, {status: 500})
   }
-}
+})

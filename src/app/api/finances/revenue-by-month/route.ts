@@ -1,8 +1,9 @@
 import {NextRequest, NextResponse} from 'next/server'
 
+import {withUserAuth} from '@/lib/api-auth'
 import {getRevenueByMonthService} from '@/services/facades/finance-service-facade'
 
-export async function GET(request: NextRequest) {
+export const GET = withUserAuth(async (request: NextRequest) => {
   try {
     const {searchParams} = new URL(request.url)
     const yearParam = searchParams.get('year')
@@ -21,4 +22,4 @@ export async function GET(request: NextRequest) {
     console.error('Erreur GET /api/finances/revenue-by-month:', error)
     return NextResponse.json({error: 'Erreur serveur'}, {status: 500})
   }
-}
+})

@@ -1,8 +1,9 @@
 import {NextRequest, NextResponse} from 'next/server'
 
+import {withUserAuth} from '@/lib/api-auth'
 import {getFinanceSummaryService} from '@/services/facades/finance-service-facade'
 
-export async function GET(request: NextRequest) {
+export const GET = withUserAuth(async (request: NextRequest) => {
   try {
     const {searchParams} = new URL(request.url)
     const fromParam = searchParams.get('from')
@@ -20,4 +21,4 @@ export async function GET(request: NextRequest) {
     console.error('Erreur GET /api/finances/summary:', error)
     return NextResponse.json({error: 'Erreur serveur'}, {status: 500})
   }
-}
+})

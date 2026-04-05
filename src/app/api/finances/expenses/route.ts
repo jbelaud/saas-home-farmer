@@ -1,6 +1,7 @@
 import {NextRequest, NextResponse} from 'next/server'
 import {z} from 'zod'
 
+import {withUserAuth} from '@/lib/api-auth'
 import {
   createExpenseService,
   getExpensesService,
@@ -21,7 +22,7 @@ const createExpenseSchema = z.object({
   ]),
 })
 
-export async function GET(request: NextRequest) {
+export const GET = withUserAuth(async (request: NextRequest) => {
   try {
     const {searchParams} = new URL(request.url)
     const fromParam = searchParams.get('from')
@@ -36,9 +37,9 @@ export async function GET(request: NextRequest) {
     console.error('Erreur GET /api/finances/expenses:', error)
     return NextResponse.json({error: 'Erreur serveur'}, {status: 500})
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+export const POST = withUserAuth(async (request: NextRequest) => {
   try {
     const body = await request.json()
     const parsed = createExpenseSchema.safeParse(body)
@@ -62,4 +63,4 @@ export async function POST(request: NextRequest) {
     console.error('Erreur POST /api/finances/expenses:', error)
     return NextResponse.json({error: 'Erreur serveur'}, {status: 500})
   }
-}
+})

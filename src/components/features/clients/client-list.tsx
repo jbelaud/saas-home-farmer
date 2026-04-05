@@ -72,7 +72,7 @@ function ColorPicker({
           variant="ghost"
           size="icon"
           className="h-7 w-7 shrink-0"
-          onClick={(e) => e.preventDefault()}
+          onClick={(e) => e.stopPropagation()}
           disabled={isPending}
         >
           <Palette className="h-3.5 w-3.5 text-stone-400" />
@@ -81,7 +81,7 @@ function ColorPicker({
       <PopoverContent
         className="w-auto p-3"
         align="end"
-        onClick={(e) => e.preventDefault()}
+        onClick={(e) => e.stopPropagation()}
       >
         <p className="mb-2 text-xs font-bold text-stone-500 uppercase">
           Couleur de la carte
@@ -217,11 +217,8 @@ export function ClientList({clients}: {clients: GardenClientModel[]}) {
                               SAP
                             </Badge>
                           )}
-                          <ColorPicker
-                            clientId={client.id}
-                            currentColor={color ?? null}
-                            onColorChange={handleColorChange}
-                          />
+                          {/* Spacer for the absolute-positioned ColorPicker */}
+                          <div className="h-7 w-7" />
                         </div>
                       </div>
 
@@ -256,6 +253,14 @@ export function ClientList({clients}: {clients: GardenClientModel[]}) {
                     </CardContent>
                   </Card>
                 </Link>
+                {/* ColorPicker outside the Link to avoid navigation conflicts */}
+                <div className="absolute top-4 right-4 z-10">
+                  <ColorPicker
+                    clientId={client.id}
+                    currentColor={color ?? null}
+                    onColorChange={handleColorChange}
+                  />
+                </div>
               </div>
             )
           })}
