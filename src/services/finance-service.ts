@@ -14,6 +14,8 @@ import {
   getAvailableYearsDao,
   getAvgSurfaceDao,
   getClientsWithFinancialDataDao,
+  getEstimatedRevenueByMonthDao,
+  getEstimatedRevenueYtdDao,
   getMrrDao,
   getRevenueByMonthDao,
   getRevenueYtdDao,
@@ -65,14 +67,25 @@ export const getFinanceSummaryService = async (
 ): Promise<FinanceSummary> => {
   const organizationId = await getActiveOrganizationId()
 
-  const [mrr, activeClientCount, avgSurfaceM2, revenueYtd, expensesYtd] =
-    await Promise.all([
-      getMrrDao(organizationId),
-      getActiveClientCountDao(organizationId),
-      getAvgSurfaceDao(organizationId),
-      getRevenueYtdDao(organizationId, from, to),
-      getExpensesTotalByOrganizationDao(organizationId, from, to),
-    ])
+  const [
+    mrr,
+    activeClientCount,
+    avgSurfaceM2,
+    invoiceRevenueYtd,
+    estimatedRevenueYtd,
+    expensesYtd,
+  ] = await Promise.all([
+    getMrrDao(organizationId),
+    getActiveClientCountDao(organizationId),
+    getAvgSurfaceDao(organizationId),
+    getRevenueYtdDao(organizationId, from, to),
+    getEstimatedRevenueYtdDao(organizationId, from, to),
+    getExpensesTotalByOrganizationDao(organizationId, from, to),
+  ])
+
+  // Use invoice revenue if available, otherwise use estimated from monthlyAmount
+  const revenueYtd =
+    invoiceRevenueYtd > 0 ? invoiceRevenueYtd : estimatedRevenueYtd
 
   const arr = mrr * 12
   const arpc = activeClientCount > 0 ? mrr / activeClientCount : 0
@@ -89,6 +102,23 @@ export const getFinanceSummaryService = async (
     arpc,
     avgSurfaceM2,
   }
+}
+
+// ============================================================
+// Individual KPIs (for main dashboard)
+// ============================================================
+
+export const getMrrService = async (): Promise<number> => {
+  const organizationId = await getActiveOrganizationId()
+  return getMrrDao(organizationId)
+}
+
+export const getEstimatedRevenueYtdService = async (
+  from: Date,
+  to: Date
+): Promise<number> => {
+  const organizationId = await getActiveOrganizationId()
+  return getEstimatedRevenueYtdDao(organizationId, from, to)
 }
 
 // ============================================================
@@ -115,20 +145,32 @@ export const getRevenueByMonthService = async (
 ): Promise<MonthlyFinanceData[]> => {
   const organizationId = await getActiveOrganizationId()
 
-  const [revenueByMonth, expensesByMonth] = await Promise.all([
-    getRevenueByMonthDao(organizationId, year),
-    getExpensesByMonthDao(organizationId, year),
-  ])
+  const [revenueByMonth, estimatedByMonth, expensesByMonth] = await Promise.all(
+    [
+      getRevenueByMonthDao(organizationId, year),
+      getEstimatedRevenueByMonthDao(organizationId, year),
+      getExpensesByMonthDao(organizationId, year),
+    ]
+  )
 
   const revenueMap = new Map(revenueByMonth.map((r) => [r.month, r.total]))
+  const estimatedMap = new Map(estimatedByMonth.map((r) => [r.month, r.total]))
   const expenseMap = new Map(expensesByMonth.map((e) => [e.month, e.total]))
 
-  return Array.from({length: 12}, (_, i) => ({
-    month: i + 1,
-    monthLabel: FRENCH_MONTHS[i],
-    revenue: revenueMap.get(i + 1) ?? 0,
-    expenses: expenseMap.get(i + 1) ?? 0,
-  }))
+  // Use invoice revenue if any month has data, otherwise fall back to estimated
+  const hasInvoiceData = revenueByMonth.length > 0
+
+  return Array.from({length: 12}, (_, i) => {
+    const month = i + 1
+    const invoiceRev = revenueMap.get(month) ?? 0
+    const estimatedRev = estimatedMap.get(month) ?? 0
+    return {
+      month,
+      monthLabel: FRENCH_MONTHS[i],
+      revenue: hasInvoiceData ? invoiceRev : estimatedRev,
+      expenses: expenseMap.get(month) ?? 0,
+    }
+  })
 }
 
 // ============================================================

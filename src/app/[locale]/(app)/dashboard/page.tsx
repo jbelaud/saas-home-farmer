@@ -4,8 +4,10 @@ import {
   ChevronRight,
   Clock,
   CloudSun,
+  Euro,
   MapPin,
   Users,
+  Wallet,
 } from 'lucide-react'
 import Link from 'next/link'
 import {redirect} from 'next/navigation'
@@ -20,6 +22,10 @@ import {
   getAuthUser,
 } from '@/services/authentication/auth-service'
 import {getFarmerProfileByOrganizationIdService} from '@/services/facades/farmer-service-facade'
+import {
+  getEstimatedRevenueYtdService,
+  getMrrService,
+} from '@/services/facades/finance-service-facade'
 import {
   getActiveClientsCountService,
   getClientsNeedingVisitService,
@@ -115,12 +121,19 @@ async function Page({
     scheduledInterventions,
     clientsNeedingVisit,
     clientsWithoutVisit,
+    mrr,
+    estimatedCa,
   ] = await Promise.all([
     getActiveClientsCountService(),
     getTodayInterventionsWithClientService(),
     getScheduledInterventionsService(),
     getClientsNeedingVisitService(7),
     getClientsWithoutNextVisitService(),
+    getMrrService(),
+    getEstimatedRevenueYtdService(
+      new Date(new Date().getFullYear(), 0, 1),
+      new Date()
+    ),
   ])
 
   const firstName = user?.name?.split(' ')[0] ?? 'Farmer'
@@ -191,7 +204,7 @@ async function Page({
 
       <main className="space-y-6 py-6">
         {/* KPI Cards */}
-        <section className="grid grid-cols-3 gap-3 md:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <Card className="border-none bg-white shadow-sm">
             <CardContent className="p-3">
               <div className="mb-1 flex items-center gap-1.5">
@@ -235,7 +248,56 @@ async function Page({
               </p>
             </CardContent>
           </Card>
+          <Link href="/dashboard/finances">
+            <Card className="border-none bg-white shadow-sm transition-shadow hover:shadow-md">
+              <CardContent className="p-3">
+                <div className="mb-1 flex items-center gap-1.5">
+                  <Euro className="h-3.5 w-3.5 text-emerald-600" />
+                  <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                    MRR
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-emerald-700">
+                  {new Intl.NumberFormat('fr-FR', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(mrr)}
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         </section>
+
+        {/* Chiffre d'affaires Card */}
+        {estimatedCa > 0 && (
+          <Link href="/dashboard/finances">
+            <Card className="border-none bg-emerald-50 shadow-sm transition-shadow hover:shadow-md">
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                    <Wallet className="h-5 w-5 text-emerald-700" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-emerald-600 uppercase">
+                      CA estimé {new Date().getFullYear()}
+                    </p>
+                    <p className="text-xl font-bold text-emerald-800">
+                      {new Intl.NumberFormat('fr-FR', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(estimatedCa)}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-emerald-400" />
+              </CardContent>
+            </Card>
+          </Link>
+        )}
 
         {/* Bannière Plan */}
         <PlanBanner

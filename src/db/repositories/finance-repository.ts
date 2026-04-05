@@ -108,6 +108,82 @@ export const getRevenueByMonthDao = async (
 }
 
 // ============================================================
+// Revenue estimation from client subscriptions (monthlyAmount)
+// ============================================================
+
+export const getEstimatedRevenueYtdDao = async (
+  organizationId: string,
+  from: Date,
+  to: Date
+): Promise<number> => {
+  // Calculate how many months the period covers
+  const monthsInPeriod =
+    (to.getFullYear() - from.getFullYear()) * 12 +
+    (to.getMonth() - from.getMonth()) +
+    1
+
+  const [result] = await db
+    .select({
+      totalMonthly: sql<number>`coalesce(sum(${gardenClients.monthlyAmount}), 0)`,
+    })
+    .from(gardenClients)
+    .where(
+      and(
+        eq(gardenClients.organizationId, organizationId),
+        eq(gardenClients.isActive, true)
+      )
+    )
+
+  const monthly = Number(result?.totalMonthly ?? 0)
+
+  // Cap at current month if "to" is in the future
+  const now = new Date()
+  const currentMonth = now.getMonth()
+  const fromMonth = from.getMonth()
+  const isCurrentYear = from.getFullYear() === now.getFullYear()
+  const elapsedMonths = isCurrentYear
+    ? Math.min(currentMonth - fromMonth + 1, monthsInPeriod)
+    : monthsInPeriod
+
+  return monthly * Math.max(elapsedMonths, 0)
+}
+
+export const getEstimatedRevenueByMonthDao = async (
+  organizationId: string,
+  year: number
+): Promise<{month: number; total: number}[]> => {
+  // Get total monthlyAmount of active clients
+  const [result] = await db
+    .select({
+      totalMonthly: sql<number>`coalesce(sum(${gardenClients.monthlyAmount}), 0)`,
+    })
+    .from(gardenClients)
+    .where(
+      and(
+        eq(gardenClients.organizationId, organizationId),
+        eq(gardenClients.isActive, true)
+      )
+    )
+
+  const monthly = Number(result?.totalMonthly ?? 0)
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth() + 1 // 1-indexed
+
+  // For past/current year: show revenue up to current month
+  // For future year: show 0
+  return Array.from({length: 12}, (_, i) => {
+    const month = i + 1
+    const hasRevenue =
+      year < currentYear || (year === currentYear && month <= currentMonth)
+    return {
+      month,
+      total: hasRevenue ? monthly : 0,
+    }
+  })
+}
+
+// ============================================================
 // Client financial data
 // ============================================================
 
@@ -144,11 +220,30 @@ export const getClientsWithFinancialDataDao = async (
     .where(eq(gardenClients.organizationId, organizationId))
     .orderBy(gardenClients.lastName)
 
-  return clients.map((c) => ({
-    ...c,
-    totalPaid: Number(c.totalPaid),
-    lastVisitDate: c.lastVisitDate ? new Date(c.lastVisitDate) : null,
-  }))
+  // Calculate elapsed months for estimation
+  const now = new Date()
+  const fromMonth = from.getMonth()
+  const toMonth = to.getMonth()
+  const monthsInPeriod =
+    (to.getFullYear() - from.getFullYear()) * 12 + (toMonth - fromMonth) + 1
+  const isCurrentYear = from.getFullYear() === now.getFullYear()
+  const elapsedMonths = isCurrentYear
+    ? Math.min(now.getMonth() - fromMonth + 1, monthsInPeriod)
+    : monthsInPeriod
+
+  return clients.map((c) => {
+    const invoicePaid = Number(c.totalPaid)
+    // If no invoices, estimate from monthlyAmount * elapsed months
+    const estimatedPaid =
+      c.monthlyAmount && c.isActive
+        ? c.monthlyAmount * Math.max(elapsedMonths, 0)
+        : 0
+    return {
+      ...c,
+      totalPaid: invoicePaid > 0 ? invoicePaid : estimatedPaid,
+      lastVisitDate: c.lastVisitDate ? new Date(c.lastVisitDate) : null,
+    }
+  })
 }
 
 // ============================================================
