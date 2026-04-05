@@ -154,6 +154,8 @@ export const gardenClients = pgTable(
     monthlyAmount: doublePrecision('monthly_amount'),
     surfaceM2: integer('surface_m2'),
     paymentType: paymentTypeEnum('payment_type').default('monthly'),
+    // Couleur personnalisée de la carte client (hex, ex: #10b981)
+    cardColor: text('card_color'),
     // Statut du client
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: timestamp('created_at', {mode: 'date'}).defaultNow().notNull(),

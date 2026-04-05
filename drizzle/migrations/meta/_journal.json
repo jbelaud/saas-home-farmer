@@ -50,6 +50,13 @@
       "when": 1775379035164,
       "tag": "0006_melted_sabretooth",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775397923439,
+      "tag": "0007_faithful_avengers",
+      "breakpoints": true
     }
   ]
 }

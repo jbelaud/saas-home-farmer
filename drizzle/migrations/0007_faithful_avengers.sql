@@ -1,0 +1,1 @@
+ALTER TABLE "garden_client" ADD COLUMN "card_color" text;

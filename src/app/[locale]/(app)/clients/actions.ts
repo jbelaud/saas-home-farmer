@@ -50,6 +50,7 @@ const gardenClientSchema = z.object({
     .enum(['monthly', 'quarterly', 'annual'])
     .optional()
     .or(z.literal('')),
+  cardColor: z.string().optional().or(z.literal('')),
 })
 
 // ============================================================
@@ -116,6 +117,7 @@ export async function createGardenClientAction(
       monthlyAmount: data.monthlyAmount || null,
       surfaceM2: data.surfaceM2 || null,
       paymentType: data.paymentType || null,
+      cardColor: data.cardColor || null,
     })
 
     revalidatePath('/clients')
@@ -175,6 +177,7 @@ export async function updateGardenClientAction(
       monthlyAmount: data.monthlyAmount || null,
       surfaceM2: data.surfaceM2 || null,
       paymentType: data.paymentType || null,
+      cardColor: data.cardColor || null,
     })
 
     revalidatePath('/clients')
@@ -199,6 +202,29 @@ export async function deleteGardenClientAction(
     return {success: true, message: 'Client supprimé'}
   } catch (error) {
     console.error('deleteGardenClientAction error:', error)
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : 'Une erreur est survenue',
+    }
+  }
+}
+
+// ============================================================
+// Mise à jour couleur carte client
+// ============================================================
+
+export async function updateClientCardColorAction(
+  clientId: string,
+  cardColor: string | null
+): Promise<ClientFormState> {
+  try {
+    await requireActionAuth()
+    await updateGardenClientService(clientId, {cardColor})
+    revalidatePath('/clients')
+    return {success: true, message: 'Couleur mise à jour'}
+  } catch (error) {
+    console.error('updateClientCardColorAction error:', error)
     return {
       success: false,
       message:

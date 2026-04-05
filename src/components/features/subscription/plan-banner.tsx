@@ -126,7 +126,7 @@ export async function PlanBanner({
                 : 'bg-amber-500 hover:bg-amber-600'
             } text-white`}
           >
-            <Link href={`/${locale}/billing`}>
+            <Link href={`/${locale}/account/billing/subscription`}>
               Upgrader
               <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
