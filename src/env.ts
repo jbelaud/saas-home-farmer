@@ -34,7 +34,7 @@ export const PagesConst = {
 
 export const AuthMethodsSchema = AuthMethodSchema.array()
   .min(1)
-  .default(['credential', 'magiclink'])
+  .default(['credential'])
 
 // Réexporter les schémas pour compatibilité
 export {clientSchema, serverSchema}
