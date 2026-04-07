@@ -132,6 +132,19 @@ const options = {
       clientSecret: env.GOOGLE_CLIENT_SECRET as string,
     },
   },
+  // TODO: supprimer ce log après debug OAuth
+  ...(() => {
+    const id = env.GOOGLE_CLIENT_ID ?? 'UNDEFINED'
+    const secret = env.GOOGLE_CLIENT_SECRET ?? 'UNDEFINED'
+    console.log(
+      `[OAuth Debug] GOOGLE_CLIENT_ID: ${id.substring(0, 8)}...${id.substring(id.length - 4)} (len=${id.length})`
+    )
+    console.log(
+      `[OAuth Debug] GOOGLE_CLIENT_SECRET: ${secret.substring(0, 6)}...${secret.substring(secret.length - 3)} (len=${secret.length})`
+    )
+    console.log(`[OAuth Debug] BETTER_AUTH_URL: ${env.BETTER_AUTH_URL}`)
+    return {}
+  })(),
   plugins: [
     bearer(),
     apiKey(),
