@@ -2,16 +2,20 @@
 
 import {useRouter, useSearchParams} from 'next/navigation'
 import {useCallback, useMemo, useState} from 'react'
+import {toast} from 'sonner'
 
 import {
   useClientsFinancial,
+  useDeleteExpense,
   useExpenses,
   useExpensesByCategory,
   useFinanceSummary,
   useRevenueByMonth,
 } from '@/components/hooks/client/use-finance-queries'
+import type {ExpenseModel} from '@/db/models/farmer-model'
 
 import {ClientRevenueTable} from './client-revenue-table'
+import {ExpenseHistoryTable} from './expense-history-table'
 import {ExpenseSheet} from './expense-sheet'
 import {FinanceCharts} from './finance-charts'
 import {FinanceFilters, type FinanceFilterState} from './finance-filters'
@@ -117,6 +121,27 @@ export function FinancesDashboardClient({
 
   // Expense sheet state
   const [expenseSheetOpen, setExpenseSheetOpen] = useState(false)
+  const [editingExpense, setEditingExpense] = useState<ExpenseModel | null>(
+    null
+  )
+  const deleteMutation = useDeleteExpense()
+
+  const handleEditExpense = useCallback((expense: ExpenseModel) => {
+    setEditingExpense(expense)
+    setExpenseSheetOpen(true)
+  }, [])
+
+  const handleDeleteExpense = useCallback(
+    async (id: string) => {
+      try {
+        await deleteMutation.mutateAsync(id)
+        toast.success('Dépense supprimée')
+      } catch {
+        toast.error('Erreur lors de la suppression')
+      }
+    },
+    [deleteMutation]
+  )
 
   return (
     <div className="space-y-6">
@@ -171,12 +196,24 @@ export function FinancesDashboardClient({
         />
       )}
 
+      {/* Expense History Table */}
+      <ExpenseHistoryTable
+        expenses={expensesQuery.data ?? []}
+        isLoading={expensesQuery.isLoading}
+        onEdit={handleEditExpense}
+        onDelete={handleDeleteExpense}
+      />
+
       {/* Expense Sheet */}
       <ExpenseSheet
         open={expenseSheetOpen}
-        onOpenChange={setExpenseSheetOpen}
+        onOpenChange={(open) => {
+          setExpenseSheetOpen(open)
+          if (!open) setEditingExpense(null)
+        }}
         expenses={expensesQuery.data ?? []}
         isLoading={expensesQuery.isLoading}
+        initialExpense={editingExpense}
       />
     </div>
   )

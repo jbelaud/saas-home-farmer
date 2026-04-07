@@ -201,6 +201,7 @@ export const getClientsWithFinancialDataDao = async (
       monthlyAmount: gardenClients.monthlyAmount,
       paymentType: gardenClients.paymentType,
       isActive: gardenClients.isActive,
+      createdAt: gardenClients.createdAt,
       totalPaid: sql<number>`coalesce((
         select sum(${invoices.amountTtc}::numeric)
         from ${invoices}

@@ -35,6 +35,7 @@ type Props = {
   onOpenChange: (open: boolean) => void
   expenses: ExpenseModel[]
   isLoading: boolean
+  initialExpense?: ExpenseModel | null
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -89,9 +90,40 @@ const emptyForm: FormState = {
   category: 'other',
 }
 
-export function ExpenseSheet({open, onOpenChange, expenses, isLoading}: Props) {
-  const [form, setForm] = useState<FormState>(emptyForm)
-  const [editingId, setEditingId] = useState<string | null>(null)
+export function ExpenseSheet({
+  open,
+  onOpenChange,
+  expenses,
+  isLoading,
+  initialExpense,
+}: Props) {
+  const initialForm = useMemo<FormState>(() => {
+    if (!initialExpense) return emptyForm
+    const d =
+      typeof initialExpense.date === 'string'
+        ? initialExpense.date
+        : initialExpense.date.toISOString()
+    return {
+      date: d.split('T')[0],
+      label: initialExpense.label,
+      amount: String(initialExpense.amount),
+      category: initialExpense.category,
+    }
+  }, [initialExpense])
+
+  const [form, setForm] = useState<FormState>(initialForm)
+  const [editingId, setEditingId] = useState<string | null>(
+    initialExpense?.id ?? null
+  )
+
+  // Reset form when initialExpense changes (key change from parent)
+  const currentExpenseId = initialExpense?.id ?? null
+  const [trackedId, setTrackedId] = useState<string | null>(currentExpenseId)
+  if (currentExpenseId !== trackedId) {
+    setTrackedId(currentExpenseId)
+    setForm(initialForm)
+    setEditingId(currentExpenseId)
+  }
 
   const createMutation = useCreateExpense()
   const updateMutation = useUpdateExpense()

@@ -53,6 +53,7 @@ export type ClientFinancialRow = {
   monthlyAmount: number | null
   paymentType: string | null
   isActive: boolean
+  createdAt: Date
   totalPaid: number
   lastVisitDate: Date | null
 }

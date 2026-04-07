@@ -26,6 +26,7 @@ type SortKey =
   | 'surfaceM2'
   | 'monthlyAmount'
   | 'totalPaid'
+  | 'createdAt'
   | 'lastVisitDate'
 type SortDir = 'asc' | 'desc'
 
@@ -115,6 +116,12 @@ export function ClientRevenueTable({clients, onAddExpense}: Props) {
         case 'totalPaid':
           cmp = a.totalPaid - b.totalPaid
           break
+        case 'createdAt': {
+          const ca = a.createdAt ? new Date(a.createdAt).getTime() : 0
+          const cb = b.createdAt ? new Date(b.createdAt).getTime() : 0
+          cmp = ca - cb
+          break
+        }
         case 'lastVisitDate': {
           const da = a.lastVisitDate ? new Date(a.lastVisitDate).getTime() : 0
           const db = b.lastVisitDate ? new Date(b.lastVisitDate).getTime() : 0
@@ -175,6 +182,13 @@ export function ClientRevenueTable({clients, onAddExpense}: Props) {
                 <TableHead className="hidden md:table-cell">Statut</TableHead>
                 <TableHead className="hidden lg:table-cell">
                   <SortButton
+                    label="Client depuis"
+                    field="createdAt"
+                    onSort={handleSort}
+                  />
+                </TableHead>
+                <TableHead className="hidden lg:table-cell">
+                  <SortButton
                     label="Dernière visite"
                     field="lastVisitDate"
                     onSort={handleSort}
@@ -225,6 +239,9 @@ export function ClientRevenueTable({clients, onAddExpense}: Props) {
                     >
                       {client.isActive ? 'Actif' : 'Inactif'}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {formatDate(client.createdAt)}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
                     {formatDate(client.lastVisitDate)}
