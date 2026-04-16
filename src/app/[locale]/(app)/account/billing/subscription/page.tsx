@@ -13,6 +13,7 @@ import {
   getYearlySavings,
 } from '@/lib/helpers/pricing-helper'
 import {isPageEnabled} from '@/lib/utils'
+import {getActiveOrganizationId} from '@/services/authentication/auth-service'
 import {getFarmerProfileByOrganizationIdService} from '@/services/facades/farmer-service-facade'
 
 import SubscriptionPage from './subscription'
@@ -22,13 +23,18 @@ export default async function Page() {
     return notFound()
   }
 
+  // Récupérer l'organisation active
+  const organizationId = await getActiveOrganizationId()
+
   const [planGraine, planPousse, planRecolte, farmerProfile] =
     await Promise.all([
       getGrainePlan(),
       getPoussePlan(),
       getRecolteFrPlan(),
       // Récupérer le profil du farmer pour connaître son pays
-      getFarmerProfileByOrganizationIdService('current'),
+      organizationId
+        ? getFarmerProfileByOrganizationIdService(organizationId)
+        : Promise.resolve(undefined),
     ])
 
   // Récupérer les tarifs selon le pays
