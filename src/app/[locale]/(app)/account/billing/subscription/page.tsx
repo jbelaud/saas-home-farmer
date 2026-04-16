@@ -7,7 +7,13 @@ import {
   getRecolteFrPlan,
 } from '@/app/dal/subscription-dal'
 import {PagesConst} from '@/env'
+import {
+  formatPrice,
+  getPricingByCountry,
+  getYearlySavings,
+} from '@/lib/helpers/pricing-helper'
 import {isPageEnabled} from '@/lib/utils'
+import {getFarmerProfileByOrganizationIdService} from '@/services/facades/farmer-service-facade'
 
 import SubscriptionPage from './subscription'
 
@@ -16,11 +22,17 @@ export default async function Page() {
     return notFound()
   }
 
-  const [planGraine, planPousse, planRecolte] = await Promise.all([
-    getGrainePlan(),
-    getPoussePlan(),
-    getRecolteFrPlan(),
-  ])
+  const [planGraine, planPousse, planRecolte, farmerProfile] =
+    await Promise.all([
+      getGrainePlan(),
+      getPoussePlan(),
+      getRecolteFrPlan(),
+      // Récupérer le profil du farmer pour connaître son pays
+      getFarmerProfileByOrganizationIdService('current'),
+    ])
+
+  // Récupérer les tarifs selon le pays
+  const pricing = getPricingByCountry(farmerProfile?.country || 'FR')
 
   if (!planGraine || !planPousse || !planRecolte) {
     throw new Error('Impossible de charger les plans')
@@ -34,8 +46,8 @@ export default async function Page() {
       yearlyPrice: planGraine.yearlyPrice
         ? parseFloat(planGraine.yearlyPrice)
         : 0,
-      priceDisplay: '0€/mois',
-      yearlyPriceDisplay: '0€/an',
+      priceDisplay: formatPrice(pricing.discovery.monthly),
+      yearlyPriceDisplay: formatPrice(pricing.discovery.yearly, true),
       description: 'Testez gratuitement avec 1 client',
       features: planGraine.features as string[],
       icon: <Sprout className="h-5 w-5" />,
@@ -49,8 +61,8 @@ export default async function Page() {
       yearlyPrice: planPousse.yearlyPrice
         ? parseFloat(planPousse.yearlyPrice)
         : 0,
-      priceDisplay: '9€/mois',
-      yearlyPriceDisplay: '90€/an (2 mois offerts)',
+      priceDisplay: formatPrice(pricing.essential.monthly),
+      yearlyPriceDisplay: `${formatPrice(pricing.essential.yearly, true)} (${getYearlySavings(pricing.essential.monthly)})`,
       description: "Jusqu'à 20 clients",
       features: planPousse.features as string[],
       icon: <Zap className="h-5 w-5" />,
@@ -64,9 +76,12 @@ export default async function Page() {
       yearlyPrice: planRecolte.yearlyPrice
         ? parseFloat(planRecolte.yearlyPrice)
         : 0,
-      priceDisplay: '29€/mois',
-      yearlyPriceDisplay: '290€/an (2 mois offerts)',
-      description: 'Clients illimités + Module SAP',
+      priceDisplay: formatPrice(pricing.enterprise.monthly),
+      yearlyPriceDisplay: `${formatPrice(pricing.enterprise.yearly, true)} (${getYearlySavings(pricing.enterprise.monthly)})`,
+      description:
+        farmerProfile?.country === 'FR'
+          ? 'Clients illimités + Module SAP'
+          : 'Clients illimités',
       features: planRecolte.features as string[],
       icon: <Crown className="h-5 w-5" />,
       color: 'bg-amber-500',
